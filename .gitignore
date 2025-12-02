@@ -5,6 +5,7 @@ backend/.env
 
 # Production environment files (contain secrets)
 .env.prod
+DEPLOIEMENT_COMPLET.md
 
 # Frontend
 frontend/.dart_tool/
