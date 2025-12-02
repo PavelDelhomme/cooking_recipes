@@ -5,7 +5,7 @@ import 'dart:html' as html show window if (dart.library.html);
 
 class ApiConfig {
   // Port du backend
-  static const int backendPort = 7373;
+  static const int backendPort = 7272;
   
   // Détecter automatiquement l'URL de l'API
   static String get baseUrl {

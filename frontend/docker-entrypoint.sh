@@ -57,7 +57,7 @@ flutter build web --release
 
 # Lancer le serveur HTTP simple
 echo "🔥 Serveur de développement démarré..."
-echo "📱 Application disponible sur http://localhost:8080 (interne) ou http://localhost:4041 (externe)"
+echo "📱 Application disponible sur http://localhost:8080 (interne) ou http://localhost:7070 (externe)"
 echo "✨ Hot reload activé - Modifiez vos fichiers dans lib/ et rechargez la page"
 echo ""
 

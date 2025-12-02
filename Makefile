@@ -14,8 +14,8 @@ ifeq ($(_FLUTTER_PATH),)
 endif
 FLUTTER = $(_FLUTTER_PATH)
 DOCKER_COMPOSE = docker-compose
-BACKEND_PORT = 7373
-FRONTEND_PORT = 4041
+BACKEND_PORT = 7272
+FRONTEND_PORT = 7070
 
 # Couleurs
 GREEN = \033[0;32m
@@ -81,8 +81,8 @@ backend-install: ## Installe les dépendances du backend
 	@cd backend && npm install
 
 backend-dev: ## Lance le backend en mode développement (local)
-	@echo -e "$(GREEN)Démarrage du backend sur le port 7373...$(NC)"
-	@cd backend && PORT=7373 HOST=0.0.0.0 npm run dev
+	@echo -e "$(GREEN)Démarrage du backend sur le port $(BACKEND_PORT)...$(NC)"
+	@cd backend && PORT=$(BACKEND_PORT) HOST=0.0.0.0 npm run dev
 
 backend-logs: ## Affiche les logs du backend
 	@$(DOCKER_COMPOSE) logs -f backend
@@ -124,8 +124,8 @@ configure-mobile-api: _get-ip ## Configure l'URL de l'API avec l'IP de la machin
 	@echo -e "$(GREEN)Configuration de l'URL API pour mobile...$(NC)"
 	@MACHINE_IP=$$(cat /tmp/machine_ip.txt 2>/dev/null || echo "localhost"); \
 	if [ -f "frontend/lib/services/auth_service.dart" ]; then \
-		sed -i "s|static const String _baseUrl = 'http://[^']*';|static const String _baseUrl = 'http://$$MACHINE_IP:7373/api';|g" frontend/lib/services/auth_service.dart; \
-		echo -e "$(GREEN)✓ URL API configurée: http://$$MACHINE_IP:7373/api$(NC)"; \
+		sed -i "s|static const String _baseUrl = 'http://[^']*';|static const String _baseUrl = 'http://$$MACHINE_IP:$(BACKEND_PORT)/api';|g" frontend/lib/services/auth_service.dart; \
+		echo -e "$(GREEN)✓ URL API configurée: http://$$MACHINE_IP:$(BACKEND_PORT)/api$(NC)"; \
 	else \
 		echo -e "$(YELLOW)⚠ Fichier auth_service.dart non trouvé$(NC)"; \
 	fi
@@ -134,8 +134,8 @@ configure-mobile-api: _get-ip ## Configure l'URL de l'API avec l'IP de la machin
 restore-api-url: ## Restaure l'URL de l'API à localhost
 	@echo -e "$(GREEN)Restauration de l'URL API...$(NC)"
 	@if [ -f "frontend/lib/services/auth_service.dart" ]; then \
-		sed -i "s|static const String _baseUrl = 'http://[^']*';|static const String _baseUrl = 'http://localhost:7373/api';|g" frontend/lib/services/auth_service.dart; \
-		echo -e "$(GREEN)✓ URL API restaurée: http://localhost:7373/api$(NC)"; \
+		sed -i "s|static const String _baseUrl = 'http://[^']*';|static const String _baseUrl = 'http://localhost:$(BACKEND_PORT)/api';|g" frontend/lib/services/auth_service.dart; \
+		echo -e "$(GREEN)✓ URL API restaurée: http://localhost:$(BACKEND_PORT)/api$(NC)"; \
 	fi
 
 # Build mobile

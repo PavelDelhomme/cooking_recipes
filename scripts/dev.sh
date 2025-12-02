@@ -225,9 +225,9 @@ echo ""
 echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
 echo -e "${GREEN}Lancement en mode développement...${NC}"
 echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
-echo -e "${YELLOW}Backend API: http://$MACHINE_IP:7373/api${NC}"
-echo -e "${YELLOW}Frontend Web (PC): http://localhost:4041${NC}"
-echo -e "${YELLOW}Frontend Web (Mobile): http://$MACHINE_IP:4041${NC}"
+echo -e "${YELLOW}Backend API: http://$MACHINE_IP:7272/api${NC}"
+echo -e "${YELLOW}Frontend Web (PC): http://localhost:7070${NC}"
+echo -e "${YELLOW}Frontend Web (Mobile): http://$MACHINE_IP:7070${NC}"
 echo ""
 
 # Détecter les appareils Android connectés via ADB (USB et WiFi)
@@ -519,7 +519,7 @@ if [ "$DEVICE_CHOICE" = "1" ] || [ "$DEVICE_CHOICE" = "3" ]; then
     # Sauvegarder la version originale
     cp "$PROJECT_ROOT/frontend/lib/services/auth_service.dart" "$PROJECT_ROOT/frontend/lib/services/auth_service.dart.bak" 2>/dev/null || true
     # Modifier l'URL pour mobile (mais on utilise déjà ApiConfig qui détecte automatiquement)
-    echo -e "${GREEN}✓ URL API configurée pour mobile: http://$MACHINE_IP:7373/api${NC}"
+    echo -e "${GREEN}✓ URL API configurée pour mobile: http://$MACHINE_IP:7272/api${NC}"
   fi
 fi
 
@@ -562,9 +562,9 @@ if [ ! -d "$PROJECT_ROOT/backend/node_modules" ]; then
 fi
 
 # Démarrer le backend
-echo -e "${GREEN}Démarrage du backend sur le port 7373...${NC}"
+echo -e "${GREEN}Démarrage du backend sur le port 7272...${NC}"
 cd "$PROJECT_ROOT/backend" || exit 1
-PORT=7373 HOST=0.0.0.0 npm run dev > /tmp/backend.log 2>&1 &
+PORT=7272 HOST=0.0.0.0 npm run dev > /tmp/backend.log 2>&1 &
 BACKEND_PID=$!
 
 # Attendre que le backend démarre
@@ -715,7 +715,7 @@ case "$DEVICE_CHOICE" in
   2)
     # Web uniquement
     echo -e "${GREEN}Démarrage sur le navigateur Web...${NC}"
-    $FLUTTER_CMD run -d web-server --web-port=4041 --web-hostname=0.0.0.0 > /tmp/frontend.log 2>&1 &
+    $FLUTTER_CMD run -d web-server --web-port=7070 --web-hostname=0.0.0.0 > /tmp/frontend.log 2>&1 &
     FRONTEND_PID=$!
     ;;
   3)
@@ -729,14 +729,14 @@ case "$DEVICE_CHOICE" in
     fi
     FRONTEND_ANDROID_PID=$!
     sleep 2
-    $FLUTTER_CMD run -d web-server --web-port=4041 --web-hostname=0.0.0.0 > /tmp/frontend_web.log 2>&1 &
+    $FLUTTER_CMD run -d web-server --web-port=7070 --web-hostname=0.0.0.0 > /tmp/frontend_web.log 2>&1 &
     FRONTEND_WEB_PID=$!
     FRONTEND_PID=$FRONTEND_WEB_PID
     ;;
   *)
     # Par défaut: Web
     echo -e "${GREEN}Démarrage sur le navigateur Web (par défaut)...${NC}"
-    $FLUTTER_CMD run -d web-server --web-port=4041 --web-hostname=0.0.0.0 > /tmp/frontend.log 2>&1 &
+    $FLUTTER_CMD run -d web-server --web-port=7070 --web-hostname=0.0.0.0 > /tmp/frontend.log 2>&1 &
     FRONTEND_PID=$!
     ;;
 esac
@@ -749,9 +749,9 @@ if [ "$DEVICE_CHOICE" = "1" ]; then
   echo -e "${YELLOW}Application lancée sur votre téléphone Android${NC}"
 elif [ "$DEVICE_CHOICE" = "3" ]; then
   echo -e "${YELLOW}Application lancée sur Android ET Web${NC}"
-  echo -e "${YELLOW}Web: http://$MACHINE_IP:4041${NC}"
+    echo -e "${YELLOW}Web: http://$MACHINE_IP:7070${NC}"
 else
-  echo -e "${YELLOW}Application lancée sur: http://$MACHINE_IP:4041${NC}"
+    echo -e "${YELLOW}Application lancée sur: http://$MACHINE_IP:7070${NC}"
 fi
 echo -e "${YELLOW}Appuyez sur Ctrl+C pour arrêter${NC}"
 echo ""

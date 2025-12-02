@@ -5,12 +5,12 @@ services:
       dockerfile: Dockerfile
     container_name: cooking_recipes_backend
     ports:
-      - "4040:4040"
+      - "7272:7272"
     volumes:
       - ./backend/data:/app/data
       - ./backend/src:/app/src
     environment:
-      - PORT=4040
+      - PORT=7272
       - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
     restart: unless-stopped
     networks:
@@ -22,12 +22,12 @@ services:
       dockerfile: Dockerfile
     container_name: cooking_recipes_frontend
     ports:
-      - "4041:8080"
+      - "7070:8080"
     volumes:
       - ./frontend/lib:/app/lib
       - ./frontend/pubspec.yaml:/app/pubspec.yaml
     environment:
-      - API_URL=http://backend:4040
+      - API_URL=http://backend:7272
     depends_on:
       - backend
     restart: unless-stopped

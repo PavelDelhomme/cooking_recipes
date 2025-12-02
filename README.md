@@ -31,11 +31,11 @@ make dev
 ```
 
 L'application sera disponible sur :
-- **Frontend Web (PC)**: http://localhost:4041
-- **Frontend Web (Mobile/Réseau)**: http://[VOTRE_IP]:4041
-- **Backend API**: http://[VOTRE_IP]:7373/api
+- **Frontend Web (PC)**: http://localhost:7070
+- **Frontend Web (Mobile/Réseau)**: http://[VOTRE_IP]:7070
+- **Backend API**: http://[VOTRE_IP]:7272/api
 
-> **Note**: Le backend écoute sur le port **7373** pour permettre l'accès depuis votre téléphone sur le même réseau. L'IP de votre machine sera détectée automatiquement.
+> **Note**: Le backend écoute sur le port **7272** pour permettre l'accès depuis votre téléphone sur le même réseau. L'IP de votre machine sera détectée automatiquement.
 
 ### Avec Docker
 
@@ -62,7 +62,7 @@ make status        # Affiche l'état des conteneurs
 ```bash
 cd backend
 npm install
-PORT=7373 HOST=0.0.0.0 npm run dev
+PORT=7272 HOST=0.0.0.0 npm run dev
 ```
 
 Ou utiliser le Makefile :
@@ -70,14 +70,14 @@ Ou utiliser le Makefile :
 make backend-dev
 ```
 
-Le backend sera disponible sur http://localhost:7373/api (et accessible depuis le réseau sur http://[VOTRE_IP]:7373/api)
+Le backend sera disponible sur http://localhost:7272/api (et accessible depuis le réseau sur http://[VOTRE_IP]:7272/api)
 
 ### Frontend seul
 
 ```bash
 cd frontend
 flutter pub get
-flutter run -d web-server --web-port=4041
+flutter run -d web-server --web-port=7070
 ```
 
 ## Build Mobile
@@ -103,7 +103,7 @@ make build-ios
 Créer un fichier `backend/.env` (optionnel) :
 
 ```env
-PORT=7373
+PORT=7272
 HOST=0.0.0.0
 JWT_SECRET=votre-secret-key-securise
 ```
@@ -111,7 +111,7 @@ JWT_SECRET=votre-secret-key-securise
 ### Configuration Frontend
 
 L'URL de l'API est configurée automatiquement dans `frontend/lib/config/api_config.dart` :
-- **Web** : Détecte automatiquement l'hostname et utilise le port 7373
+- **Web** : Détecte automatiquement l'hostname et utilise le port 7272
 - **Mobile** : Utilise localhost par défaut (configurable via `make configure-mobile-api`)
 
 Pour configurer l'URL pour mobile (depuis votre téléphone) :
