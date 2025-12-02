@@ -28,7 +28,9 @@ help: ## Affiche cette aide
 
 install: ## Installe les dépendances (backend + frontend)
 	@echo -e "$(GREEN)Installation des dépendances...$(NC)"
-	@cd backend && npm install
+	@echo -e "$(YELLOW)Installation backend...$(NC)"
+	@cd backend && npm install --silent 2>&1 | grep -v "deprecated\|warn" || npm install
+	@echo -e "$(YELLOW)Installation frontend...$(NC)"
 	@cd frontend && $(FLUTTER) pub get
 	@echo -e "$(GREEN)✓ Dépendances installées$(NC)"
 

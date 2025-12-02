@@ -78,7 +78,11 @@ class UnitSelector extends StatelessWidget {
                     value: unit,
                     child: Row(
                       children: [
-                        Icon(Icons.star, size: 16, color: Colors.orange),
+                        Icon(
+                          Icons.star,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                         const SizedBox(width: 8),
                         Text(unit),
                       ],

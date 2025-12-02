@@ -62,16 +62,26 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.dark,
     colorScheme: ColorScheme.dark(
-      primary: Colors.orange,
-      secondary: Colors.orangeAccent,
+      primary: Colors.orange.shade700, // Orange plus foncé pour mode sombre
+      secondary: Colors.orangeAccent.shade400,
+      tertiary: Colors.orange.shade300, // Pour les accents
       surface: const Color(0xFF121212),
       background: const Color(0xFF121212),
       error: Colors.red,
-      onPrimary: Colors.black,
-      onSecondary: Colors.black,
+      // Texte sur orange : blanc pour être visible
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      onTertiary: Colors.black87, // Texte sombre sur orange clair
       onSurface: Colors.white,
       onBackground: Colors.white,
       onError: Colors.white,
+      // Containers pour meilleur contraste
+      primaryContainer: Colors.orange.shade900,
+      secondaryContainer: Colors.orange.shade800,
+      onPrimaryContainer: Colors.white,
+      onSecondaryContainer: Colors.white,
+      surfaceVariant: const Color(0xFF2C2C2C),
+      onSurfaceVariant: Colors.grey[300]!,
     ),
     scaffoldBackgroundColor: const Color(0xFF121212),
     cardTheme: CardThemeData(
@@ -95,8 +105,8 @@ class AppTheme {
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       elevation: 4,
-      backgroundColor: Colors.orange,
-      foregroundColor: Colors.white,
+      backgroundColor: Colors.orange.shade700, // Orange plus foncé
+      foregroundColor: Colors.white, // Texte blanc pour contraste
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -116,8 +126,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
         ),
         elevation: 2,
-        backgroundColor: Colors.orange,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.orange.shade700, // Orange plus foncé
+        foregroundColor: Colors.white, // Texte blanc pour contraste
       ),
     ),
     chipTheme: ChipThemeData(
@@ -127,6 +137,9 @@ class AppTheme {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       backgroundColor: const Color(0xFF2C2C2C),
       labelStyle: const TextStyle(color: Colors.white),
+      // Pour les chips avec couleur primaire (orange)
+      selectedColor: Colors.orange.shade700,
+      checkmarkColor: Colors.white, // Texte blanc sur orange
     ),
     listTileTheme: ListTileThemeData(
       shape: RoundedRectangleBorder(
@@ -140,20 +153,24 @@ class AppTheme {
     dialogBackgroundColor: const Color(0xFF1E1E1E),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: const Color(0xFF1E1E1E),
-      selectedItemColor: Colors.orange,
+      selectedItemColor: Colors.orange.shade400, // Orange plus clair pour être visible
       unselectedItemColor: Colors.grey[500],
+      selectedLabelStyle: const TextStyle(color: Colors.white), // Texte blanc sur sélection
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: const Color(0xFF1E1E1E),
-      indicatorColor: Colors.orange.withOpacity(0.3),
-      labelTextStyle: MaterialStateProperty.all(
-        const TextStyle(color: Colors.white),
-      ),
+      indicatorColor: Colors.orange.shade700.withOpacity(0.3),
+      labelTextStyle: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.selected)) {
+          return const TextStyle(color: Colors.white, fontWeight: FontWeight.w600);
+        }
+        return TextStyle(color: Colors.grey[400]!);
+      }),
       iconTheme: MaterialStateProperty.resolveWith((states) {
         if (states.contains(MaterialState.selected)) {
-          return const IconThemeData(color: Colors.orange);
+          return const IconThemeData(color: Colors.white); // Icône blanche sur orange
         }
-        return const IconThemeData(color: Colors.grey);
+        return IconThemeData(color: Colors.grey[400]!);
       }),
     ),
   );
