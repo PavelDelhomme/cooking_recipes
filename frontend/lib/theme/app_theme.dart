@@ -7,12 +7,12 @@ class AppTheme {
       seedColor: Colors.orange,
       brightness: Brightness.light,
     ),
-    cardTheme: CardThemeData(
+    cardTheme: const CardTheme(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.all(Radius.circular(16)),
       ),
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     ),
     appBarTheme: AppBarTheme(
       centerTitle: false,
@@ -84,13 +84,13 @@ class AppTheme {
       onSurfaceVariant: Colors.grey[300]!,
     ),
     scaffoldBackgroundColor: const Color(0xFF121212),
-    cardTheme: CardThemeData(
+    cardTheme: const CardTheme(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.all(Radius.circular(16)),
       ),
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      color: const Color(0xFF1E1E1E),
+      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      color: Color(0xFF1E1E1E),
     ),
     appBarTheme: AppBarTheme(
       centerTitle: false,

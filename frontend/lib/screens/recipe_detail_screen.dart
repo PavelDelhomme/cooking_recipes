@@ -5,10 +5,13 @@ import '../services/pantry_service.dart';
 import '../services/shopping_list_service.dart';
 import '../services/profile_service.dart';
 import '../services/meal_plan_service.dart';
+import '../services/theme_service.dart';
+import '../services/app_localizations.dart';
 import '../models/pantry_item.dart';
 import '../models/shopping_list_item.dart';
 import '../models/user_profile.dart';
 import '../models/meal_plan.dart';
+import '../main.dart' show ThemeNotifier;
 
 class RecipeDetailScreen extends StatefulWidget {
   final Recipe recipe;
@@ -23,14 +26,41 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   final PantryService _pantryService = PantryService();
   final ShoppingListService _shoppingListService = ShoppingListService();
   final ProfileService _profileService = ProfileService();
+  final ThemeService _themeService = ThemeService();
   List<PantryItem> _pantryItems = [];
   UserProfile? _currentProfile;
+  bool _isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
     _loadPantryItems();
     _loadProfile();
+    _loadTheme();
+  }
+
+  Future<void> _loadTheme() async {
+    final isDark = await _themeService.isDarkMode();
+    if (mounted) {
+      setState(() => _isDarkMode = isDark);
+    }
+  }
+
+  Future<void> _toggleTheme() async {
+    final newValue = !_isDarkMode;
+    await _themeService.setDarkMode(newValue);
+    if (mounted) {
+      setState(() => _isDarkMode = newValue);
+      
+      // Utiliser l'InheritedWidget pour notifier le parent
+      // Le thème sera appliqué automatiquement via themeMode, pas besoin de recharger
+      final themeNotifier = ThemeNotifier.of(context);
+      if (themeNotifier != null) {
+        themeNotifier.toggleTheme();
+        // Le thème est maintenant appliqué, pas besoin de recharger la page
+        // Le MaterialApp se met à jour automatiquement grâce à themeMode
+      }
+    }
   }
 
   Future<void> _loadPantryItems() async {
@@ -240,6 +270,15 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
+            actions: [
+              IconButton(
+                icon: Icon(
+                  _isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                ),
+                tooltip: _isDarkMode ? 'Mode clair' : 'Mode sombre',
+                onPressed: _toggleTheme,
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 widget.recipe.title,
@@ -307,9 +346,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Ingrédients',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)?.ingredients ?? 'Ingrédients',
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -317,7 +356,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       FilledButton.icon(
                         onPressed: _addMissingIngredientsToShoppingList,
                         icon: const Icon(Icons.shopping_cart_outlined),
-                        label: const Text('Ajouter manquants'),
+                        label: Text(AppLocalizations.of(context)?.addMissingIngredients ?? 'Ajouter manquants'),
                         style: FilledButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 20,
@@ -391,7 +430,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
-                                        '${_getAdjustedQuantity(ingredient.quantity, widget.recipe.servings).toStringAsFixed(ingredient.quantity! % 1 == 0 ? 0 : 1)} ${ingredient.unit ?? ''}',
+                                        '${_getAdjustedQuantity(ingredient.quantity, widget.recipe.servings).toStringAsFixed(ingredient.quantity! % 1 == 0 ? 0 : 1)} ${ingredient.unit != null ? TranslationService.translateUnit(ingredient.unit!) : ''}',
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
@@ -405,7 +444,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                       Padding(
                                         padding: const EdgeInsets.only(top: 4),
                                         child: Text(
-                                          'Original: ${ingredient.quantity} ${ingredient.unit ?? ''} (${widget.recipe.servings} portions)',
+                                          'Original: ${ingredient.quantity} ${ingredient.unit != null ? TranslationService.translateUnit(ingredient.unit!) : ''} (${widget.recipe.servings} portions)',
                                           style: TextStyle(
                                             fontSize: 11,
                                             fontStyle: FontStyle.italic,
@@ -426,23 +465,41 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   const SizedBox(height: 24),
                   
                   // Instructions
-                  const Text(
-                    'Instructions',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)?.instructions ?? 'Instructions',
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 12),
                   if (widget.recipe.instructions.isEmpty)
-                    const Text('Aucune instruction disponible')
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          'Aucune instruction disponible',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    )
                   else
                     ...widget.recipe.instructions.asMap().entries.map((entry) {
+                      // Nettoyer le texte de l'instruction
+                      String instructionText = entry.value;
+                      // Enlever les "step" restants
+                      instructionText = instructionText.replaceAll(RegExp(r'^step\s+\d+:\s*', caseSensitive: false), '');
+                      instructionText = instructionText.replaceAll(RegExp(r'^Step\s+\d+:\s*', caseSensitive: false), '');
+                      instructionText = instructionText.trim();
+                      
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 1,
+                        elevation: 2,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
@@ -450,18 +507,18 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
-                                width: 32,
-                                height: 32,
+                                width: 40,
+                                height: 40,
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primaryContainer,
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: Theme.of(context).colorScheme.primary,
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Center(
                                   child: Text(
                                     '${entry.key + 1}',
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                      fontSize: 14,
+                                      color: Theme.of(context).colorScheme.onPrimary,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -470,10 +527,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                               const SizedBox(width: 16),
                               Expanded(
                                 child: Text(
-                                  entry.value,
-                                  style: const TextStyle(
+                                  instructionText,
+                                  style: TextStyle(
                                     fontSize: 15,
-                                    height: 1.5,
+                                    height: 1.6,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                               ),
@@ -484,20 +542,33 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     }),
                   const SizedBox(height: 24),
                   
-                  // Résumé
+                  // Résumé/Description
                   if (widget.recipe.summary != null &&
                       widget.recipe.summary!.isNotEmpty) ...[
-                    const Text(
-                      'Description',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)?.description ?? 'Description',
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      widget.recipe.summary!,
-                      style: const TextStyle(fontSize: 16),
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          widget.recipe.summary!,
+                          style: TextStyle(
+                            fontSize: 16,
+                            height: 1.6,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -510,9 +581,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addToMealPlan,
         icon: const Icon(Icons.calendar_today_outlined),
-        label: const Text(
-          'Ajouter au planning',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        label: Text(
+          AppLocalizations.of(context)?.addToMealPlan ?? 'Ajouter au planning',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 4,
         shape: RoundedRectangleBorder(

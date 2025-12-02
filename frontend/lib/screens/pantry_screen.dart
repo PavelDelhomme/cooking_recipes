@@ -8,6 +8,7 @@ import '../services/ingredient_image_service.dart';
 import '../models/pantry_history_item.dart';
 import '../widgets/unit_selector.dart';
 import '../widgets/quantity_unit_input.dart';
+import '../services/ingredient_suggestions.dart';
 import 'pantry_history_screen.dart';
 
 class PantryScreen extends StatefulWidget {
@@ -567,30 +568,70 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: 'Nom de l\'ingrédient',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-                prefixIcon: const Icon(Icons.shopping_basket_outlined),
-                hintText: 'Ex: Steak haché, Pâtes, Tomates, Lait...',
-              ),
-              onChanged: (value) {
-                // Mettre à jour les suggestions d'unités quand le nom change
+            Autocomplete<String>(
+              initialValue: TextEditingValue(text: _nameController.text),
+              optionsBuilder: (TextEditingValue textEditingValue) {
+                // Retourner les suggestions de manière synchrone pour éviter les blocages
+                final query = textEditingValue.text.trim().toLowerCase();
+                final allIngredients = IngredientSuggestions.getCommonIngredients();
+                
+                if (query.isEmpty) {
+                  return allIngredients;
+                }
+                
+                // Filtrer les ingrédients qui correspondent à la requête
+                return allIngredients
+                    .where((ingredient) => 
+                        ingredient.toLowerCase().contains(query))
+                    .toList();
+              },
+              onSelected: (String selection) {
+                _nameController.text = selection;
+                // Mettre à jour les suggestions d'unités
                 setState(() {});
               },
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Veuillez entrer un nom';
-                }
-                return null;
+              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                // Initialiser le controller une seule fois
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (controller.text != _nameController.text && _nameController.text.isNotEmpty) {
+                    controller.text = _nameController.text;
+                  }
+                });
+                
+                return TextFormField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  onFieldSubmitted: onFieldSubmitted != null ? (_) => onFieldSubmitted() : null,
+                  decoration: InputDecoration(
+                    labelText: 'Nom de l\'ingrédient',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    prefixIcon: const Icon(Icons.shopping_basket_outlined),
+                    hintText: 'Ex: Steak haché, Pâtes, Tomates, Lait...',
+                  ),
+                  onChanged: (value) {
+                    // Mettre à jour _nameController sans setState pour éviter les blocages
+                    if (_nameController.text != value) {
+                      _nameController.text = value;
+                    }
+                    // Mettre à jour les suggestions d'unités seulement si nécessaire
+                    if (mounted) {
+                      setState(() {});
+                    }
+                  },
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Veuillez entrer un nom';
+                    }
+                    return null;
+                  },
+                );
               },
             ),
             const SizedBox(height: 16),

@@ -54,6 +54,10 @@ down: ## Arrête tous les conteneurs et processus
 		kill $$(cat /tmp/frontend_pid.txt) 2>/dev/null || true; \
 		rm /tmp/frontend_pid.txt; \
 	fi; \
+	pkill -f "node.*server.js" 2>/dev/null || true; \
+	pkill -f "flutter.*web-server" 2>/dev/null || true; \
+	pkill -f "flutter.*android" 2>/dev/null || true; \
+	pkill -f "flutter run" 2>/dev/null || true; \
 	$(DOCKER_COMPOSE) down 2>/dev/null || true; \
 	echo -e "$(GREEN)✓ Services arrêtés$(NC)"
 
@@ -193,6 +197,9 @@ clean: ## Nettoie les builds et dépendances
 test: ## Lance les tests
 	@cd frontend && $(FLUTTER) test
 	@cd backend && npm test || echo "Pas de tests configurés"
+
+test-api: ## Teste l'API et la récupération de recettes
+	@bash scripts/test_api.sh
 
 .DEFAULT_GOAL := help
 

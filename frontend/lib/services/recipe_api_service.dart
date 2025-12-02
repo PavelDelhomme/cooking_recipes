@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/recipe.dart';
 import '../models/ingredient.dart';
+import 'translation_service.dart';
+import 'locale_service.dart';
 
 class RecipeApiService {
   // Utilisation de TheMealDB (gratuit, pas besoin d'API key)
@@ -19,11 +21,15 @@ class RecipeApiService {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        // Définir l'encodage UTF-8 explicitement
+        final utf8Body = utf8.decode(response.bodyBytes);
+        final data = json.decode(utf8Body);
         if (data['meals'] != null) {
-          return (data['meals'] as List)
-              .map((meal) => _convertMealToRecipe(meal))
-              .toList();
+          final recipes = <Recipe>[];
+          for (var meal in data['meals'] as List) {
+            recipes.add(await _convertMealToRecipe(meal));
+          }
+          return recipes;
         }
       }
       return [];
@@ -41,7 +47,9 @@ class RecipeApiService {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        // Définir l'encodage UTF-8 explicitement
+        final utf8Body = utf8.decode(response.bodyBytes);
+        final data = json.decode(utf8Body);
         if (data['meals'] != null) {
           return (data['meals'] as List)
               .map((meal) => meal['idMeal'].toString())
@@ -120,9 +128,11 @@ class RecipeApiService {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        // Définir l'encodage UTF-8 explicitement
+        final utf8Body = utf8.decode(response.bodyBytes);
+        final data = json.decode(utf8Body);
         if (data['meals'] != null && data['meals'].isNotEmpty) {
-          return _convertMealToRecipe(data['meals'][0]);
+          return await _convertMealToRecipe(data['meals'][0]);
         }
       }
       return null;
@@ -142,9 +152,11 @@ class RecipeApiService {
         );
 
         if (response.statusCode == 200) {
-          final data = json.decode(response.body);
+          // Définir l'encodage UTF-8 explicitement
+          final utf8Body = utf8.decode(response.bodyBytes);
+          final data = json.decode(utf8Body);
           if (data['meals'] != null && data['meals'].isNotEmpty) {
-            recipes.add(_convertMealToRecipe(data['meals'][0]));
+            recipes.add(await _convertMealToRecipe(data['meals'][0]));
           }
         }
         // Petite pause pour éviter de surcharger l'API
@@ -157,8 +169,54 @@ class RecipeApiService {
     }
   }
 
+  // Obtenir des suggestions de recherche (noms de recettes populaires)
+  Future<List<String>> getSearchSuggestions(String query) async {
+    try {
+      if (query.trim().isEmpty) {
+        // Retourner des suggestions populaires par défaut
+        return [
+          'chicken', 'pasta', 'salad', 'soup', 'dessert',
+          'beef', 'fish', 'rice', 'pizza', 'cake',
+          'bread', 'soup', 'stew', 'curry', 'burger'
+        ];
+      }
+
+      // Rechercher des recettes correspondant à la requête
+      final recipes = await searchRecipes(query);
+      
+      // Extraire les noms de recettes comme suggestions
+      final suggestions = recipes
+          .map((recipe) => recipe.title)
+          .where((title) => title.toLowerCase().contains(query.toLowerCase()))
+          .take(10)
+          .toList();
+
+      // Si pas assez de suggestions, ajouter des termes populaires
+      if (suggestions.length < 5) {
+        final popularTerms = [
+          'chicken', 'pasta', 'salad', 'soup', 'dessert',
+          'beef', 'fish', 'rice', 'pizza', 'cake'
+        ];
+        for (var term in popularTerms) {
+          if (term.toLowerCase().contains(query.toLowerCase()) && 
+              !suggestions.contains(term)) {
+            suggestions.add(term);
+          }
+        }
+      }
+
+      return suggestions.take(10).toList();
+    } catch (e) {
+      print('Erreur lors de la récupération des suggestions: $e');
+      return [];
+    }
+  }
+
   // Convertir un meal de TheMealDB en Recipe
-  Recipe _convertMealToRecipe(Map<String, dynamic> meal) {
+  Future<Recipe> _convertMealToRecipe(Map<String, dynamic> meal) async {
+    // Initialiser la langue si nécessaire
+    await TranslationService.init();
+    
     final List<Ingredient> ingredients = [];
     final List<String> instructions = [];
 
@@ -167,30 +225,69 @@ class RecipeApiService {
       final ingredient = meal['strIngredient$i'];
       final measure = meal['strMeasure$i'];
       if (ingredient != null && ingredient.toString().trim().isNotEmpty) {
+        // Nettoyer et traduire l'ingrédient
+        String ingredientName = TranslationService.fixEncoding(ingredient.toString().trim());
+        ingredientName = TranslationService.translateIngredient(ingredientName);
+        
+        // Parser et traduire l'unité
+        final unitString = _parseUnitSync(measure?.toString() ?? '');
+        final unit = TranslationService.translateUnit(unitString ?? '');
+        
         ingredients.add(Ingredient(
           id: '${meal['idMeal']}_ingredient_$i',
-          name: ingredient.toString().trim(),
+          name: ingredientName,
           quantity: _parseQuantity(measure?.toString() ?? ''),
-          unit: _parseUnit(measure?.toString() ?? ''),
+          unit: unit.isEmpty ? null : unit,
         ));
       }
     }
 
     // Extraire les instructions
-    final instructionsText = meal['strInstructions']?.toString() ?? '';
+    String instructionsText = meal['strInstructions']?.toString() ?? '';
     if (instructionsText.isNotEmpty) {
-      // Diviser par les retours à la ligne ou les numéros
-      instructions.addAll(instructionsText
-          .split(RegExp(r'\n|\r\n'))
+      // Nettoyer l'encodage et traduire
+      instructionsText = TranslationService.fixEncoding(instructionsText);
+      instructionsText = TranslationService.cleanAndTranslate(instructionsText);
+      
+      // Nettoyer les "step 1", "step 2", etc.
+      instructionsText = instructionsText.replaceAll(RegExp(r'step\s+\d+', caseSensitive: false), '');
+      instructionsText = instructionsText.replaceAll(RegExp(r'Step\s+\d+', caseSensitive: false), '');
+      instructionsText = instructionsText.replaceAll(RegExp(r'STEP\s+\d+', caseSensitive: false), '');
+      
+      // Diviser par les retours à la ligne, les numéros, ou les points suivis d'un espace
+      final lines = instructionsText
+          .split(RegExp(r'\n|\r\n|(?<=\d)\.\s+|(?<=[.!?])\s+(?=[A-Z])'))
           .where((line) => line.trim().isNotEmpty)
-          .map((line) => line.trim()));
+          .map((line) {
+            // Nettoyer chaque ligne
+            String cleaned = line.trim();
+            // Enlever les numéros au début (1., 2., etc.)
+            cleaned = cleaned.replaceAll(RegExp(r'^\d+\.\s*'), '');
+            // Enlever les "step" restants
+            cleaned = cleaned.replaceAll(RegExp(r'^step\s+\d+:\s*', caseSensitive: false), '');
+            cleaned = cleaned.replaceAll(RegExp(r'^Step\s+\d+:\s*', caseSensitive: false), '');
+            return cleaned;
+          })
+          .where((line) => line.trim().isNotEmpty && line.trim().length > 10) // Filtrer les lignes trop courtes
+          .toList();
+      
+      instructions.addAll(lines);
     }
+
+    // Nettoyer et traduire le titre
+    String title = meal['strMeal']?.toString() ?? 'Recette sans nom';
+    title = TranslationService.fixEncoding(title);
+    title = TranslationService.translateRecipeName(title);
+    
+    String summary = meal['strInstructions']?.toString() ?? '';
+    summary = TranslationService.fixEncoding(summary);
+    summary = TranslationService.cleanAndTranslate(summary);
 
     return Recipe(
       id: meal['idMeal'].toString(),
-      title: meal['strMeal']?.toString() ?? 'Recette sans nom',
+      title: title,
       image: meal['strMealThumb']?.toString(),
-      summary: meal['strInstructions']?.toString(),
+      summary: summary,
       ingredients: ingredients,
       instructions: instructions,
       servings: 4, // TheMealDB ne fournit pas cette info
@@ -208,8 +305,8 @@ class RecipeApiService {
     return null;
   }
 
-  // Parser l'unité depuis une mesure
-  String? _parseUnit(String measure) {
+  // Parser l'unité depuis une mesure (synchrone)
+  String? _parseUnitSync(String measure) {
     if (measure.isEmpty) return null;
     final regex = RegExp(r'\d+\.?\d*\s*(.+)');
     final match = regex.firstMatch(measure);

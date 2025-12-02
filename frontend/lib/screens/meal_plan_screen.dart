@@ -97,8 +97,20 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                       MaterialPageRoute(
                         builder: (context) => const RecipesScreen(),
                       ),
-                    ).then((_) {
-                      // Après retour, on peut réessayer d'ajouter
+                    ).then((selectedRecipe) {
+                      // Si une recette a été sélectionnée depuis RecipesScreen
+                      if (selectedRecipe != null && selectedRecipe is Recipe && mounted) {
+                        // Fermer tous les dialogues ouverts
+                        if (Navigator.canPop(context)) {
+                          Navigator.popUntil(context, (route) => route.isFirst || !route.willHandlePopInternally);
+                        }
+                        // Utiliser un délai pour s'assurer que le contexte est valide
+                        Future.delayed(const Duration(milliseconds: 200), () {
+                          if (mounted) {
+                            _showAddMealDialog(selectedRecipe as Recipe, _selectedDate, 'dinner');
+                          }
+                        });
+                      }
                     });
                   },
                 ),
@@ -107,9 +119,25 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                   title: const Text('Recettes suggérées'),
                   onTap: () async {
                     if (!mounted) return;
+                    // Fermer le dialogue de sélection de recette
                     Navigator.pop(context);
                     
+                    // Utiliser les valeurs par défaut
+                    final defaultDate = date ?? _selectedDate;
+                    final defaultMealType = mealType ?? 'dinner';
+                    
                     try {
+                      // Afficher un indicateur de chargement
+                      if (mounted) {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      }
+                      
                       final pantryItems = await _pantryService.getPantryItems();
                       final ingredientNames = pantryItems.map((item) => item.name).toList();
                       List<Recipe> recipes;
@@ -118,8 +146,14 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                       } else {
                         recipes = await _recipeService.searchRecipesByIngredients(ingredientNames);
                       }
+                      
+                      // Fermer l'indicateur de chargement
+                      if (mounted && Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      }
+                      
                       if (mounted && recipes.isNotEmpty) {
-                        final recipe = await showDialog<Recipe>(
+                        final selectedRecipe = await showDialog<Recipe>(
                           context: context,
                           builder: (context) => AlertDialog(
                             title: const Text('Choisir une recette'),
@@ -165,13 +199,20 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                 },
                               ),
                             ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Annuler'),
+                              ),
+                            ],
                           ),
                         );
-                        if (recipe != null && mounted) {
-                          // Utiliser un délai pour s'assurer que le contexte est valide
+                        
+                        if (selectedRecipe != null && mounted) {
+                          // Ouvrir directement le dialogue d'ajout avec la recette sélectionnée
                           await Future.delayed(const Duration(milliseconds: 100));
                           if (mounted) {
-                            _showAddMealDialog(recipe, selectedDate, selectedMealType);
+                            _showAddMealDialog(selectedRecipe, defaultDate, defaultMealType);
                           }
                         }
                       } else if (mounted) {
@@ -180,6 +221,10 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                         );
                       }
                     } catch (e) {
+                      // Fermer l'indicateur de chargement en cas d'erreur
+                      if (mounted && Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      }
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Erreur: $e')),
@@ -295,7 +340,17 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
       await _mealPlanService.addMealPlan(mealPlan);
       _loadMealPlans();
       if (mounted) {
-        Navigator.pop(context, true);
+        // Fermer tous les dialogues ouverts en utilisant une boucle
+        while (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
+        // Afficher un message de confirmation
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${selectedRecipe.title} ajouté au planning'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
       }
     }
   }

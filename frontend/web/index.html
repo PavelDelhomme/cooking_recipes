@@ -33,6 +33,42 @@
 
   <title>cookingrecipe</title>
   <link rel="manifest" href="manifest.json">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    // Désactiver complètement le service worker AVANT le chargement de Flutter
+    (function() {
+      'use strict';
+      
+      if ('serviceWorker' in navigator) {
+        // Désenregistrer tous les service workers existants immédiatement
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister().catch(function(err) {
+              console.log('Service worker unregistration error:', err);
+            });
+          }
+        }).catch(function(err) {
+          console.log('Service worker getRegistrations error:', err);
+        });
+        
+        // Intercepter et bloquer toutes les tentatives d'enregistrement
+        const originalRegister = navigator.serviceWorker.register;
+        navigator.serviceWorker.register = function() {
+          console.warn('Service worker registration blocked by application policy');
+          return Promise.reject(new Error('Service worker registration is disabled'));
+        };
+        
+        // Empêcher l'enregistrement via addEventListener
+        window.addEventListener('beforeunload', function() {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+              registration.unregister().catch(function() {});
+            }
+          });
+        });
+      }
+    })();
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>

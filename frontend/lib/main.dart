@@ -9,9 +9,31 @@ import 'screens/profile_screen.dart';
 import 'screens/auth_screen.dart';
 import 'services/profile_service.dart';
 import 'services/auth_service.dart';
+import 'services/locale_service.dart';
+import 'services/app_localizations.dart';
+import 'services/translation_service.dart';
 import 'models/user_profile.dart';
 import 'theme/app_theme.dart';
 import 'services/theme_service.dart';
+
+// Widget pour exposer le callback de changement de thème
+class ThemeNotifier extends InheritedWidget {
+  final VoidCallback toggleTheme;
+
+  const ThemeNotifier({
+    required this.toggleTheme,
+    required super.child,
+  });
+
+  static ThemeNotifier? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<ThemeNotifier>();
+  }
+
+  @override
+  bool updateShouldNotify(ThemeNotifier oldWidget) {
+    return toggleTheme != oldWidget.toggleTheme;
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,11 +52,13 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final ThemeService _themeService = ThemeService();
   bool _isDarkMode = true; // Mode sombre par défaut
+  Locale _locale = const Locale('fr', 'FR');
 
   @override
   void initState() {
     super.initState();
     _loadTheme();
+    _loadLocale();
   }
 
   Future<void> _loadTheme() async {
@@ -42,34 +66,64 @@ class _MyAppState extends State<MyApp> {
     setState(() => _isDarkMode = isDark);
   }
 
+  Future<void> _loadLocale() async {
+    final locale = await LocaleService.getLocale();
+    await TranslationService.init();
+    if (mounted) {
+      setState(() => _locale = locale);
+    }
+  }
+
+  void _changeLocale(Locale newLocale) async {
+    await LocaleService.setLocale(newLocale);
+    TranslationService.setLanguage(newLocale.languageCode);
+    if (mounted) {
+      setState(() => _locale = newLocale);
+    }
+  }
+
   void _toggleTheme() async {
     final newValue = !_isDarkMode;
     await _themeService.setDarkMode(newValue);
     if (mounted) {
+      // Mettre à jour le thème sans reconstruire toute l'app
+      // Le MaterialApp se mettra à jour automatiquement grâce à themeMode
       setState(() {
         _isDarkMode = newValue;
       });
     }
   }
+  
+  // Méthode publique pour permettre aux écrans enfants de changer le thème
+  void toggleThemeFromChild() {
+    _toggleTheme();
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Utiliser un key qui change seulement pour la langue, pas pour le thème
+    // Le thème change via themeMode qui est réactif au setState
     return MaterialApp(
-      key: ValueKey(_isDarkMode), // Force la reconstruction quand le thème change
+      key: ValueKey('locale_${_locale.languageCode}'), // Force la reconstruction seulement quand la langue change
       title: 'Cooking Recipes',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      locale: const Locale('fr', 'FR'),
+      // Exposer le callback de changement de thème via un InheritedWidget
+      builder: (context, child) {
+        return ThemeNotifier(
+          toggleTheme: _toggleTheme,
+          child: child ?? const SizedBox(),
+        );
+      },
+      locale: _locale,
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('fr', 'FR'),
-        Locale('en', 'US'),
-      ],
+      supportedLocales: LocaleService.supportedLocales,
       home: Builder(
         builder: (context) => AuthWrapper(
           onThemeToggle: () {
@@ -77,6 +131,8 @@ class _MyAppState extends State<MyApp> {
             // Forcer la reconstruction de l'app
             setState(() {});
           },
+          onLocaleChange: _changeLocale,
+          currentLocale: _locale,
           isDarkMode: _isDarkMode,
         ),
       ),
@@ -86,6 +142,8 @@ class _MyAppState extends State<MyApp> {
             _toggleTheme();
             setState(() {});
           },
+          onLocaleChange: _changeLocale,
+          currentLocale: _locale,
           isDarkMode: _isDarkMode,
         ),
         '/auth': (context) => const AuthScreen(),
@@ -97,11 +155,15 @@ class _MyAppState extends State<MyApp> {
 
 class AuthWrapper extends StatefulWidget {
   final VoidCallback? onThemeToggle;
+  final Function(Locale)? onLocaleChange;
+  final Locale? currentLocale;
   final bool isDarkMode;
 
   const AuthWrapper({
     super.key,
     this.onThemeToggle,
+    this.onLocaleChange,
+    this.currentLocale,
     this.isDarkMode = false,
   });
 
@@ -139,6 +201,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
     if (_isAuthenticated) {
       return MainScreen(
         onThemeToggle: widget.onThemeToggle,
+        onLocaleChange: widget.onLocaleChange,
+        currentLocale: widget.currentLocale,
         isDarkMode: widget.isDarkMode,
       );
     }
@@ -149,11 +213,15 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
 class MainScreen extends StatefulWidget {
   final VoidCallback? onThemeToggle;
+  final Function(Locale)? onLocaleChange;
+  final Locale? currentLocale;
   final bool isDarkMode;
 
   const MainScreen({
     super.key,
     this.onThemeToggle,
+    this.onLocaleChange,
+    this.currentLocale,
     this.isDarkMode = false,
   });
 
@@ -195,45 +263,50 @@ class _MainScreenState extends State<MainScreen> {
         index: _selectedIndex,
         children: _screens,
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-          // Recharger le profil quand on change d'onglet
-          _loadProfile();
+      bottomNavigationBar: Builder(
+        builder: (context) {
+          final localizations = AppLocalizations.of(context);
+          return NavigationBar(
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+              // Recharger le profil quand on change d'onglet
+              _loadProfile();
+            },
+            elevation: 8,
+            height: 70,
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            destinations: [
+              NavigationDestination(
+                icon: const Icon(Icons.restaurant_menu_outlined),
+                selectedIcon: const Icon(Icons.restaurant_menu),
+                label: localizations?.recipes ?? 'Recettes',
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.kitchen_outlined),
+                selectedIcon: const Icon(Icons.kitchen),
+                label: localizations?.pantry ?? 'Placard',
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.shopping_cart_outlined),
+                selectedIcon: const Icon(Icons.shopping_cart),
+                label: localizations?.shoppingList ?? 'Courses',
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.calendar_today_outlined),
+                selectedIcon: const Icon(Icons.calendar_today),
+                label: localizations?.mealPlan ?? 'Planning',
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.person_outline),
+                selectedIcon: const Icon(Icons.person),
+                label: localizations?.profile ?? 'Profil',
+              ),
+            ],
+          );
         },
-        elevation: 8,
-        height: 70,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.restaurant_menu_outlined),
-            selectedIcon: const Icon(Icons.restaurant_menu),
-            label: 'Recettes',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.kitchen_outlined),
-            selectedIcon: const Icon(Icons.kitchen),
-            label: 'Placard',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.shopping_cart_outlined),
-            selectedIcon: const Icon(Icons.shopping_cart),
-            label: 'Courses',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.calendar_today_outlined),
-            selectedIcon: const Icon(Icons.calendar_today),
-            label: 'Planning',
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.person_outline),
-            selectedIcon: const Icon(Icons.person),
-            label: 'Profil',
-          ),
-        ],
       ),
       appBar: AppBar(
         leading: Builder(
@@ -332,7 +405,7 @@ class _MainScreenState extends State<MainScreen> {
                   ? Theme.of(context).colorScheme.primary
                   : null,
             ),
-            title: const Text('Recettes'),
+            title: Text(AppLocalizations.of(context)?.recipes ?? 'Recettes'),
             selected: _selectedIndex == 0,
             onTap: () {
               setState(() => _selectedIndex = 0);
@@ -347,7 +420,7 @@ class _MainScreenState extends State<MainScreen> {
                   ? Theme.of(context).colorScheme.primary
                   : null,
             ),
-            title: const Text('Placard'),
+            title: Text(AppLocalizations.of(context)?.pantry ?? 'Placard'),
             selected: _selectedIndex == 1,
             onTap: () {
               setState(() => _selectedIndex = 1);
@@ -362,7 +435,7 @@ class _MainScreenState extends State<MainScreen> {
                   ? Theme.of(context).colorScheme.primary
                   : null,
             ),
-            title: const Text('Liste de courses'),
+            title: Text(AppLocalizations.of(context)?.shoppingList ?? 'Liste de courses'),
             selected: _selectedIndex == 2,
             onTap: () {
               setState(() => _selectedIndex = 2);
@@ -377,7 +450,7 @@ class _MainScreenState extends State<MainScreen> {
                   ? Theme.of(context).colorScheme.primary
                   : null,
             ),
-            title: const Text('Planning'),
+            title: Text(AppLocalizations.of(context)?.mealPlan ?? 'Planning'),
             selected: _selectedIndex == 3,
             onTap: () {
               setState(() => _selectedIndex = 3);
@@ -393,7 +466,7 @@ class _MainScreenState extends State<MainScreen> {
                   ? Theme.of(context).colorScheme.primary
                   : null,
             ),
-            title: const Text('Profil'),
+            title: Text(AppLocalizations.of(context)?.profile ?? 'Profil'),
             selected: _selectedIndex == 4,
             onTap: () {
               setState(() => _selectedIndex = 4);
@@ -402,17 +475,64 @@ class _MainScreenState extends State<MainScreen> {
             },
           ),
           const Divider(),
+          // Sélection de la langue
+          ListTile(
+            leading: const Icon(Icons.language),
+            title: Text(AppLocalizations.of(context)?.language ?? 'Langue'),
+            subtitle: Text(
+              LocaleService.languageNames[widget.currentLocale?.languageCode ?? 'fr'] ?? 'Français',
+            ),
+            onTap: () {
+              _showLanguageDialog(context);
+            },
+          ),
           // Mode sombre/clair
           ListTile(
             leading: Icon(
               widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
             ),
-            title: Text(widget.isDarkMode ? 'Mode clair' : 'Mode sombre'),
+            title: Text(
+              widget.isDarkMode 
+                ? (AppLocalizations.of(context)?.lightMode ?? 'Mode clair')
+                : (AppLocalizations.of(context)?.darkMode ?? 'Mode sombre'),
+            ),
             trailing: Switch(
               value: widget.isDarkMode,
               onChanged: (_) => widget.onThemeToggle?.call(),
             ),
             onTap: () => widget.onThemeToggle?.call(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)?.language ?? 'Langue'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: LocaleService.supportedLocales.map((locale) {
+            final isSelected = locale.languageCode == widget.currentLocale?.languageCode;
+            return RadioListTile<Locale>(
+              title: Text(LocaleService.languageNames[locale.languageCode] ?? locale.languageCode),
+              value: locale,
+              groupValue: widget.currentLocale,
+              onChanged: (value) {
+                if (value != null && widget.onLocaleChange != null) {
+                  widget.onLocaleChange!(value);
+                  Navigator.pop(context);
+                }
+              },
+            );
+          }).toList(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppLocalizations.of(context)?.cancel ?? 'Annuler'),
           ),
         ],
       ),

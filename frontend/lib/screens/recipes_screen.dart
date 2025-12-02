@@ -23,11 +23,18 @@ class _RecipesScreenState extends State<RecipesScreen> {
   bool _isLoadingSuggestions = false;
   String _searchQuery = '';
   Timer? _debounceTimer;
+  List<String> _searchSuggestions = [];
+  bool _isLoadingSearchSuggestions = false;
+  bool _suggestionsLoaded = false; // Flag pour savoir si les suggestions ont été chargées
 
   @override
   void initState() {
     super.initState();
-    _loadSuggestedRecipes();
+    // Charger les suggestions seulement au premier démarrage
+    if (!_suggestionsLoaded) {
+      _loadSuggestedRecipes();
+      _suggestionsLoaded = true;
+    }
     // Écouter les changements dans le champ de recherche pour l'autocomplétion
     _searchController.addListener(_onSearchChanged);
   }
@@ -49,9 +56,13 @@ class _RecipesScreenState extends State<RecipesScreen> {
       setState(() {
         _recipes = [];
         _searchQuery = '';
+        _searchSuggestions = [];
       });
       return;
     }
+
+    // Charger les suggestions d'autocomplétion
+    _loadSearchSuggestions(_searchController.text.trim());
 
     // Attendre 500ms après la dernière frappe avant de rechercher
     _debounceTimer = Timer(const Duration(milliseconds: 500), () {
@@ -61,7 +72,42 @@ class _RecipesScreenState extends State<RecipesScreen> {
     });
   }
 
-  Future<void> _loadSuggestedRecipes() async {
+  Future<void> _loadSearchSuggestions(String query) async {
+    if (query.trim().isEmpty) {
+      setState(() {
+        _searchSuggestions = [];
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoadingSearchSuggestions = true;
+    });
+
+    try {
+      final suggestions = await _recipeService.getSearchSuggestions(query);
+      if (mounted) {
+        setState(() {
+          _searchSuggestions = suggestions;
+          _isLoadingSearchSuggestions = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _searchSuggestions = [];
+          _isLoadingSearchSuggestions = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadSuggestedRecipes({bool force = false}) async {
+    // Ne pas recharger si déjà chargé et pas de force
+    if (_suggestionsLoaded && !force) {
+      return;
+    }
+    
     setState(() => _isLoadingSuggestions = true);
     
     // Récupérer les ingrédients du placard
@@ -74,6 +120,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
       setState(() {
         _suggestedRecipes = recipes.take(10).toList();
         _isLoadingSuggestions = false;
+        _suggestionsLoaded = true;
       });
     } else {
       // Si le placard est vide, charger des recettes populaires et variées
@@ -106,6 +153,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
       setState(() {
         _suggestedRecipes = uniqueRecipes.values.take(10).toList();
         _isLoadingSuggestions = false;
+        _suggestionsLoaded = true;
       });
     }
   }
@@ -162,7 +210,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.refresh),
-                  onPressed: _loadSuggestedRecipes,
+                  onPressed: () => _loadSuggestedRecipes(force: true),
                   tooltip: 'Actualiser les suggestions',
                 ),
               ],
@@ -173,46 +221,115 @@ class _RecipesScreenState extends State<RecipesScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      labelText: 'Rechercher une recette',
-                      hintText: 'Tapez pour rechercher automatiquement...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      prefixIcon: IconButton(
-                        icon: const Icon(Icons.search),
-                        onPressed: _searchRecipes,
-                        tooltip: 'Rechercher',
-                      ),
-                      suffixIcon: ValueListenableBuilder<TextEditingValue>(
-                        valueListenable: _searchController,
-                        builder: (context, value, child) {
-                          if (value.text.isNotEmpty) {
-                            return IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {
-                                  _recipes = [];
-                                  _searchQuery = '';
-                                });
-                              },
-                              tooltip: 'Effacer',
-                            );
-                          }
+                  child: Autocomplete<String>(
+                    initialValue: TextEditingValue(text: _searchController.text),
+                    optionsBuilder: (TextEditingValue textEditingValue) async {
+                      if (textEditingValue.text.isEmpty) {
+                        // Retourner des suggestions populaires par défaut
+                        return [
+                          'chicken', 'pasta', 'salad', 'soup', 'dessert',
+                          'beef', 'fish', 'rice', 'pizza', 'cake'
+                        ];
+                      }
+                      
+                      // Charger les suggestions depuis l'API
+                      await _loadSearchSuggestions(textEditingValue.text);
+                      return _searchSuggestions;
+                    },
+                    onSelected: (String selection) {
+                      _searchController.text = selection;
+                      _searchRecipes();
+                    },
+                    fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                      // Synchroniser le controller avec _searchController
+                      if (controller.text != _searchController.text) {
+                        controller.text = _searchController.text;
+                      }
+                      _searchController.addListener(() {
+                        if (controller.text != _searchController.text) {
+                          controller.text = _searchController.text;
+                        }
+                      });
+                      controller.addListener(() {
+                        if (_searchController.text != controller.text) {
+                          _searchController.text = controller.text;
+                          _onSearchChanged();
+                        }
+                      });
+                      
+                      return TextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        decoration: InputDecoration(
+                          labelText: 'Rechercher une recette',
+                          hintText: 'Tapez pour rechercher automatiquement...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          prefixIcon: IconButton(
+                            icon: const Icon(Icons.search),
+                            onPressed: _searchRecipes,
+                            tooltip: 'Rechercher',
+                          ),
+                          suffixIcon: ValueListenableBuilder<TextEditingValue>(
+                            valueListenable: _searchController,
+                            builder: (context, value, child) {
+                              if (value.text.isNotEmpty) {
+                                return IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    controller.clear();
+                                    setState(() {
+                                      _recipes = [];
+                                      _searchQuery = '';
+                                      _searchSuggestions = [];
+                                    });
+                                  },
+                                  tooltip: 'Effacer',
+                                );
+                              }
                           return IconButton(
                             icon: const Icon(Icons.refresh),
-                            onPressed: _loadSuggestedRecipes,
+                            onPressed: () => _loadSuggestedRecipes(force: true),
                             tooltip: 'Actualiser les suggestions',
                           );
-                        },
-                      ),
-                    ),
-                    onSubmitted: (_) => _searchRecipes(),
-                    textInputAction: TextInputAction.search,
+                            },
+                          ),
+                        ),
+                        onSubmitted: (_) => _searchRecipes(),
+                        textInputAction: TextInputAction.search,
+                      );
+                    },
+                    optionsViewBuilder: (context, onSelected, options) {
+                      return Align(
+                        alignment: Alignment.topLeft,
+                        child: Material(
+                          elevation: 4.0,
+                          borderRadius: BorderRadius.circular(12),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 200),
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              padding: EdgeInsets.zero,
+                              itemCount: options.length,
+                              itemBuilder: (context, index) {
+                                final option = options.elementAt(index);
+                                return ListTile(
+                                  dense: true,
+                                  leading: const Icon(Icons.restaurant_menu, size: 20),
+                                  title: Text(option),
+                                  onTap: () {
+                                    onSelected(option);
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 Expanded(
