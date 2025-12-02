@@ -38,8 +38,70 @@ if [ -d "$HOME/Android/Sdk" ]; then
   export ANDROID_SDK_ROOT="$ANDROID_HOME"
   export PATH="$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools"
   
+  # Ajouter cmdline-tools au PATH si disponible
+  if [ -d "$ANDROID_HOME/cmdline-tools/latest/bin" ]; then
+    export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin"
+  fi
+  
   # Configurer Flutter pour utiliser ce SDK
   $FLUTTER_CMD config --android-sdk "$ANDROID_HOME" 2>/dev/null || true
+  
+  # Vérifier et accepter les licences Android SDK si nécessaire
+  if [ ! -d "$ANDROID_HOME/licenses" ] || [ -z "$(find "$ANDROID_HOME/licenses" -name "*.txt" 2>/dev/null | head -1)" ]; then
+    echo -e "${YELLOW}⚠ Licences Android SDK non acceptées${NC}"
+    echo -e "${YELLOW}   Acceptation automatique des licences...${NC}"
+    
+    # Trouver sdkmanager
+    SDKMANAGER=""
+    if [ -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+      SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+    elif [ -f "$ANDROID_HOME/tools/bin/sdkmanager" ]; then
+      SDKMANAGER="$ANDROID_HOME/tools/bin/sdkmanager"
+    fi
+    
+    if [ ! -z "$SDKMANAGER" ]; then
+      # Accepter toutes les licences
+      echo -e "${YELLOW}Acceptation des licences Android SDK...${NC}"
+      
+      # Créer un script temporaire pour accepter toutes les licences
+      LICENSE_SCRIPT=$(mktemp)
+      cat > "$LICENSE_SCRIPT" << 'EOF'
+#!/bin/bash
+# Accepter toutes les licences
+while true; do
+  echo "y"
+done
+EOF
+      chmod +x "$LICENSE_SCRIPT"
+      
+      "$LICENSE_SCRIPT" | "$SDKMANAGER" --licenses > /tmp/android_licenses.log 2>&1 || {
+        # Méthode alternative : utiliser expect ou simplement répéter 'y'
+        echo -e "${YELLOW}Tentative alternative d'acceptation des licences...${NC}"
+        for i in {1..100}; do echo "y"; done | "$SDKMANAGER" --licenses > /tmp/android_licenses.log 2>&1 || true
+      }
+      
+      rm -f "$LICENSE_SCRIPT"
+      
+      # Vérifier que les licences sont acceptées
+      if [ -d "$ANDROID_HOME/licenses" ] && [ -n "$(find "$ANDROID_HOME/licenses" -name "*.txt" 2>/dev/null | head -1)" ]; then
+        LICENSE_COUNT=$(find "$ANDROID_HOME/licenses" -name "*.txt" 2>/dev/null | wc -l)
+        echo -e "${GREEN}✓ $LICENSE_COUNT licence(s) Android SDK acceptée(s)${NC}"
+      else
+        echo -e "${YELLOW}⚠ Vérification des licences échouée, mais on continue...${NC}"
+      fi
+      
+      # Installer les composants requis si manquants
+      echo -e "${YELLOW}Vérification des composants Android SDK requis...${NC}"
+      "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0" > /tmp/android_sdk_install.log 2>&1 || {
+        echo -e "${YELLOW}⚠ Certains composants n'ont pas pu être installés${NC}"
+        echo -e "${YELLOW}   Vérifiez les logs: /tmp/android_sdk_install.log${NC}"
+      }
+    else
+      echo -e "${YELLOW}⚠ sdkmanager non trouvé${NC}"
+      echo -e "${YELLOW}   Installation des command-line tools requise${NC}"
+      echo -e "${YELLOW}   Téléchargez depuis: https://developer.android.com/studio#command-tools${NC}"
+    fi
+  fi
 fi
 
 # Vérifier et configurer Java pour Gradle

@@ -180,6 +180,7 @@ run-ios: configure-mobile-api ## Lance l'application sur iOS (détecte automatiq
 clean: ## Nettoie les builds et dépendances
 	@echo -e "$(GREEN)Nettoyage...$(NC)"
 	@cd frontend && $(FLUTTER) clean
+	@cd frontend/android && rm -rf .gradle build && cd ../..
 	@cd backend && rm -rf node_modules
 	@$(DOCKER_COMPOSE) down -v
 	@echo -e "$(GREEN)✓ Nettoyage terminé$(NC)"
