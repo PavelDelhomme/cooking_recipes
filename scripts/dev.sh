@@ -42,6 +42,40 @@ if [ -d "$HOME/Android/Sdk" ]; then
   $FLUTTER_CMD config --android-sdk "$ANDROID_HOME" 2>/dev/null || true
 fi
 
+# Vérifier et configurer Java pour Gradle
+# Java 25 n'est pas encore supporté par Gradle, on doit utiliser Java 17 ou 21
+JAVA_VERSION=$(java -version 2>&1 | head -1 | grep -oE "version \"[0-9]+" | grep -oE "[0-9]+")
+if [ ! -z "$JAVA_VERSION" ] && [ "$JAVA_VERSION" -gt 21 ]; then
+  echo -e "${YELLOW}⚠ Java $JAVA_VERSION détecté, Gradle nécessite Java 17 ou 21${NC}"
+  echo -e "${YELLOW}   Installation de Java 21 recommandée...${NC}"
+  
+  # Chercher Java 17 ou 21
+  JAVA_17_PATH=""
+  JAVA_21_PATH=""
+  
+  if [ -d "/usr/lib/jvm/java-17-openjdk" ]; then
+    JAVA_17_PATH="/usr/lib/jvm/java-17-openjdk"
+  fi
+  if [ -d "/usr/lib/jvm/java-21-openjdk" ]; then
+    JAVA_21_PATH="/usr/lib/jvm/java-21-openjdk"
+  fi
+  
+  # Utiliser Java 21 si disponible, sinon Java 17
+  if [ ! -z "$JAVA_21_PATH" ]; then
+    export JAVA_HOME="$JAVA_21_PATH"
+    export PATH="$JAVA_21_PATH/bin:$PATH"
+    echo -e "${GREEN}✓ Java 21 configuré pour Gradle${NC}"
+  elif [ ! -z "$JAVA_17_PATH" ]; then
+    export JAVA_HOME="$JAVA_17_PATH"
+    export PATH="$JAVA_17_PATH/bin:$PATH"
+    echo -e "${GREEN}✓ Java 17 configuré pour Gradle${NC}"
+  else
+    echo -e "${YELLOW}⚠ Java 17 ou 21 non trouvé${NC}"
+    echo -e "${YELLOW}   Installation recommandée: sudo pacman -S jdk-openjdk-21${NC}"
+    echo -e "${YELLOW}   Ou utilisez: yay -S jdk21-openjdk${NC}"
+  fi
+fi
+
 # Vérifier que npm est installé
 if ! command -v npm &> /dev/null; then
   echo -e "${RED}❌ npm n'est pas installé${NC}"
@@ -279,31 +313,80 @@ if [ "$HAS_ANDROID" = true ]; then
     if [[ "$enable_wifi" =~ ^[oO]$ ]]; then
       USB_DEVICE="${ANDROID_USB_DEVICES[0]}"
       echo -e "${GREEN}Activation du mode TCP/IP sur le device USB...${NC}"
-      adb -s "$USB_DEVICE" tcpip 5555 2>/dev/null || true
-      sleep 2
+      adb -s "$USB_DEVICE" tcpip 5555 2>/dev/null || {
+        echo -e "${RED}❌ Échec de l'activation du mode TCP/IP${NC}"
+        echo -e "${YELLOW}Vérifiez que le débogage USB est activé${NC}"
+      }
+      sleep 3
       
-      # Obtenir l'IP du device
-      DEVICE_IP=$(adb -s "$USB_DEVICE" shell ip route get 1.1.1.1 2>/dev/null | awk '{print $7}' | head -1)
-      if [ -z "$DEVICE_IP" ]; then
-        DEVICE_IP=$(adb -s "$USB_DEVICE" shell "ifconfig wlan0 | grep 'inet addr' | cut -d: -f2 | awk '{print \$1}'" 2>/dev/null | head -1)
+      # Obtenir l'IP du device - plusieurs méthodes
+      echo -e "${YELLOW}Détection de l'IP du téléphone...${NC}"
+      DEVICE_IP=""
+      
+      # Méthode 1: ip route get (Android moderne)
+      ROUTE_OUTPUT=$(adb -s "$USB_DEVICE" shell "ip route get 1.1.1.1 2>/dev/null" 2>/dev/null)
+      if [ ! -z "$ROUTE_OUTPUT" ]; then
+        # Chercher l'IP dans la sortie (peut être dans différents champs selon la version)
+        DEVICE_IP=$(echo "$ROUTE_OUTPUT" | grep -oE "src [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | awk '{print $2}' | head -1)
+        if [ -z "$DEVICE_IP" ]; then
+          # Essayer de trouver n'importe quelle IP dans la ligne
+          DEVICE_IP=$(echo "$ROUTE_OUTPUT" | grep -oE "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | grep -v "1.1.1.1" | grep -v "192.168.1.254" | head -1)
+        fi
       fi
       
-      if [ ! -z "$DEVICE_IP" ]; then
+      # Méthode 2: ifconfig wlan0 (anciennes versions Android)
+      if [ -z "$DEVICE_IP" ]; then
+        IFCONFIG_OUTPUT=$(adb -s "$USB_DEVICE" shell "ifconfig wlan0 2>/dev/null" 2>/dev/null)
+        if [ ! -z "$IFCONFIG_OUTPUT" ]; then
+          DEVICE_IP=$(echo "$IFCONFIG_OUTPUT" | grep -oE "inet addr:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | cut -d: -f2 | head -1)
+          if [ -z "$DEVICE_IP" ]; then
+            # Format moderne: inet 192.168.1.184
+            DEVICE_IP=$(echo "$IFCONFIG_OUTPUT" | grep -oE "inet [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | awk '{print $2}' | head -1)
+          fi
+        fi
+      fi
+      
+      # Méthode 3: ip addr show wlan0
+      if [ -z "$DEVICE_IP" ]; then
+        IP_ADDR_OUTPUT=$(adb -s "$USB_DEVICE" shell "ip addr show wlan0 2>/dev/null" 2>/dev/null)
+        if [ ! -z "$IP_ADDR_OUTPUT" ]; then
+          DEVICE_IP=$(echo "$IP_ADDR_OUTPUT" | grep -oE "inet [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | awk '{print $2}' | cut -d/ -f1 | head -1)
+        fi
+      fi
+      
+      if [ ! -z "$DEVICE_IP" ] && [ "$DEVICE_IP" != "127.0.0.1" ]; then
+        echo -e "${GREEN}✓ IP détectée: $DEVICE_IP${NC}"
         echo -e "${GREEN}Connexion au device via WiFi ($DEVICE_IP:5555)...${NC}"
-        adb connect "$DEVICE_IP:5555" 2>/dev/null || true
-        sleep 2
+        
+        # Déconnecter d'abord si déjà connecté
+        adb disconnect "$DEVICE_IP:5555" 2>/dev/null || true
+        sleep 1
+        
+        # Connecter via WiFi
+        CONNECT_OUTPUT=$(adb connect "$DEVICE_IP:5555" 2>&1)
+        sleep 3
         
         # Vérifier si la connexion WiFi a réussi
         if adb devices 2>/dev/null | grep -q "$DEVICE_IP:5555.*device"; then
           ANDROID_WIFI_DEVICES+=("$DEVICE_IP:5555")
           ANDROID_DEVICE_ID="$DEVICE_IP:5555"
-          echo -e "${GREEN}✓ Connexion WiFi établie!${NC}"
+          echo -e "${GREEN}✓ Connexion WiFi établie avec succès!${NC}"
+          echo -e "${GREEN}   Vous pouvez maintenant débrancher le câble USB${NC}"
         else
-          echo -e "${YELLOW}⚠ Connexion WiFi échouée, utilisation du device USB${NC}"
+          echo -e "${YELLOW}⚠ Connexion WiFi échouée${NC}"
+          echo -e "${YELLOW}   Sortie: $CONNECT_OUTPUT${NC}"
+          echo -e "${YELLOW}   Vérifiez que:${NC}"
+          echo -e "${YELLOW}   - Le téléphone et le PC sont sur le même réseau WiFi${NC}"
+          echo -e "${YELLOW}   - Le port 5555 n'est pas bloqué par le firewall${NC}"
+          echo -e "${YELLOW}   - Le mode TCP/IP est bien activé${NC}"
+          echo -e "${YELLOW}   Utilisation du device USB pour l'instant${NC}"
         fi
       else
         echo -e "${YELLOW}⚠ Impossible de détecter l'IP du device${NC}"
-        echo -e "${YELLOW}   Vous pouvez connecter manuellement avec: adb connect <IP>:5555${NC}"
+        echo -e "${YELLOW}   Vérifiez que le WiFi est activé sur votre téléphone${NC}"
+        echo -e "${YELLOW}   Vous pouvez connecter manuellement avec:${NC}"
+        echo -e "${YELLOW}   adb connect <IP_DU_TELEPHONE>:5555${NC}"
+        echo -e "${YELLOW}   Pour trouver l'IP: Paramètres > À propos du téléphone > État${NC}"
       fi
     fi
   fi
