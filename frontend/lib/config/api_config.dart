@@ -35,9 +35,14 @@ class ApiConfig {
         return 'http://localhost:$backendPort/api';
       }
     } else {
-      // Pour mobile, utiliser l'IP de la machine (sera configurée via make configure-mobile-api)
-      // Par défaut, on essaie de détecter ou utiliser localhost
-      return 'http://localhost:$backendPort/api';
+      // Pour mobile (Android/iOS)
+      // En mode release, utiliser l'API de production
+      if (const bool.fromEnvironment('dart.vm.product')) {
+        return productionApiUrl;
+      } else {
+        // Mode debug : utiliser localhost (pour développement local)
+        return 'http://localhost:$backendPort/api';
+      }
     }
   }
   
