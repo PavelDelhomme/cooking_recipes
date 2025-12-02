@@ -39,23 +39,40 @@
     (function() {
       'use strict';
       
+      // Supprimer complètement les erreurs de la console
+      const originalError = console.error;
+      const originalWarn = console.warn;
+      
       if ('serviceWorker' in navigator) {
-        // Désenregistrer tous les service workers existants immédiatement
+        // Désenregistrer tous les service workers existants silencieusement
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
           for(let registration of registrations) {
-            registration.unregister().catch(function(err) {
-              console.log('Service worker unregistration error:', err);
-            });
+            registration.unregister().catch(function() {});
           }
-        }).catch(function(err) {
-          console.log('Service worker getRegistrations error:', err);
-        });
+        }).catch(function() {});
         
-        // Intercepter et bloquer toutes les tentatives d'enregistrement
+        // Intercepter et bloquer toutes les tentatives d'enregistrement silencieusement
         const originalRegister = navigator.serviceWorker.register;
         navigator.serviceWorker.register = function() {
-          // Ne pas afficher d'erreur dans la console, juste bloquer silencieusement
+          // Bloquer silencieusement sans afficher d'erreur
           return Promise.reject(new Error('Service worker registration is disabled'));
+        };
+        
+        // Intercepter les erreurs de service worker dans la console
+        console.error = function(...args) {
+          if (args[0] && typeof args[0] === 'string' && 
+              (args[0].includes('service worker') || args[0].includes('Service worker'))) {
+            return; // Ignorer silencieusement
+          }
+          originalError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+          if (args[0] && typeof args[0] === 'string' && 
+              (args[0].includes('service worker') || args[0].includes('Service worker'))) {
+            return; // Ignorer silencieusement
+          }
+          originalWarn.apply(console, args);
         };
         
         // Empêcher l'enregistrement via addEventListener

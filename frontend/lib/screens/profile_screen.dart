@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/user_profile.dart';
 import '../services/profile_service.dart';
+import '../services/auth_service.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback? onLogout;
+  
+  const ProfileScreen({super.key, this.onLogout});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -12,6 +15,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final ProfileService _profileService = ProfileService();
+  final AuthService _authService = AuthService();
   UserProfile? _currentProfile;
   List<UserProfile> _profiles = [];
   bool _isLoading = true;
@@ -300,9 +304,81 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
           ),
+          // Bouton de déconnexion
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              color: Theme.of(context).colorScheme.errorContainer,
+              child: ListTile(
+                leading: Icon(
+                  Icons.logout,
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                ),
+                title: Text(
+                  'Déconnexion',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                ),
+                subtitle: Text(
+                  'Se déconnecter de votre compte',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onErrorContainer.withOpacity(0.7),
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                ),
+                onTap: () => _handleLogout(),
+              ),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _handleLogout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Déconnexion'),
+        content: const Text('Voulez-vous vous déconnecter ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Déconnexion'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _authService.signOut();
+      // Appeler le callback de déconnexion pour mettre à jour l'état
+      if (widget.onLogout != null) {
+        widget.onLogout!();
+      }
+      // Rediriger vers la page de connexion
+      if (mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/auth', (route) => false);
+      }
+    }
   }
 
   Future<void> _showAddProfileDialog([UserProfile? profile]) async {

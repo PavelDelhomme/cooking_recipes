@@ -51,8 +51,8 @@ class _AuthScreenState extends State<AuthScreen> {
         setState(() => _isLoading = false);
         
         if (result['success'] == true) {
-          // Navigation vers l'écran principal
-          Navigator.of(context).pushReplacementNamed('/home');
+          // Navigation vers l'écran principal en remplaçant toute la pile
+          Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

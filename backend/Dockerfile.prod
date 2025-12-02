@@ -2,11 +2,14 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Installer wget pour healthcheck
+RUN apk add --no-cache wget
+
 # Copier les fichiers de dépendances
 COPY package*.json ./
 
-# Installer les dépendances
-RUN npm install
+# Installer les dépendances de production uniquement
+RUN npm ci --only=production
 
 # Copier le reste du code
 COPY . .
@@ -22,7 +25,10 @@ ENV PORT=7272
 ENV HOST=0.0.0.0
 ENV NODE_ENV=production
 
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost:7272/health || exit 1
+
 # Commande de démarrage
-# La création automatique du compte se fait dans server.js via createDefaultUser()
-CMD ["npm", "start"]
+CMD ["node", "src/server.js"]
 

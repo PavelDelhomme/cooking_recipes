@@ -1,4 +1,4 @@
-.PHONY: help install clean test build dev up down restart logs status backend frontend configure-mobile-api restore-api-url _get-ip run-android run-ios build-android build-ios
+.PHONY: help install clean test build dev up down restart logs status backend frontend configure-mobile-api restore-api-url _get-ip run-android run-ios build-android build-ios db-reset db-clear prod-build prod-up prod-down prod-logs prod-restart
 
 # Variables
 # Détecter Flutter automatiquement
@@ -275,6 +275,146 @@ test: ## Lance les tests
 
 test-api: ## Teste l'API et la récupération de recettes
 	@bash scripts/test_api.sh
+
+# Gestion de la base de données
+db-reset: ## Réinitialise complètement la base de données (supprime et recrée les tables)
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
+	@echo -e "$(GREEN)Réinitialisation de la base de données$(NC)"
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
+	@echo ""
+	@echo -e "$(YELLOW)⚠️  ATTENTION: Cette opération va supprimer toutes les données!$(NC)"
+	@read -p "Êtes-vous sûr ? (oui/non): " confirm; \
+	if [ "$$confirm" != "oui" ]; then \
+		echo -e "$(YELLOW)Opération annulée$(NC)"; \
+		exit 0; \
+	fi
+	@echo ""
+	@echo -e "$(YELLOW)Envoi de la requête de réinitialisation...$(NC)"
+	@RESPONSE=$$(curl -s -X POST http://localhost:$(BACKEND_PORT)/api/admin/reset-database 2>/dev/null); \
+	if [ $$? -eq 0 ]; then \
+		echo -e "$(GREEN)✓ Base de données réinitialisée avec succès$(NC)"; \
+		echo -e "$(GREEN)✓ Un compte admin par défaut sera créé au prochain démarrage$(NC)"; \
+		echo ""; \
+		echo -e "$(YELLOW)Identifiants par défaut:$(NC)"; \
+		echo -e "  Email: $(YELLOW)admin@cookingrecipe.com$(NC)"; \
+		echo -e "  Mot de passe: $(YELLOW)admin123$(NC)"; \
+	else \
+		echo -e "$(RED)❌ Erreur lors de la réinitialisation$(NC)"; \
+		echo -e "$(YELLOW)Vérifiez que le backend est démarré: make dev ou make dev-web$(NC)"; \
+		exit 1; \
+	fi
+
+db-clear: ## Vide tous les comptes utilisateurs (garde les tables)
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
+	@echo -e "$(GREEN)Vidage de tous les comptes utilisateurs$(NC)"
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
+	@echo ""
+	@echo -e "$(YELLOW)⚠️  ATTENTION: Cette opération va supprimer tous les comptes!$(NC)"
+	@read -p "Êtes-vous sûr ? (oui/non): " confirm; \
+	if [ "$$confirm" != "oui" ]; then \
+		echo -e "$(YELLOW)Opération annulée$(NC)"; \
+		exit 0; \
+	fi
+	@echo ""
+	@echo -e "$(YELLOW)Envoi de la requête de suppression...$(NC)"
+	@RESPONSE=$$(curl -s -X POST http://localhost:$(BACKEND_PORT)/api/admin/clear-users 2>/dev/null); \
+	if [ $$? -eq 0 ]; then \
+		echo -e "$(GREEN)✓ Tous les comptes utilisateurs ont été supprimés$(NC)"; \
+		echo -e "$(GREEN)✓ Un compte admin par défaut sera créé au prochain démarrage$(NC)"; \
+		echo ""; \
+		echo -e "$(YELLOW)Identifiants par défaut:$(NC)"; \
+		echo -e "  Email: $(YELLOW)admin@cookingrecipe.com$(NC)"; \
+		echo -e "  Mot de passe: $(YELLOW)admin123$(NC)"; \
+	else \
+		echo -e "$(RED)❌ Erreur lors de la suppression$(NC)"; \
+		echo -e "$(YELLOW)Vérifiez que le backend est démarré: make dev ou make dev-web$(NC)"; \
+		exit 1; \
+	fi
+
+# Production avec Docker
+prod-build: ## Build les images Docker pour la production
+	@echo -e "$(GREEN)Construction des images Docker pour la production...$(NC)"
+	@docker-compose -f docker-compose.prod.yml build
+	@echo -e "$(GREEN)✓ Images construites$(NC)"
+
+prod-up: ## Démarre les conteneurs en production
+	@echo -e "$(GREEN)Démarrage des conteneurs en production...$(NC)"
+	@if [ ! -f .env.prod ]; then \
+		echo -e "$(YELLOW)⚠ Fichier .env.prod non trouvé$(NC)"; \
+		echo -e "$(YELLOW)Création depuis .env.prod.example...$(NC)"; \
+		cp .env.prod.example .env.prod 2>/dev/null || true; \
+		echo -e "$(YELLOW)⚠ Modifiez .env.prod avec vos valeurs avant de continuer!$(NC)"; \
+	fi
+	@echo -e "$(YELLOW)Vérification du réseau 'web'...$(NC)"
+	@if ! docker network ls | grep -q " web "; then \
+		echo -e "$(YELLOW)Création du réseau 'web'...$(NC)"; \
+		docker network create web 2>/dev/null || echo -e "$(YELLOW)⚠ Réseau 'web' existe déjà ou erreur$(NC)"; \
+	fi
+	@docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
+	@echo -e "$(GREEN)✓ Conteneurs démarrés$(NC)"
+	@echo -e "$(YELLOW)Backend: http://localhost:7272/api$(NC)"
+	@echo -e "$(YELLOW)Frontend: http://localhost:7070$(NC)"
+
+prod-down: ## Arrête les conteneurs en production
+	@echo -e "$(GREEN)Arrêt des conteneurs en production...$(NC)"
+	@docker-compose -f docker-compose.prod.yml down
+	@echo -e "$(GREEN)✓ Conteneurs arrêtés$(NC)"
+
+prod-restart: ## Redémarre les conteneurs en production
+	@echo -e "$(GREEN)Redémarrage des conteneurs en production...$(NC)"
+	@docker-compose -f docker-compose.prod.yml restart
+	@echo -e "$(GREEN)✓ Conteneurs redémarrés$(NC)"
+
+prod-logs: ## Affiche les logs en production
+	@docker-compose -f docker-compose.prod.yml logs -f
+
+prod-status: ## Affiche l'état des conteneurs en production
+	@echo -e "$(GREEN)État des conteneurs en production:$(NC)"
+	@docker-compose -f docker-compose.prod.yml ps
+
+# Docker Hub
+DOCKER_HUB_USER=paveldelhomme
+API_IMAGE=$(DOCKER_HUB_USER)/cooking-recipe-api:latest
+FRONTEND_IMAGE=$(DOCKER_HUB_USER)/cooking-recipe-frontend:latest
+
+docker-build-prod: ## Build les images pour production
+	@echo -e "$(GREEN)Construction des images Docker pour production...$(NC)"
+	@docker-compose -f docker-compose.prod.yml build
+	@echo -e "$(GREEN)✓ Images construites$(NC)"
+
+docker-tag: ## Tag les images pour Docker Hub
+	@echo -e "$(GREEN)Tag des images pour Docker Hub...$(NC)"
+	@docker tag cooking_recipes_backend:latest $(API_IMAGE) 2>/dev/null || \
+		docker tag cooking-recipe-api:latest $(API_IMAGE) 2>/dev/null || \
+		(echo -e "$(RED)❌ Image backend non trouvée. Lancez 'make docker-build-prod' d'abord$(NC)" && exit 1)
+	@docker tag cooking_recipes_frontend:latest $(FRONTEND_IMAGE) 2>/dev/null || \
+		docker tag cooking-recipe-frontend:latest $(FRONTEND_IMAGE) 2>/dev/null || \
+		(echo -e "$(RED)❌ Image frontend non trouvée. Lancez 'make docker-build-prod' d'abord$(NC)" && exit 1)
+	@echo -e "$(GREEN)✓ Images taguées$(NC)"
+
+docker-push: docker-tag ## Push les images sur Docker Hub
+	@echo -e "$(GREEN)Push des images sur Docker Hub...$(NC)"
+	@echo -e "$(YELLOW)Assurez-vous d'être connecté: docker login$(NC)"
+	@docker push $(API_IMAGE)
+	@docker push $(FRONTEND_IMAGE)
+	@echo -e "$(GREEN)✓ Images poussées sur Docker Hub$(NC)"
+	@echo -e "$(YELLOW)Images disponibles:$(NC)"
+	@echo -e "  - $(API_IMAGE)"
+	@echo -e "  - $(FRONTEND_IMAGE)"
+
+docker-build-push: docker-build-prod docker-push ## Build et push les images sur Docker Hub
+
+# Déploiement Portainer
+deploy-portainer: ## Déploie automatiquement sur Portainer
+	@echo -e "$(GREEN)Déploiement sur Portainer...$(NC)"
+	@if [ ! -f scripts/deploy-portainer.sh ]; then \
+		echo -e "$(RED)❌ Script deploy-portainer.sh non trouvé$(NC)"; \
+		exit 1; \
+	fi
+	@chmod +x scripts/deploy-portainer.sh
+	@./scripts/deploy-portainer.sh
+
+deploy-full: docker-build-push deploy-portainer ## Build, push et déploie sur Portainer
 
 .DEFAULT_GOAL := help
 

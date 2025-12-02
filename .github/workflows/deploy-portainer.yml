@@ -1,0 +1,104 @@
+name: Deploy to Portainer
+
+on:
+  workflow_dispatch: # Déclenchement manuel
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'docker-compose.prod.yml'
+      - '.github/workflows/deploy-portainer.yml'
+
+env:
+  PORTAINER_URL: ${{ secrets.PORTAINER_URL }}
+  PORTAINER_USERNAME: ${{ secrets.PORTAINER_USERNAME }}
+  PORTAINER_PASSWORD: ${{ secrets.PORTAINER_PASSWORD }}
+  STACK_NAME: cooking-recipes
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get Portainer JWT token
+        id: portainer-auth
+        run: |
+          RESPONSE=$(curl -s -X POST "${{ env.PORTAINER_URL }}/api/auth" \
+            -H "Content-Type: application/json" \
+            -d "{\"Username\":\"${{ env.PORTAINER_USERNAME }}\",\"Password\":\"${{ env.PORTAINER_PASSWORD }}\"}")
+          
+          JWT=$(echo $RESPONSE | jq -r '.jwt')
+          echo "jwt=$JWT" >> $GITHUB_OUTPUT
+          echo "Token obtenu"
+
+      - name: Get endpoint ID
+        id: endpoint
+        run: |
+          ENDPOINTS=$(curl -s -X GET "${{ env.PORTAINER_URL }}/api/endpoints" \
+            -H "Authorization: Bearer ${{ steps.portainer-auth.outputs.jwt }}")
+          
+          ENDPOINT_ID=$(echo $ENDPOINTS | jq -r '.[0].Id')
+          echo "endpoint_id=$ENDPOINT_ID" >> $GITHUB_OUTPUT
+          echo "Endpoint ID: $ENDPOINT_ID"
+
+      - name: Check if stack exists
+        id: stack-check
+        run: |
+          STACKS=$(curl -s -X GET \
+            "${{ env.PORTAINER_URL }}/api/stacks?filters={\"EndpointID\":${{ steps.endpoint.outputs.endpoint_id }}}" \
+            -H "Authorization: Bearer ${{ steps.portainer-auth.outputs.jwt }}")
+          
+          STACK_ID=$(echo $STACKS | jq -r ".[] | select(.Name==\"${{ env.STACK_NAME }}\") | .Id")
+          
+          if [ -n "$STACK_ID" ] && [ "$STACK_ID" != "null" ]; then
+            echo "stack_id=$STACK_ID" >> $GITHUB_OUTPUT
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Stack existe avec ID: $STACK_ID"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Stack n'existe pas"
+          fi
+
+      - name: Update existing stack
+        if: steps.stack-check.outputs.exists == 'true'
+        run: |
+          COMPOSE_FILE=$(cat docker-compose.prod.yml | jq -Rs .)
+          
+          curl -X PUT \
+            "${{ env.PORTAINER_URL }}/api/stacks/${{ steps.stack-check.outputs.stack_id }}?endpointId=${{ steps.endpoint.outputs.endpoint_id }}" \
+            -H "Authorization: Bearer ${{ steps.portainer-auth.outputs.jwt }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"StackFileContent\": $COMPOSE_FILE,
+              \"Prune\": true,
+              \"PullImage\": true
+            }"
+          
+          echo "✅ Stack mise à jour"
+
+      - name: Create new stack
+        if: steps.stack-check.outputs.exists == 'false'
+        run: |
+          COMPOSE_FILE=$(cat docker-compose.prod.yml | jq -Rs .)
+          
+          curl -X POST \
+            "${{ env.PORTAINER_URL }}/api/stacks?endpointId=${{ steps.endpoint.outputs.endpoint_id }}&method=compose" \
+            -H "Authorization: Bearer ${{ steps.portainer-auth.outputs.jwt }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"Name\": \"${{ env.STACK_NAME }}\",
+              \"StackFileContent\": $COMPOSE_FILE,
+              \"Env\": [
+                {
+                  \"name\": \"JWT_SECRET\",
+                  \"value\": \"${{ secrets.JWT_SECRET }}\"
+                }
+              ]
+            }"
+          
+          echo "✅ Stack créée"
+

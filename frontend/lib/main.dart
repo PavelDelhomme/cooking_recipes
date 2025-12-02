@@ -180,14 +180,34 @@ class _AuthWrapperState extends State<AuthWrapper> {
   void initState() {
     super.initState();
     _checkAuth();
+    // Vérifier périodiquement l'authentification
+    _startAuthCheck();
+  }
+
+  void _startAuthCheck() {
+    // Vérifier l'authentification toutes les 10 secondes (moins agressif)
+    Future.delayed(const Duration(seconds: 10), () {
+      if (mounted && _isAuthenticated) {
+        // Vérifier seulement si on pense être authentifié
+        _checkAuth();
+        _startAuthCheck(); // Continuer à vérifier
+      }
+    });
   }
 
   Future<void> _checkAuth() async {
     final isAuth = await _authService.isAuthenticated();
-    setState(() {
-      _isAuthenticated = isAuth;
-      _isLoading = false;
-    });
+    if (mounted) {
+      final wasAuthenticated = _isAuthenticated;
+      setState(() {
+        _isAuthenticated = isAuth;
+        _isLoading = false;
+      });
+      // Si l'utilisateur était connecté et ne l'est plus, forcer la reconstruction
+      if (wasAuthenticated && !isAuth) {
+        // L'utilisateur s'est déconnecté, l'écran sera reconstruit automatiquement
+      }
+    }
   }
 
   @override
@@ -200,14 +220,27 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
     if (_isAuthenticated) {
       return MainScreen(
+        key: ValueKey(_isAuthenticated), // Force la reconstruction si l'auth change
         onThemeToggle: widget.onThemeToggle,
         onLocaleChange: widget.onLocaleChange,
         currentLocale: widget.currentLocale,
         isDarkMode: widget.isDarkMode,
+        onLogout: () async {
+          // Quand l'utilisateur se déconnecte, mettre à jour l'état
+          if (mounted) {
+            setState(() {
+              _isAuthenticated = false;
+            });
+            // Vérifier immédiatement pour forcer la redirection
+            await _checkAuth();
+          }
+        },
       );
     }
 
-    return const AuthScreen();
+    return const AuthScreen(
+      key: ValueKey('auth_screen'), // Force la reconstruction
+    );
   }
 }
 
@@ -216,6 +249,7 @@ class MainScreen extends StatefulWidget {
   final Function(Locale)? onLocaleChange;
   final Locale? currentLocale;
   final bool isDarkMode;
+  final VoidCallback? onLogout;
 
   const MainScreen({
     super.key,
@@ -223,6 +257,7 @@ class MainScreen extends StatefulWidget {
     this.onLocaleChange,
     this.currentLocale,
     this.isDarkMode = false,
+    this.onLogout,
   });
 
   @override

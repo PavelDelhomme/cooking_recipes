@@ -1,0 +1,87 @@
+# Dockerfile pour Flutter Web en production
+FROM ubuntu:22.04
+
+# Variables d'environnement
+ENV DEBIAN_FRONTEND=noninteractive
+ENV FLUTTER_VERSION=3.24.0
+ENV FLUTTER_HOME=/opt/flutter
+ENV PATH="${FLUTTER_HOME}/bin:${PATH}"
+
+# Installer les dépendances
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    unzip \
+    xz-utils \
+    zip \
+    libglu1-mesa \
+    python3 \
+    python3-pip \
+    nginx \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installer Flutter
+RUN git clone --branch stable https://github.com/flutter/flutter.git ${FLUTTER_HOME}
+ENV FLUTTER_ROOT_WARNING=false
+RUN flutter doctor || true
+
+# Configurer Flutter pour le web
+RUN flutter config --enable-web
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier les fichiers de dépendances
+COPY pubspec.yaml pubspec.lock* ./
+
+# Installer les dépendances
+RUN flutter pub get
+
+# Copier le reste du code
+COPY . .
+
+# Build de production
+RUN flutter build web --release --base-href /
+
+# Configurer Nginx pour servir les fichiers build
+RUN rm -rf /etc/nginx/sites-enabled/default
+COPY <<EOF /etc/nginx/sites-available/default
+server {
+    listen 8080;
+    server_name _;
+    root /app/build/web;
+    index index.html;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss application/json application/javascript;
+
+    # Cache statique
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Flutter web routing
+    location / {
+        try_files \$uri \$uri/ /index.html;
+    }
+
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+}
+EOF
+
+RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+# Exposer le port
+EXPOSE 8080
+
+# Commande de démarrage
+CMD ["nginx", "-g", "daemon off;"]
+

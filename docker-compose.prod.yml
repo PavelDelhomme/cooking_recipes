@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  cooking-recipe-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: cooking-recipe-api
+    image: paveldelhomme/cooking-recipe-api:latest
+    restart: unless-stopped
+    expose:
+      - "7272"
+    volumes:
+      - cooking_recipes_backend_data:/app/data
+    environment:
+      - PORT=7272
+      - HOST=0.0.0.0
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET:-change-this-secret-in-production}
+    networks:
+      - cooking_recipes_network
+      - web
+    labels:
+      - "com.docker.compose.project=cooking_recipes"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:7272/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  cooking-recipe-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: cooking-recipe-frontend
+    image: paveldelhomme/cooking-recipe-frontend:latest
+    restart: unless-stopped
+    expose:
+      - "8080"
+    volumes:
+      - cooking_recipes_frontend_build:/app/build
+    environment:
+      - API_URL=https://cooking-recipe-api.delhomme.ovh
+      - FLUTTER_WEB_USE_SKIA=true
+    depends_on:
+      - cooking-recipe-api
+    networks:
+      - cooking_recipes_network
+      - web
+    labels:
+      - "com.docker.compose.project=cooking_recipes"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  cooking_recipes_backend_data:
+    driver: local
+    name: cooking_recipes_backend_data
+  cooking_recipes_frontend_build:
+    driver: local
+    name: cooking_recipes_frontend_build
+
+networks:
+  cooking_recipes_network:
+    driver: bridge
+    name: cooking_recipes_network
+  web:
+    external: true
+    name: web
+
