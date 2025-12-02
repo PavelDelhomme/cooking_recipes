@@ -105,21 +105,59 @@ echo -e "${YELLOW}Frontend Web (PC): http://localhost:4041${NC}"
 echo -e "${YELLOW}Frontend Web (Mobile): http://$MACHINE_IP:4041${NC}"
 echo ""
 
-# Détecter les appareils Android connectés via ADB
+# Détecter les appareils Android connectés via ADB (USB et WiFi)
 ANDROID_DEVICES=""
 ANDROID_DEVICE_ID=""
 ANDROID_DEVICE_COUNT=0
+ANDROID_USB_DEVICES=()
+ANDROID_WIFI_DEVICES=()
+ANDROID_WIFI_IPS=()
+
 if command -v adb &> /dev/null; then
-  ANDROID_DEVICES=$(adb devices 2>/dev/null | grep -v "List" | grep "device$" | awk '{print $1}' | head -1)
-  ANDROID_DEVICE_ID="$ANDROID_DEVICES"
-  ANDROID_DEVICE_COUNT=$(adb devices 2>/dev/null | grep -v "List" | grep -c "device$" || echo "0")
+  # Détecter tous les devices (USB et WiFi)
+  ALL_ADB_DEVICES=$(adb devices 2>/dev/null | grep -v "List" | grep "device$" | awk '{print $1}')
+  ANDROID_DEVICE_COUNT=$(echo "$ALL_ADB_DEVICES" | grep -c . || echo "0")
+  
+  # Séparer les devices USB (ID alphanumériques) et WiFi (adresses IP)
+  while IFS= read -r device_id; do
+    if [ ! -z "$device_id" ]; then
+      # Vérifier si c'est une adresse IP (WiFi) ou un ID USB
+      if echo "$device_id" | grep -qE "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"; then
+        # Device WiFi
+        ANDROID_WIFI_DEVICES+=("$device_id")
+        ANDROID_WIFI_IPS+=("$device_id")
+      else
+        # Device USB
+        ANDROID_USB_DEVICES+=("$device_id")
+      fi
+    fi
+  done <<< "$ALL_ADB_DEVICES"
+  
+  # Priorité: WiFi d'abord, puis USB
+  if [ ${#ANDROID_WIFI_DEVICES[@]} -gt 0 ]; then
+    ANDROID_DEVICE_ID="${ANDROID_WIFI_DEVICES[0]}"
+    ANDROID_DEVICES="$ANDROID_DEVICE_ID"
+  elif [ ${#ANDROID_USB_DEVICES[@]} -gt 0 ]; then
+    ANDROID_DEVICE_ID="${ANDROID_USB_DEVICES[0]}"
+    ANDROID_DEVICES="$ANDROID_DEVICE_ID"
+  fi
   
   # Si un device ADB est détecté mais pas Flutter, essayer de le forcer
   if [ ! -z "$ANDROID_DEVICE_ID" ]; then
+    # Vérifier si c'est un device WiFi ou USB
+    IS_WIFI_DEVICE=false
+    if echo "$ANDROID_DEVICE_ID" | grep -qE "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"; then
+      IS_WIFI_DEVICE=true
+    fi
+    
     # Vérifier si Flutter peut voir ce device
     FLUTTER_DEVICE_CHECK=$($FLUTTER_CMD devices 2>/dev/null | grep -i "$ANDROID_DEVICE_ID\|android" || echo "")
     if [ -z "$FLUTTER_DEVICE_CHECK" ]; then
-      echo -e "${YELLOW}⚠ Device ADB détecté ($ANDROID_DEVICE_ID) mais Flutter ne le voit pas${NC}"
+      DEVICE_TYPE="USB"
+      if [ "$IS_WIFI_DEVICE" = true ]; then
+        DEVICE_TYPE="WiFi"
+      fi
+      echo -e "${YELLOW}⚠ Device ADB ($DEVICE_TYPE) détecté ($ANDROID_DEVICE_ID) mais Flutter ne le voit pas${NC}"
       echo -e "${YELLOW}   Tentative de reconnaissance par Flutter...${NC}"
       
       # Configurer ANDROID_SERIAL pour que Flutter utilise ce device
@@ -128,7 +166,7 @@ if command -v adb &> /dev/null; then
       # Essayer de forcer Flutter à reconnaître le device
       # Vérifier que le device répond
       if adb -s "$ANDROID_DEVICE_ID" shell echo "test" > /dev/null 2>&1; then
-        echo -e "${GREEN}✓ Device ADB répond correctement${NC}"
+        echo -e "${GREEN}✓ Device ADB ($DEVICE_TYPE) répond correctement${NC}"
         # Forcer Flutter à scanner les devices
         $FLUTTER_CMD devices > /dev/null 2>&1 || true
         sleep 2
@@ -149,9 +187,47 @@ fi
 FLUTTER_ANDROID_DEVICES=$($FLUTTER_CMD devices 2>/dev/null | grep -i "android" | head -1 || echo "")
 FLUTTER_WEB_AVAILABLE=$($FLUTTER_CMD devices 2>/dev/null | grep -i "web-server\|chrome" | head -1 || echo "")
 
+# Si plusieurs devices sont disponibles, permettre de choisir
+SELECTED_DEVICE_ID="$ANDROID_DEVICE_ID"
+if [ ${#ANDROID_WIFI_DEVICES[@]} -gt 0 ] && [ ${#ANDROID_USB_DEVICES[@]} -gt 0 ]; then
+  echo ""
+  echo -e "${YELLOW}Plusieurs devices détectés, choisissez lequel utiliser:${NC}"
+  DEVICE_INDEX=1
+  for wifi_device in "${ANDROID_WIFI_DEVICES[@]}"; do
+    DEVICE_INFO=$(adb -s "$wifi_device" shell getprop ro.product.model 2>/dev/null || echo "Android Device")
+    echo -e "  ${GREEN}$DEVICE_INDEX)${NC} WiFi: $wifi_device ($DEVICE_INFO)"
+    DEVICE_INDEX=$((DEVICE_INDEX + 1))
+  done
+  for usb_device in "${ANDROID_USB_DEVICES[@]}"; do
+    DEVICE_INFO=$(adb -s "$usb_device" shell getprop ro.product.model 2>/dev/null || echo "Android Device")
+    echo -e "  ${GREEN}$DEVICE_INDEX)${NC} USB: $usb_device ($DEVICE_INFO)"
+    DEVICE_INDEX=$((DEVICE_INDEX + 1))
+  done
+  echo ""
+  read -p "Votre choix (défaut: 1 - WiFi): " device_choice
+  device_choice=${device_choice:-1}
+  
+  # Sélectionner le device choisi
+  TOTAL_DEVICES=$((${#ANDROID_WIFI_DEVICES[@]} + ${#ANDROID_USB_DEVICES[@]}))
+  if [ "$device_choice" -ge 1 ] && [ "$device_choice" -le "$TOTAL_DEVICES" ]; then
+    if [ "$device_choice" -le ${#ANDROID_WIFI_DEVICES[@]} ]; then
+      SELECTED_DEVICE_ID="${ANDROID_WIFI_DEVICES[$((device_choice - 1))]}"
+    else
+      USB_INDEX=$((device_choice - ${#ANDROID_WIFI_DEVICES[@]} - 1))
+      SELECTED_DEVICE_ID="${ANDROID_USB_DEVICES[$USB_INDEX]}"
+    fi
+    ANDROID_DEVICE_ID="$SELECTED_DEVICE_ID"
+    echo -e "${GREEN}✓ Device sélectionné: $ANDROID_DEVICE_ID${NC}"
+  fi
+fi
+
 # Si on a un device ADB mais pas Flutter, on peut quand même l'utiliser
 if [ ! -z "$ANDROID_DEVICE_ID" ] && [ -z "$FLUTTER_ANDROID_DEVICES" ]; then
-  echo -e "${YELLOW}⚠ Utilisation du device ADB directement: $ANDROID_DEVICE_ID${NC}"
+  DEVICE_TYPE="USB"
+  if echo "$ANDROID_DEVICE_ID" | grep -qE "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"; then
+    DEVICE_TYPE="WiFi"
+  fi
+  echo -e "${YELLOW}⚠ Utilisation du device ADB ($DEVICE_TYPE) directement: $ANDROID_DEVICE_ID${NC}"
   # Essayer de trouver l'ID Flutter correspondant
   FLUTTER_DEVICE_JSON=$($FLUTTER_CMD devices --machine 2>/dev/null || echo "[]")
   # Chercher un device Android dans la sortie JSON
@@ -172,13 +248,66 @@ fi
 if [ "$HAS_ANDROID" = true ]; then
   echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
   echo -e "${GREEN}Appareils détectés:${NC}"
-  if [ ! -z "$ANDROID_DEVICE_ID" ]; then
-    DEVICE_INFO=$(adb -s "$ANDROID_DEVICE_ID" shell getprop ro.product.model 2>/dev/null || echo "Android Device")
-    echo -e "  ${GREEN}✓ Android (ADB): $ANDROID_DEVICE_ID${NC}"
-    if [ ! -z "$DEVICE_INFO" ] && [ "$DEVICE_INFO" != "Android Device" ]; then
-      echo -e "     Modèle: $DEVICE_INFO${NC}"
+  
+  # Afficher les devices WiFi
+  if [ ${#ANDROID_WIFI_DEVICES[@]} -gt 0 ]; then
+    for wifi_device in "${ANDROID_WIFI_DEVICES[@]}"; do
+      DEVICE_INFO=$(adb -s "$wifi_device" shell getprop ro.product.model 2>/dev/null || echo "Android Device")
+      echo -e "  ${GREEN}✓ Android (WiFi): $wifi_device${NC}"
+      if [ ! -z "$DEVICE_INFO" ] && [ "$DEVICE_INFO" != "Android Device" ]; then
+        echo -e "     Modèle: $DEVICE_INFO${NC}"
+      fi
+    done
+  fi
+  
+  # Afficher les devices USB
+  if [ ${#ANDROID_USB_DEVICES[@]} -gt 0 ]; then
+    for usb_device in "${ANDROID_USB_DEVICES[@]}"; do
+      DEVICE_INFO=$(adb -s "$usb_device" shell getprop ro.product.model 2>/dev/null || echo "Android Device")
+      echo -e "  ${GREEN}✓ Android (USB): $usb_device${NC}"
+      if [ ! -z "$DEVICE_INFO" ] && [ "$DEVICE_INFO" != "Android Device" ]; then
+        echo -e "     Modèle: $DEVICE_INFO${NC}"
+      fi
+    done
+  fi
+  
+  # Proposer de connecter via WiFi si un device USB est détecté mais pas de WiFi
+  if [ ${#ANDROID_USB_DEVICES[@]} -gt 0 ] && [ ${#ANDROID_WIFI_DEVICES[@]} -eq 0 ]; then
+    echo ""
+    echo -e "${YELLOW}💡 Astuce: Vous pouvez connecter votre téléphone via WiFi${NC}"
+    read -p "Voulez-vous activer la connexion ADB via WiFi? (o/N): " enable_wifi
+    if [[ "$enable_wifi" =~ ^[oO]$ ]]; then
+      USB_DEVICE="${ANDROID_USB_DEVICES[0]}"
+      echo -e "${GREEN}Activation du mode TCP/IP sur le device USB...${NC}"
+      adb -s "$USB_DEVICE" tcpip 5555 2>/dev/null || true
+      sleep 2
+      
+      # Obtenir l'IP du device
+      DEVICE_IP=$(adb -s "$USB_DEVICE" shell ip route get 1.1.1.1 2>/dev/null | awk '{print $7}' | head -1)
+      if [ -z "$DEVICE_IP" ]; then
+        DEVICE_IP=$(adb -s "$USB_DEVICE" shell "ifconfig wlan0 | grep 'inet addr' | cut -d: -f2 | awk '{print \$1}'" 2>/dev/null | head -1)
+      fi
+      
+      if [ ! -z "$DEVICE_IP" ]; then
+        echo -e "${GREEN}Connexion au device via WiFi ($DEVICE_IP:5555)...${NC}"
+        adb connect "$DEVICE_IP:5555" 2>/dev/null || true
+        sleep 2
+        
+        # Vérifier si la connexion WiFi a réussi
+        if adb devices 2>/dev/null | grep -q "$DEVICE_IP:5555.*device"; then
+          ANDROID_WIFI_DEVICES+=("$DEVICE_IP:5555")
+          ANDROID_DEVICE_ID="$DEVICE_IP:5555"
+          echo -e "${GREEN}✓ Connexion WiFi établie!${NC}"
+        else
+          echo -e "${YELLOW}⚠ Connexion WiFi échouée, utilisation du device USB${NC}"
+        fi
+      else
+        echo -e "${YELLOW}⚠ Impossible de détecter l'IP du device${NC}"
+        echo -e "${YELLOW}   Vous pouvez connecter manuellement avec: adb connect <IP>:5555${NC}"
+      fi
     fi
   fi
+  
   if [ ! -z "$FLUTTER_ANDROID_DEVICES" ]; then
     echo -e "  ${GREEN}✓ Android (Flutter): détecté${NC}"
   fi
@@ -297,24 +426,92 @@ case "$DEVICE_CHOICE" in
       
       cd "$PROJECT_ROOT/frontend" || exit 1
       
-      # Essayer de lancer avec Flutter
-      # Même si Flutter ne détecte pas le device dans 'flutter devices',
-      # on peut quand même essayer 'flutter run -d android' avec ANDROID_SERIAL défini
-      echo -e "${GREEN}Lancement de l'application sur Android...${NC}"
-      echo -e "${YELLOW}Note: Si Flutter ne détecte pas le device, on utilisera ADB directement${NC}"
+      # Vérifier si Flutter détecte le device
+      FLUTTER_DEVICES=$($FLUTTER_CMD devices 2>/dev/null)
+      FLUTTER_SEES_ANDROID=false
       
-      # Essayer d'abord avec Flutter
-      $FLUTTER_CMD run -d android > /tmp/frontend.log 2>&1 &
-      FRONTEND_PID=$!
+      # Essayer de trouver l'ID du device dans la sortie Flutter
+      if echo "$FLUTTER_DEVICES" | grep -qi "android"; then
+        FLUTTER_SEES_ANDROID=true
+        ANDROID_FLUTTER_ID=$(echo "$FLUTTER_DEVICES" | grep -i "android" | head -1 | awk '{print $5}' || echo "android")
+        echo -e "${GREEN}✓ Flutter détecte Android: $ANDROID_FLUTTER_ID${NC}"
+      else
+        echo -e "${YELLOW}⚠ Flutter ne détecte pas le device Android${NC}"
+        echo -e "${YELLOW}   Utilisation de la méthode ADB directe...${NC}"
+      fi
       
-      # Attendre un peu pour voir si ça démarre
-      sleep 5
-      
-      # Vérifier si le processus fonctionne toujours
-      if ! kill -0 $FRONTEND_PID 2>/dev/null; then
-        echo -e "${YELLOW}⚠ Flutter n'a pas réussi à démarrer, vérification des logs...${NC}"
-        tail -20 /tmp/frontend.log 2>/dev/null || true
-        echo -e "${YELLOW}Veuillez vérifier: flutter doctor${NC}"
+      if [ "$FLUTTER_SEES_ANDROID" = true ]; then
+        # Flutter voit Android, utiliser flutter run normalement
+        echo -e "${GREEN}Lancement avec Flutter...${NC}"
+        $FLUTTER_CMD run -d "$ANDROID_FLUTTER_ID" > /tmp/frontend.log 2>&1 &
+        FRONTEND_PID=$!
+      else
+        # Flutter ne voit pas Android, utiliser la méthode de build + install
+        echo -e "${GREEN}Build et installation de l'application...${NC}"
+        echo -e "${YELLOW}Cette méthode peut prendre quelques minutes la première fois...${NC}"
+        
+        # Build l'APK en mode debug
+        echo -e "${YELLOW}Build de l'APK...${NC}"
+        $FLUTTER_CMD build apk --debug --target-platform android-arm64 > /tmp/flutter_build.log 2>&1 &
+        BUILD_PID=$!
+        
+        # Attendre que le build se termine
+        wait $BUILD_PID
+        BUILD_RESULT=$?
+        
+        if [ $BUILD_RESULT -eq 0 ]; then
+          APK_PATH="$PROJECT_ROOT/frontend/build/app/outputs/flutter-apk/app-debug.apk"
+          if [ -f "$APK_PATH" ]; then
+            echo -e "${GREEN}✓ APK créé avec succès${NC}"
+            echo -e "${YELLOW}Installation sur le device...${NC}"
+            
+            # Désinstaller l'ancienne version si elle existe
+            PACKAGE_NAME="com.delhomme.cooking_recipe.cookingrecipe"
+            echo -e "${YELLOW}Désinstallation de l'ancienne version...${NC}"
+            adb -s "$ANDROID_DEVICE_ID" uninstall "$PACKAGE_NAME" 2>/dev/null || true
+            
+            # Installer la nouvelle version
+            echo -e "${YELLOW}Installation de l'APK...${NC}"
+            if adb -s "$ANDROID_DEVICE_ID" install -r "$APK_PATH" > /tmp/adb_install.log 2>&1; then
+              echo -e "${GREEN}✓ Application installée${NC}"
+              echo -e "${GREEN}Lancement de l'application...${NC}"
+              
+              # Lancer l'application
+              adb -s "$ANDROID_DEVICE_ID" shell am start -n "$PACKAGE_NAME/.MainActivity" > /tmp/adb_launch.log 2>&1
+              
+              if [ $? -eq 0 ]; then
+                echo -e "${GREEN}✓ Application lancée sur votre téléphone!${NC}"
+                echo -e "${YELLOW}Pour voir les logs: adb -s $ANDROID_DEVICE_ID logcat${NC}"
+                echo ""
+                echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
+                echo -e "${GREEN}Application Android démarrée avec succès!${NC}"
+                echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
+                echo -e "${YELLOW}Note: Le hot reload n'est pas disponible avec cette méthode${NC}"
+                echo -e "${YELLOW}Pour relancer après modification: make dev${NC}"
+                
+                # Ne pas lancer flutter attach car ça ne fonctionnera pas sans device détecté
+                # Juste garder le processus en vie pour que le script continue
+                FRONTEND_PID=$$
+              else
+                echo -e "${YELLOW}⚠ L'application est installée mais le lancement a échoué${NC}"
+                echo -e "${YELLOW}   Lancez-la manuellement depuis votre téléphone${NC}"
+                FRONTEND_PID=$$
+              fi
+            else
+              echo -e "${RED}❌ Échec de l'installation${NC}"
+              cat /tmp/adb_install.log
+              exit 1
+            fi
+          else
+            echo -e "${RED}❌ APK non trouvé après le build${NC}"
+            cat /tmp/flutter_build.log | tail -20
+            exit 1
+          fi
+        else
+          echo -e "${RED}❌ Échec du build${NC}"
+          cat /tmp/flutter_build.log | tail -30
+          exit 1
+        fi
       fi
     else
       # Pas d'ID ADB, utiliser android normalement
