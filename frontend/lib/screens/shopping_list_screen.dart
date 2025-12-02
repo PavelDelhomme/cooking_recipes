@@ -424,6 +424,7 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "shopping_list_fab",
         onPressed: _addItem,
         child: const Icon(Icons.add),
       ),

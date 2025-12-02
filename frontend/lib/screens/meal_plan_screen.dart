@@ -862,6 +862,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: "meal_plan_fab",
         onPressed: () => _showAddMealDialog(),
         icon: const Icon(Icons.add),
         label: const Text('Ajouter un repas'),

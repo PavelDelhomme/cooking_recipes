@@ -580,6 +580,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: "recipe_detail_fab",
         onPressed: _addToMealPlan,
         icon: const Icon(Icons.calendar_today_outlined),
         label: Text(

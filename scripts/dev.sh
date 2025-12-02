@@ -885,18 +885,39 @@ case "$DEVICE_CHOICE" in
       echo -e "${RED}❌ Flutter n'est pas correctement configuré${NC}"
       exit 1
     fi
+    # Compiler d'abord pour éviter les problèmes MIME type
+    echo -e "${YELLOW}Compilation initiale du frontend web...${NC}"
+    $FLUTTER_CMD pub get > /dev/null 2>&1 || true
     echo -e "${GREEN}Lancement du serveur web Flutter...${NC}"
     $FLUTTER_CMD run -d web-server --web-port=7070 --web-hostname=0.0.0.0 > /tmp/frontend.log 2>&1 &
     FRONTEND_PID=$!
     echo "$FRONTEND_PID" > /tmp/frontend_pid.txt 2>/dev/null || true
-    # Attendre un peu pour vérifier que le serveur démarre
-    echo -e "${YELLOW}Attente du démarrage du serveur web...${NC}"
-    sleep 5
-    if ! kill -0 $FRONTEND_PID 2>/dev/null; then
-      echo -e "${RED}❌ Le frontend n'a pas démarré correctement${NC}"
-      echo -e "${YELLOW}Logs:${NC}"
-      cat /tmp/frontend.log
-      exit 1
+    # Attendre que le serveur compile et démarre complètement
+    echo -e "${YELLOW}Attente de la compilation et du démarrage du serveur web...${NC}"
+    MAX_WAIT=30
+    WAIT_COUNT=0
+    while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
+      sleep 1
+      WAIT_COUNT=$((WAIT_COUNT + 1))
+      # Vérifier que le processus est toujours en vie
+      if ! kill -0 $FRONTEND_PID 2>/dev/null; then
+        echo -e "${RED}❌ Le frontend n'a pas démarré correctement${NC}"
+        echo -e "${YELLOW}Logs:${NC}"
+        cat /tmp/frontend.log
+        exit 1
+      fi
+      # Vérifier que le serveur répond et que les fichiers JS sont disponibles
+      if curl -s -o /dev/null -w "%{http_code}" http://localhost:7070/flutter_bootstrap.js 2>/dev/null | grep -q "200"; then
+        echo -e "${GREEN}✓ Serveur web prêt!${NC}"
+        break
+      fi
+      if [ $((WAIT_COUNT % 5)) -eq 0 ]; then
+        echo -e "${YELLOW}   En attente... ($WAIT_COUNT/$MAX_WAIT secondes)${NC}"
+      fi
+    done
+    if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
+      echo -e "${YELLOW}⚠ Le serveur prend plus de temps que prévu${NC}"
+      echo -e "${YELLOW}   Vérifiez les logs avec: tail -f /tmp/frontend.log${NC}"
     fi
     echo -e "${GREEN}✓ Frontend démarré sur http://localhost:7070${NC}"
     echo -e "${GREEN}✓ Frontend accessible depuis le réseau: http://$MACHINE_IP:7070${NC}"
@@ -922,18 +943,45 @@ case "$DEVICE_CHOICE" in
     # Par défaut: Web
     echo -e "${GREEN}Démarrage sur le navigateur Web (par défaut)...${NC}"
     cd "$PROJECT_ROOT/frontend" || exit 1
+    # Vérifier que Flutter est prêt
+    if ! $FLUTTER_CMD doctor > /dev/null 2>&1; then
+      echo -e "${RED}❌ Flutter n'est pas correctement configuré${NC}"
+      exit 1
+    fi
+    # Compiler d'abord pour éviter les problèmes MIME type
+    echo -e "${YELLOW}Compilation initiale du frontend web...${NC}"
+    $FLUTTER_CMD pub get > /dev/null 2>&1 || true
+    echo -e "${GREEN}Lancement du serveur web Flutter...${NC}"
     $FLUTTER_CMD run -d web-server --web-port=7070 --web-hostname=0.0.0.0 > /tmp/frontend.log 2>&1 &
     FRONTEND_PID=$!
     echo "$FRONTEND_PID" > /tmp/frontend_pid.txt 2>/dev/null || true
-    # Attendre un peu pour vérifier que le serveur démarre
-    sleep 3
-    if ! kill -0 $FRONTEND_PID 2>/dev/null; then
-      echo -e "${RED}❌ Le frontend n'a pas démarré correctement${NC}"
-      echo -e "${YELLOW}Logs:${NC}"
-      cat /tmp/frontend.log
-      exit 1
+    # Attendre que le serveur compile et démarre complètement
+    echo -e "${YELLOW}Attente de la compilation et du démarrage du serveur web...${NC}"
+    MAX_WAIT=30
+    WAIT_COUNT=0
+    while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
+      sleep 1
+      WAIT_COUNT=$((WAIT_COUNT + 1))
+      if ! kill -0 $FRONTEND_PID 2>/dev/null; then
+        echo -e "${RED}❌ Le frontend n'a pas démarré correctement${NC}"
+        echo -e "${YELLOW}Logs:${NC}"
+        cat /tmp/frontend.log
+        exit 1
+      fi
+      if curl -s -o /dev/null -w "%{http_code}" http://localhost:7070/flutter_bootstrap.js 2>/dev/null | grep -q "200"; then
+        echo -e "${GREEN}✓ Serveur web prêt!${NC}"
+        break
+      fi
+      if [ $((WAIT_COUNT % 5)) -eq 0 ]; then
+        echo -e "${YELLOW}   En attente... ($WAIT_COUNT/$MAX_WAIT secondes)${NC}"
+      fi
+    done
+    if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
+      echo -e "${YELLOW}⚠ Le serveur prend plus de temps que prévu${NC}"
+      echo -e "${YELLOW}   Vérifiez les logs avec: tail -f /tmp/frontend.log${NC}"
     fi
     echo -e "${GREEN}✓ Frontend démarré sur http://localhost:7070${NC}"
+    echo -e "${GREEN}✓ Frontend accessible depuis le réseau: http://$MACHINE_IP:7070${NC}"
     ;;
 esac
 

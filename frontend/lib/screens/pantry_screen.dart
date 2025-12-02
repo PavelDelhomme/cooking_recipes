@@ -470,6 +470,7 @@ class PantryScreenState extends State<PantryScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "pantry_fab",
         onPressed: _addItem,
         child: const Icon(Icons.add),
       ),
