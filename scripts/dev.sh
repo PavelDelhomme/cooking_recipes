@@ -678,6 +678,7 @@ echo -e "${GREEN}Démarrage du backend sur le port 7272...${NC}"
 cd "$PROJECT_ROOT/backend" || exit 1
 PORT=7272 HOST=0.0.0.0 npm run dev > /tmp/backend.log 2>&1 &
 BACKEND_PID=$!
+echo "$BACKEND_PID" > /tmp/backend_pid.txt 2>/dev/null || true
 
 # Attendre que le backend démarre
 echo -e "${YELLOW}Attente du démarrage du backend...${NC}"
@@ -877,8 +878,28 @@ case "$DEVICE_CHOICE" in
   2)
     # Web uniquement
     echo -e "${GREEN}Démarrage sur le navigateur Web...${NC}"
+    cd "$PROJECT_ROOT/frontend" || exit 1
+    # Vérifier que Flutter est prêt
+    echo -e "${YELLOW}Vérification de Flutter...${NC}"
+    if ! $FLUTTER_CMD doctor > /dev/null 2>&1; then
+      echo -e "${RED}❌ Flutter n'est pas correctement configuré${NC}"
+      exit 1
+    fi
+    echo -e "${GREEN}Lancement du serveur web Flutter...${NC}"
     $FLUTTER_CMD run -d web-server --web-port=7070 --web-hostname=0.0.0.0 > /tmp/frontend.log 2>&1 &
     FRONTEND_PID=$!
+    echo "$FRONTEND_PID" > /tmp/frontend_pid.txt 2>/dev/null || true
+    # Attendre un peu pour vérifier que le serveur démarre
+    echo -e "${YELLOW}Attente du démarrage du serveur web...${NC}"
+    sleep 5
+    if ! kill -0 $FRONTEND_PID 2>/dev/null; then
+      echo -e "${RED}❌ Le frontend n'a pas démarré correctement${NC}"
+      echo -e "${YELLOW}Logs:${NC}"
+      cat /tmp/frontend.log
+      exit 1
+    fi
+    echo -e "${GREEN}✓ Frontend démarré sur http://localhost:7070${NC}"
+    echo -e "${GREEN}✓ Frontend accessible depuis le réseau: http://$MACHINE_IP:7070${NC}"
     ;;
   3)
     # Les deux
@@ -891,15 +912,28 @@ case "$DEVICE_CHOICE" in
     fi
     FRONTEND_ANDROID_PID=$!
     sleep 2
+    cd "$PROJECT_ROOT/frontend" || exit 1
     $FLUTTER_CMD run -d web-server --web-port=7070 --web-hostname=0.0.0.0 > /tmp/frontend_web.log 2>&1 &
     FRONTEND_WEB_PID=$!
+    echo "$FRONTEND_WEB_PID" > /tmp/frontend_pid.txt 2>/dev/null || true
     FRONTEND_PID=$FRONTEND_WEB_PID
     ;;
   *)
     # Par défaut: Web
     echo -e "${GREEN}Démarrage sur le navigateur Web (par défaut)...${NC}"
+    cd "$PROJECT_ROOT/frontend" || exit 1
     $FLUTTER_CMD run -d web-server --web-port=7070 --web-hostname=0.0.0.0 > /tmp/frontend.log 2>&1 &
     FRONTEND_PID=$!
+    echo "$FRONTEND_PID" > /tmp/frontend_pid.txt 2>/dev/null || true
+    # Attendre un peu pour vérifier que le serveur démarre
+    sleep 3
+    if ! kill -0 $FRONTEND_PID 2>/dev/null; then
+      echo -e "${RED}❌ Le frontend n'a pas démarré correctement${NC}"
+      echo -e "${YELLOW}Logs:${NC}"
+      cat /tmp/frontend.log
+      exit 1
+    fi
+    echo -e "${GREEN}✓ Frontend démarré sur http://localhost:7070${NC}"
     ;;
 esac
 
