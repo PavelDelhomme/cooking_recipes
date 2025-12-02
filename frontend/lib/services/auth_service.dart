@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
+import '../config/api_config.dart';
 
 class AuthService {
-  // URL de l'API backend (Docker)
-  static const String _baseUrl = 'http://localhost:4040/api';
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'current_user';
+  
+  // Utiliser la configuration centralisée de l'API
+  static String get _baseUrl => ApiConfig.baseUrl;
 
   // Inscription
   Future<Map<String, dynamic>> signUp({

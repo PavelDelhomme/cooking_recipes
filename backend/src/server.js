@@ -30,9 +30,12 @@ app.get('/health', (req, res) => {
 
 // Initialize database and start server
 initDatabase().then(() => {
-  app.listen(PORT, () => {
+  // Écouter sur toutes les interfaces pour permettre l'accès depuis le réseau local
+  const HOST = process.env.HOST || '0.0.0.0';
+  app.listen(PORT, HOST, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📡 API available at http://localhost:${PORT}/api`);
+    console.log(`📡 API accessible depuis le réseau: http://[VOTRE_IP]:${PORT}/api`);
   });
 }).catch(err => {
   console.error('❌ Failed to initialize database:', err);

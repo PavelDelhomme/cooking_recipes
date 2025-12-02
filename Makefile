@@ -1,9 +1,20 @@
 .PHONY: help install clean test build dev up down restart logs status backend frontend configure-mobile-api restore-api-url _get-ip run-android run-ios build-android build-ios
 
 # Variables
-FLUTTER = $(HOME)/flutter/bin/flutter
+# Détecter Flutter automatiquement
+_FLUTTER_PATH = $(shell which flutter 2>/dev/null)
+ifeq ($(_FLUTTER_PATH),)
+  ifeq ($(shell test -f /home/pactivisme/flutter/bin/flutter && echo "ok"),ok)
+    _FLUTTER_PATH = /home/pactivisme/flutter/bin/flutter
+  else ifeq ($(shell test -f /opt/flutter/bin/flutter && echo "ok"),ok)
+    _FLUTTER_PATH = /opt/flutter/bin/flutter
+  else
+    _FLUTTER_PATH = flutter
+  endif
+endif
+FLUTTER = $(_FLUTTER_PATH)
 DOCKER_COMPOSE = docker-compose
-BACKEND_PORT = 4040
+BACKEND_PORT = 7373
 FRONTEND_PORT = 4041
 
 # Couleurs
@@ -21,20 +32,25 @@ install: ## Installe les dépendances (backend + frontend)
 	@cd frontend && $(FLUTTER) pub get
 	@echo -e "$(GREEN)✓ Dépendances installées$(NC)"
 
-dev: ## Lance tout en mode développement (Docker)
-	@echo -e "$(GREEN)Lancement en mode développement...$(NC)"
-	@echo -e "$(YELLOW)Backend: http://localhost:$(BACKEND_PORT)$(NC)"
-	@echo -e "$(YELLOW)Frontend: http://localhost:$(FRONTEND_PORT)$(NC)"
-	@$(DOCKER_COMPOSE) up --build
+dev: _get-ip ## Lance tout en mode développement (local)
+	@bash scripts/dev.sh
 
 up: dev ## Alias pour dev
 
 start: dev ## Alias pour dev
 
-down: ## Arrête tous les conteneurs
-	@echo -e "$(GREEN)Arrêt des conteneurs...$(NC)"
-	@$(DOCKER_COMPOSE) down
-	@echo -e "$(GREEN)✓ Conteneurs arrêtés$(NC)"
+down: ## Arrête tous les conteneurs et processus
+	@echo -e "$(GREEN)Arrêt des services...$(NC)"
+	@if [ -f /tmp/backend_pid.txt ]; then \
+		kill $$(cat /tmp/backend_pid.txt) 2>/dev/null || true; \
+		rm /tmp/backend_pid.txt; \
+	fi; \
+	if [ -f /tmp/frontend_pid.txt ]; then \
+		kill $$(cat /tmp/frontend_pid.txt) 2>/dev/null || true; \
+		rm /tmp/frontend_pid.txt; \
+	fi; \
+	$(DOCKER_COMPOSE) down 2>/dev/null || true; \
+	echo -e "$(GREEN)✓ Services arrêtés$(NC)"
 
 stop: down ## Alias pour down
 
@@ -65,7 +81,8 @@ backend-install: ## Installe les dépendances du backend
 	@cd backend && npm install
 
 backend-dev: ## Lance le backend en mode développement (local)
-	@cd backend && npm run dev
+	@echo -e "$(GREEN)Démarrage du backend sur le port 7373...$(NC)"
+	@cd backend && PORT=7373 HOST=0.0.0.0 npm run dev
 
 backend-logs: ## Affiche les logs du backend
 	@$(DOCKER_COMPOSE) logs -f backend
@@ -74,8 +91,10 @@ backend-logs: ## Affiche les logs du backend
 frontend-install: ## Installe les dépendances du frontend
 	@cd frontend && $(FLUTTER) pub get
 
-frontend-dev: ## Lance le frontend en mode développement (local)
-	@cd frontend && $(FLUTTER) run -d web-server --web-port=$(FRONTEND_PORT)
+frontend-dev: _get-ip ## Lance le frontend en mode développement (local)
+	@MACHINE_IP=$$(cat /tmp/machine_ip.txt 2>/dev/null || echo "localhost"); \
+	echo -e "$(GREEN)Frontend accessible sur: http://$$MACHINE_IP:$(FRONTEND_PORT)$(NC)"; \
+	cd frontend && $(FLUTTER) run -d web-server --web-port=$(FRONTEND_PORT) --web-hostname=0.0.0.0
 
 frontend-build: ## Build le frontend pour le web
 	@cd frontend && $(FLUTTER) build web
@@ -105,8 +124,8 @@ configure-mobile-api: _get-ip ## Configure l'URL de l'API avec l'IP de la machin
 	@echo -e "$(GREEN)Configuration de l'URL API pour mobile...$(NC)"
 	@MACHINE_IP=$$(cat /tmp/machine_ip.txt 2>/dev/null || echo "localhost"); \
 	if [ -f "frontend/lib/services/auth_service.dart" ]; then \
-		sed -i "s|static const String _baseUrl = 'http://[^']*';|static const String _baseUrl = 'http://$$MACHINE_IP:4040/api';|g" frontend/lib/services/auth_service.dart; \
-		echo -e "$(GREEN)✓ URL API configurée: http://$$MACHINE_IP:4040/api$(NC)"; \
+		sed -i "s|static const String _baseUrl = 'http://[^']*';|static const String _baseUrl = 'http://$$MACHINE_IP:7373/api';|g" frontend/lib/services/auth_service.dart; \
+		echo -e "$(GREEN)✓ URL API configurée: http://$$MACHINE_IP:7373/api$(NC)"; \
 	else \
 		echo -e "$(YELLOW)⚠ Fichier auth_service.dart non trouvé$(NC)"; \
 	fi
@@ -115,8 +134,8 @@ configure-mobile-api: _get-ip ## Configure l'URL de l'API avec l'IP de la machin
 restore-api-url: ## Restaure l'URL de l'API à localhost
 	@echo -e "$(GREEN)Restauration de l'URL API...$(NC)"
 	@if [ -f "frontend/lib/services/auth_service.dart" ]; then \
-		sed -i "s|static const String _baseUrl = 'http://[^']*';|static const String _baseUrl = 'http://localhost:4040/api';|g" frontend/lib/services/auth_service.dart; \
-		echo -e "$(GREEN)✓ URL API restaurée: http://localhost:4040/api$(NC)"; \
+		sed -i "s|static const String _baseUrl = 'http://[^']*';|static const String _baseUrl = 'http://localhost:7373/api';|g" frontend/lib/services/auth_service.dart; \
+		echo -e "$(GREEN)✓ URL API restaurée: http://localhost:7373/api$(NC)"; \
 	fi
 
 # Build mobile

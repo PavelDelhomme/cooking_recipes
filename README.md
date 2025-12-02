@@ -20,22 +20,29 @@ flutter_cooking_recipe/
 - Flutter (pour développement local)
 - Node.js (pour développement local backend)
 
-### Avec Docker (Recommandé)
+### Mode Développement Local (Recommandé)
 
 ```bash
 # Installer les dépendances
 make install
 
-# Lancer tout le projet
+# Lancer tout le projet (backend + frontend Flutter web)
 make dev
-
-# Ou simplement
-make up
 ```
 
 L'application sera disponible sur :
-- **Frontend**: http://localhost:4041
-- **Backend API**: http://localhost:4040
+- **Frontend Web (PC)**: http://localhost:4041
+- **Frontend Web (Mobile/Réseau)**: http://[VOTRE_IP]:4041
+- **Backend API**: http://[VOTRE_IP]:7373/api
+
+> **Note**: Le backend écoute sur le port **7373** pour permettre l'accès depuis votre téléphone sur le même réseau. L'IP de votre machine sera détectée automatiquement.
+
+### Avec Docker
+
+```bash
+# Lancer avec Docker Compose
+docker-compose up --build
+```
 
 ### Commandes Utiles
 
@@ -55,10 +62,15 @@ make status        # Affiche l'état des conteneurs
 ```bash
 cd backend
 npm install
-npm run dev
+PORT=7373 HOST=0.0.0.0 npm run dev
 ```
 
-Le backend sera disponible sur http://localhost:4040
+Ou utiliser le Makefile :
+```bash
+make backend-dev
+```
+
+Le backend sera disponible sur http://localhost:7373/api (et accessible depuis le réseau sur http://[VOTRE_IP]:7373/api)
 
 ### Frontend seul
 
@@ -88,22 +100,25 @@ make build-ios
 
 ### Variables d'environnement Backend
 
-Créer un fichier `backend/.env` :
+Créer un fichier `backend/.env` (optionnel) :
 
 ```env
-PORT=4040
+PORT=7373
+HOST=0.0.0.0
 JWT_SECRET=votre-secret-key-securise
 ```
 
 ### Configuration Frontend
 
-L'URL de l'API est configurée dans `frontend/lib/services/auth_service.dart` :
+L'URL de l'API est configurée automatiquement dans `frontend/lib/config/api_config.dart` :
+- **Web** : Détecte automatiquement l'hostname et utilise le port 7373
+- **Mobile** : Utilise localhost par défaut (configurable via `make configure-mobile-api`)
 
-```dart
-static const String _baseUrl = 'http://localhost:4040/api';
+Pour configurer l'URL pour mobile (depuis votre téléphone) :
+```bash
+make configure-mobile-api  # Configure avec l'IP de votre machine
+make build-android         # Build avec l'IP configurée
 ```
-
-Pour Docker, utilisez `http://backend:4040/api` (géré automatiquement).
 
 ## API Endpoints
 
