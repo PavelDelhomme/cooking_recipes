@@ -32,6 +32,16 @@ if ! $FLUTTER_CMD --version &> /dev/null; then
   exit 1
 fi
 
+# Configurer Android SDK si disponible
+if [ -d "$HOME/Android/Sdk" ]; then
+  export ANDROID_HOME="$HOME/Android/Sdk"
+  export ANDROID_SDK_ROOT="$ANDROID_HOME"
+  export PATH="$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools"
+  
+  # Configurer Flutter pour utiliser ce SDK
+  $FLUTTER_CMD config --android-sdk "$ANDROID_HOME" 2>/dev/null || true
+fi
+
 # Vérifier que npm est installé
 if ! command -v npm &> /dev/null; then
   echo -e "${RED}❌ npm n'est pas installé${NC}"
@@ -97,42 +107,101 @@ echo ""
 
 # Détecter les appareils Android connectés via ADB
 ANDROID_DEVICES=""
+ANDROID_DEVICE_ID=""
 ANDROID_DEVICE_COUNT=0
 if command -v adb &> /dev/null; then
   ANDROID_DEVICES=$(adb devices 2>/dev/null | grep -v "List" | grep "device$" | awk '{print $1}' | head -1)
+  ANDROID_DEVICE_ID="$ANDROID_DEVICES"
   ANDROID_DEVICE_COUNT=$(adb devices 2>/dev/null | grep -v "List" | grep -c "device$" || echo "0")
+  
+  # Si un device ADB est détecté mais pas Flutter, essayer de le forcer
+  if [ ! -z "$ANDROID_DEVICE_ID" ]; then
+    # Vérifier si Flutter peut voir ce device
+    FLUTTER_DEVICE_CHECK=$($FLUTTER_CMD devices 2>/dev/null | grep -i "$ANDROID_DEVICE_ID\|android" || echo "")
+    if [ -z "$FLUTTER_DEVICE_CHECK" ]; then
+      echo -e "${YELLOW}⚠ Device ADB détecté ($ANDROID_DEVICE_ID) mais Flutter ne le voit pas${NC}"
+      echo -e "${YELLOW}   Tentative de reconnaissance par Flutter...${NC}"
+      
+      # Configurer ANDROID_SERIAL pour que Flutter utilise ce device
+      export ANDROID_SERIAL="$ANDROID_DEVICE_ID"
+      
+      # Essayer de forcer Flutter à reconnaître le device
+      # Vérifier que le device répond
+      if adb -s "$ANDROID_DEVICE_ID" shell echo "test" > /dev/null 2>&1; then
+        echo -e "${GREEN}✓ Device ADB répond correctement${NC}"
+        # Forcer Flutter à scanner les devices
+        $FLUTTER_CMD devices > /dev/null 2>&1 || true
+        sleep 2
+        # Vérifier à nouveau
+        FLUTTER_DEVICE_CHECK=$($FLUTTER_CMD devices 2>/dev/null | grep -i "android" || echo "")
+        if [ -z "$FLUTTER_DEVICE_CHECK" ]; then
+          echo -e "${YELLOW}⚠ Flutter ne détecte toujours pas le device${NC}"
+          echo -e "${YELLOW}   On utilisera l'ID ADB directement ($ANDROID_DEVICE_ID)${NC}"
+        else
+          echo -e "${GREEN}✓ Device maintenant détecté par Flutter${NC}"
+        fi
+      fi
+    fi
+  fi
 fi
 
 # Détecter les appareils via Flutter
 FLUTTER_ANDROID_DEVICES=$($FLUTTER_CMD devices 2>/dev/null | grep -i "android" | head -1 || echo "")
-FLUTTER_WEB_AVAILABLE=$($FLUTTER_CMD devices 2>/dev/null | grep -i "web-server" | head -1 || echo "")
+FLUTTER_WEB_AVAILABLE=$($FLUTTER_CMD devices 2>/dev/null | grep -i "web-server\|chrome" | head -1 || echo "")
+
+# Si on a un device ADB mais pas Flutter, on peut quand même l'utiliser
+if [ ! -z "$ANDROID_DEVICE_ID" ] && [ -z "$FLUTTER_ANDROID_DEVICES" ]; then
+  echo -e "${YELLOW}⚠ Utilisation du device ADB directement: $ANDROID_DEVICE_ID${NC}"
+  # Essayer de trouver l'ID Flutter correspondant
+  FLUTTER_DEVICE_JSON=$($FLUTTER_CMD devices --machine 2>/dev/null || echo "[]")
+  # Chercher un device Android dans la sortie JSON
+  if echo "$FLUTTER_DEVICE_JSON" | grep -q "android"; then
+    FLUTTER_ANDROID_ID=$(echo "$FLUTTER_DEVICE_JSON" | grep -o '"id":"[^"]*"' | grep -i android | head -1 | cut -d'"' -f4 || echo "")
+  fi
+fi
 
 # Menu de sélection
 DEVICE_CHOICE=""
 HAS_ANDROID=false
+AUTO_SELECT_ANDROID=false
 
-if [ ! -z "$ANDROID_DEVICES" ] || [ ! -z "$FLUTTER_ANDROID_DEVICES" ]; then
+if [ ! -z "$ANDROID_DEVICE_ID" ] || [ ! -z "$FLUTTER_ANDROID_DEVICES" ]; then
   HAS_ANDROID=true
 fi
 
 if [ "$HAS_ANDROID" = true ]; then
   echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
   echo -e "${GREEN}Appareils détectés:${NC}"
-  if [ ! -z "$ANDROID_DEVICES" ]; then
-    echo -e "  ${GREEN}✓ Android (ADB): $ANDROID_DEVICES${NC}"
-  elif [ ! -z "$FLUTTER_ANDROID_DEVICES" ]; then
+  if [ ! -z "$ANDROID_DEVICE_ID" ]; then
+    DEVICE_INFO=$(adb -s "$ANDROID_DEVICE_ID" shell getprop ro.product.model 2>/dev/null || echo "Android Device")
+    echo -e "  ${GREEN}✓ Android (ADB): $ANDROID_DEVICE_ID${NC}"
+    if [ ! -z "$DEVICE_INFO" ] && [ "$DEVICE_INFO" != "Android Device" ]; then
+      echo -e "     Modèle: $DEVICE_INFO${NC}"
+    fi
+  fi
+  if [ ! -z "$FLUTTER_ANDROID_DEVICES" ]; then
     echo -e "  ${GREEN}✓ Android (Flutter): détecté${NC}"
   fi
   echo -e "  ${GREEN}✓ Web (navigateur)${NC}"
   echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
   echo ""
   echo -e "${YELLOW}Choisissez où lancer l'application:${NC}"
-  echo -e "  ${GREEN}1)${NC} Téléphone Android uniquement"
+  echo -e "  ${GREEN}1)${NC} Téléphone Android uniquement ${YELLOW}(recommandé si device connecté)${NC}"
   echo -e "  ${GREEN}2)${NC} Navigateur Web uniquement"
   echo -e "  ${GREEN}3)${NC} Les deux (Android + Web)"
   echo ""
-  read -p "Votre choix [1-3] (défaut: 2): " DEVICE_CHOICE
-  DEVICE_CHOICE=${DEVICE_CHOICE:-2}
+  read -p "Votre choix [1-3] (défaut: 1 pour Android, 2 sinon): " DEVICE_CHOICE
+  
+  # Si un device Android est détecté, proposer Android par défaut
+  if [ -z "$DEVICE_CHOICE" ]; then
+    if [ ! -z "$ANDROID_DEVICE_ID" ]; then
+      DEVICE_CHOICE="1"
+      AUTO_SELECT_ANDROID=true
+      echo -e "${GREEN}→ Sélection automatique: Android (device détecté)${NC}"
+    else
+      DEVICE_CHOICE="2"
+    fi
+  fi
 else
   echo -e "${YELLOW}⚠ Aucun appareil Android détecté${NC}"
   echo -e "${YELLOW}   Connectez votre téléphone via USB et activez le débogage USB${NC}"
@@ -214,8 +283,46 @@ case "$DEVICE_CHOICE" in
   1)
     # Android uniquement
     echo -e "${GREEN}Démarrage sur Android...${NC}"
-    $FLUTTER_CMD run -d android > /tmp/frontend.log 2>&1 &
-    FRONTEND_PID=$!
+    if [ ! -z "$ANDROID_DEVICE_ID" ]; then
+      # Configurer ANDROID_SERIAL pour forcer Flutter à utiliser ce device
+      export ANDROID_SERIAL="$ANDROID_DEVICE_ID"
+      echo -e "${YELLOW}Device sélectionné: $ANDROID_DEVICE_ID${NC}"
+      
+      # Vérifier que le device répond
+      if ! adb -s "$ANDROID_DEVICE_ID" shell echo "test" > /dev/null 2>&1; then
+        echo -e "${RED}❌ Le device $ANDROID_DEVICE_ID ne répond pas${NC}"
+        echo -e "${YELLOW}Vérifiez la connexion USB et le débogage USB${NC}"
+        exit 1
+      fi
+      
+      cd "$PROJECT_ROOT/frontend" || exit 1
+      
+      # Essayer de lancer avec Flutter
+      # Même si Flutter ne détecte pas le device dans 'flutter devices',
+      # on peut quand même essayer 'flutter run -d android' avec ANDROID_SERIAL défini
+      echo -e "${GREEN}Lancement de l'application sur Android...${NC}"
+      echo -e "${YELLOW}Note: Si Flutter ne détecte pas le device, on utilisera ADB directement${NC}"
+      
+      # Essayer d'abord avec Flutter
+      $FLUTTER_CMD run -d android > /tmp/frontend.log 2>&1 &
+      FRONTEND_PID=$!
+      
+      # Attendre un peu pour voir si ça démarre
+      sleep 5
+      
+      # Vérifier si le processus fonctionne toujours
+      if ! kill -0 $FRONTEND_PID 2>/dev/null; then
+        echo -e "${YELLOW}⚠ Flutter n'a pas réussi à démarrer, vérification des logs...${NC}"
+        tail -20 /tmp/frontend.log 2>/dev/null || true
+        echo -e "${YELLOW}Veuillez vérifier: flutter doctor${NC}"
+      fi
+    else
+      # Pas d'ID ADB, utiliser android normalement
+      cd "$PROJECT_ROOT/frontend" || exit 1
+      echo -e "${GREEN}Lancement sur Android (device par défaut)...${NC}"
+      $FLUTTER_CMD run -d android > /tmp/frontend.log 2>&1 &
+      FRONTEND_PID=$!
+    fi
     ;;
   2)
     # Web uniquement
@@ -226,7 +333,12 @@ case "$DEVICE_CHOICE" in
   3)
     # Les deux
     echo -e "${GREEN}Démarrage sur Android et Web...${NC}"
-    $FLUTTER_CMD run -d android > /tmp/frontend_android.log 2>&1 &
+    if [ ! -z "$ANDROID_DEVICE_ID" ]; then
+      export ANDROID_SERIAL="$ANDROID_DEVICE_ID"
+      $FLUTTER_CMD run -d android > /tmp/frontend_android.log 2>&1 &
+    else
+      $FLUTTER_CMD run -d android > /tmp/frontend_android.log 2>&1 &
+    fi
     FRONTEND_ANDROID_PID=$!
     sleep 2
     $FLUTTER_CMD run -d web-server --web-port=4041 --web-hostname=0.0.0.0 > /tmp/frontend_web.log 2>&1 &
