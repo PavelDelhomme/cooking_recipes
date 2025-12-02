@@ -562,6 +562,23 @@ case "$DEVICE_CHOICE" in
         echo -e "${GREEN}Build et installation de l'application...${NC}"
         echo -e "${YELLOW}Cette méthode peut prendre quelques minutes la première fois...${NC}"
         
+        # S'assurer que Java 21 est utilisé pour Gradle
+        if [ -d "/usr/lib/jvm/java-21-openjdk" ] && [ -f "/usr/lib/jvm/java-21-openjdk/bin/java" ]; then
+          export JAVA_HOME="/usr/lib/jvm/java-21-openjdk"
+          export PATH="/usr/lib/jvm/java-21-openjdk/bin:$PATH"
+          echo -e "${GREEN}✓ Java 21 configuré pour le build (JAVA_HOME=$JAVA_HOME)${NC}"
+        fi
+        
+        # Vérifier que gradle.properties pointe vers Java 21
+        GRADLE_PROPERTIES="$PROJECT_ROOT/frontend/android/gradle.properties"
+        if [ -f "$GRADLE_PROPERTIES" ]; then
+          if ! grep -q "org.gradle.java.home=/usr/lib/jvm/java-21-openjdk" "$GRADLE_PROPERTIES"; then
+            # Mettre à jour gradle.properties si nécessaire
+            sed -i 's|org.gradle.java.home=.*|org.gradle.java.home=/usr/lib/jvm/java-21-openjdk|g' "$GRADLE_PROPERTIES" 2>/dev/null || true
+            echo -e "${GREEN}✓ gradle.properties mis à jour pour utiliser Java 21${NC}"
+          fi
+        fi
+        
         # Build l'APK en mode debug
         echo -e "${YELLOW}Build de l'APK...${NC}"
         $FLUTTER_CMD build apk --debug --target-platform android-arm64 > /tmp/flutter_build.log 2>&1 &
