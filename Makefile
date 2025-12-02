@@ -79,7 +79,7 @@ down: ## Arrête tous les conteneurs et processus
 
 stop: down ## Alias pour down
 
-restart: ## Redémarre tous les services (down puis dev)
+restart: _get-ip ## Redémarre tous les services (down puis dev)
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
 	@echo -e "$(GREEN)Redémarrage de l'application$(NC)"
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
@@ -90,7 +90,7 @@ restart: ## Redémarre tous les services (down puis dev)
 	@sleep 2
 	@echo ""
 	@echo -e "$(GREEN)Redémarrage des services...$(NC)"
-	@$(MAKE) dev
+	@bash scripts/dev.sh
 
 logs: ## Affiche les logs en temps réel
 	@$(DOCKER_COMPOSE) logs -f
