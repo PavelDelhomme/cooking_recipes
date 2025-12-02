@@ -3,6 +3,9 @@ backend/node_modules/
 backend/data/*.sqlite
 backend/.env
 
+# Production environment files (contain secrets)
+.env.prod
+
 # Frontend
 frontend/.dart_tool/
 frontend/build/
