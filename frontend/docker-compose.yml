@@ -1,0 +1,33 @@
+services:
+  flutter-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flutter_cooking_recipe
+    ports:
+      - "7070:8080"
+    volumes:
+      # Monter le code source pour le hot reload
+      - ./lib:/app/lib
+      - ./pubspec.yaml:/app/pubspec.yaml
+      - ./pubspec.lock:/app/pubspec.lock
+      - ./assets:/app/assets
+      - ./web:/app/web
+      # Cache Flutter pour éviter de tout recompiler
+      - flutter_pub_cache:/root/.pub-cache
+      - flutter_build_cache:/app/build
+      - flutter_tool_cache:/app/.dart_tool
+    environment:
+      - FLUTTER_WEB_USE_SKIA=true
+      - CHROME_EXECUTABLE=/usr/bin/google-chrome
+    # Le script docker-entrypoint.sh sera utilisé
+    stdin_open: true
+    tty: true
+    # Arrêter proprement avec SIGTERM
+    stop_grace_period: 10s
+
+volumes:
+  flutter_pub_cache:
+  flutter_build_cache:
+  flutter_tool_cache:
+

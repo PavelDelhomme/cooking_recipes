@@ -1,0 +1,517 @@
+import 'package:flutter/material.dart';
+import '../models/shopping_list_item.dart';
+import '../models/pantry_item.dart';
+import '../services/shopping_list_service.dart';
+import '../services/pantry_service.dart';
+import '../widgets/unit_selector.dart';
+
+class ShoppingListScreen extends StatefulWidget {
+  const ShoppingListScreen({super.key});
+
+  @override
+  State<ShoppingListScreen> createState() => _ShoppingListScreenState();
+}
+
+class _ShoppingListScreenState extends State<ShoppingListScreen> {
+  final ShoppingListService _shoppingListService = ShoppingListService();
+  final PantryService _pantryService = PantryService();
+  List<ShoppingListItem> _items = [];
+  bool _isLoading = true;
+  bool _showChecked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadItems();
+  }
+
+  Future<void> _loadItems() async {
+    setState(() => _isLoading = true);
+    final items = await _shoppingListService.getShoppingListItems();
+    setState(() {
+      _items = items;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _addItem() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddShoppingItemScreen()),
+    );
+
+    if (result == true) {
+      _loadItems();
+    }
+  }
+
+  Future<void> _editItem(ShoppingListItem item) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddShoppingItemScreen(item: item),
+      ),
+    );
+
+    if (result == true) {
+      _loadItems();
+    }
+  }
+
+  Future<void> _toggleItem(ShoppingListItem item) async {
+    await _shoppingListService.toggleShoppingListItem(item.id);
+    _loadItems();
+  }
+
+  Future<void> _deleteItem(ShoppingListItem item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Supprimer'),
+        content: Text('Voulez-vous supprimer ${item.name} de la liste ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _shoppingListService.removeShoppingListItem(item.id);
+      _loadItems();
+    }
+  }
+
+  Future<void> _removeCheckedItems() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Supprimer les articles cochés'),
+        content: const Text(
+          'Voulez-vous supprimer tous les articles cochés de la liste ?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _shoppingListService.removeCheckedItems();
+      _loadItems();
+    }
+  }
+
+  Future<void> _addToPantry(ShoppingListItem item) async {
+    if (item.isChecked) {
+      // Ajouter au placard et supprimer de la liste
+      await _pantryService.addPantryItem(
+        PantryItem(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          name: item.name,
+          quantity: item.quantity ?? 1.0,
+          unit: item.unit ?? 'unité',
+        ),
+      );
+      await _shoppingListService.removeShoppingListItem(item.id);
+      _loadItems();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${item.name} ajouté au placard')),
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cochez l\'article avant de l\'ajouter au placard'),
+          ),
+        );
+      }
+    }
+  }
+
+  List<ShoppingListItem> get _displayedItems {
+    if (_showChecked) {
+      return _items;
+    }
+    return _items.where((item) => !item.isChecked).toList();
+  }
+
+  int get _checkedCount => _items.where((item) => item.isChecked).length;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // Pas d'AppBar ici car c'est géré par MainScreen
+      body: Column(
+        children: [
+          // Barre d'actions personnalisée
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Liste de courses',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_checkedCount > 0)
+                      IconButton(
+                        icon: const Icon(Icons.delete_sweep),
+                        onPressed: _removeCheckedItems,
+                        tooltip: 'Supprimer les articles cochés',
+                      ),
+                    IconButton(
+                      icon: Icon(_showChecked ? Icons.visibility_off : Icons.visibility),
+                      onPressed: () {
+                        setState(() => _showChecked = !_showChecked);
+                      },
+                      tooltip: _showChecked ? 'Masquer les articles cochés' : 'Afficher les articles cochés',
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.refresh),
+                      onPressed: _loadItems,
+                      tooltip: 'Actualiser',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _displayedItems.isEmpty
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer
+                                .withOpacity(0.3),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.shopping_cart_outlined,
+                            size: 64,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          _showChecked
+                              ? 'Aucun article coché'
+                              : 'Votre liste de courses est vide',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Ajoutez des articles pour commencer',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: _displayedItems.length,
+                  padding: const EdgeInsets.all(8),
+                  itemBuilder: (context, index) {
+                    final item = _displayedItems[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      color: item.isChecked
+                          ? Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5)
+                          : null,
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        leading: Checkbox(
+                          value: item.isChecked,
+                          onChanged: (_) => _toggleItem(item),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        title: Text(
+                          item.name,
+                          style: TextStyle(
+                            decoration: item.isChecked
+                                ? TextDecoration.lineThrough
+                                : null,
+                            fontWeight: item.isChecked
+                                ? FontWeight.normal
+                                : FontWeight.bold,
+                            fontSize: 16,
+                            color: item.isChecked
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : null,
+                          ),
+                        ),
+                        subtitle: item.quantity != null
+                            ? Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer
+                                        .withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    '${item.quantity} ${item.unit ?? ''}',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : null,
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (item.isChecked)
+                              IconButton(
+                                icon: Icon(
+                                  Icons.add_shopping_cart,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                onPressed: () => _addToPantry(item),
+                                tooltip: 'Ajouter au placard',
+                              ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.edit_outlined,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                              onPressed: () => _editItem(item),
+                              tooltip: 'Modifier',
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.delete_outline,
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                              onPressed: () => _deleteItem(item),
+                              tooltip: 'Supprimer',
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addItem,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class AddShoppingItemScreen extends StatefulWidget {
+  final ShoppingListItem? item;
+
+  const AddShoppingItemScreen({super.key, this.item});
+
+  @override
+  State<AddShoppingItemScreen> createState() => _AddShoppingItemScreenState();
+}
+
+class _AddShoppingItemScreenState extends State<AddShoppingItemScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _quantityController = TextEditingController();
+  String? _selectedUnit;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.item != null) {
+      _nameController.text = widget.item!.name;
+      _quantityController.text = widget.item!.quantity?.toString() ?? '';
+      _selectedUnit = widget.item!.unit;
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _quantityController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (_formKey.currentState!.validate()) {
+      final shoppingListService = ShoppingListService();
+      final item = ShoppingListItem(
+        id: widget.item?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        name: _nameController.text.trim(),
+        quantity: _quantityController.text.trim().isNotEmpty
+            ? double.tryParse(_quantityController.text)
+            : null,
+        unit: _selectedUnit,
+        addedDate: widget.item?.addedDate ?? DateTime.now(),
+      );
+
+      if (widget.item != null) {
+        await shoppingListService.updateShoppingListItem(item);
+      } else {
+        await shoppingListService.addShoppingListItem(item);
+      }
+
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.item == null
+            ? 'Ajouter un article'
+            : 'Modifier l\'article'),
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                labelText: 'Nom de l\'article',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Veuillez entrer un nom';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: TextFormField(
+                    controller: _quantityController,
+                    decoration: InputDecoration(
+                      labelText: 'Quantité (optionnel)',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    validator: (value) {
+                      if (value != null &&
+                          value.trim().isNotEmpty &&
+                          double.tryParse(value) == null) {
+                        return 'Veuillez entrer un nombre valide';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  flex: 2,
+                  child: UnitSelector(
+                    selectedUnit: _selectedUnit,
+                    onChanged: (unit) {
+                      setState(() => _selectedUnit = unit);
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: _save,
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                'Enregistrer',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

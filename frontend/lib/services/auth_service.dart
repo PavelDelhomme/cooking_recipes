@@ -1,0 +1,127 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import '../models/user.dart';
+
+class AuthService {
+  // URL de l'API backend (Docker)
+  static const String _baseUrl = 'http://localhost:4040/api';
+  static const String _tokenKey = 'auth_token';
+  static const String _userKey = 'current_user';
+
+  // Inscription
+  Future<Map<String, dynamic>> signUp({
+    required String email,
+    required String password,
+    String? name,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/auth/signup'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'email': email,
+          'password': password,
+          'name': name,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(response.body);
+        await _saveToken(data['token'] as String);
+        await _saveUser(User.fromJson(data['user'] as Map<String, dynamic>));
+        return {'success': true, 'user': data['user']};
+      } else {
+        final error = json.decode(response.body);
+        return {'success': false, 'error': error['message'] ?? 'Erreur d\'inscription'};
+      }
+    } catch (e) {
+      return {'success': false, 'error': 'Erreur de connexion: $e'};
+    }
+  }
+
+  // Connexion
+  Future<Map<String, dynamic>> signIn({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/auth/signin'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        await _saveToken(data['token'] as String);
+        await _saveUser(User.fromJson(data['user'] as Map<String, dynamic>));
+        return {'success': true, 'user': data['user']};
+      } else {
+        final error = json.decode(response.body);
+        return {'success': false, 'error': error['message'] ?? 'Erreur de connexion'};
+      }
+    } catch (e) {
+      return {'success': false, 'error': 'Erreur de connexion: $e'};
+    }
+  }
+
+  // Déconnexion
+  Future<void> signOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
+    await prefs.remove(_userKey);
+  }
+
+  // Obtenir l'utilisateur actuel
+  Future<User?> getCurrentUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userJson = prefs.getString(_userKey);
+      if (userJson == null) return null;
+      return User.fromJson(json.decode(userJson) as Map<String, dynamic>);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Obtenir le token
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_tokenKey);
+  }
+
+  // Vérifier si l'utilisateur est connecté
+  Future<bool> isAuthenticated() async {
+    final token = await getToken();
+    return token != null && token.isNotEmpty;
+  }
+
+  // Sauvegarder le token
+  Future<void> _saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_tokenKey, token);
+  }
+
+  // Sauvegarder l'utilisateur
+  Future<void> _saveUser(User user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userKey, json.encode(user.toJson()));
+  }
+
+  // Mettre à jour l'utilisateur
+  Future<void> updateUser(User user) async {
+    await _saveUser(user);
+  }
+
+  // Vérifier le statut premium
+  Future<bool> checkPremiumStatus() async {
+    final user = await getCurrentUser();
+    if (user == null) return false;
+    return user.isPremiumActive;
+  }
+}
+

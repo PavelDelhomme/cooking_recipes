@@ -1,0 +1,173 @@
+.PHONY: help install clean test build dev up down restart logs status backend frontend configure-mobile-api restore-api-url _get-ip run-android run-ios build-android build-ios
+
+# Variables
+FLUTTER = $(HOME)/flutter/bin/flutter
+DOCKER_COMPOSE = docker-compose
+BACKEND_PORT = 4040
+FRONTEND_PORT = 4041
+
+# Couleurs
+GREEN = \033[0;32m
+YELLOW = \033[1;33m
+NC = \033[0m
+
+help: ## Affiche cette aide
+	@echo -e "$(GREEN)Commandes disponibles:$(NC)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-20s$(NC) %s\n", $$1, $$2}'
+
+install: ## Installe les dépendances (backend + frontend)
+	@echo -e "$(GREEN)Installation des dépendances...$(NC)"
+	@cd backend && npm install
+	@cd frontend && $(FLUTTER) pub get
+	@echo -e "$(GREEN)✓ Dépendances installées$(NC)"
+
+dev: ## Lance tout en mode développement (Docker)
+	@echo -e "$(GREEN)Lancement en mode développement...$(NC)"
+	@echo -e "$(YELLOW)Backend: http://localhost:$(BACKEND_PORT)$(NC)"
+	@echo -e "$(YELLOW)Frontend: http://localhost:$(FRONTEND_PORT)$(NC)"
+	@$(DOCKER_COMPOSE) up --build
+
+up: dev ## Alias pour dev
+
+start: dev ## Alias pour dev
+
+down: ## Arrête tous les conteneurs
+	@echo -e "$(GREEN)Arrêt des conteneurs...$(NC)"
+	@$(DOCKER_COMPOSE) down
+	@echo -e "$(GREEN)✓ Conteneurs arrêtés$(NC)"
+
+stop: down ## Alias pour down
+
+restart: down dev ## Redémarre tous les conteneurs
+
+logs: ## Affiche les logs en temps réel
+	@$(DOCKER_COMPOSE) logs -f
+
+status: ## Affiche l'état des conteneurs
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
+	@echo -e "$(GREEN)État des conteneurs Cooking Recipes$(NC)"
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
+	@echo ""
+	@if docker ps --filter "name=cooking_recipes" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -q cooking_recipes; then \
+		echo -e "$(GREEN)Conteneurs en cours d'exécution:$(NC)"; \
+		docker ps --filter "name=cooking_recipes" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"; \
+		echo ""; \
+		echo -e "$(GREEN)✓ Backend disponible sur http://localhost:$(BACKEND_PORT)$(NC)"; \
+		echo -e "$(GREEN)✓ Frontend disponible sur http://localhost:$(FRONTEND_PORT)$(NC)"; \
+	else \
+		echo -e "$(YELLOW)⚠ Aucun conteneur en cours d'exécution$(NC)"; \
+		echo -e "$(YELLOW)Pour démarrer: make dev$(NC)"; \
+	fi
+	@echo ""
+
+# Backend
+backend-install: ## Installe les dépendances du backend
+	@cd backend && npm install
+
+backend-dev: ## Lance le backend en mode développement (local)
+	@cd backend && npm run dev
+
+backend-logs: ## Affiche les logs du backend
+	@$(DOCKER_COMPOSE) logs -f backend
+
+# Frontend
+frontend-install: ## Installe les dépendances du frontend
+	@cd frontend && $(FLUTTER) pub get
+
+frontend-dev: ## Lance le frontend en mode développement (local)
+	@cd frontend && $(FLUTTER) run -d web-server --web-port=$(FRONTEND_PORT)
+
+frontend-build: ## Build le frontend pour le web
+	@cd frontend && $(FLUTTER) build web
+
+frontend-logs: ## Affiche les logs du frontend
+	@$(DOCKER_COMPOSE) logs -f frontend
+
+# Détecter l'IP de la machine
+_get-ip:
+	@echo -e "$(GREEN)Détection de l'IP de la machine...$(NC)"
+	@MACHINE_IP=$$(hostname -I 2>/dev/null | awk '{print $$1}' | head -1); \
+	if [ -z "$$MACHINE_IP" ] || [ "$$MACHINE_IP" = "" ]; then \
+		MACHINE_IP=$$(ip route get 1.1.1.1 2>/dev/null | awk -F'src ' '{print $$2}' | awk '{print $$1}' | head -1); \
+	fi; \
+	if [ -z "$$MACHINE_IP" ] || [ "$$MACHINE_IP" = "" ]; then \
+		MACHINE_IP=$$(ip addr show | grep "inet " | grep -v 127.0.0.1 | head -1 | awk '{print $$2}' | cut -d/ -f1); \
+	fi; \
+	if [ -z "$$MACHINE_IP" ] || [ "$$MACHINE_IP" = "" ]; then \
+		echo -e "$(YELLOW)⚠ Impossible de détecter l'IP, utilisation de localhost$(NC)"; \
+		MACHINE_IP="localhost"; \
+	fi; \
+	echo "$$MACHINE_IP" > /tmp/machine_ip.txt; \
+	echo -e "$(GREEN)✓ IP détectée: $$MACHINE_IP$(NC)"
+
+# Configurer l'URL de l'API pour mobile
+configure-mobile-api: _get-ip ## Configure l'URL de l'API avec l'IP de la machine
+	@echo -e "$(GREEN)Configuration de l'URL API pour mobile...$(NC)"
+	@MACHINE_IP=$$(cat /tmp/machine_ip.txt 2>/dev/null || echo "localhost"); \
+	if [ -f "frontend/lib/services/auth_service.dart" ]; then \
+		sed -i "s|static const String _baseUrl = 'http://[^']*';|static const String _baseUrl = 'http://$$MACHINE_IP:4040/api';|g" frontend/lib/services/auth_service.dart; \
+		echo -e "$(GREEN)✓ URL API configurée: http://$$MACHINE_IP:4040/api$(NC)"; \
+	else \
+		echo -e "$(YELLOW)⚠ Fichier auth_service.dart non trouvé$(NC)"; \
+	fi
+
+# Restaurer l'URL de l'API pour développement local
+restore-api-url: ## Restaure l'URL de l'API à localhost
+	@echo -e "$(GREEN)Restauration de l'URL API...$(NC)"
+	@if [ -f "frontend/lib/services/auth_service.dart" ]; then \
+		sed -i "s|static const String _baseUrl = 'http://[^']*';|static const String _baseUrl = 'http://localhost:4040/api';|g" frontend/lib/services/auth_service.dart; \
+		echo -e "$(GREEN)✓ URL API restaurée: http://localhost:4040/api$(NC)"; \
+	fi
+
+# Build mobile
+build-android: configure-mobile-api ## Build l'application Android (APK) avec IP configurée
+	@echo -e "$(GREEN)Build de l'application Android...$(NC)"
+	@cd frontend && $(FLUTTER) build apk --release
+	@echo -e "$(GREEN)✓ APK créé dans frontend/build/app/outputs/flutter-apk/app-release.apk$(NC)"
+	@echo -e "$(YELLOW)Pour installer: adb install frontend/build/app/outputs/flutter-apk/app-release.apk$(NC)"
+
+build-ios: configure-mobile-api ## Build l'application iOS (nécessite macOS) avec IP configurée
+	@cd frontend && $(FLUTTER) build ios --release
+	@echo -e "$(GREEN)✓ Build iOS terminé$(NC)"
+
+# Run mobile
+run-android: configure-mobile-api ## Lance l'application sur Android (détecte automatiquement l'appareil)
+	@echo -e "$(GREEN)Recherche d'appareils Android...$(NC)"
+	@cd frontend && \
+	DEVICE_ID=$$($(FLUTTER) devices | grep -E "android|chrome" | head -1 | awk '{print $$5}' || echo ""); \
+	if [ -z "$$DEVICE_ID" ]; then \
+		echo -e "$(YELLOW)⚠ Aucun appareil Android détecté$(NC)"; \
+		echo -e "$(YELLOW)Connectez un appareil ou lancez un émulateur$(NC)"; \
+		$(FLUTTER) devices; \
+		exit 1; \
+	fi; \
+	echo -e "$(GREEN)Lancement sur Android ($$DEVICE_ID)...$(NC)"; \
+	$(FLUTTER) run -d android
+
+run-ios: configure-mobile-api ## Lance l'application sur iOS (détecte automatiquement l'appareil)
+	@echo -e "$(GREEN)Recherche d'appareils iOS...$(NC)"
+	@cd frontend && \
+	DEVICE_ID=$$($(FLUTTER) devices | grep -E "ios|iPhone|iPad" | head -1 | awk '{print $$5}' || echo ""); \
+	if [ -z "$$DEVICE_ID" ]; then \
+		echo -e "$(YELLOW)⚠ Aucun appareil iOS détecté$(NC)"; \
+		echo -e "$(YELLOW)Connectez un appareil ou lancez un simulateur$(NC)"; \
+		$(FLUTTER) devices; \
+		exit 1; \
+	fi; \
+	echo -e "$(GREEN)Lancement sur iOS ($$DEVICE_ID)...$(NC)"; \
+	$(FLUTTER) run -d ios
+
+# Utilitaires
+clean: ## Nettoie les builds et dépendances
+	@echo -e "$(GREEN)Nettoyage...$(NC)"
+	@cd frontend && $(FLUTTER) clean
+	@cd backend && rm -rf node_modules
+	@$(DOCKER_COMPOSE) down -v
+	@echo -e "$(GREEN)✓ Nettoyage terminé$(NC)"
+
+test: ## Lance les tests
+	@cd frontend && $(FLUTTER) test
+	@cd backend && npm test || echo "Pas de tests configurés"
+
+.DEFAULT_GOAL := help
+
