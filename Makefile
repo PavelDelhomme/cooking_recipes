@@ -37,6 +37,9 @@ install: ## Installe les dépendances (backend + frontend)
 dev: _get-ip ## Lance tout en mode développement (local)
 	@bash scripts/dev.sh
 
+dev-stacktrace: _get-ip ## Lance en mode développement avec stacktrace détaillée
+	@STACKTRACE=true bash scripts/dev.sh
+
 up: dev ## Alias pour dev
 
 start: dev ## Alias pour dev

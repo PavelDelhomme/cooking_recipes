@@ -60,20 +60,15 @@ if [ -d "$HOME/Android/Sdk" ]; then
   # Trouver sdkmanager
   SDKMANAGER=""
   # Chercher dans différentes structures possibles
-  if [ -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+  if [ -f "$ANDROID_HOME/cmdline-tools/latest/cmdline-tools/bin/sdkmanager" ]; then
+    SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/cmdline-tools/bin/sdkmanager"
+  elif [ -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
     SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
   elif [ -f "$ANDROID_HOME/cmdline-tools/bin/sdkmanager" ]; then
     SDKMANAGER="$ANDROID_HOME/cmdline-tools/bin/sdkmanager"
   elif [ -d "$ANDROID_HOME/cmdline-tools" ]; then
     # Chercher dans tous les sous-dossiers
     SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -name "sdkmanager" -type f 2>/dev/null | head -1)
-    if [ ! -z "$SDKMANAGER" ]; then
-      # Créer le lien latest si nécessaire
-      SDKMANAGER_DIR=$(dirname "$(dirname "$SDKMANAGER")")
-      if [ ! -d "$ANDROID_HOME/cmdline-tools/latest" ] && [ "$SDKMANAGER_DIR" != "$ANDROID_HOME/cmdline-tools/latest" ]; then
-        ln -sf "$(basename "$SDKMANAGER_DIR")" "$ANDROID_HOME/cmdline-tools/latest" 2>/dev/null || true
-      fi
-    fi
   elif [ -f "$ANDROID_HOME/tools/bin/sdkmanager" ]; then
     SDKMANAGER="$ANDROID_HOME/tools/bin/sdkmanager"
   fi
@@ -107,10 +102,21 @@ if [ -d "$HOME/Android/Sdk" ]; then
           mv "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest" 2>/dev/null || true
         fi
         
-        if [ -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+        # Chercher sdkmanager après l'extraction
+        if [ -f "$ANDROID_HOME/cmdline-tools/latest/cmdline-tools/bin/sdkmanager" ]; then
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/cmdline-tools/bin/sdkmanager"
+          export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/cmdline-tools/bin"
+          echo -e "${GREEN}✓ Command-line tools installés${NC}"
+        elif [ -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
           SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin"
           echo -e "${GREEN}✓ Command-line tools installés${NC}"
+        else
+          # Chercher dans tous les sous-dossiers
+          SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -name "sdkmanager" -type f 2>/dev/null | head -1)
+          if [ ! -z "$SDKMANAGER" ]; then
+            echo -e "${GREEN}✓ Command-line tools installés (sdkmanager trouvé)${NC}"
+          fi
         fi
       fi
     else
@@ -121,59 +127,57 @@ if [ -d "$HOME/Android/Sdk" ]; then
   
   # Accepter les licences si sdkmanager est disponible
   if [ ! -z "$SDKMANAGER" ]; then
-    # Vérifier si les licences sont déjà acceptées
-    LICENSE_COUNT=$(find "$ANDROID_HOME/licenses" -name "*.txt" 2>/dev/null | wc -l)
+    echo -e "${GREEN}✓ sdkmanager trouvé: $SDKMANAGER${NC}"
     
-    if [ "$LICENSE_COUNT" -eq 0 ]; then
-      echo -e "${YELLOW}Acceptation des licences Android SDK...${NC}"
-      
-      # Créer un fichier avec toutes les réponses 'y'
-      LICENSE_RESPONSES=$(mktemp)
-      for i in {1..200}; do echo "y"; done > "$LICENSE_RESPONSES"
-      
-      # Accepter toutes les licences
-      "$SDKMANAGER" --licenses < "$LICENSE_RESPONSES" > /tmp/android_licenses.log 2>&1 || {
-        # Méthode alternative : utiliser yes
-        if command -v yes &> /dev/null; then
-          yes | "$SDKMANAGER" --licenses > /tmp/android_licenses.log 2>&1 || true
-        else
-          # Dernière méthode : créer les fichiers de licence manuellement
-          echo -e "${YELLOW}Tentative de création manuelle des licences...${NC}"
-          mkdir -p "$ANDROID_HOME/licenses" 2>/dev/null || true
-          # Créer les fichiers de licence standard
-          echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$ANDROID_HOME/licenses/android-sdk-license" 2>/dev/null || true
-          echo "84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license" 2>/dev/null || true
-        fi
+    # Toujours accepter les licences pour s'assurer qu'elles sont à jour
+    echo -e "${YELLOW}Acceptation des licences Android SDK...${NC}"
+    
+    # Utiliser yes pour accepter toutes les licences automatiquement
+    # IMPORTANT: Utiliser --sdk_root pour que sdkmanager fonctionne correctement
+    if command -v yes &> /dev/null; then
+      yes | "$SDKMANAGER" --licenses --sdk_root="$ANDROID_HOME" > /tmp/android_licenses.log 2>&1 || {
+        # Si yes échoue, créer un script temporaire
+        LICENSE_SCRIPT=$(mktemp)
+        for i in {1..50}; do echo "y"; done > "$LICENSE_SCRIPT"
+        "$SDKMANAGER" --licenses --sdk_root="$ANDROID_HOME" < "$LICENSE_SCRIPT" > /tmp/android_licenses.log 2>&1 || true
+        rm -f "$LICENSE_SCRIPT"
       }
-      
-      rm -f "$LICENSE_RESPONSES"
-      
-      # Vérifier à nouveau
-      LICENSE_COUNT=$(find "$ANDROID_HOME/licenses" -name "*.txt" 2>/dev/null | wc -l)
-      if [ "$LICENSE_COUNT" -gt 0 ]; then
-        echo -e "${GREEN}✓ $LICENSE_COUNT licence(s) Android SDK acceptée(s)${NC}"
-      else
-        # Créer les fichiers de licence manuellement comme fallback
-        echo -e "${YELLOW}Création manuelle des fichiers de licence...${NC}"
-        mkdir -p "$ANDROID_HOME/licenses" 2>/dev/null || true
-        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$ANDROID_HOME/licenses/android-sdk-license.txt" 2>/dev/null || true
-        echo "84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license.txt" 2>/dev/null || true
-        echo "d975f751698a77b662f1254ddbeed3901e976f5a" > "$ANDROID_HOME/licenses/android-sdk-arm-dbt-license.txt" 2>/dev/null || true
-        echo -e "${GREEN}✓ Licences créées manuellement${NC}"
-      fi
     else
-      echo -e "${GREEN}✓ $LICENSE_COUNT licence(s) déjà acceptée(s)${NC}"
+      # Créer un script temporaire avec des réponses 'y'
+      LICENSE_SCRIPT=$(mktemp)
+      for i in {1..50}; do echo "y"; done > "$LICENSE_SCRIPT"
+      "$SDKMANAGER" --licenses --sdk_root="$ANDROID_HOME" < "$LICENSE_SCRIPT" > /tmp/android_licenses.log 2>&1 || true
+      rm -f "$LICENSE_SCRIPT"
     fi
     
-    # Installer les composants requis
-    echo -e "${YELLOW}Vérification des composants Android SDK requis...${NC}"
-    "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0" --sdk_root="$ANDROID_HOME" > /tmp/android_sdk_install.log 2>&1 || {
-      echo -e "${YELLOW}⚠ Installation des composants en cours...${NC}"
-      # Réessayer avec yes
-      if command -v yes &> /dev/null; then
-        yes | "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0" --sdk_root="$ANDROID_HOME" > /tmp/android_sdk_install.log 2>&1 || true
-      fi
-    }
+    # Vérifier que les licences sont acceptées
+    LICENSE_COUNT=$(find "$ANDROID_HOME/licenses" -name "*.txt" 2>/dev/null | wc -l)
+    if [ "$LICENSE_COUNT" -gt 0 ]; then
+      echo -e "${GREEN}✓ $LICENSE_COUNT licence(s) Android SDK acceptée(s)${NC}"
+    else
+      echo -e "${YELLOW}⚠ Aucune licence .txt trouvée, création manuelle...${NC}"
+      mkdir -p "$ANDROID_HOME/licenses" 2>/dev/null || true
+      # Créer les fichiers de licence standard (format requis par Gradle)
+      echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$ANDROID_HOME/licenses/android-sdk-license.txt" 2>/dev/null || true
+      echo "84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license.txt" 2>/dev/null || true
+      echo "d975f751698a77b662f1254ddbeed3901e976f5a" > "$ANDROID_HOME/licenses/android-sdk-arm-dbt-license.txt" 2>/dev/null || true
+      echo "601085b94cd77f0b54ff86406957099ebe79c4d6" > "$ANDROID_HOME/licenses/android-googletv-license.txt" 2>/dev/null || true
+      echo -e "${GREEN}✓ Licences créées manuellement${NC}"
+    fi
+    
+    # Installer les composants requis (platforms;android-34 et build-tools;34.0.0)
+    echo -e "${YELLOW}Installation des composants Android SDK requis (Platform 34, Build-Tools 34)...${NC}"
+    if command -v yes &> /dev/null; then
+      yes | "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0" --sdk_root="$ANDROID_HOME" > /tmp/android_sdk_install.log 2>&1 || {
+        echo -e "${YELLOW}⚠ Certains composants n'ont pas pu être installés${NC}"
+        echo -e "${YELLOW}   Vérifiez les logs: /tmp/android_sdk_install.log${NC}"
+      }
+    else
+      "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0" --sdk_root="$ANDROID_HOME" > /tmp/android_sdk_install.log 2>&1 || {
+        echo -e "${YELLOW}⚠ Installation des composants en cours...${NC}"
+      }
+    fi
+    echo -e "${GREEN}✓ Composants Android SDK vérifiés/installés${NC}"
   else
     echo -e "${YELLOW}⚠ sdkmanager non disponible${NC}"
     echo -e "${YELLOW}   Création manuelle des fichiers de licence...${NC}"
@@ -729,22 +733,36 @@ case "$DEVICE_CHOICE" in
           fi
         fi
         
-        # Build l'APK en mode debug
         # Vérifier et créer les licences Android SDK avant le build
         if [ -d "$ANDROID_HOME" ]; then
           mkdir -p "$ANDROID_HOME/licenses" 2>/dev/null || true
           LICENSE_COUNT=$(find "$ANDROID_HOME/licenses" -name "*.txt" 2>/dev/null | wc -l)
           if [ "$LICENSE_COUNT" -eq 0 ]; then
-            echo -e "${YELLOW}Création des licences Android SDK...${NC}"
+            echo -e "${YELLOW}⚠ Aucune licence trouvée, création des licences Android SDK...${NC}"
+            # Créer les fichiers de licence standard (format requis par Gradle)
             echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$ANDROID_HOME/licenses/android-sdk-license.txt" 2>/dev/null || true
             echo "84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license.txt" 2>/dev/null || true
             echo "d975f751698a77b662f1254ddbeed3901e976f5a" > "$ANDROID_HOME/licenses/android-sdk-arm-dbt-license.txt" 2>/dev/null || true
+            echo "601085b94cd77f0b54ff86406957099ebe79c4d6" > "$ANDROID_HOME/licenses/android-googletv-license.txt" 2>/dev/null || true
             echo -e "${GREEN}✓ Licences créées${NC}"
+          else
+            echo -e "${GREEN}✓ $LICENSE_COUNT licence(s) Android SDK trouvée(s)${NC}"
           fi
         fi
         
+        # Vérifier si l'utilisateur veut voir la stacktrace
+        STACKTRACE_FLAG=""
+        if [ "${SHOW_STACKTRACE:-}" = "true" ] || [ "${STACKTRACE:-}" = "true" ]; then
+          STACKTRACE_FLAG="--stacktrace"
+          echo -e "${YELLOW}Mode stacktrace activé${NC}"
+        fi
+        
         echo -e "${YELLOW}Build de l'APK...${NC}"
-        $FLUTTER_CMD build apk --debug --target-platform android-arm64 > /tmp/flutter_build.log 2>&1 &
+        if [ ! -z "$STACKTRACE_FLAG" ]; then
+          $FLUTTER_CMD build apk --debug --target-platform android-arm64 $STACKTRACE_FLAG > /tmp/flutter_build.log 2>&1 &
+        else
+          $FLUTTER_CMD build apk --debug --target-platform android-arm64 > /tmp/flutter_build.log 2>&1 &
+        fi
         BUILD_PID=$!
         
         # Attendre que le build se termine
