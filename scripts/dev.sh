@@ -463,11 +463,16 @@ DEVICE_CHOICE=""
 HAS_ANDROID=false
 AUTO_SELECT_ANDROID=false
 
-if [ ! -z "$ANDROID_DEVICE_ID" ] || [ ! -z "$FLUTTER_ANDROID_DEVICES" ]; then
+# Si FORCE_WEB_ONLY est activé, sauter directement au web
+if [ "$FORCE_WEB_ONLY" = "true" ] || [ "$FORCE_WEB_ONLY" = "1" ]; then
+  DEVICE_CHOICE="2"
+  echo -e "${GREEN}→ Lancement automatique sur Web uniquement${NC}"
+  HAS_ANDROID=false
+elif [ ! -z "$ANDROID_DEVICE_ID" ] || [ ! -z "$FLUTTER_ANDROID_DEVICES" ]; then
   HAS_ANDROID=true
 fi
 
-if [ "$HAS_ANDROID" = true ]; then
+if [ "$FORCE_WEB_ONLY" != "true" ] && [ "$FORCE_WEB_ONLY" != "1" ] && [ "$HAS_ANDROID" = true ]; then
   echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
   echo -e "${GREEN}Appareils détectés:${NC}"
   
@@ -602,7 +607,7 @@ if [ "$HAS_ANDROID" = true ]; then
       DEVICE_CHOICE="2"
     fi
   fi
-else
+elif [ "$FORCE_WEB_ONLY" != "true" ] && [ "$FORCE_WEB_ONLY" != "1" ]; then
   echo -e "${YELLOW}⚠ Aucun appareil Android détecté${NC}"
   echo -e "${YELLOW}   Connectez votre téléphone via USB et activez le débogage USB${NC}"
   echo -e "${YELLOW}   Ou choisissez l'option Web uniquement${NC}"

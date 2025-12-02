@@ -216,7 +216,7 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.refresh),
-                      onPressed: _loadItems,
+                      onPressed: loadItems,
                       tooltip: 'Actualiser',
                     ),
                   ],

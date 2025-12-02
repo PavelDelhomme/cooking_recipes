@@ -51,16 +51,22 @@ down: ## Arrête tous les conteneurs et processus
 	@echo -e "$(GREEN)Arrêt des services...$(NC)"
 	@echo -e "$(YELLOW)Arrêt des processus Node.js...$(NC)"
 	@if [ -f /tmp/backend_pid.txt ]; then \
-		kill -9 $$(cat /tmp/backend_pid.txt) 2>/dev/null || true; \
-		rm /tmp/backend_pid.txt; \
+		BACKEND_PID=$$(cat /tmp/backend_pid.txt 2>/dev/null || echo ""); \
+		if [ ! -z "$$BACKEND_PID" ] && kill -0 $$BACKEND_PID 2>/dev/null; then \
+			kill -9 $$BACKEND_PID 2>/dev/null || true; \
+		fi; \
+		rm -f /tmp/backend_pid.txt 2>/dev/null || true; \
 	fi
 	@pkill -9 -f "node.*server.js" 2>/dev/null || true
 	@pkill -9 -f "node.*backend" 2>/dev/null || true
 	@pkill -9 -f "npm.*dev" 2>/dev/null || true
 	@echo -e "$(YELLOW)Arrêt des processus Flutter...$(NC)"
 	@if [ -f /tmp/frontend_pid.txt ]; then \
-		kill -9 $$(cat /tmp/frontend_pid.txt) 2>/dev/null || true; \
-		rm /tmp/frontend_pid.txt; \
+		FRONTEND_PID=$$(cat /tmp/frontend_pid.txt 2>/dev/null || echo ""); \
+		if [ ! -z "$$FRONTEND_PID" ] && kill -0 $$FRONTEND_PID 2>/dev/null; then \
+			kill -9 $$FRONTEND_PID 2>/dev/null || true; \
+		fi; \
+		rm -f /tmp/frontend_pid.txt 2>/dev/null || true; \
 	fi
 	@pkill -9 -f "flutter.*web-server" 2>/dev/null || true
 	@pkill -9 -f "flutter.*android" 2>/dev/null || true
@@ -68,8 +74,14 @@ down: ## Arrête tous les conteneurs et processus
 	@pkill -9 -f "dart.*web" 2>/dev/null || true
 	@echo -e "$(YELLOW)Libération des ports...$(NC)"
 	@if command -v lsof >/dev/null 2>&1; then \
-		lsof -ti:7272 | xargs kill -9 2>/dev/null || true; \
-		lsof -ti:7070 | xargs kill -9 2>/dev/null || true; \
+		PIDS_7272=$$(lsof -ti:7272 2>/dev/null || echo ""); \
+		if [ ! -z "$$PIDS_7272" ]; then \
+			echo $$PIDS_7272 | xargs kill -9 2>/dev/null || true; \
+		fi; \
+		PIDS_7070=$$(lsof -ti:7070 2>/dev/null || echo ""); \
+		if [ ! -z "$$PIDS_7070" ]; then \
+			echo $$PIDS_7070 | xargs kill -9 2>/dev/null || true; \
+		fi; \
 	fi
 	@echo -e "$(YELLOW)Arrêt des conteneurs Docker...$(NC)"
 	@$(DOCKER_COMPOSE) down --remove-orphans 2>/dev/null || true
