@@ -46,33 +46,62 @@ fi
 # Java 25 n'est pas encore supporté par Gradle, on doit utiliser Java 17 ou 21
 JAVA_VERSION=$(java -version 2>&1 | head -1 | grep -oE "version \"[0-9]+" | grep -oE "[0-9]+")
 if [ ! -z "$JAVA_VERSION" ] && [ "$JAVA_VERSION" -gt 21 ]; then
-  echo -e "${YELLOW}⚠ Java $JAVA_VERSION détecté, Gradle nécessite Java 17 ou 21${NC}"
-  echo -e "${YELLOW}   Installation de Java 21 recommandée...${NC}"
+  echo -e "${YELLOW}⚠ Java $JAVA_VERSION détecté (version système)${NC}"
+  echo -e "${YELLOW}   Configuration de Java 21 pour Gradle...${NC}"
   
-  # Chercher Java 17 ou 21
-  JAVA_17_PATH=""
+  # Chercher Java 21 ou 17 (priorité à Java 21)
   JAVA_21_PATH=""
+  JAVA_17_PATH=""
   
-  if [ -d "/usr/lib/jvm/java-17-openjdk" ]; then
-    JAVA_17_PATH="/usr/lib/jvm/java-17-openjdk"
-  fi
   if [ -d "/usr/lib/jvm/java-21-openjdk" ]; then
     JAVA_21_PATH="/usr/lib/jvm/java-21-openjdk"
   fi
+  if [ -d "/usr/lib/jvm/java-17-openjdk" ]; then
+    JAVA_17_PATH="/usr/lib/jvm/java-17-openjdk"
+  fi
   
   # Utiliser Java 21 si disponible, sinon Java 17
-  if [ ! -z "$JAVA_21_PATH" ]; then
+  if [ ! -z "$JAVA_21_PATH" ] && [ -f "$JAVA_21_PATH/bin/java" ]; then
     export JAVA_HOME="$JAVA_21_PATH"
     export PATH="$JAVA_21_PATH/bin:$PATH"
-    echo -e "${GREEN}✓ Java 21 configuré pour Gradle${NC}"
-  elif [ ! -z "$JAVA_17_PATH" ]; then
+    echo -e "${GREEN}✓ Java 21 configuré pour Gradle (Java $JAVA_VERSION reste la version système)${NC}"
+    # Vérifier la version
+    JAVA_GRADLE_VERSION=$("$JAVA_21_PATH/bin/java" -version 2>&1 | head -1)
+    echo -e "${GREEN}   Version Gradle: $JAVA_GRADLE_VERSION${NC}"
+  elif [ ! -z "$JAVA_17_PATH" ] && [ -f "$JAVA_17_PATH/bin/java" ]; then
     export JAVA_HOME="$JAVA_17_PATH"
     export PATH="$JAVA_17_PATH/bin:$PATH"
-    echo -e "${GREEN}✓ Java 17 configuré pour Gradle${NC}"
+    echo -e "${GREEN}✓ Java 17 configuré pour Gradle (Java $JAVA_VERSION reste la version système)${NC}"
   else
-    echo -e "${YELLOW}⚠ Java 17 ou 21 non trouvé${NC}"
-    echo -e "${YELLOW}   Installation recommandée: sudo pacman -S jdk-openjdk-21${NC}"
-    echo -e "${YELLOW}   Ou utilisez: yay -S jdk21-openjdk${NC}"
+    echo -e "${RED}❌ Java 17 ou 21 non trouvé${NC}"
+    echo -e "${YELLOW}   Installation requise:${NC}"
+    echo -e "${YELLOW}   sudo pacman -S jdk21-openjdk${NC}"
+    echo -e "${YELLOW}   ${NC}"
+    echo -e "${YELLOW}   Après installation, relancez: make dev${NC}"
+    echo ""
+    read -p "Voulez-vous installer Java 21 maintenant? (o/N): " install_java
+    if [[ "$install_java" =~ ^[oO]$ ]]; then
+      echo -e "${GREEN}Installation de Java 21...${NC}"
+      sudo pacman -S --noconfirm jdk21-openjdk || {
+        echo -e "${RED}❌ Échec de l'installation${NC}"
+        echo -e "${YELLOW}   Installez manuellement: sudo pacman -S jdk21-openjdk${NC}"
+        exit 1
+      }
+      # Vérifier que Java 21 est maintenant disponible
+      if [ -d "/usr/lib/jvm/java-21-openjdk" ] && [ -f "/usr/lib/jvm/java-21-openjdk/bin/java" ]; then
+        export JAVA_HOME="/usr/lib/jvm/java-21-openjdk"
+        export PATH="/usr/lib/jvm/java-21-openjdk/bin:$PATH"
+        echo -e "${GREEN}✓ Java 21 installé et configuré pour Gradle${NC}"
+        JAVA_GRADLE_VERSION=$("$JAVA_HOME/bin/java" -version 2>&1 | head -1)
+        echo -e "${GREEN}   Version: $JAVA_GRADLE_VERSION${NC}"
+      else
+        echo -e "${YELLOW}⚠ Java 21 installé mais chemin non trouvé${NC}"
+        echo -e "${YELLOW}   Redémarrez le script: make dev${NC}"
+        exit 1
+      fi
+    else
+      exit 1
+    fi
   fi
 fi
 
