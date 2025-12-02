@@ -751,15 +751,20 @@ case "$DEVICE_CHOICE" in
         fi
         
         # Vérifier si l'utilisateur veut voir la stacktrace
-        STACKTRACE_FLAG=""
+        # --stacktrace est une option Gradle, pas Flutter
+        # Flutter utilise Gradle en interne, on utilise --verbose pour plus de détails
         if [ "${SHOW_STACKTRACE:-}" = "true" ] || [ "${STACKTRACE:-}" = "true" ]; then
-          STACKTRACE_FLAG="--stacktrace"
-          echo -e "${YELLOW}Mode stacktrace activé${NC}"
+          echo -e "${YELLOW}Mode stacktrace activé (affichage détaillé des logs)${NC}"
+          FLUTTER_VERBOSE="--verbose"
+          SHOW_FULL_LOG=true
+        else
+          FLUTTER_VERBOSE=""
+          SHOW_FULL_LOG=false
         fi
         
         echo -e "${YELLOW}Build de l'APK...${NC}"
-        if [ ! -z "$STACKTRACE_FLAG" ]; then
-          $FLUTTER_CMD build apk --debug --target-platform android-arm64 $STACKTRACE_FLAG > /tmp/flutter_build.log 2>&1 &
+        if [ ! -z "$FLUTTER_VERBOSE" ]; then
+          $FLUTTER_CMD build apk --debug --target-platform android-arm64 $FLUTTER_VERBOSE > /tmp/flutter_build.log 2>&1 &
         else
           $FLUTTER_CMD build apk --debug --target-platform android-arm64 > /tmp/flutter_build.log 2>&1 &
         fi
@@ -814,12 +819,30 @@ case "$DEVICE_CHOICE" in
             fi
           else
             echo -e "${RED}❌ APK non trouvé après le build${NC}"
-            cat /tmp/flutter_build.log | tail -20
+            if [ "$SHOW_FULL_LOG" = "true" ]; then
+              echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
+              echo -e "${YELLOW}Log complet du build (mode stacktrace):${NC}"
+              echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
+              cat /tmp/flutter_build.log
+              echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
+            else
+              echo -e "${YELLOW}Dernières lignes du log:${NC}"
+              cat /tmp/flutter_build.log | tail -30
+            fi
             exit 1
           fi
         else
           echo -e "${RED}❌ Échec du build${NC}"
-          cat /tmp/flutter_build.log | tail -30
+          if [ "$SHOW_FULL_LOG" = "true" ]; then
+            echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
+            echo -e "${YELLOW}Log complet du build (mode stacktrace):${NC}"
+            echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
+            cat /tmp/flutter_build.log
+            echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
+          else
+            echo -e "${YELLOW}Dernières lignes du log (utilisez 'make dev-stacktrace' pour le log complet):${NC}"
+            cat /tmp/flutter_build.log | tail -50
+          fi
           exit 1
         fi
       fi
