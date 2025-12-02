@@ -7,6 +7,7 @@ import '../services/profile_service.dart';
 import '../services/meal_plan_service.dart';
 import '../services/theme_service.dart';
 import '../services/app_localizations.dart';
+import '../services/translation_service.dart';
 import '../models/pantry_item.dart';
 import '../models/shopping_list_item.dart';
 import '../models/user_profile.dart';

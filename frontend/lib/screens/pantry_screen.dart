@@ -10,15 +10,16 @@ import '../widgets/unit_selector.dart';
 import '../widgets/quantity_unit_input.dart';
 import '../services/ingredient_suggestions.dart';
 import 'pantry_history_screen.dart';
+import 'pantry_config_screen.dart';
 
 class PantryScreen extends StatefulWidget {
   const PantryScreen({super.key});
 
   @override
-  State<PantryScreen> createState() => _PantryScreenState();
+  State<PantryScreen> createState() => PantryScreenState();
 }
 
-class _PantryScreenState extends State<PantryScreen> {
+class PantryScreenState extends State<PantryScreen> {
   final PantryService _pantryService = PantryService();
   final PantryHistoryService _historyService = PantryHistoryService();
   final IngredientImageService _imageService = IngredientImageService();
@@ -29,10 +30,11 @@ class _PantryScreenState extends State<PantryScreen> {
   @override
   void initState() {
     super.initState();
-    _loadItems();
+    loadItems();
   }
 
-  Future<void> _loadItems() async {
+  // Méthode publique pour recharger les items
+  Future<void> loadItems() async {
     setState(() => _isLoading = true);
     final items = await _pantryService.getPantryItems();
     
@@ -59,7 +61,7 @@ class _PantryScreenState extends State<PantryScreen> {
     );
 
     if (result == true) {
-      _loadItems();
+      loadItems();
     }
   }
 
@@ -72,7 +74,7 @@ class _PantryScreenState extends State<PantryScreen> {
     );
 
     if (result == true) {
-      _loadItems();
+      loadItems();
     }
   }
 
@@ -97,7 +99,7 @@ class _PantryScreenState extends State<PantryScreen> {
 
     if (confirmed == true) {
       await _pantryService.removePantryItem(item.id);
-      _loadItems();
+      loadItems();
     }
   }
 
@@ -150,7 +152,7 @@ class _PantryScreenState extends State<PantryScreen> {
         );
         await _historyService.addHistoryItem(historyItem);
         
-        _loadItems();
+        loadItems();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Ingrédient utilisé')),
@@ -196,8 +198,45 @@ class _PantryScreenState extends State<PantryScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.refresh),
-                      onPressed: _loadItems,
+                      onPressed: loadItems,
                       tooltip: 'Actualiser',
+                    ),
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert),
+                      onSelected: (value) {
+                        if (value == 'config') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const PantryConfigScreen(),
+                            ),
+                          );
+                        } else if (value == 'refresh') {
+                          loadItems();
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'config',
+                          child: Row(
+                            children: [
+                              Icon(Icons.settings),
+                              SizedBox(width: 8),
+                              Text('Configuration'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'refresh',
+                          child: Row(
+                            children: [
+                              Icon(Icons.refresh),
+                              SizedBox(width: 8),
+                              Text('Actualiser'),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

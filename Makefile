@@ -37,6 +37,9 @@ install: ## Installe les dépendances (backend + frontend)
 dev: _get-ip ## Lance tout en mode développement (local)
 	@bash scripts/dev.sh
 
+dev-web: _get-ip ## Lance uniquement le frontend web (PC) sans détecter les appareils Android
+	@FORCE_WEB_ONLY=true bash scripts/dev.sh
+
 dev-stacktrace: _get-ip ## Lance en mode développement avec stacktrace détaillée
 	@STACKTRACE=true bash scripts/dev.sh
 
@@ -46,24 +49,48 @@ start: dev ## Alias pour dev
 
 down: ## Arrête tous les conteneurs et processus
 	@echo -e "$(GREEN)Arrêt des services...$(NC)"
+	@echo -e "$(YELLOW)Arrêt des processus Node.js...$(NC)"
 	@if [ -f /tmp/backend_pid.txt ]; then \
-		kill $$(cat /tmp/backend_pid.txt) 2>/dev/null || true; \
+		kill -9 $$(cat /tmp/backend_pid.txt) 2>/dev/null || true; \
 		rm /tmp/backend_pid.txt; \
-	fi; \
-	if [ -f /tmp/frontend_pid.txt ]; then \
-		kill $$(cat /tmp/frontend_pid.txt) 2>/dev/null || true; \
+	fi
+	@pkill -9 -f "node.*server.js" 2>/dev/null || true
+	@pkill -9 -f "node.*backend" 2>/dev/null || true
+	@pkill -9 -f "npm.*dev" 2>/dev/null || true
+	@echo -e "$(YELLOW)Arrêt des processus Flutter...$(NC)"
+	@if [ -f /tmp/frontend_pid.txt ]; then \
+		kill -9 $$(cat /tmp/frontend_pid.txt) 2>/dev/null || true; \
 		rm /tmp/frontend_pid.txt; \
-	fi; \
-	pkill -f "node.*server.js" 2>/dev/null || true; \
-	pkill -f "flutter.*web-server" 2>/dev/null || true; \
-	pkill -f "flutter.*android" 2>/dev/null || true; \
-	pkill -f "flutter run" 2>/dev/null || true; \
-	$(DOCKER_COMPOSE) down 2>/dev/null || true; \
-	echo -e "$(GREEN)✓ Services arrêtés$(NC)"
+	fi
+	@pkill -9 -f "flutter.*web-server" 2>/dev/null || true
+	@pkill -9 -f "flutter.*android" 2>/dev/null || true
+	@pkill -9 -f "flutter run" 2>/dev/null || true
+	@pkill -9 -f "dart.*web" 2>/dev/null || true
+	@echo -e "$(YELLOW)Libération des ports...$(NC)"
+	@if command -v lsof >/dev/null 2>&1; then \
+		lsof -ti:7272 | xargs kill -9 2>/dev/null || true; \
+		lsof -ti:7070 | xargs kill -9 2>/dev/null || true; \
+	fi
+	@echo -e "$(YELLOW)Arrêt des conteneurs Docker...$(NC)"
+	@$(DOCKER_COMPOSE) down --remove-orphans 2>/dev/null || true
+	@echo -e "$(YELLOW)Nettoyage des fichiers temporaires...$(NC)"
+	@rm -f /tmp/backend_pid.txt /tmp/frontend_pid.txt 2>/dev/null || true
+	@echo -e "$(GREEN)✓ Tous les services ont été arrêtés$(NC)"
 
 stop: down ## Alias pour down
 
-restart: down dev ## Redémarre tous les conteneurs
+restart: ## Redémarre tous les services (down puis dev)
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
+	@echo -e "$(GREEN)Redémarrage de l'application$(NC)"
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
+	@echo ""
+	@$(MAKE) down || true
+	@echo ""
+	@echo -e "$(GREEN)Attente de 2 secondes avant le redémarrage...$(NC)"
+	@sleep 2
+	@echo ""
+	@echo -e "$(GREEN)Redémarrage des services...$(NC)"
+	@$(MAKE) dev
 
 logs: ## Affiche les logs en temps réel
 	@$(DOCKER_COMPOSE) logs -f

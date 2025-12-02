@@ -3,33 +3,48 @@ import '../models/shopping_list_item.dart';
 import '../models/pantry_item.dart';
 import '../services/shopping_list_service.dart';
 import '../services/pantry_service.dart';
+import '../services/ingredient_image_service.dart';
 import '../widgets/unit_selector.dart';
 
 class ShoppingListScreen extends StatefulWidget {
   const ShoppingListScreen({super.key});
 
   @override
-  State<ShoppingListScreen> createState() => _ShoppingListScreenState();
+  State<ShoppingListScreen> createState() => ShoppingListScreenState();
 }
 
-class _ShoppingListScreenState extends State<ShoppingListScreen> {
+class ShoppingListScreenState extends State<ShoppingListScreen> {
   final ShoppingListService _shoppingListService = ShoppingListService();
   final PantryService _pantryService = PantryService();
+  final IngredientImageService _imageService = IngredientImageService();
   List<ShoppingListItem> _items = [];
   bool _isLoading = true;
   bool _showChecked = false;
+  final Map<String, String?> _ingredientImages = {};
 
   @override
   void initState() {
     super.initState();
-    _loadItems();
+    loadItems();
   }
 
-  Future<void> _loadItems() async {
+  // Méthode publique pour recharger les items
+  Future<void> loadItems() async {
     setState(() => _isLoading = true);
     final items = await _shoppingListService.getShoppingListItems();
+    
+    // Charger les images pour chaque ingrédient
+    final Map<String, String?> images = {};
+    for (var item in items) {
+      if (!_ingredientImages.containsKey(item.name)) {
+        final imageUrl = await _imageService.getImageFromMealDB(item.name);
+        images[item.name] = imageUrl;
+      }
+    }
+    
     setState(() {
       _items = items;
+      _ingredientImages.addAll(images);
       _isLoading = false;
     });
   }
@@ -41,7 +56,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     );
 
     if (result == true) {
-      _loadItems();
+      loadItems();
     }
   }
 
@@ -54,13 +69,13 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     );
 
     if (result == true) {
-      _loadItems();
+      loadItems();
     }
   }
 
   Future<void> _toggleItem(ShoppingListItem item) async {
     await _shoppingListService.toggleShoppingListItem(item.id);
-    _loadItems();
+    loadItems();
   }
 
   Future<void> _deleteItem(ShoppingListItem item) async {
@@ -84,7 +99,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
     if (confirmed == true) {
       await _shoppingListService.removeShoppingListItem(item.id);
-      _loadItems();
+      loadItems();
     }
   }
 
@@ -111,7 +126,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
     if (confirmed == true) {
       await _shoppingListService.removeCheckedItems();
-      _loadItems();
+      loadItems();
     }
   }
 
@@ -127,7 +142,9 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         ),
       );
       await _shoppingListService.removeShoppingListItem(item.id);
-      _loadItems();
+      loadItems();
+      
+      // Le placard sera rechargé automatiquement quand l'utilisateur y accède
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -143,6 +160,14 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         );
       }
     }
+  }
+  
+  // Notifier que le placard a été mis à jour
+  void _notifyPantryUpdate() {
+    // Utiliser un callback via le contexte parent
+    // Le MainScreen écoutera les changements via un InheritedWidget ou un callback
+    // Pour l'instant, on utilise un mécanisme simple : recharger quand on change d'onglet
+    // Le rechargement se fera automatiquement quand l'utilisateur reviendra sur l'onglet placard
   }
 
   List<ShoppingListItem> get _displayedItems {
@@ -268,12 +293,55 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                           horizontal: 16,
                           vertical: 8,
                         ),
-                        leading: Checkbox(
-                          value: item.isChecked,
-                          onChanged: (_) => _toggleItem(item),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
-                          ),
+                        leading: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primaryContainer,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: _ingredientImages[item.name] != null
+                                    ? Image.network(
+                                        _ingredientImages[item.name]!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Icon(
+                                            Icons.shopping_cart,
+                                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                          );
+                                        },
+                                        loadingBuilder: (context, child, loadingProgress) {
+                                          if (loadingProgress == null) return child;
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              value: loadingProgress.expectedTotalBytes != null
+                                                  ? loadingProgress.cumulativeBytesLoaded /
+                                                      loadingProgress.expectedTotalBytes!
+                                                  : null,
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    : Icon(
+                                        Icons.shopping_cart,
+                                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                      ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Checkbox(
+                              value: item.isChecked,
+                              onChanged: (_) => _toggleItem(item),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ],
                         ),
                         title: Text(
                           item.name,

@@ -322,17 +322,21 @@ echo -e "${YELLOW}Frontend Web (PC): http://localhost:7070${NC}"
 echo -e "${YELLOW}Frontend Web (Mobile): http://$MACHINE_IP:7070${NC}"
 echo ""
 
-# Détecter les appareils Android connectés via ADB (USB et WiFi)
-ANDROID_DEVICES=""
-ANDROID_DEVICE_ID=""
-ANDROID_DEVICE_COUNT=0
-ANDROID_USB_DEVICES=()
-ANDROID_WIFI_DEVICES=()
-ANDROID_WIFI_IPS=()
-
-if command -v adb &> /dev/null; then
-  # Détecter tous les devices (USB et WiFi)
-  ALL_ADB_DEVICES=$(adb devices 2>/dev/null | grep -v "List" | grep "device$" | awk '{print $1}')
+# Vérifier si on veut forcer le web uniquement (variable d'environnement)
+FORCE_WEB_ONLY="${FORCE_WEB_ONLY:-false}"
+if [ "$FORCE_WEB_ONLY" = "true" ] || [ "$FORCE_WEB_ONLY" = "1" ]; then
+  echo -e "${GREEN}Mode Web uniquement activé (FORCE_WEB_ONLY=true)${NC}"
+  ANDROID_DEVICE_ID=""
+  ANDROID_DEVICE_COUNT=0
+  ANDROID_USB_DEVICES=()
+  ANDROID_WIFI_DEVICES=()
+  ANDROID_WIFI_IPS=()
+  HAS_ANDROID=false
+else
+  # Détecter les appareils Android connectés via ADB (USB et WiFi)
+  if command -v adb >/dev/null 2>&1; then
+    # Détecter tous les devices (USB et WiFi)
+    ALL_ADB_DEVICES=$(adb devices 2>/dev/null | grep -v "List" | grep "device$" | awk '{print $1}')
   ANDROID_DEVICE_COUNT=$(echo "$ALL_ADB_DEVICES" | grep -c . || echo "0")
   
   # Séparer les devices USB (ID alphanumériques) et WiFi (adresses IP)
@@ -397,6 +401,7 @@ if command -v adb &> /dev/null; then
         fi
       fi
     fi
+  fi
   fi
 fi
 
@@ -600,8 +605,18 @@ if [ "$HAS_ANDROID" = true ]; then
 else
   echo -e "${YELLOW}⚠ Aucun appareil Android détecté${NC}"
   echo -e "${YELLOW}   Connectez votre téléphone via USB et activez le débogage USB${NC}"
-  echo -e "${GREEN}Lancement sur le navigateur Web...${NC}"
-  DEVICE_CHOICE="2"
+  echo -e "${YELLOW}   Ou choisissez l'option Web uniquement${NC}"
+  echo ""
+  echo -e "${YELLOW}Choisissez où lancer l'application:${NC}"
+  echo -e "  ${GREEN}1)${NC} Téléphone Android uniquement ${YELLOW}(nécessite un device connecté)${NC}"
+  echo -e "  ${GREEN}2)${NC} Navigateur Web uniquement ${YELLOW}(PC - localhost)${NC}"
+  echo -e "  ${GREEN}3)${NC} Les deux (Android + Web)"
+  echo ""
+  read -p "Votre choix [1-3] (défaut: 2 pour Web): " DEVICE_CHOICE
+  if [ -z "$DEVICE_CHOICE" ]; then
+    DEVICE_CHOICE="2"
+    echo -e "${GREEN}→ Sélection automatique: Web (aucun device Android détecté)${NC}"
+  fi
 fi
 
 # Configurer l'URL API pour mobile si nécessaire

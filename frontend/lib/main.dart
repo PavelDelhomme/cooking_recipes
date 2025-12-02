@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
-import 'screens/pantry_screen.dart';
+import 'screens/pantry_screen.dart' show PantryScreen, PantryScreenState;
 import 'screens/recipes_screen.dart';
 import 'screens/meal_plan_screen.dart';
-import 'screens/shopping_list_screen.dart';
+import 'screens/shopping_list_screen.dart' show ShoppingListScreen, ShoppingListScreenState;
 import 'screens/profile_screen.dart';
 import 'screens/auth_screen.dart';
 import 'services/profile_service.dart';
@@ -233,19 +233,25 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   final ProfileService _profileService = ProfileService();
   UserProfile? _currentProfile;
+  
+  // GlobalKeys pour pouvoir recharger les écrans
+  final GlobalKey<PantryScreenState> _pantryScreenKey = GlobalKey<PantryScreenState>();
+  final GlobalKey<ShoppingListScreenState> _shoppingListScreenKey = GlobalKey<ShoppingListScreenState>();
 
-  final List<Widget> _screens = [
-    const RecipesScreen(),
-    const PantryScreen(),
-    const ShoppingListScreen(),
-    const MealPlanScreen(),
-    const ProfileScreen(),
-  ];
-
+  late final List<Widget> _screens;
+  
   @override
   void initState() {
     super.initState();
     _loadProfile();
+    // Initialiser les écrans avec les keys
+    _screens = [
+      const RecipesScreen(),
+      PantryScreen(key: _pantryScreenKey),
+      ShoppingListScreen(key: _shoppingListScreenKey),
+      const MealPlanScreen(),
+      const ProfileScreen(),
+    ];
   }
 
   Future<void> _loadProfile() async {
@@ -274,6 +280,14 @@ class _MainScreenState extends State<MainScreen> {
               });
               // Recharger le profil quand on change d'onglet
               _loadProfile();
+              // Recharger le placard si on y accède
+              if (index == 1 && _pantryScreenKey.currentState != null) {
+                _pantryScreenKey.currentState!.loadItems();
+              }
+              // Recharger la liste de courses si on y accède
+              if (index == 2 && _shoppingListScreenKey.currentState != null) {
+                _shoppingListScreenKey.currentState!.loadItems();
+              }
             },
             elevation: 8,
             height: 70,
@@ -426,6 +440,10 @@ class _MainScreenState extends State<MainScreen> {
               setState(() => _selectedIndex = 1);
               Navigator.pop(context);
               _loadProfile();
+              // Recharger le placard quand on y accède
+              if (_pantryScreenKey.currentState != null) {
+                _pantryScreenKey.currentState!.loadItems();
+              }
             },
           ),
           ListTile(
