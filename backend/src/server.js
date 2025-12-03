@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
 const os = require('os');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
@@ -9,6 +10,7 @@ const mealPlanRoutes = require('./routes/mealPlans');
 const shoppingListRoutes = require('./routes/shoppingList');
 const adminRoutes = require('./routes/admin');
 const { initDatabase, createDefaultUser } = require('./database/db');
+const { apiLimiter } = require('./middleware/rateLimiter');
 
 // Fonction pour obtenir l'IP de la machine
 function getMachineIP() {
@@ -27,8 +29,45 @@ function getMachineIP() {
 const app = express();
 const PORT = process.env.PORT || 7272;
 
-// Middleware
-app.use(cors());
+// Sécurité : Helmet pour les headers HTTP sécurisés
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false, // Désactivé pour permettre les images externes
+}));
+
+// CORS configuré de manière sécurisée
+const corsOptions = {
+  origin: function (origin, callback) {
+    // En production, vérifier l'origine
+    if (process.env.NODE_ENV === 'production') {
+      const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    } else {
+      // En développement, autoriser toutes les origines
+      callback(null, true);
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+
+// Rate limiting global
+app.use('/api', apiLimiter);
+
+// Body parser avec limites
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 

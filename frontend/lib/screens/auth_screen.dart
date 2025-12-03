@@ -128,9 +128,22 @@ class _AuthScreenState extends State<AuthScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Veuillez entrer un email';
                       }
-                      if (!value.contains('@')) {
-                        return 'Email invalide';
+                      
+                      final trimmedValue = value.trim().toLowerCase();
+                      
+                      // Validation d'email stricte
+                      final emailRegex = RegExp(
+                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                      );
+                      
+                      if (!emailRegex.hasMatch(trimmedValue)) {
+                        return 'Format d\'email invalide';
                       }
+                      
+                      if (trimmedValue.length > 254) {
+                        return 'Email trop long';
+                      }
+                      
                       return null;
                     },
                   ),
@@ -157,9 +170,46 @@ class _AuthScreenState extends State<AuthScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Veuillez entrer un mot de passe';
                       }
-                      if (value.length < 6) {
-                        return 'Le mot de passe doit contenir au moins 6 caractères';
+                      
+                      if (value.length < 8) {
+                        return 'Le mot de passe doit contenir au moins 8 caractères';
                       }
+                      
+                      if (value.length > 128) {
+                        return 'Le mot de passe est trop long (max 128 caractères)';
+                      }
+                      
+                      // Vérifier la complexité
+                      final hasUpperCase = RegExp(r'[A-Z]').hasMatch(value);
+                      final hasLowerCase = RegExp(r'[a-z]').hasMatch(value);
+                      final hasNumbers = RegExp(r'\d').hasMatch(value);
+                      final hasSpecialChar = RegExp(r'[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]').hasMatch(value);
+                      
+                      final complexityScore = [
+                        hasUpperCase,
+                        hasLowerCase,
+                        hasNumbers,
+                        hasSpecialChar,
+                      ].where((element) => element).length;
+                      
+                      if (complexityScore < 3) {
+                        return 'Le mot de passe doit contenir au moins 3 des éléments suivants : majuscules, minuscules, chiffres, caractères spéciaux';
+                      }
+                      
+                      // Vérifier les mots de passe courants
+                      final commonPasswords = [
+                        'password',
+                        '12345678',
+                        'password123',
+                        'admin123',
+                        'qwerty123',
+                        'welcome123',
+                      ];
+                      
+                      if (commonPasswords.any((common) => value.toLowerCase().contains(common))) {
+                        return 'Ce mot de passe est trop commun. Veuillez en choisir un plus fort.';
+                      }
+                      
                       return null;
                     },
                   ),
