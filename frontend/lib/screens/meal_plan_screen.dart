@@ -907,47 +907,125 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
           : Column(
               children: [
                 // Sélecteur de date
-                Card(
-                  margin: const EdgeInsets.all(8),
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    leading: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(12),
+                Builder(
+                  builder: (context) {
+                    final isToday = _selectedDate.day == DateTime.now().day &&
+                        _selectedDate.month == DateTime.now().month &&
+                        _selectedDate.year == DateTime.now().year;
+                    
+                    return Card(
+                      margin: const EdgeInsets.all(8),
+                      elevation: isToday ? 4 : 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: isToday
+                            ? BorderSide(
+                                color: Theme.of(context).colorScheme.primary,
+                                width: 2,
+                              )
+                            : BorderSide.none,
                       ),
-                      child: Icon(
-                        Icons.calendar_today,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                    title: Text(
-                      DateFormat('EEEE dd MMMM yyyy', 'fr_FR').format(_selectedDate),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    subtitle: Text(
-                      _selectedDate.day == DateTime.now().day &&
-                              _selectedDate.month == DateTime.now().month &&
-                              _selectedDate.year == DateTime.now().year
-                          ? 'Aujourd\'hui'
-                          : '',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
+                      color: isToday
+                          ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3)
+                          : null,
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        leading: Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: isToday
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: isToday
+                                ? [
+                                    BoxShadow(
+                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                                      blurRadius: 6,
+                                      spreadRadius: 1,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Icon(
+                            Icons.calendar_today,
+                            color: isToday
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : Theme.of(context).colorScheme.onPrimaryContainer,
+                            size: isToday ? 28 : 24,
+                          ),
+                        ),
+                        title: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                DateFormat('EEEE dd MMMM yyyy', 'fr_FR').format(_selectedDate),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: isToday ? 17 : 16,
+                                  color: isToday
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
+                            if (isToday)
+                              Container(
+                                margin: const EdgeInsets.only(left: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.today,
+                                      size: 16,
+                                      color: Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Aujourd\'hui',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).colorScheme.onPrimary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                        subtitle: isToday
+                            ? Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.info_outline,
+                                      size: 14,
+                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Jour actuel',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : null,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
