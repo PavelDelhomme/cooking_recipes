@@ -189,9 +189,10 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                     ).then((selectedRecipe) {
                       // Si une recette a été sélectionnée depuis RecipesScreen
                       if (selectedRecipe != null && selectedRecipe is Recipe && mounted) {
-                        // Fermer tous les dialogues ouverts
-                        if (Navigator.canPop(context)) {
-                          Navigator.popUntil(context, (route) => route.isFirst || !route.willHandlePopInternally);
+                        // Fermer tous les dialogues ouverts de manière sécurisée
+                        final navigator = Navigator.maybeOf(context);
+                        if (navigator != null && navigator.canPop()) {
+                          navigator.popUntil((route) => route.isFirst || !route.willHandlePopInternally);
                         }
                         // Utiliser un délai pour s'assurer que le contexte est valide
                         Future.delayed(const Duration(milliseconds: 200), () {
@@ -229,16 +230,72 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                       
                       final pantryItems = await _pantryService.getPantryItems();
                       final ingredientNames = pantryItems.map((item) => item.name).toList();
-                      List<Recipe> recipes;
+                      List<Recipe> recipes = [];
+                      
                       if (ingredientNames.isEmpty) {
-                        recipes = await _recipeService.getRandomRecipes(10);
+                        // Si le placard est vide, proposer des recettes populaires et variées
+                        try {
+                          // Essayer d'abord des recettes aléatoires
+                          recipes = await _recipeService.getRandomRecipes(10);
+                          
+                          // Si pas assez de recettes, chercher par catégories populaires
+                          if (recipes.length < 5) {
+                            final popularTerms = ['chicken', 'pasta', 'salad', 'soup', 'dessert', 'beef', 'fish'];
+                            for (var term in popularTerms) {
+                              if (recipes.length >= 10) break;
+                              try {
+                                final searchResults = await _recipeService.searchRecipes(term);
+                                for (var recipe in searchResults) {
+                                  if (!recipes.any((r) => r.id == recipe.id)) {
+                                    recipes.add(recipe);
+                                    if (recipes.length >= 10) break;
+                                  }
+                                }
+                              } catch (e) {
+                                // Ignorer les erreurs
+                              }
+                            }
+                          }
+                        } catch (e) {
+                          // En cas d'erreur, essayer au moins des recettes aléatoires
+                          try {
+                            recipes = await _recipeService.getRandomRecipes(10);
+                          } catch (e2) {
+                            // Si même ça échoue, on laisse la liste vide
+                            recipes = [];
+                          }
+                        }
                       } else {
+                        // Chercher des recettes basées sur les ingrédients
                         recipes = await _recipeService.searchRecipesByIngredients(ingredientNames);
+                        
+                        // Si pas assez de résultats, compléter avec des recettes aléatoires
+                        if (recipes.length < 5) {
+                          try {
+                            final randomRecipes = await _recipeService.getRandomRecipes(10 - recipes.length);
+                            for (var recipe in randomRecipes) {
+                              if (!recipes.any((r) => r.id == recipe.id)) {
+                                recipes.add(recipe);
+                              }
+                            }
+                          } catch (e) {
+                            // Ignorer les erreurs
+                          }
+                        }
                       }
                       
-                      // Fermer l'indicateur de chargement
-                      if (mounted && Navigator.canPop(context)) {
-                        Navigator.pop(context);
+                      // Fermer l'indicateur de chargement de manière sécurisée
+                      if (mounted) {
+                        final navigator = Navigator.maybeOf(context);
+                        if (navigator != null && navigator.canPop()) {
+                          navigator.pop();
+                        }
+                      }
+                      
+                      // S'assurer qu'on a toujours des recettes à proposer
+                      if (recipes.isEmpty) {
+                        // Si aucune recette trouvée, charger des recettes aléatoires
+                        recipes = await _recipeService.getRandomRecipes(10);
                       }
                       
                       if (mounted && recipes.isNotEmpty) {
@@ -307,8 +364,9 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                         
                         if (selectedRecipe != null && mounted) {
                           // Fermer le dialogue de sélection de recettes si encore ouvert
-                          if (Navigator.canPop(context)) {
-                            Navigator.pop(context);
+                          final navigator = Navigator.maybeOf(context);
+                          if (navigator != null && navigator.canPop()) {
+                            navigator.pop();
                           }
                           // Ouvrir directement le dialogue d'ajout avec la recette sélectionnée
                           await Future.delayed(const Duration(milliseconds: 100));
@@ -323,10 +381,11 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                       }
                     } catch (e) {
                       // Fermer l'indicateur de chargement en cas d'erreur
-                      if (mounted && Navigator.canPop(context)) {
-                        Navigator.pop(context);
-                      }
                       if (mounted) {
+                        final navigator = Navigator.maybeOf(context);
+                        if (navigator != null && navigator.canPop()) {
+                          navigator.pop();
+                        }
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Erreur: $e')),
                         );
@@ -441,9 +500,12 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
       await _mealPlanService.addMealPlan(mealPlan);
       _loadMealPlans();
       if (mounted) {
-        // Fermer tous les dialogues ouverts en utilisant une boucle
-        while (Navigator.canPop(context)) {
-          Navigator.pop(context);
+        // Fermer tous les dialogues ouverts de manière sécurisée
+        final navigator = Navigator.maybeOf(context);
+        if (navigator != null) {
+          while (navigator.canPop()) {
+            navigator.pop();
+          }
         }
         // Afficher un message de confirmation
         ScaffoldMessenger.of(context).showSnackBar(
