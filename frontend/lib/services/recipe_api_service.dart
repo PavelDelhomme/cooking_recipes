@@ -229,10 +229,12 @@ class RecipeApiService {
         String ingredientName = TranslationService.fixEncoding(ingredient.toString().trim());
         ingredientName = TranslationService.translateIngredient(ingredientName);
         
-        // Parser la quantité et l'unité
+        // Parser la quantité, l'unité et la préparation
         final measureStr = measure?.toString().trim() ?? '';
-        double? quantity = _parseQuantity(measureStr);
-        String? unitString = _parseUnitSync(measureStr);
+        final parsed = _parseMeasure(measureStr);
+        double? quantity = parsed['quantity'] as double?;
+        String? unitString = parsed['unit'] as String?;
+        String? preparation = parsed['preparation'] as String?;
         
         // Si l'unité est null ou vide, essayer de la déduire du nom de l'ingrédient
         if (unitString == null || unitString.isEmpty) {
@@ -246,6 +248,11 @@ class RecipeApiService {
         if (unit != null && unit.isEmpty) {
           unit = null;
         }
+        
+        // Traduire le terme de préparation
+        String? translatedPreparation = preparation != null && preparation.isNotEmpty
+            ? TranslationService.translatePreparation(preparation)
+            : null;
         
         // Pour les herbes et épices, s'assurer que la quantité et l'unité sont cohérentes
         if (_isHerbOrSpice(ingredientName)) {
@@ -271,6 +278,7 @@ class RecipeApiService {
           name: ingredientName,
           quantity: quantity,
           unit: unit,
+          preparation: translatedPreparation,
         ));
       }
     }
