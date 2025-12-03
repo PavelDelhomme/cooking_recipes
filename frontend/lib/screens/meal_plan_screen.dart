@@ -9,6 +9,8 @@ import '../services/recipe_api_service.dart';
 import '../services/pantry_service.dart';
 import '../services/shopping_list_service.dart';
 import '../services/auto_meal_planner.dart';
+import '../services/translation_service.dart';
+import '../widgets/locale_notifier.dart';
 import 'recipe_detail_screen.dart';
 import 'recipes_screen.dart';
 import 'meal_plan_config_screen.dart';
@@ -268,7 +270,15 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                               ),
                                             )
                                           : const Icon(Icons.restaurant),
-                                      title: Text(recipe.title),
+                                      title: Builder(
+                                        builder: (context) {
+                                          // Écouter les changements de locale
+                                          LocaleNotifier.of(context);
+                                          return Text(
+                                            TranslationService.translateRecipeName(recipe.title),
+                                          );
+                                        },
+                                      ),
                                       subtitle: recipe.summary != null && recipe.summary!.isNotEmpty
                                           ? Text(
                                               recipe.summary!.length > 50 
