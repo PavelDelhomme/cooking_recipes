@@ -374,8 +374,8 @@ prod-status: ## Affiche l'état des conteneurs en production
 
 # Docker Hub
 DOCKER_HUB_USER=paveldelhomme
-API_IMAGE=$(DOCKER_HUB_USER)/cookingrecipe-api:latest
-FRONTEND_IMAGE=$(DOCKER_HUB_USER)/cookingrecipe-frontend:latest
+API_IMAGE=$(DOCKER_HUB_USER)/cookingrecipes-api:latest
+FRONTEND_IMAGE=$(DOCKER_HUB_USER)/cookingrecipes-frontend:latest
 
 docker-build-prod: ## Build les images pour production (PRODUCTION_API_URL optionnel)
 	@echo -e "$(GREEN)Construction des images Docker pour production...$(NC)"

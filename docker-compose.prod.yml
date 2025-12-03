@@ -1,22 +1,22 @@
 services:
-  cookingrecipe-api:
-    image: paveldelhomme/cookingrecipe-api:latest
-    container_name: cookingrecipe-api
+  cookingrecipes-api:
+    image: paveldelhomme/cookingrecipes-api:latest
+    container_name: cookingrecipes-api
     restart: unless-stopped
     expose:
       - "7272"
     volumes:
-      - cooking_recipes_backend_data:/app/data
+      - cookingrecipes_backend_data:/app/data
     environment:
       - PORT=7272
       - HOST=0.0.0.0
       - NODE_ENV=production
       - JWT_SECRET=${JWT_SECRET:-change-this-secret-in-production}
     networks:
-      - cooking_recipes_network
+      - cookingrecipes_network
       - web
     labels:
-      - "com.docker.compose.project=cooking_recipes"
+      - "com.docker.compose.project=cookingrecipes"
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:7272/health"]
       interval: 30s
@@ -24,24 +24,24 @@ services:
       retries: 3
       start_period: 40s
 
-  cookingrecipe-frontend:
-    image: paveldelhomme/cookingrecipe-frontend:latest
-    container_name: cookingrecipe-frontend
+  cookingrecipes-frontend:
+    image: paveldelhomme/cookingrecipes-frontend:latest
+    container_name: cookingrecipes-frontend
     restart: unless-stopped
     expose:
       - "8080"
     volumes:
-      - cooking_recipes_frontend_build:/app/build
+      - cookingrecipes_frontend_build:/app/build
     environment:
       - API_URL=https://api.cookingrecipe.delhomme.ovh
       - FLUTTER_WEB_USE_SKIA=true
     depends_on:
-      - cookingrecipe-api
+      - cookingrecipes-api
     networks:
-      - cooking_recipes_network
+      - cookingrecipes_network
       - web
     labels:
-      - "com.docker.compose.project=cooking_recipes"
+      - "com.docker.compose.project=cookingrecipes"
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080"]
       interval: 30s
@@ -50,17 +50,17 @@ services:
       start_period: 60s
 
 volumes:
-  cooking_recipes_backend_data:
+  cookingrecipes_backend_data:
     driver: local
-    name: cooking_recipes_backend_data
-  cooking_recipes_frontend_build:
+    name: cookingrecipes_backend_data
+  cookingrecipes_frontend_build:
     driver: local
-    name: cooking_recipes_frontend_build
+    name: cookingrecipes_frontend_build
 
 networks:
-  cooking_recipes_network:
+  cookingrecipes_network:
     driver: bridge
-    name: cooking_recipes_network
+    name: cookingrecipes_network
   web:
     external: true
     name: web

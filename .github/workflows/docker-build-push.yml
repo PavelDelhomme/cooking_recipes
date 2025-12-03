@@ -14,8 +14,8 @@ on:
 
 env:
   DOCKER_HUB_USER: paveldelhomme
-  API_IMAGE: paveldelhomme/cookingrecipe-api
-  FRONTEND_IMAGE: paveldelhomme/cookingrecipe-frontend
+  API_IMAGE: paveldelhomme/cookingrecipes-api
+  FRONTEND_IMAGE: paveldelhomme/cookingrecipes-frontend
 
 jobs:
   build-and-push:
