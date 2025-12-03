@@ -1026,7 +1026,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                 ),
                               )
                             : null,
-                    trailing: Row(
+                        trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
@@ -1058,8 +1058,10 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                         ),
                       ],
                     ),
-                    onTap: _selectDate,
-                  ),
+                        onTap: _selectDate,
+                      ),
+                    );
+                  },
                 ),
                 
                 // Options de vue

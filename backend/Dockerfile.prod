@@ -9,7 +9,12 @@ RUN apk add --no-cache wget
 COPY package*.json ./
 
 # Installer les dépendances de production uniquement
-RUN npm ci --only=production
+# Utiliser npm install si package-lock.json n'existe pas, sinon npm ci
+RUN if [ -f package-lock.json ]; then \
+      npm ci --omit=dev; \
+    else \
+      npm install --omit=dev; \
+    fi
 
 # Copier le reste du code
 COPY . .
