@@ -10,7 +10,11 @@ const mealPlanRoutes = require('./routes/mealPlans');
 const shoppingListRoutes = require('./routes/shoppingList');
 const adminRoutes = require('./routes/admin');
 const { initDatabase, createDefaultUser } = require('./database/db');
-const { apiLimiter } = require('./middleware/rateLimiter');
+const { checkBlacklist } = require('./middleware/ipBlacklist');
+const { 
+  notFoundHandler, 
+  internalErrorHandler 
+} = require('./middleware/errorHandler');
 
 // Fonction pour obtenir l'IP de la machine
 function getMachineIP() {
@@ -29,12 +33,15 @@ function getMachineIP() {
 const app = express();
 const PORT = process.env.PORT || 7272;
 
+// Trust proxy pour obtenir la vraie IP du client (derrière Nginx)
+app.set('trust proxy', true);
+
 // CORS configuré de manière sécurisée (AVANT Helmet pour éviter les conflits)
 const corsOptions = {
   origin: function (origin, callback) {
     // En production, vérifier l'origine
     if (process.env.NODE_ENV === 'production') {
-      // Domaines autorisés par défaut
+      // Domaines autorisés par défaut (uniquement frontend, pas l'API)
       const defaultOrigins = [
         'https://cookingrecipes.delhomme.ovh',
         'https://cookingrecipe.delhomme.ovh', // Ancien domaine pour redirection
@@ -84,8 +91,8 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }, // Permettre les ressources cross-origin
 }));
 
-// Rate limiting global
-app.use('/api', apiLimiter);
+// Vérification de la blacklist pour toutes les routes API
+app.use('/api', checkBlacklist);
 
 // Body parser avec limites (AVANT les routes)
 app.use(bodyParser.json({ 
@@ -117,6 +124,12 @@ app.use('/api/admin', adminRoutes);
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'API is running' });
 });
+
+// Gestion des erreurs 404
+app.use(notFoundHandler);
+
+// Gestion des erreurs serveur
+app.use(internalErrorHandler);
 
 // Initialize database and start server
 initDatabase().then(() => {

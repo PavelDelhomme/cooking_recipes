@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../config/api_config.dart';
+import 'api_logger.dart'; // Logger pour les requêtes API
 
 class AuthService {
   static const String _tokenKey = 'auth_token';
@@ -28,21 +29,21 @@ class AuthService {
       }
       
       final bodyJson = json.encode(bodyData);
-      print('Signup request URL: $_baseUrl/auth/signup');
-      print('Signup request body: $bodyJson');
+      final url = '$_baseUrl/auth/signup';
       
-      final response = await http.post(
-        Uri.parse('$_baseUrl/auth/signup'),
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Accept': 'application/json',
-        },
-        body: bodyJson,
+      // Utiliser le logger pour intercepter la requête
+      final response = await ApiLogger.interceptRequest(
+        () => http.post(
+          Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Accept': 'application/json',
+          },
+          body: bodyJson,
+        ),
+        'POST',
+        url,
       );
-
-      // Log pour debug
-      print('Signup response status: ${response.statusCode}');
-      print('Signup response body: ${response.body}');
       
       if (response.statusCode == 201) {
         final data = json.decode(response.body);
@@ -75,13 +76,23 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/auth/signin'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'email': email,
-          'password': password,
-        }),
+      final url = '$_baseUrl/auth/signin';
+      
+      // Utiliser le logger pour intercepter la requête
+      final response = await ApiLogger.interceptRequest(
+        () => http.post(
+          Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Accept': 'application/json',
+          },
+          body: json.encode({
+            'email': email.trim(),
+            'password': password,
+          }),
+        ),
+        'POST',
+        url,
       );
 
       if (response.statusCode == 200) {

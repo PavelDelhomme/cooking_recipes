@@ -110,6 +110,22 @@ function initDatabase() {
         console.error('Erreur création table shopping_list:', err);
         return reject(err);
       }
+    });
+
+    // Table IP Blacklist
+    database.run(`
+      CREATE TABLE IF NOT EXISTS ip_blacklist (
+        ip TEXT PRIMARY KEY,
+        reason TEXT,
+        created_at TEXT NOT NULL,
+        expires_at TEXT,
+        attempts INTEGER DEFAULT 1
+      )
+    `, (err) => {
+      if (err) {
+        console.error('Erreur création table ip_blacklist:', err);
+        return reject(err);
+      }
       console.log('✅ Base de données initialisée');
       resolve();
     });

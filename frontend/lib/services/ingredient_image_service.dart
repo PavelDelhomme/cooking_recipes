@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'translation_service.dart';
+import 'api_logger.dart'; // Logger pour les requêtes API
 
 class IngredientImageService {
   static const String _cacheKeyPrefix = 'ingredient_image_';
@@ -145,7 +146,11 @@ class IngredientImageService {
       final imageUrl = 'https://www.themealdb.com/images/ingredients/$query.png';
       
       // Vérifier si l'image existe
-      final response = await http.head(Uri.parse(imageUrl));
+      final response = await ApiLogger.interceptRequest(
+        () => http.head(Uri.parse(imageUrl)),
+        'HEAD',
+        imageUrl,
+      );
       if (response.statusCode == 200) {
         await _cacheImage(ingredientName, imageUrl);
         return imageUrl;

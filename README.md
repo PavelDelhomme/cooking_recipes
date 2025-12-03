@@ -152,10 +152,31 @@ make build-android         # Build avec l'IP configurée
 - **Authentification**: JWT (JSON Web Tokens)
 - **Containerisation**: Docker + Docker Compose
 
+## Sécurité et Rate Limiting
+
+L'application inclut un système de sécurité avancé :
+
+### Rate Limiting par IP
+- **Authentification** : 10 tentatives par 5 minutes par IP → blacklist 1 heure
+- **Inscription** : 5 tentatives par 15 minutes par IP → blacklist 2 heures
+- Les IPs blacklistées sont stockées dans SQLite avec expiration automatique
+
+### Pages d'Erreur
+- Pages d'erreur HTML professionnelles pour toutes les erreurs API
+- Détection automatique : JSON pour les requêtes API, HTML pour le navigateur
+
+### Logging
+- Toutes les requêtes API sont loggées dans la console JS du navigateur (mode debug uniquement)
+- Format JSON structuré avec timestamps, méthodes, URLs, statuts, etc.
+
+Voir `CHANGELOG.md` pour plus de détails sur les fonctionnalités de sécurité.
+
 ## Notes
 
 - La base de données SQLite est persistée dans `backend/data/`
 - Les tokens JWT expirent après 30 jours
 - Pas de système de paiement (comme demandé)
 - Le backend est optimisé pour une exécution rapide
+- Le rate limiting est uniquement appliqué aux routes d'authentification
+- Les logs API sont visibles dans la console JS du navigateur (F12) en mode debug
 

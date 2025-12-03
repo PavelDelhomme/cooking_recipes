@@ -4,6 +4,7 @@ import '../models/recipe.dart';
 import '../models/ingredient.dart';
 import 'translation_service.dart';
 import 'locale_service.dart';
+import 'api_logger.dart'; // Logger pour les requêtes API
 
 class RecipeApiService {
   // Utilisation de TheMealDB (gratuit, pas besoin d'API key)
@@ -16,8 +17,11 @@ class RecipeApiService {
   // Rechercher des recettes par nom
   Future<List<Recipe>> searchRecipes(String query) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/search.php?s=$query'),
+      final url = '$baseUrl/search.php?s=$query';
+      final response = await ApiLogger.interceptRequest(
+        () => http.get(Uri.parse(url)),
+        'GET',
+        url,
       );
 
       if (response.statusCode == 200) {
@@ -42,8 +46,11 @@ class RecipeApiService {
   // Rechercher des recettes par ingrédient (retourne seulement les IDs)
   Future<List<String>> searchRecipeIdsByIngredient(String ingredient) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/filter.php?i=$ingredient'),
+      final url = '$baseUrl/filter.php?i=$ingredient';
+      final response = await ApiLogger.interceptRequest(
+        () => http.get(Uri.parse(url)),
+        'GET',
+        url,
       );
 
       if (response.statusCode == 200) {
@@ -123,8 +130,11 @@ class RecipeApiService {
   // Obtenir une recette par ID
   Future<Recipe?> getRecipeById(String id) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/lookup.php?i=$id'),
+      final url = '$baseUrl/lookup.php?i=$id';
+      final response = await ApiLogger.interceptRequest(
+        () => http.get(Uri.parse(url)),
+        'GET',
+        url,
       );
 
       if (response.statusCode == 200) {
@@ -147,8 +157,11 @@ class RecipeApiService {
     try {
       final List<Recipe> recipes = [];
       for (int i = 0; i < count; i++) {
-        final response = await http.get(
-          Uri.parse('$baseUrl/random.php'),
+        final url = '$baseUrl/random.php';
+        final response = await ApiLogger.interceptRequest(
+          () => http.get(Uri.parse(url)),
+          'GET',
+          url,
         );
 
         if (response.statusCode == 200) {
