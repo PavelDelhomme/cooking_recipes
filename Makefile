@@ -379,18 +379,14 @@ FRONTEND_IMAGE=$(DOCKER_HUB_USER)/cooking-recipe-frontend:latest
 
 docker-build-prod: ## Build les images pour production
 	@echo -e "$(GREEN)Construction des images Docker pour production...$(NC)"
-	@docker-compose -f docker-compose.prod.yml build
+	@echo -e "$(YELLOW)Build de l'image backend...$(NC)"
+	@docker buildx build --load -f backend/Dockerfile.prod -t $(API_IMAGE) ./backend
+	@echo -e "$(YELLOW)Build de l'image frontend...$(NC)"
+	@docker buildx build --load -f frontend/Dockerfile.prod -t $(FRONTEND_IMAGE) ./frontend
 	@echo -e "$(GREEN)✓ Images construites$(NC)"
 
-docker-tag: ## Tag les images pour Docker Hub
-	@echo -e "$(GREEN)Tag des images pour Docker Hub...$(NC)"
-	@docker tag cooking_recipes_backend:latest $(API_IMAGE) 2>/dev/null || \
-		docker tag cooking-recipe-api:latest $(API_IMAGE) 2>/dev/null || \
-		(echo -e "$(RED)❌ Image backend non trouvée. Lancez 'make docker-build-prod' d'abord$(NC)" && exit 1)
-	@docker tag cooking_recipes_frontend:latest $(FRONTEND_IMAGE) 2>/dev/null || \
-		docker tag cooking-recipe-frontend:latest $(FRONTEND_IMAGE) 2>/dev/null || \
-		(echo -e "$(RED)❌ Image frontend non trouvée. Lancez 'make docker-build-prod' d'abord$(NC)" && exit 1)
-	@echo -e "$(GREEN)✓ Images taguées$(NC)"
+docker-tag: docker-build-prod ## Tag les images pour Docker Hub (déjà taguées lors du build)
+	@echo -e "$(GREEN)✓ Images déjà taguées pour Docker Hub$(NC)"
 
 docker-push: docker-tag ## Push les images sur Docker Hub
 	@echo -e "$(GREEN)Push des images sur Docker Hub...$(NC)"

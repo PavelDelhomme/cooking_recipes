@@ -1,12 +1,7 @@
-version: '3.8'
-
 services:
   cooking-recipe-api:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.prod
-    container_name: cooking-recipe-api
     image: paveldelhomme/cooking-recipe-api:latest
+    container_name: cooking-recipe-api
     restart: unless-stopped
     expose:
       - "7272"
@@ -30,11 +25,8 @@ services:
       start_period: 40s
 
   cooking-recipe-frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod
-    container_name: cooking-recipe-frontend
     image: paveldelhomme/cooking-recipe-frontend:latest
+    container_name: cooking-recipe-frontend
     restart: unless-stopped
     expose:
       - "8080"
@@ -72,4 +64,3 @@ networks:
   web:
     external: true
     name: web
-

@@ -7,8 +7,12 @@ class ApiConfig {
   // Port du backend
   static const int backendPort = 7272;
   
-  // URL de l'API en production (HTTPS)
-  static const String productionApiUrl = 'https://cooking-recipe-api.delhomme.ovh/api';
+  // URL de l'API en production (HTTPS) - définie via variable d'environnement
+  // Définie dans docker-compose.prod.yml ou via --dart-define lors du build
+  static const String productionApiUrl = String.fromEnvironment(
+    'PRODUCTION_API_URL',
+    defaultValue: 'https://cooking-recipe-api.delhomme.ovh/api',
+  );
   
   // Détecter automatiquement l'URL de l'API
   static String get baseUrl {
