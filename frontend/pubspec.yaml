@@ -42,8 +42,9 @@ dependencies:
   shared_preferences: ^2.2.2
   
   # Gestion des dates (version compatible avec flutter_localizations)
-  # Version récente qui utilise Intl.Segmenter au lieu de Intl.v8BreakIterator
-  intl: ^0.20.0
+  # Note: flutter_localizations du SDK Flutter dépend de intl 0.19.0
+  # L'avertissement Intl.v8BreakIterator est normal et sera corrigé dans une future version de Flutter
+  intl: ^0.19.0
   
   # Localisation Flutter
   flutter_localizations:
