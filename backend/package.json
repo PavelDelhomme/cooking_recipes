@@ -18,7 +18,10 @@
     "jsonwebtoken": "^9.0.2",
     "bcryptjs": "^2.4.3",
     "sqlite3": "^5.1.6",
-    "body-parser": "^1.20.2"
+    "body-parser": "^1.20.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "validator": "^13.11.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
