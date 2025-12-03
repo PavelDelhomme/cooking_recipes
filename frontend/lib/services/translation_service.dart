@@ -1,24 +1,45 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'locale_service.dart';
 
 /// Service de traduction pour convertir les éléments de recettes
-class TranslationService {
+class TranslationService extends ChangeNotifier {
+  // Instance singleton
+  static final TranslationService _instance = TranslationService._internal();
+  factory TranslationService() => _instance;
+  TranslationService._internal();
+  
   // Langue actuelle (par défaut français)
-  static String _currentLanguage = 'fr';
+  String _currentLanguage = 'fr';
   
   // Initialiser la langue
-  static Future<void> init() async {
+  Future<void> init() async {
     _currentLanguage = await LocaleService.getLanguageCode();
+    notifyListeners();
   }
   
   // Définir la langue
-  static void setLanguage(String languageCode) {
-    _currentLanguage = languageCode;
+  void setLanguage(String languageCode) {
+    if (_currentLanguage != languageCode) {
+      _currentLanguage = languageCode;
+      notifyListeners();
+    }
   }
   
   // Obtenir la langue actuelle
-  static String get currentLanguage => _currentLanguage;
+  String get currentLanguage => _currentLanguage;
+  
+  // Méthodes statiques pour compatibilité avec le code existant
+  static Future<void> initStatic() async {
+    await _instance.init();
+  }
+  
+  static void setLanguageStatic(String languageCode) {
+    _instance.setLanguage(languageCode);
+  }
+  
+  static String get currentLanguageStatic => _instance.currentLanguage;
   // Dictionnaire de traduction des ingrédients courants
   static final Map<String, String> _ingredientTranslations = {
     // Viandes
@@ -173,7 +194,7 @@ class TranslationService {
   };
 
   /// Traduit un ingrédient selon la langue sélectionnée
-  static String translateIngredient(String ingredient) {
+  String translateIngredientInstance(String ingredient) {
     if (ingredient.isEmpty) return ingredient;
     
     // Si la langue est déjà en français, ne pas traduire
@@ -181,12 +202,12 @@ class TranslationService {
       final lowerIngredient = ingredient.toLowerCase().trim();
       
       // Vérifier d'abord la correspondance exacte
-      if (_ingredientTranslations.containsKey(lowerIngredient)) {
-        return _ingredientTranslations[lowerIngredient]!;
+      if (TranslationService._ingredientTranslations.containsKey(lowerIngredient)) {
+        return TranslationService._ingredientTranslations[lowerIngredient]!;
       }
       
       // Chercher une correspondance partielle
-      for (var entry in _ingredientTranslations.entries) {
+      for (var entry in TranslationService._ingredientTranslations.entries) {
         if (lowerIngredient.contains(entry.key) || entry.key.contains(lowerIngredient)) {
           return entry.value;
         }
@@ -199,6 +220,11 @@ class TranslationService {
     }
     
     return ingredient;
+  }
+
+  /// Traduit un ingrédient (méthode statique pour compatibilité)
+  static String translateIngredient(String ingredient) {
+    return _instance.translateIngredientInstance(ingredient);
   }
 
   /// Traduit une liste d'ingrédients
@@ -220,8 +246,8 @@ class TranslationService {
         .replaceAll('&nbsp;', ' ');
     
     // Traduire les ingrédients dans le texte seulement si la langue est française
-    if (_currentLanguage == 'fr') {
-      for (var entry in _ingredientTranslations.entries) {
+    if (_instance._currentLanguage == 'fr') {
+      for (var entry in TranslationService._ingredientTranslations.entries) {
         final regex = RegExp(r'\b' + RegExp.escape(entry.key) + r'\b', caseSensitive: false);
         cleaned = cleaned.replaceAll(regex, entry.value);
       }
@@ -238,7 +264,7 @@ class TranslationService {
     String cleaned = fixEncoding(recipeName);
     
     // Si la langue est française, traduire les termes courants dans les noms de recettes
-    if (_currentLanguage == 'fr') {
+    if (_instance._currentLanguage == 'fr') {
       // Dictionnaire de traductions pour les termes courants dans les noms de recettes
       final recipeTermTranslations = {
         'chicken': 'Poulet',
@@ -501,7 +527,7 @@ class TranslationService {
   static String translateUnit(String unit) {
     if (unit.isEmpty) return unit;
     
-    final langTranslations = _unitTranslations[_currentLanguage] ?? _unitTranslations['fr']!;
+    final langTranslations = _unitTranslations[_instance._currentLanguage] ?? _unitTranslations['fr']!;
     final lowerUnit = unit.toLowerCase().trim();
     
     // Vérifier d'abord la correspondance exacte
@@ -528,7 +554,7 @@ class TranslationService {
     
     // Créer un dictionnaire inverse (français -> anglais)
     final reverseTranslations = <String, String>{};
-    for (var entry in _ingredientTranslations.entries) {
+    for (var entry in TranslationService._ingredientTranslations.entries) {
       reverseTranslations[entry.value.toLowerCase()] = entry.key;
     }
     

@@ -15,6 +15,7 @@ import 'services/translation_service.dart';
 import 'models/user_profile.dart';
 import 'theme/app_theme.dart';
 import 'services/theme_service.dart';
+import 'widgets/locale_notifier.dart';
 
 // Widget pour exposer le callback de changement de thème
 class ThemeNotifier extends InheritedWidget {
@@ -68,7 +69,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _loadLocale() async {
     final locale = await LocaleService.getLocale();
-    await TranslationService.init();
+    await TranslationService.initStatic();
     if (mounted) {
       setState(() => _locale = locale);
     }
@@ -76,7 +77,7 @@ class _MyAppState extends State<MyApp> {
 
   void _changeLocale(Locale newLocale) async {
     await LocaleService.setLocale(newLocale);
-    TranslationService.setLanguage(newLocale.languageCode);
+    TranslationService.setLanguageStatic(newLocale.languageCode);
     if (mounted) {
       setState(() => _locale = newLocale);
     }
@@ -109,11 +110,15 @@ class _MyAppState extends State<MyApp> {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      // Exposer le callback de changement de thème via un InheritedWidget
+      // Exposer le callback de changement de thème et la locale via des InheritedWidgets
       builder: (context, child) {
-        return ThemeNotifier(
-          toggleTheme: _toggleTheme,
-          child: child ?? const SizedBox(),
+        return LocaleNotifier(
+          locale: _locale,
+          onLocaleChange: _changeLocale,
+          child: ThemeNotifier(
+            toggleTheme: _toggleTheme,
+            child: child ?? const SizedBox(),
+          ),
         );
       },
       locale: _locale,

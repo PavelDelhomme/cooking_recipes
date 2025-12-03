@@ -9,6 +9,8 @@ import '../models/pantry_history_item.dart';
 import '../widgets/unit_selector.dart';
 import '../widgets/quantity_unit_input.dart';
 import '../services/ingredient_suggestions.dart';
+import '../services/translation_service.dart';
+import '../widgets/locale_notifier.dart';
 import 'pantry_history_screen.dart';
 import 'pantry_config_screen.dart';
 
@@ -358,31 +360,41 @@ class PantryScreenState extends State<PantryScreen> {
                                   ),
                           ),
                         ),
-                        title: Text(
-                          item.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                        title: Builder(
+                          builder: (context) {
+                            // Écouter les changements de locale
+                            LocaleNotifier.of(context);
+                            return Text(
+                              TranslationService.translateIngredient(item.name),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            );
+                          },
                         ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer
-                                    .withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                '${item.quantity} ${item.unit}',
+                        subtitle: Builder(
+                          builder: (context) {
+                            // Écouter les changements de locale
+                            LocaleNotifier.of(context);
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer
+                                        .withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    '${item.quantity} ${item.unit != null ? TranslationService.translateUnit(item.unit!) : ''}',
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
@@ -390,9 +402,9 @@ class PantryScreenState extends State<PantryScreen> {
                                       .colorScheme
                                       .onSecondaryContainer,
                                 ),
-                              ),
-                            ),
-                            if (item.expiryDate != null) ...[
+                                  ),
+                                ),
+                                if (item.expiryDate != null) ...[
                               const SizedBox(height: 6),
                               Row(
                                 children: [
@@ -609,7 +621,6 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
             padding: const EdgeInsets.all(16),
             children: [
             Autocomplete<String>(
-              initialValue: TextEditingValue(text: _nameController.text),
               optionsBuilder: (TextEditingValue textEditingValue) {
                 // Retourner les suggestions de manière synchrone pour éviter les blocages
                 final query = textEditingValue.text.trim().toLowerCase();
@@ -630,16 +641,14 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
                 // Mettre à jour les suggestions d'unités
                 setState(() {});
               },
-              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                // Initialiser le controller une seule fois
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (controller.text != _nameController.text && _nameController.text.isNotEmpty) {
-                    controller.text = _nameController.text;
-                  }
-                });
+              fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                // Initialiser le controller avec la valeur existante si on modifie un item
+                if (widget.item != null && textEditingController.text.isEmpty) {
+                  textEditingController.text = _nameController.text;
+                }
                 
                 return TextFormField(
-                  controller: controller,
+                  controller: textEditingController,
                   focusNode: focusNode,
                   onFieldSubmitted: onFieldSubmitted != null ? (_) => onFieldSubmitted() : null,
                   decoration: InputDecoration(
@@ -656,10 +665,8 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
                     hintText: 'Ex: Steak haché, Pâtes, Tomates, Lait...',
                   ),
                   onChanged: (value) {
-                    // Mettre à jour _nameController sans setState pour éviter les blocages
-                    if (_nameController.text != value) {
-                      _nameController.text = value;
-                    }
+                    // Synchroniser avec _nameController pour les suggestions d'unités
+                    _nameController.text = value;
                     // Mettre à jour les suggestions d'unités seulement si nécessaire
                     if (mounted) {
                       setState(() {});

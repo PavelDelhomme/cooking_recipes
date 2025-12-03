@@ -565,15 +565,21 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      recipe.title,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    Builder(
+                      builder: (context) {
+                        // Écouter les changements de locale
+                        LocaleNotifier.of(context);
+                        return Text(
+                          TranslationService.translateRecipeName(recipe.title),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      },
                     ),
                     const SizedBox(height: 12),
                     Wrap(
@@ -587,10 +593,21 @@ class _RecipesScreenState extends State<RecipesScreen> {
                             context,
                           ),
                         if (recipe.servings != null)
-                          _buildInfoChip(
-                            Icons.people_outline,
-                            '${recipe.servings} portions',
-                            context,
+                          Builder(
+                            builder: (context) {
+                              // Écouter les changements de locale
+                              LocaleNotifier.of(context);
+                              final portionsText = TranslationService.currentLanguageStatic == 'fr' 
+                                  ? 'portions' 
+                                  : TranslationService.currentLanguageStatic == 'es'
+                                      ? 'porciones'
+                                      : 'servings';
+                              return _buildInfoChip(
+                                Icons.people_outline,
+                                '${recipe.servings} $portionsText',
+                                context,
+                              );
+                            },
                           ),
                         if (recipe.ingredients.isNotEmpty)
                           _buildInfoChip(

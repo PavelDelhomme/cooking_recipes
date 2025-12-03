@@ -8,6 +8,7 @@ import '../services/meal_plan_service.dart';
 import '../services/theme_service.dart';
 import '../services/app_localizations.dart';
 import '../services/translation_service.dart';
+import '../widgets/locale_notifier.dart';
 import '../models/pantry_item.dart';
 import '../models/shopping_list_item.dart';
 import '../models/user_profile.dart';
@@ -328,11 +329,32 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           '${widget.recipe.readyInMinutes} min',
                         ),
                       if (widget.recipe.servings != null)
-                        _buildInfoChip(
-                          Icons.people_outline,
-                          _currentProfile != null
-                              ? '${_currentProfile!.numberOfPeople} personnes (${widget.recipe.servings} portions originales)'
-                              : '${widget.recipe.servings} portions',
+                        Builder(
+                          builder: (context) {
+                            // Écouter les changements de locale
+                            LocaleNotifier.of(context);
+                            final portionsText = TranslationService.currentLanguageStatic == 'fr' 
+                                ? 'portions' 
+                                : TranslationService.currentLanguageStatic == 'es'
+                                    ? 'porciones'
+                                    : 'servings';
+                            final personnesText = TranslationService.currentLanguageStatic == 'fr' 
+                                ? 'personnes' 
+                                : TranslationService.currentLanguageStatic == 'es'
+                                    ? 'personas'
+                                    : 'people';
+                            final originalesText = TranslationService.currentLanguageStatic == 'fr' 
+                                ? 'originales' 
+                                : TranslationService.currentLanguageStatic == 'es'
+                                    ? 'originales'
+                                    : 'original';
+                            return _buildInfoChip(
+                              Icons.people_outline,
+                              _currentProfile != null
+                                  ? '${_currentProfile!.numberOfPeople} $personnesText (${widget.recipe.servings} $portionsText $originalesText)'
+                                  : '${widget.recipe.servings} $portionsText',
+                            );
+                          },
                         ),
                       if (widget.recipe.ingredients.isNotEmpty)
                         _buildInfoChip(
@@ -405,12 +427,18 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                 : Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
-                        title: Text(
-                          ingredient.name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
+                        title: Builder(
+                          builder: (context) {
+                            // Écouter les changements de locale
+                            LocaleNotifier.of(context);
+                            return Text(
+                              TranslationService.translateIngredient(ingredient.name),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            );
+                          },
                         ),
                         subtitle: ingredient.quantity != null
                             ? Padding(
@@ -445,7 +473,33 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                       Padding(
                                         padding: const EdgeInsets.only(top: 4),
                                         child: Text(
-                                          'Original: ${ingredient.quantity} ${ingredient.unit != null ? TranslationService.translateUnit(ingredient.unit!) : ''} (${widget.recipe.servings} portions)',
+                                          Builder(
+                                            builder: (context) {
+                                              // Écouter les changements de locale
+                                              LocaleNotifier.of(context);
+                                              final originalText = TranslationService.currentLanguageStatic == 'fr' 
+                                                  ? 'Original' 
+                                                  : TranslationService.currentLanguageStatic == 'es'
+                                                      ? 'Original'
+                                                      : 'Original';
+                                              final portionsText = TranslationService.currentLanguageStatic == 'fr' 
+                                                  ? 'portions' 
+                                                  : TranslationService.currentLanguageStatic == 'es'
+                                                      ? 'porciones'
+                                                      : 'servings';
+                                              return Text(
+                                                '$originalText: ${ingredient.quantity} ${ingredient.unit != null ? TranslationService.translateUnit(ingredient.unit!) : ''} (${widget.recipe.servings} $portionsText)',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontStyle: FontStyle.italic,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant
+                                                      .withOpacity(0.7),
+                                                ),
+                                              );
+                                            },
+                                          ),
                                           style: TextStyle(
                                             fontSize: 11,
                                             fontStyle: FontStyle.italic,

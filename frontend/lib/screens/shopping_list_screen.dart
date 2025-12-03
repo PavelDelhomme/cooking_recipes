@@ -4,6 +4,8 @@ import '../models/pantry_item.dart';
 import '../services/shopping_list_service.dart';
 import '../services/pantry_service.dart';
 import '../services/ingredient_image_service.dart';
+import '../services/translation_service.dart';
+import '../widgets/locale_notifier.dart';
 import '../widgets/unit_selector.dart';
 
 class ShoppingListScreen extends StatefulWidget {
@@ -343,20 +345,26 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
                             ),
                           ],
                         ),
-                        title: Text(
-                          item.name,
-                          style: TextStyle(
-                            decoration: item.isChecked
-                                ? TextDecoration.lineThrough
-                                : null,
-                            fontWeight: item.isChecked
-                                ? FontWeight.normal
-                                : FontWeight.bold,
-                            fontSize: 16,
-                            color: item.isChecked
-                                ? Theme.of(context).colorScheme.onSurfaceVariant
-                                : null,
-                          ),
+                        title: Builder(
+                          builder: (context) {
+                            // Écouter les changements de locale
+                            LocaleNotifier.of(context);
+                            return Text(
+                              TranslationService.translateIngredient(item.name),
+                              style: TextStyle(
+                                decoration: item.isChecked
+                                    ? TextDecoration.lineThrough
+                                    : null,
+                                fontWeight: item.isChecked
+                                    ? FontWeight.normal
+                                    : FontWeight.bold,
+                                fontSize: 16,
+                                color: item.isChecked
+                                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                                    : null,
+                              ),
+                            );
+                          },
                         ),
                         subtitle: item.quantity != null
                             ? Padding(
@@ -374,7 +382,7 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
-                                    '${item.quantity} ${item.unit ?? ''}',
+                                    '${item.quantity} ${item.unit != null ? TranslationService.translateUnit(item.unit!) : ''}',
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
