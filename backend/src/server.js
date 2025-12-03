@@ -70,6 +70,20 @@ const corsOptions = {
 // Appliquer CORS AVANT Helmet pour éviter les conflits
 app.use(cors(corsOptions));
 
+// Sécurité : Helmet pour les headers HTTP sécurisés (APRÈS CORS)
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false, // Désactivé pour permettre les images externes
+  crossOriginResourcePolicy: { policy: "cross-origin" }, // Permettre les ressources cross-origin
+}));
+
 // Rate limiting global
 app.use('/api', apiLimiter);
 
