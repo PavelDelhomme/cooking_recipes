@@ -19,12 +19,8 @@ class ApiConfig {
         final protocol = getWebProtocol();
         final isHttps = protocol == 'https:';
         
-        // Si on est sur le domaine de production, utiliser l'API de production (HTTPS)
-        if (hostname == 'cooking-recipe.delhomme.ovh' || 
-            hostname == 'www.cooking-recipe.delhomme.ovh' ||
-            hostname == 'cookingrecipe.delhomme.ovh' ||
-            hostname == 'www.cookingrecipe.delhomme.ovh') {
-          // Toujours utiliser HTTPS pour la production
+        // Si on est sur un domaine de production (.delhomme.ovh), TOUJOURS utiliser HTTPS
+        if (hostname != null && hostname.contains('.delhomme.ovh')) {
           return productionApiUrl;
         }
         
@@ -33,20 +29,26 @@ class ApiConfig {
           return 'http://localhost:$backendPort/api';
         }
         
-        // Sinon, utiliser le même protocole que la page (HTTPS si la page est en HTTPS)
+        // Si la page est en HTTPS, utiliser l'API de production en HTTPS
+        if (isHttps) {
+          return productionApiUrl;
+        }
+        
+        // Sinon, utiliser HTTP avec le hostname et le port (pour développement réseau)
         if (hostname != null) {
-          final protocolStr = isHttps ? 'https' : 'http';
-          // Si on est en HTTPS, utiliser le domaine API sans port (via Nginx)
-          if (isHttps) {
-            return 'https://cooking-recipe-api.delhomme.ovh/api';
-          }
-          return '$protocolStr://$hostname:$backendPort/api';
+          return 'http://$hostname:$backendPort/api';
         }
         
         // Fallback si hostname est null
         return 'http://localhost:$backendPort/api';
       } catch (e) {
-        // Fallback si erreur
+        // Fallback si erreur - si on est en HTTPS, utiliser l'API de production
+        try {
+          final protocol = getWebProtocol();
+          if (protocol == 'https:') {
+            return productionApiUrl;
+          }
+        } catch (_) {}
         return 'http://localhost:$backendPort/api';
       }
     } else {
