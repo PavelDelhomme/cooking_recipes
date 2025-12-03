@@ -29,21 +29,7 @@ function getMachineIP() {
 const app = express();
 const PORT = process.env.PORT || 7272;
 
-// Sécurité : Helmet pour les headers HTTP sécurisés
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    },
-  },
-  crossOriginEmbedderPolicy: false, // Désactivé pour permettre les images externes
-  crossOriginResourcePolicy: { policy: "cross-origin" }, // Permettre les ressources cross-origin
-}));
-
-// CORS configuré de manière sécurisée
+// CORS configuré de manière sécurisée (AVANT Helmet pour éviter les conflits)
 const corsOptions = {
   origin: function (origin, callback) {
     // En production, vérifier l'origine
