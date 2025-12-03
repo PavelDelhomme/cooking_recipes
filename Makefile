@@ -384,7 +384,7 @@ docker-build-prod: ## Build les images pour production (PRODUCTION_API_URL optio
 	@echo -e "$(YELLOW)Build de l'image frontend...$(NC)"
 	@if [ -z "$$PRODUCTION_API_URL" ]; then \
 		echo -e "$(YELLOW)⚠️  PRODUCTION_API_URL non définie, utilisation de la valeur par défaut$(NC)"; \
-		docker buildx build --load -f frontend/Dockerfile.prod --build-arg PRODUCTION_API_URL=https://cooking-recipe-api.delhomme.ovh/api -t $(FRONTEND_IMAGE) ./frontend; \
+		docker buildx build --load -f frontend/Dockerfile.prod --build-arg PRODUCTION_API_URL=https://api.cookingrecipe.delhomme.ovh/api -t $(FRONTEND_IMAGE) ./frontend; \
 	else \
 		echo -e "$(GREEN)Utilisation de PRODUCTION_API_URL=$$PRODUCTION_API_URL$(NC)"; \
 		docker buildx build --load -f frontend/Dockerfile.prod --build-arg PRODUCTION_API_URL=$$PRODUCTION_API_URL -t $(FRONTEND_IMAGE) ./frontend; \
