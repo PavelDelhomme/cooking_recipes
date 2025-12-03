@@ -1,7 +1,7 @@
 services:
-  cooking-recipe-api:
-    image: paveldelhomme/cooking-recipe-api:latest
-    container_name: cooking-recipe-api
+  cookingrecipe-api:
+    image: paveldelhomme/cookingrecipe-api:latest
+    container_name: cookingrecipe-api
     restart: unless-stopped
     expose:
       - "7272"
@@ -24,19 +24,19 @@ services:
       retries: 3
       start_period: 40s
 
-  cooking-recipe-frontend:
-    image: paveldelhomme/cooking-recipe-frontend:latest
-    container_name: cooking-recipe-frontend
+  cookingrecipe-frontend:
+    image: paveldelhomme/cookingrecipe-frontend:latest
+    container_name: cookingrecipe-frontend
     restart: unless-stopped
     expose:
       - "8080"
     volumes:
       - cooking_recipes_frontend_build:/app/build
     environment:
-      - API_URL=https://cooking-recipe-api.delhomme.ovh
+      - API_URL=https://api.cookingrecipe.delhomme.ovh
       - FLUTTER_WEB_USE_SKIA=true
     depends_on:
-      - cooking-recipe-api
+      - cookingrecipe-api
     networks:
       - cooking_recipes_network
       - web

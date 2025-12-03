@@ -96,15 +96,15 @@ Ce guide vous accompagne étape par étape pour configurer :
 ✅ **Vérification** : 
 - Allez dans **Stacks** → `cooking-recipes`
 - Vous devriez voir 2 conteneurs :
-  - `cooking-recipe-api` (État: Running)
-  - `cooking-recipe-frontend` (État: Running)
+  - `cookingrecipe-api` (État: Running)
+  - `cookingrecipe-frontend` (État: Running)
 
 ### 3.3 Vérifier les Conteneurs
 
 1. **Portainer** → **Containers**
 2. Vérifiez que les conteneurs sont en cours d'exécution :
-   - `cooking-recipe-api`
-   - `cooking-recipe-frontend`
+   - `cookingrecipe-api`
+   - `cookingrecipe-frontend`
 3. Si un conteneur est arrêté, cliquez dessus → **Start**
 
 ### 3.4 Créer le Webhook Portainer
@@ -135,14 +135,14 @@ curl -X POST https://portainer.delhomme.ovh/api/webhooks/xxxxx
 
 ## 📋 Étape 4 : Configuration Nginx Proxy Manager
 
-### 4.1 Configuration Frontend (cooking-recipe.delhomme.ovh)
+### 4.1 Configuration Frontend (cookingrecipe.delhomme.ovh)
 
 1. **Nginx Proxy Manager** → **Proxy Hosts** (menu de gauche)
 2. Cliquez sur **Add Proxy Host**
 3. **Details** :
-   - **Domain Names** : `cooking-recipe.delhomme.ovh`
+   - **Domain Names** : `cookingrecipe.delhomme.ovh`
    - **Scheme** : `http` (pas https ici, NPM gère le SSL)
-   - **Forward Hostname/IP** : `cooking-recipe-frontend`
+   - **Forward Hostname/IP** : `cookingrecipe-frontend`
    - **Forward Port** : `8080`
    - ✅ **Block Common Exploits** : Cochez
    - ✅ **Websockets Support** : Cochez
@@ -173,16 +173,16 @@ curl -X POST https://portainer.delhomme.ovh/api/webhooks/xxxxx
 
 ✅ **Vérification** :
 - Attendez quelques minutes que Let's Encrypt génère le certificat
-- Testez : `https://cooking-recipe.delhomme.ovh`
+- Testez : `https://cookingrecipe.delhomme.ovh`
 
-### 4.2 Configuration Backend API (cooking-recipe-api.delhomme.ovh)
+### 4.2 Configuration Backend API (cookingrecipe-api.delhomme.ovh)
 
 1. **Nginx Proxy Manager** → **Proxy Hosts**
 2. Cliquez sur **Add Proxy Host**
 3. **Details** :
-   - **Domain Names** : `cooking-recipe-api.delhomme.ovh`
+   - **Domain Names** : `cookingrecipe-api.delhomme.ovh`
    - **Scheme** : `http`
-   - **Forward Hostname/IP** : `cooking-recipe-api`
+   - **Forward Hostname/IP** : `cookingrecipe-api`
    - **Forward Port** : `7272`
    - ✅ **Block Common Exploits** : Cochez
    - ✅ **Websockets Support** : Cochez
@@ -214,7 +214,7 @@ curl -X POST https://portainer.delhomme.ovh/api/webhooks/xxxxx
    - Cliquez sur **Save**
 
 ✅ **Vérification** :
-- Testez : `https://cooking-recipe-api.delhomme.ovh/health`
+- Testez : `https://cookingrecipe-api.delhomme.ovh/health`
 - Vous devriez voir : `{"status":"ok","message":"API is running"}`
 
 ---
@@ -238,15 +238,15 @@ curl -X POST https://portainer.delhomme.ovh/api/webhooks/xxxxx
 
 #### Enregistrement 2 : Backend API
 - **Type** : `A`
-- **Sous-domaine** : `cooking-recipe-api`
+- **Sous-domaine** : `cookingrecipe-api`
 - **Cible** : `95.111.227.204`
 - **TTL** : `3600`
 - Cliquez sur **Suivant** → **Confirmer**
 
 ✅ **Vérification** :
 - Attendez quelques minutes pour la propagation DNS
-- Testez : `ping cooking-recipe.delhomme.ovh` (devrait retourner `95.111.227.204`)
-- Testez : `ping cooking-recipe-api.delhomme.ovh` (devrait retourner `95.111.227.204`)
+- Testez : `ping cookingrecipe.delhomme.ovh` (devrait retourner `95.111.227.204`)
+- Testez : `ping cookingrecipe-api.delhomme.ovh` (devrait retourner `95.111.227.204`)
 
 ---
 
@@ -256,7 +256,7 @@ curl -X POST https://portainer.delhomme.ovh/api/webhooks/xxxxx
 
 ```bash
 # Test de santé
-curl https://cooking-recipe-api.delhomme.ovh/health
+curl https://cookingrecipe-api.delhomme.ovh/health
 
 # Devrait retourner :
 # {"status":"ok","message":"API is running"}
@@ -265,7 +265,7 @@ curl https://cooking-recipe-api.delhomme.ovh/health
 ### 6.2 Tester le Frontend
 
 1. Ouvrez votre navigateur
-2. Allez sur : `https://cooking-recipe.delhomme.ovh`
+2. Allez sur : `https://cookingrecipe.delhomme.ovh`
 3. Vous devriez voir l'application Flutter
 4. Testez la connexion :
    - Email : `admin@cookingrecipe.com`
@@ -300,8 +300,8 @@ curl https://cooking-recipe-api.delhomme.ovh/health
 
 1. Vérifiez que les conteneurs sont en cours d'exécution dans Portainer
 2. Vérifiez les noms des conteneurs :
-   - Frontend : `cooking-recipe-frontend:8080`
-   - Backend : `cooking-recipe-api:7272`
+   - Frontend : `cookingrecipe-frontend:8080`
+   - Backend : `cookingrecipe-api:7272`
 3. Vérifiez que les conteneurs sont sur le réseau `web`
 
 ### Le webhook ne fonctionne pas
@@ -339,7 +339,7 @@ curl https://cooking-recipe-api.delhomme.ovh/health
 - [ ] Proxy Host frontend configuré dans Nginx Proxy Manager
 - [ ] Proxy Host backend configuré dans Nginx Proxy Manager
 - [ ] Certificats SSL générés pour les deux domaines
-- [ ] DNS OVH configurés (cooking-recipe et cooking-recipe-api)
+- [ ] DNS OVH configurés (cooking-recipe et cookingrecipe-api)
 - [ ] Test du frontend réussi
 - [ ] Test du backend réussi
 - [ ] Test du déploiement automatique réussi
@@ -354,5 +354,5 @@ Votre application est maintenant complètement configurée et automatisée ! �
 1. ✅ Buildée par GitHub Actions
 2. ✅ Poussée sur Docker Hub
 3. ✅ Redéployée sur Portainer via webhook
-4. ✅ Accessible sur `https://cooking-recipe.delhomme.ovh`
+4. ✅ Accessible sur `https://cookingrecipe.delhomme.ovh`
 
