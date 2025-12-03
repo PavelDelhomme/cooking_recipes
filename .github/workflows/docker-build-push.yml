@@ -58,16 +58,6 @@ jobs:
           cache-from: type=registry,ref=${{ env.FRONTEND_IMAGE }}:buildcache
           cache-to: type=registry,ref=${{ env.FRONTEND_IMAGE }}:buildcache,mode=max
 
-      - name: Trigger Portainer webhook
-        if: success()
-        run: |
-          if [ -n "${{ secrets.PORTAINER_WEBHOOK_URL }}" ]; then
-            echo "Déclenchement du webhook Portainer..."
-            curl -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}" || echo "Webhook non configuré ou erreur"
-          else
-            echo "Webhook Portainer non configuré (PORTAINER_WEBHOOK_URL)"
-          fi
-
       - name: Summary
         run: |
           echo "## 🚀 Images Docker publiées" >> $GITHUB_STEP_SUMMARY

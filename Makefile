@@ -377,12 +377,18 @@ DOCKER_HUB_USER=paveldelhomme
 API_IMAGE=$(DOCKER_HUB_USER)/cooking-recipe-api:latest
 FRONTEND_IMAGE=$(DOCKER_HUB_USER)/cooking-recipe-frontend:latest
 
-docker-build-prod: ## Build les images pour production
+docker-build-prod: ## Build les images pour production (PRODUCTION_API_URL optionnel)
 	@echo -e "$(GREEN)Construction des images Docker pour production...$(NC)"
 	@echo -e "$(YELLOW)Build de l'image backend...$(NC)"
 	@docker buildx build --load -f backend/Dockerfile.prod -t $(API_IMAGE) ./backend
 	@echo -e "$(YELLOW)Build de l'image frontend...$(NC)"
-	@docker buildx build --load -f frontend/Dockerfile.prod -t $(FRONTEND_IMAGE) ./frontend
+	@if [ -z "$$PRODUCTION_API_URL" ]; then \
+		echo -e "$(YELLOW)⚠️  PRODUCTION_API_URL non définie, utilisation de la valeur par défaut$(NC)"; \
+		docker buildx build --load -f frontend/Dockerfile.prod --build-arg PRODUCTION_API_URL=https://cooking-recipe-api.delhomme.ovh/api -t $(FRONTEND_IMAGE) ./frontend; \
+	else \
+		echo -e "$(GREEN)Utilisation de PRODUCTION_API_URL=$$PRODUCTION_API_URL$(NC)"; \
+		docker buildx build --load -f frontend/Dockerfile.prod --build-arg PRODUCTION_API_URL=$$PRODUCTION_API_URL -t $(FRONTEND_IMAGE) ./frontend; \
+	fi
 	@echo -e "$(GREEN)✓ Images construites$(NC)"
 
 docker-tag: docker-build-prod ## Tag les images pour Docker Hub (déjà taguées lors du build)
