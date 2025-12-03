@@ -20,11 +20,14 @@ class AuthService {
     try {
       final response = await http.post(
         Uri.parse('$_baseUrl/auth/signup'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json',
+        },
         body: json.encode({
-          'email': email,
+          'email': email.trim(),
           'password': password,
-          'name': name,
+          if (name != null && name.trim().isNotEmpty) 'name': name.trim(),
         }),
       );
 
