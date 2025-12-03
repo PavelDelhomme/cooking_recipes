@@ -193,20 +193,178 @@ class TranslationService extends ChangeNotifier {
     'red wine': 'Vin rouge',
   };
 
+  // Dictionnaire de traduction espagnol -> français pour les ingrédients
+  static final Map<String, String> _spanishToFrenchIngredients = {
+    // Viandes
+    'pollo': 'Poulet',
+    'carne de res': 'Bœuf',
+    'res': 'Bœuf',
+    'cerdo': 'Porc',
+    'cordero': 'Agneau',
+    'pavo': 'Dinde',
+    'pato': 'Canard',
+    'bistec': 'Steak',
+    'carne molida': 'Viande hachée',
+    'tocino': 'Bacon',
+    'salchicha': 'Saucisse',
+    
+    // Poissons
+    'salmón': 'Saumon',
+    'atún': 'Thon',
+    'bacalao': 'Morue',
+    'trucha': 'Truite',
+    'caballa': 'Maquereau',
+    'pescado': 'Poisson',
+    
+    // Légumes
+    'tomate': 'Tomate',
+    'tomates': 'Tomates',
+    'cebolla': 'Oignon',
+    'cebollas': 'Oignons',
+    'ajo': 'Ail',
+    'zanahoria': 'Carotte',
+    'zanahorias': 'Carottes',
+    'patata': 'Pomme de terre',
+    'patatas': 'Pommes de terre',
+    'pimiento': 'Poivron',
+    'pimientos': 'Poivrons',
+    'calabacín': 'Courgette',
+    'berenjena': 'Aubergine',
+    'lechuga': 'Laitue',
+    'espinacas': 'Épinards',
+    'pepino': 'Concombre',
+    'champiñón': 'Champignon',
+    'champiñones': 'Champignons',
+    'brócoli': 'Brocoli',
+    'coliflor': 'Chou-fleur',
+    'repollo': 'Chou',
+    'apio': 'Céleri',
+    'puerro': 'Poireau',
+    'espárragos': 'Asperges',
+    
+    // Fruits
+    'manzana': 'Pomme',
+    'manzanas': 'Pommes',
+    'plátano': 'Banane',
+    'plátanos': 'Bananes',
+    'naranja': 'Orange',
+    'naranjas': 'Oranges',
+    'limón': 'Citron',
+    'limones': 'Citrons',
+    'lima': 'Citron vert',
+    'fresa': 'Fraise',
+    'fresas': 'Fraises',
+    'arándano': 'Myrtille',
+    'arándanos': 'Myrtilles',
+    'frambuesa': 'Framboise',
+    'frambuesas': 'Framboises',
+    
+    // Produits laitiers
+    'leche': 'Lait',
+    'queso': 'Fromage',
+    'mantequilla': 'Beurre',
+    'crema': 'Crème',
+    'yogur': 'Yaourt',
+    'crema agria': 'Crème fraîche',
+    'requesón': 'Fromage blanc',
+    
+    // Céréales et féculents
+    'arroz': 'Riz',
+    'pasta': 'Pâtes',
+    'espagueti': 'Spaghettis',
+    'fideos': 'Nouilles',
+    'pan': 'Pain',
+    'harina': 'Farine',
+    'maíz': 'Maïs',
+    'quinoa': 'Quinoa',
+    'couscous': 'Couscous',
+    'trigo': 'Boulgour',
+    'avena': 'Avoine',
+    'cebada': 'Orge',
+    
+    // Épices et herbes
+    'sal': 'Sel',
+    'pimienta': 'Poivre',
+    'pimienta negra': 'Poivre noir',
+    'pimentón': 'Paprika',
+    'comino': 'Cumin',
+    'cilantro': 'Coriandre',
+    'perejil': 'Persil',
+    'albahaca': 'Basilic',
+    'orégano': 'Origan',
+    'tomillo': 'Thym',
+    'romero': 'Romarin',
+    'salvia': 'Sauge',
+    'menta': 'Menthe',
+    'eneldo': 'Aneth',
+    'cebollino': 'Ciboulette',
+    'hoja de laurel': 'Feuille de laurier',
+    'hojas de laurel': 'Feuilles de laurier',
+    
+    // Huiles et vinaigres
+    'aceite': 'Huile',
+    'aceite de oliva': 'Huile d\'olive',
+    'aceite vegetal': 'Huile végétale',
+    'aceite de girasol': 'Huile de tournesol',
+    'vinagre': 'Vinaigre',
+    'vinagre balsámico': 'Vinaigre balsamique',
+    'vinagre blanco': 'Vinaigre blanc',
+    'vinagre de sidra': 'Vinaigre de cidre',
+    
+    // Autres
+    'huevo': 'Œuf',
+    'huevos': 'Œufs',
+    'azúcar': 'Sucre',
+    'azúcar moreno': 'Sucre roux',
+    'miel': 'Miel',
+    'vainilla': 'Vanille',
+    'extracto de vainilla': 'Extrait de vanille',
+    'canela': 'Cannelle',
+    'nuez moscada': 'Muscade',
+    'jengibre': 'Gingembre',
+    'cúrcuma': 'Curcuma',
+    'curry': 'Curry',
+    'chile': 'Piment',
+    'salsa de soja': 'Sauce soja',
+    'salsa worcestershire': 'Sauce Worcestershire',
+    'pasta de tomate': 'Concentré de tomate',
+    'salsa de tomate': 'Sauce tomate',
+    'caldo de pollo': 'Bouillon de poulet',
+    'caldo de res': 'Bouillon de bœuf',
+    'caldo de verduras': 'Bouillon de légumes',
+    'caldo': 'Bouillon',
+    'agua': 'Eau',
+    'vino': 'Vin',
+    'vino blanco': 'Vin blanc',
+    'vino tinto': 'Vin rouge',
+  };
+
   /// Traduit un ingrédient selon la langue sélectionnée
   String translateIngredientInstance(String ingredient) {
     if (ingredient.isEmpty) return ingredient;
     
-    // Si la langue est déjà en français, ne pas traduire
+    // Si la langue est française, traduire depuis l'anglais ou l'espagnol
     if (_currentLanguage == 'fr') {
       final lowerIngredient = ingredient.toLowerCase().trim();
       
-      // Vérifier d'abord la correspondance exacte
+      // 1. Vérifier d'abord les traductions espagnol -> français
+      if (TranslationService._spanishToFrenchIngredients.containsKey(lowerIngredient)) {
+        return TranslationService._spanishToFrenchIngredients[lowerIngredient]!;
+      }
+      
+      // Chercher une correspondance partielle dans le dictionnaire espagnol
+      for (var entry in TranslationService._spanishToFrenchIngredients.entries) {
+        if (lowerIngredient.contains(entry.key) || entry.key.contains(lowerIngredient)) {
+          return entry.value;
+        }
+      }
+      
+      // 2. Vérifier ensuite les traductions anglais -> français
       if (TranslationService._ingredientTranslations.containsKey(lowerIngredient)) {
         return TranslationService._ingredientTranslations[lowerIngredient]!;
       }
       
-      // Chercher une correspondance partielle
+      // Chercher une correspondance partielle dans le dictionnaire anglais
       for (var entry in TranslationService._ingredientTranslations.entries) {
         if (lowerIngredient.contains(entry.key) || entry.key.contains(lowerIngredient)) {
           return entry.value;
