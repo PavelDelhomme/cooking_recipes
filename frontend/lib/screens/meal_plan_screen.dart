@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/recipe.dart';
 import '../models/meal_plan.dart';
+import '../models/shopping_list_item.dart';
+import '../models/pantry_item.dart';
 import '../services/meal_plan_service.dart';
 import '../services/recipe_api_service.dart';
 import '../services/pantry_service.dart';
+import '../services/shopping_list_service.dart';
 import '../services/auto_meal_planner.dart';
 import 'recipe_detail_screen.dart';
 import 'recipes_screen.dart';
@@ -28,11 +31,13 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
   final MealPlanService _mealPlanService = MealPlanService();
   final RecipeApiService _recipeService = RecipeApiService();
   final PantryService _pantryService = PantryService();
+  final ShoppingListService _shoppingListService = ShoppingListService();
   final AutoMealPlanner _autoPlanner = AutoMealPlanner();
   DateTime _selectedDate = DateTime.now();
   List<MealPlan> _mealPlans = [];
   bool _isLoading = true;
   String _viewMode = 'day'; // 'day' ou 'week'
+  List<PantryItem> _pantryItems = [];
 
   @override
   void initState() {
@@ -41,6 +46,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
       _selectedDate = widget.initialDate!;
     }
     _loadMealPlans();
+    _loadPantryItems();
     
     // Si une recette est fournie, proposer de l'ajouter
     if (widget.recipe != null) {
@@ -50,6 +56,13 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
     }
   }
 
+  Future<void> _loadPantryItems() async {
+    final items = await _pantryService.getPantryItems();
+    setState(() {
+      _pantryItems = items;
+    });
+  }
+
   Future<void> _loadMealPlans() async {
     setState(() => _isLoading = true);
     final plans = await _mealPlanService.getMealPlans();
@@ -57,6 +70,80 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
       _mealPlans = plans;
       _isLoading = false;
     });
+  }
+
+  // Vérifier si un ingrédient est présent dans le placard
+  bool _hasIngredient(String ingredientName) {
+    return _pantryItems.any((item) =>
+        item.name.toLowerCase().contains(ingredientName.toLowerCase()) ||
+        ingredientName.toLowerCase().contains(item.name.toLowerCase()));
+  }
+
+  // Vérifier et proposer d'ajouter les ingrédients manquants à la liste de courses
+  Future<void> _checkAndAddMissingIngredients(Recipe recipe) async {
+    // Recharger les items du placard pour être à jour
+    await _loadPantryItems();
+    
+    // Trouver les ingrédients manquants
+    final missingIngredients = recipe.ingredients
+        .where((ingredient) => !_hasIngredient(ingredient.name))
+        .toList();
+
+    if (missingIngredients.isEmpty) {
+      // Tous les ingrédients sont disponibles
+      return;
+    }
+
+    // Proposer d'ajouter les ingrédients manquants
+    if (!mounted) return;
+    
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Ingrédients manquants'),
+        content: Text(
+          'Vous n\'avez pas ${missingIngredients.length} ingrédient(s) nécessaire(s) pour cette recette.\n\n'
+          'Souhaitez-vous les ajouter à votre liste de courses ?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Non, merci'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Oui, ajouter'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      // Créer les items de liste de courses
+      final shoppingItems = missingIngredients.map((ingredient) {
+        return ShoppingListItem(
+          id: DateTime.now().millisecondsSinceEpoch.toString() +
+              '_${ingredient.id}',
+          name: ingredient.name,
+          quantity: ingredient.quantity ?? 1.0,
+          unit: ingredient.unit,
+          addedDate: DateTime.now(),
+        );
+      }).toList();
+
+      await _shoppingListService.addShoppingListItems(shoppingItems);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${missingIngredients.length} ingrédient(s) ajouté(s) à la liste de courses',
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _selectDate() async {
@@ -355,6 +442,9 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
             duration: const Duration(seconds: 2),
           ),
         );
+        
+        // Vérifier et proposer d'ajouter les ingrédients manquants à la liste de courses
+        await _checkAndAddMissingIngredients(selectedRecipe);
       }
     }
   }
