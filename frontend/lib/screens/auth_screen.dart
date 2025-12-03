@@ -183,7 +183,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       final hasUpperCase = RegExp(r'[A-Z]').hasMatch(value);
                       final hasLowerCase = RegExp(r'[a-z]').hasMatch(value);
                       final hasNumbers = RegExp(r'\d').hasMatch(value);
-                      final hasSpecialChar = RegExp(r'[!@#\$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]').hasMatch(value);
+                      final hasSpecialChar = RegExp('[!@#\$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]').hasMatch(value);
                       
                       final complexityScore = [
                         hasUpperCase,
