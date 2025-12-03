@@ -12,23 +12,37 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 // Inscription
 router.post('/signup', signupLimiter, async (req, res) => {
   try {
+    // Log pour debug (à retirer en production si nécessaire)
+    console.log('Signup request body:', JSON.stringify(req.body));
+    
     const { email, password, name } = req.body;
+
+    // Vérifier que les champs requis sont présents
+    if (!email) {
+      return res.status(400).json({ message: 'Email requis' });
+    }
+    if (!password) {
+      return res.status(400).json({ message: 'Mot de passe requis' });
+    }
 
     // Valider l'email
     const emailValidation = validateEmail(email);
     if (!emailValidation.valid) {
+      console.log('Email validation failed:', emailValidation.error);
       return res.status(400).json({ message: emailValidation.error });
     }
 
     // Valider le mot de passe
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.valid) {
+      console.log('Password validation failed:', passwordValidation.error);
       return res.status(400).json({ message: passwordValidation.error });
     }
 
     // Valider le nom (optionnel)
     const nameValidation = validateName(name);
     if (!nameValidation.valid) {
+      console.log('Name validation failed:', nameValidation.error);
       return res.status(400).json({ message: nameValidation.error });
     }
 

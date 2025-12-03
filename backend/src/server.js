@@ -87,9 +87,17 @@ app.use(helmet({
 // Rate limiting global
 app.use('/api', apiLimiter);
 
-// Body parser avec limites
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+// Body parser avec limites (AVANT les routes)
+app.use(bodyParser.json({ 
+  limit: '10mb',
+  type: 'application/json',
+  strict: false // Permettre des JSON non stricts
+}));
+app.use(bodyParser.urlencoded({ 
+  extended: true, 
+  limit: '10mb',
+  type: 'application/x-www-form-urlencoded'
+}));
 
 // Middleware pour forcer l'encodage UTF-8
 app.use((req, res, next) => {
