@@ -38,6 +38,9 @@ class ApiConfig {
               : 'https';
           return '$protocol://$hostname:$backendPort/api';
         }
+        
+        // Fallback si hostname est null
+        return 'http://localhost:$backendPort/api';
       } catch (e) {
         // Fallback si erreur
         return 'http://localhost:$backendPort/api';
