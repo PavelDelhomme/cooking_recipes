@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 PORTAINER_URL="${PORTAINER_URL:-http://localhost:9000}"
 PORTAINER_USERNAME="${PORTAINER_USERNAME:-admin}"
 PORTAINER_PASSWORD="${PORTAINER_PASSWORD:-}"
-STACK_NAME="${STACK_NAME:-cooking-recipes}"
+STACK_NAME="${STACK_NAME:-cookingrecipes}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.prod.yml}"
 
 echo -e "${GREEN}🚀 Déploiement automatique sur Portainer${NC}"
