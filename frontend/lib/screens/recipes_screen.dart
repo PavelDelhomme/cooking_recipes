@@ -584,16 +584,28 @@ class _RecipesScreenState extends State<RecipesScreen> {
                       },
                     ),
                     const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 8,
-                      children: [
-                        if (recipe.readyInMinutes != null)
-                          _buildInfoChip(
-                            Icons.timer_outlined,
-                            '${recipe.readyInMinutes} min',
-                            context,
-                          ),
+                           Wrap(
+                             spacing: 12,
+                             runSpacing: 8,
+                             children: [
+                               if (recipe.prepTimeMinutes != null)
+                                 _buildInfoChip(
+                                   Icons.restaurant_outlined,
+                                   'Prép: ${recipe.prepTimeMinutes} min',
+                                   context,
+                                 ),
+                               if (recipe.cookTimeMinutes != null)
+                                 _buildInfoChip(
+                                   Icons.local_fire_department_outlined,
+                                   'Cuisson: ${recipe.cookTimeMinutes} min',
+                                   context,
+                                 ),
+                               if (recipe.readyInMinutes != null)
+                                 _buildInfoChip(
+                                   Icons.timer_outlined,
+                                   'Total: ${recipe.readyInMinutes} min',
+                                   context,
+                                 ),
                         if (recipe.servings != null)
                           Builder(
                             builder: (context) {

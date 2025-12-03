@@ -8,6 +8,8 @@ class Recipe {
   final List<Ingredient> ingredients;
   final List<String> instructions;
   final int? readyInMinutes;
+  final int? prepTimeMinutes; // Temps de préparation en minutes
+  final int? cookTimeMinutes; // Temps de cuisson en minutes
   final int? servings;
   // Stocker le texte original des instructions et summary pour retraduction dynamique
   final String? _originalInstructionsText;
@@ -21,6 +23,8 @@ class Recipe {
     required this.ingredients,
     required this.instructions,
     this.readyInMinutes,
+    this.prepTimeMinutes,
+    this.cookTimeMinutes,
     this.servings,
     String? originalInstructionsText,
     String? originalSummaryText,
@@ -40,6 +44,8 @@ class Recipe {
       'ingredients': ingredients.map((i) => i.toJson()).toList(),
       'instructions': instructions,
       'readyInMinutes': readyInMinutes,
+      'prepTimeMinutes': prepTimeMinutes,
+      'cookTimeMinutes': cookTimeMinutes,
       'servings': servings,
       'originalInstructionsText': _originalInstructionsText,
       'originalSummaryText': _originalSummaryText,
@@ -61,6 +67,8 @@ class Recipe {
               .toList() ??
           [],
       readyInMinutes: json['readyInMinutes'] as int?,
+      prepTimeMinutes: json['prepTimeMinutes'] as int?,
+      cookTimeMinutes: json['cookTimeMinutes'] as int?,
       servings: json['servings'] as int?,
       originalInstructionsText: json['originalInstructionsText'] as String?,
       originalSummaryText: json['originalSummaryText'] as String?,

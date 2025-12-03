@@ -345,6 +345,14 @@ class RecipeApiService {
       }
     }
 
+    // Extraire les temps de préparation et de cuisson depuis les instructions
+    final times = _extractTimesFromInstructions(originalInstructionsText);
+    final prepTime = times['prep'];
+    final cookTime = times['cook'];
+    final totalTime = prepTime != null && cookTime != null 
+        ? prepTime + cookTime 
+        : (prepTime ?? cookTime);
+
     return Recipe(
       id: meal['idMeal'].toString(),
       title: title,
@@ -352,10 +360,95 @@ class RecipeApiService {
       summary: summary,
       ingredients: ingredients,
       instructions: instructions,
+      readyInMinutes: totalTime,
+      prepTimeMinutes: prepTime,
+      cookTimeMinutes: cookTime,
       servings: 4, // TheMealDB ne fournit pas cette info
       originalInstructionsText: originalInstructionsText.isNotEmpty ? originalInstructionsText : null,
       originalSummaryText: originalSummaryText.isNotEmpty ? originalSummaryText : null,
     );
+  }
+
+  // Extraire les temps de préparation et de cuisson depuis les instructions
+  Map<String, int?> _extractTimesFromInstructions(String instructions) {
+    int? prepTime;
+    int? cookTime;
+    
+    if (instructions.isEmpty) {
+      return {'prep': null, 'cook': null};
+    }
+
+    // Patterns pour trouver les temps
+    // Préparation
+    final prepPatterns = [
+      RegExp(r'prep(?:aration)?\s*(?:time)?\s*:?\s*(\d+)\s*(?:min|minute|minutes|h|hour|hours)', caseSensitive: false),
+      RegExp(r'prepare\s+(?:for\s+)?(\d+)\s*(?:min|minute|minutes|h|hour|hours)', caseSensitive: false),
+      RegExp(r'preparation\s*:?\s*(\d+)\s*(?:min|minute|minutes|h|hour|hours)', caseSensitive: false),
+    ];
+
+    // Cuisson
+    final cookPatterns = [
+      RegExp(r'cook(?:ing)?\s*(?:time)?\s*:?\s*(\d+)\s*(?:min|minute|minutes|h|hour|hours)', caseSensitive: false),
+      RegExp(r'cook\s+(?:for\s+)?(\d+)\s*(?:min|minute|minutes|h|hour|hours)', caseSensitive: false),
+      RegExp(r'cuire\s+(?:pendant\s+)?(\d+)\s*(?:min|minute|minutes|h|heure|heures)', caseSensitive: false),
+      RegExp(r'cuisson\s*:?\s*(\d+)\s*(?:min|minute|minutes|h|heure|heures)', caseSensitive: false),
+      RegExp(r'bake\s+(?:for\s+)?(\d+)\s*(?:min|minute|minutes|h|hour|hours)', caseSensitive: false),
+      RegExp(r'roast\s+(?:for\s+)?(\d+)\s*(?:min|minute|minutes|h|hour|hours)', caseSensitive: false),
+      RegExp(r'fry\s+(?:for\s+)?(\d+)\s*(?:min|minute|minutes|h|hour|hours)', caseSensitive: false),
+      RegExp(r'simmer\s+(?:for\s+)?(\d+)\s*(?:min|minute|minutes|h|hour|hours)', caseSensitive: false),
+    ];
+
+    // Chercher le temps de préparation
+    for (var pattern in prepPatterns) {
+      final match = pattern.firstMatch(instructions);
+      if (match != null) {
+        final value = int.tryParse(match.group(1) ?? '');
+        if (value != null) {
+          // Convertir les heures en minutes
+          if (instructions.toLowerCase().substring(match.start, match.end).contains('h') ||
+              instructions.toLowerCase().substring(match.start, match.end).contains('hour')) {
+            prepTime = value * 60;
+          } else {
+            prepTime = value;
+          }
+          break;
+        }
+      }
+    }
+
+    // Chercher le temps de cuisson
+    for (var pattern in cookPatterns) {
+      final match = pattern.firstMatch(instructions);
+      if (match != null) {
+        final value = int.tryParse(match.group(1) ?? '');
+        if (value != null) {
+          // Convertir les heures en minutes
+          if (instructions.toLowerCase().substring(match.start, match.end).contains('h') ||
+              instructions.toLowerCase().substring(match.start, match.end).contains('hour') ||
+              instructions.toLowerCase().substring(match.start, match.end).contains('heure')) {
+            cookTime = value * 60;
+          } else {
+            cookTime = value;
+          }
+          break;
+        }
+      }
+    }
+
+    // Si aucun temps trouvé, estimer basé sur le nombre d'ingrédients et d'instructions
+    if (prepTime == null && cookTime == null) {
+      // Estimation basique : 5 min par ingrédient pour la préparation, 10 min par instruction pour la cuisson
+      prepTime = (ingredients.length * 5).clamp(10, 60);
+      cookTime = (instructions.length * 10).clamp(15, 120);
+    } else if (prepTime == null) {
+      // Si seulement le temps de cuisson est trouvé, estimer la préparation
+      prepTime = (ingredients.length * 5).clamp(10, 30);
+    } else if (cookTime == null) {
+      // Si seulement le temps de préparation est trouvé, estimer la cuisson
+      cookTime = (instructions.length * 10).clamp(15, 90);
+    }
+
+    return {'prep': prepTime, 'cook': cookTime};
   }
 
   // Parser la quantité depuis une mesure

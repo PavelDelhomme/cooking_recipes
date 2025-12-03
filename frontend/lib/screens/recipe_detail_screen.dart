@@ -324,16 +324,26 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Informations générales
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 8,
-                    children: [
-                      if (widget.recipe.readyInMinutes != null)
-                        _buildInfoChip(
-                          Icons.timer_outlined,
-                          '${widget.recipe.readyInMinutes} min',
-                        ),
+                        // Informations générales
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 8,
+                          children: [
+                            if (widget.recipe.prepTimeMinutes != null)
+                              _buildInfoChip(
+                                Icons.restaurant_outlined,
+                                'Préparation: ${widget.recipe.prepTimeMinutes} min',
+                              ),
+                            if (widget.recipe.cookTimeMinutes != null)
+                              _buildInfoChip(
+                                Icons.local_fire_department_outlined,
+                                'Cuisson: ${widget.recipe.cookTimeMinutes} min',
+                              ),
+                            if (widget.recipe.readyInMinutes != null)
+                              _buildInfoChip(
+                                Icons.timer_outlined,
+                                'Total: ${widget.recipe.readyInMinutes} min',
+                              ),
                       if (widget.recipe.servings != null)
                         Builder(
                           builder: (context) {
