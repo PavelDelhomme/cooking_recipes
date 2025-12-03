@@ -23,6 +23,8 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
   bool _isLoading = true;
   bool _showChecked = false;
   final Map<String, String?> _ingredientImages = {};
+  bool _isSelectionMode = false;
+  final Set<String> _selectedItems = {};
 
   @override
   void initState() {
@@ -163,6 +165,98 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
       }
     }
   }
+
+  void _toggleSelectionMode() {
+    setState(() {
+      _isSelectionMode = !_isSelectionMode;
+      if (!_isSelectionMode) {
+        _selectedItems.clear();
+      }
+    });
+  }
+
+  void _toggleItemSelection(ShoppingListItem item) {
+    setState(() {
+      if (_selectedItems.contains(item.id)) {
+        _selectedItems.remove(item.id);
+      } else {
+        _selectedItems.add(item.id);
+      }
+    });
+  }
+
+  void _selectAll() {
+    setState(() {
+      _selectedItems.clear();
+      for (var item in _displayedItems) {
+        _selectedItems.add(item.id);
+      }
+    });
+  }
+
+  void _deselectAll() {
+    setState(() {
+      _selectedItems.clear();
+    });
+  }
+
+  Future<void> _addSelectedToPantry() async {
+    if (_selectedItems.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sélectionnez au moins un article'),
+          ),
+        );
+      }
+      return;
+    }
+
+    final selectedItemsList = _items.where((item) => _selectedItems.contains(item.id)).toList();
+    int successCount = 0;
+    int failCount = 0;
+
+    for (var item in selectedItemsList) {
+      try {
+        await _pantryService.addPantryItem(
+          PantryItem(
+            id: DateTime.now().millisecondsSinceEpoch.toString() + '_${item.id}',
+            name: item.name,
+            quantity: item.quantity ?? 1.0,
+            unit: item.unit ?? 'unité',
+          ),
+        );
+        await _shoppingListService.removeShoppingListItem(item.id);
+        successCount++;
+      } catch (e) {
+        failCount++;
+      }
+    }
+
+    loadItems();
+    setState(() {
+      _selectedItems.clear();
+      _isSelectionMode = false;
+    });
+
+    if (mounted) {
+      if (failCount == 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$successCount article(s) ajouté(s) au placard'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$successCount ajouté(s), $failCount erreur(s)'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
   
   // Notifier que le placard a été mis à jour
   void _notifyPantryUpdate() {
@@ -193,34 +287,83 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Liste de courses',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Row(
+                    children: [
+                      if (_isSelectionMode) ...[
+                        Text(
+                          '${_selectedItems.length} sélectionné(s)',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ] else ...[
+                        const Text(
+                          'Liste de courses',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (_checkedCount > 0)
+                    if (_isSelectionMode) ...[
+                      if (_selectedItems.length < _displayedItems.length)
+                        IconButton(
+                          icon: const Icon(Icons.select_all),
+                          onPressed: _selectAll,
+                          tooltip: 'Tout sélectionner',
+                        )
+                      else
+                        IconButton(
+                          icon: const Icon(Icons.deselect),
+                          onPressed: _deselectAll,
+                          tooltip: 'Tout désélectionner',
+                        ),
+                      if (_selectedItems.isNotEmpty)
+                        IconButton(
+                          icon: const Icon(Icons.add_shopping_cart),
+                          onPressed: _addSelectedToPantry,
+                          tooltip: 'Ajouter au placard',
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       IconButton(
-                        icon: const Icon(Icons.delete_sweep),
-                        onPressed: _removeCheckedItems,
-                        tooltip: 'Supprimer les articles cochés',
+                        icon: const Icon(Icons.close),
+                        onPressed: _toggleSelectionMode,
+                        tooltip: 'Annuler la sélection',
                       ),
-                    IconButton(
-                      icon: Icon(_showChecked ? Icons.visibility_off : Icons.visibility),
-                      onPressed: () {
-                        setState(() => _showChecked = !_showChecked);
-                      },
-                      tooltip: _showChecked ? 'Masquer les articles cochés' : 'Afficher les articles cochés',
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.refresh),
-                      onPressed: loadItems,
-                      tooltip: 'Actualiser',
-                    ),
+                    ] else ...[
+                      if (_checkedCount > 0)
+                        IconButton(
+                          icon: const Icon(Icons.delete_sweep),
+                          onPressed: _removeCheckedItems,
+                          tooltip: 'Supprimer les articles cochés',
+                        ),
+                      IconButton(
+                        icon: Icon(_showChecked ? Icons.visibility_off : Icons.visibility),
+                        onPressed: () {
+                          setState(() => _showChecked = !_showChecked);
+                        },
+                        tooltip: _showChecked ? 'Masquer les articles cochés' : 'Afficher les articles cochés',
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.checklist),
+                        onPressed: _toggleSelectionMode,
+                        tooltip: 'Mode sélection',
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: loadItems,
+                        tooltip: 'Actualiser',
+                      ),
+                    ],
                   ],
                 ),
               ],
@@ -336,15 +479,27 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Checkbox(
-                              value: item.isChecked,
-                              onChanged: (_) => _toggleItem(item),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4),
+                            if (_isSelectionMode)
+                              Checkbox(
+                                value: _selectedItems.contains(item.id),
+                                onChanged: (_) => _toggleItemSelection(item),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              )
+                            else
+                              Checkbox(
+                                value: item.isChecked,
+                                onChanged: (_) => _toggleItem(item),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
                               ),
-                            ),
                           ],
                         ),
+                        onTap: _isSelectionMode
+                            ? () => _toggleItemSelection(item)
+                            : null,
                         title: Builder(
                           builder: (context) {
                             // Écouter les changements de locale
@@ -394,36 +549,38 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
                                 ),
                               )
                             : null,
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (item.isChecked)
-                              IconButton(
-                                icon: Icon(
-                                  Icons.add_shopping_cart,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                onPressed: () => _addToPantry(item),
-                                tooltip: 'Ajouter au placard',
+                        trailing: _isSelectionMode
+                            ? null
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (item.isChecked)
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.add_shopping_cart,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
+                                      onPressed: () => _addToPantry(item),
+                                      tooltip: 'Ajouter au placard',
+                                    ),
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.edit_outlined,
+                                      color: Theme.of(context).colorScheme.secondary,
+                                    ),
+                                    onPressed: () => _editItem(item),
+                                    tooltip: 'Modifier',
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.delete_outline,
+                                      color: Theme.of(context).colorScheme.error,
+                                    ),
+                                    onPressed: () => _deleteItem(item),
+                                    tooltip: 'Supprimer',
+                                  ),
+                                ],
                               ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.edit_outlined,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                              onPressed: () => _editItem(item),
-                              tooltip: 'Modifier',
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.delete_outline,
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                              onPressed: () => _deleteItem(item),
-                              tooltip: 'Supprimer',
-                            ),
-                          ],
-                        ),
                       ),
                     );
                   },
