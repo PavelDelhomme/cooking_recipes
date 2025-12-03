@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// Widget pour exposer la locale actuelle et notifier les changements
 class LocaleNotifier extends InheritedWidget {
   final Locale locale;
-  final VoidCallback? onLocaleChange;
+  final void Function(Locale)? onLocaleChange;
 
   const LocaleNotifier({
     required this.locale,

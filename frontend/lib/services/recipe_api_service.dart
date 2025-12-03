@@ -215,7 +215,7 @@ class RecipeApiService {
   // Convertir un meal de TheMealDB en Recipe
   Future<Recipe> _convertMealToRecipe(Map<String, dynamic> meal) async {
     // Initialiser la langue si nécessaire
-    await TranslationService.init();
+    await TranslationService.initStatic();
     
     final List<Ingredient> ingredients = [];
     final List<String> instructions = [];

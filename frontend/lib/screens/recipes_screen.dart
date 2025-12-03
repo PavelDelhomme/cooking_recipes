@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/recipe.dart';
 import '../services/recipe_api_service.dart';
 import '../services/pantry_service.dart';
+import '../services/translation_service.dart';
+import '../widgets/locale_notifier.dart';
 import 'recipe_detail_screen.dart';
 
 class RecipesScreen extends StatefulWidget {

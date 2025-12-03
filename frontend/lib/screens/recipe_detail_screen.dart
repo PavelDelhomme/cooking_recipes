@@ -478,42 +478,32 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                     if (_currentProfile != null && widget.recipe.servings != null && _currentProfile!.numberOfPeople != widget.recipe.servings)
                                       Padding(
                                         padding: const EdgeInsets.only(top: 4),
-                                        child: Text(
-                                          Builder(
-                                            builder: (context) {
-                                              // Écouter les changements de locale
-                                              LocaleNotifier.of(context);
-                                              final originalText = TranslationService.currentLanguageStatic == 'fr' 
-                                                  ? 'Original' 
-                                                  : TranslationService.currentLanguageStatic == 'es'
-                                                      ? 'Original'
-                                                      : 'Original';
-                                              final portionsText = TranslationService.currentLanguageStatic == 'fr' 
-                                                  ? 'portions' 
-                                                  : TranslationService.currentLanguageStatic == 'es'
-                                                      ? 'porciones'
-                                                      : 'servings';
-                                              return Text(
-                                                '$originalText: ${ingredient.quantity} ${ingredient.unit != null ? TranslationService.translateUnit(ingredient.unit!) : ''} (${widget.recipe.servings} $portionsText)',
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontStyle: FontStyle.italic,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurfaceVariant
-                                                      .withOpacity(0.7),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontStyle: FontStyle.italic,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurfaceVariant
-                                                .withOpacity(0.7),
-                                          ),
+                                        child: Builder(
+                                          builder: (context) {
+                                            // Écouter les changements de locale
+                                            LocaleNotifier.of(context);
+                                            final originalText = TranslationService.currentLanguageStatic == 'fr' 
+                                                ? 'Original' 
+                                                : TranslationService.currentLanguageStatic == 'es'
+                                                    ? 'Original'
+                                                    : 'Original';
+                                            final portionsText = TranslationService.currentLanguageStatic == 'fr' 
+                                                ? 'portions' 
+                                                : TranslationService.currentLanguageStatic == 'es'
+                                                    ? 'porciones'
+                                                    : 'servings';
+                                            return Text(
+                                              '$originalText: ${ingredient.quantity} ${ingredient.unit != null ? TranslationService.translateUnit(ingredient.unit!) : ''} (${widget.recipe.servings} $portionsText)',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontStyle: FontStyle.italic,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant
+                                                    .withOpacity(0.7),
+                                              ),
+                                            );
+                                          },
                                         ),
                                       ),
                                   ],

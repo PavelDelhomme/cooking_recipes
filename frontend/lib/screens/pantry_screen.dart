@@ -395,13 +395,13 @@ class PantryScreenState extends State<PantryScreen> {
                                   ),
                                   child: Text(
                                     '${item.quantity} ${item.unit != null ? TranslationService.translateUnit(item.unit!) : ''}',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSecondaryContainer,
-                                ),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                    ),
                                   ),
                                 ),
                                 if (item.expiryDate != null) ...[
