@@ -209,10 +209,14 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                         );
                         
                         if (selectedRecipe != null && mounted) {
+                          // Fermer le dialogue de sélection de recettes si encore ouvert
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
                           // Ouvrir directement le dialogue d'ajout avec la recette sélectionnée
                           await Future.delayed(const Duration(milliseconds: 100));
                           if (mounted) {
-                            _showAddMealDialog(selectedRecipe, defaultDate, defaultMealType);
+                            await _showAddMealDialog(selectedRecipe, defaultDate, defaultMealType);
                           }
                         }
                       } else if (mounted) {

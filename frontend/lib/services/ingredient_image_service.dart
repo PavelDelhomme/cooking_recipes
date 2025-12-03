@@ -16,7 +16,13 @@ class IngredientImageService {
         return cachedImage;
       }
 
-      // Essayer de récupérer une image depuis Unsplash (API publique)
+      // Essayer TheMealDB en premier (gratuit, pas de clé, utilise noms anglais)
+      final mealDbImage = await getImageFromMealDB(ingredientName);
+      if (mealDbImage != null) {
+        return mealDbImage;
+      }
+
+      // Si TheMealDB ne fonctionne pas, essayer Unsplash (API publique)
       final imageUrl = await _fetchFromUnsplash(ingredientName);
       
       if (imageUrl != null) {
@@ -25,11 +31,11 @@ class IngredientImageService {
         return imageUrl;
       }
 
-      // Si Unsplash ne fonctionne pas, utiliser une image par défaut basée sur le nom
-      return _getDefaultImageUrl(ingredientName);
+      // Si rien ne fonctionne, retourner null (l'UI utilisera une icône par défaut)
+      return null;
     } catch (e) {
       print('Erreur lors de la récupération de l\'image: $e');
-      return _getDefaultImageUrl(ingredientName);
+      return null;
     }
   }
 
