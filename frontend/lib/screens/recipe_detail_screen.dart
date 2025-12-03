@@ -548,59 +548,93 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       ),
                     )
                   else
-                    ...widget.recipe.instructions.asMap().entries.map((entry) {
-                      // Nettoyer le texte de l'instruction
-                      String instructionText = entry.value;
-                      // Enlever les "step" restants
-                      instructionText = instructionText.replaceAll(RegExp(r'^step\s+\d+:\s*', caseSensitive: false), '');
-                      instructionText = instructionText.replaceAll(RegExp(r'^Step\s+\d+:\s*', caseSensitive: false), '');
-                      instructionText = instructionText.trim();
-                      
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '${entry.key + 1}',
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onPrimary,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                    Builder(
+                      builder: (context) {
+                        // Écouter les changements de locale pour retraduire
+                        LocaleNotifier.of(context);
+                        
+                        // Retraduire les instructions depuis le texte original si disponible
+                        List<String> translatedInstructions;
+                        if (widget.recipe.originalInstructionsText != null && 
+                            widget.recipe.originalInstructionsText!.isNotEmpty) {
+                          // Nettoyer et retraduire le texte original
+                          String instructionsText = widget.recipe.originalInstructionsText!;
+                          instructionsText = instructionsText.replaceAll(RegExp(r'step\s+\d+[:\s]*', caseSensitive: false), '');
+                          instructionsText = instructionsText.replaceAll(RegExp(r'Step\s+\d+[:\s]*', caseSensitive: false), '');
+                          instructionsText = instructionsText.replaceAll(RegExp(r'STEP\s+\d+[:\s]*', caseSensitive: false), '');
+                          instructionsText = TranslationService.cleanAndTranslate(instructionsText);
+                          
+                          // Diviser en lignes
+                          translatedInstructions = instructionsText
+                              .split(RegExp(r'\n|\r\n|(?<=\d)\.\s+|(?<=[.!?])\s+(?=[A-Z])|(?<=[.!?])\s+(?=\d+\.)'))
+                              .where((line) => line.trim().isNotEmpty)
+                              .map((line) {
+                                String cleaned = line.trim();
+                                cleaned = cleaned.replaceAll(RegExp(r'^\d+\.\s*'), '');
+                                cleaned = cleaned.replaceAll(RegExp(r'^step\s+\d+[:\s]*', caseSensitive: false), '');
+                                cleaned = cleaned.replaceAll(RegExp(r'^Step\s+\d+[:\s]*', caseSensitive: false), '');
+                                cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ');
+                                return cleaned;
+                              })
+                              .where((line) => line.trim().isNotEmpty && line.trim().length > 5)
+                              .toList();
+                        } else {
+                          // Fallback : utiliser les instructions déjà traduites
+                          translatedInstructions = widget.recipe.instructions;
+                        }
+                        
+                        return Column(
+                          children: translatedInstructions.asMap().entries.map((entry) {
+                            String instructionText = entry.value.trim();
+                            
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.primary,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          '${entry.key + 1}',
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.onPrimary,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Text(
+                                        instructionText,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          height: 1.6,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Text(
-                                  instructionText,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    height: 1.6,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
+                            );
+                          }).toList(),
+                        );
+                      },
+                    ),
                   const SizedBox(height: 24),
                   
                   // Résumé/Description
@@ -614,22 +648,50 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          widget.recipe.summary!,
-                          style: TextStyle(
-                            fontSize: 16,
-                            height: 1.6,
-                            color: Theme.of(context).colorScheme.onSurface,
+                    Builder(
+                      builder: (context) {
+                        // Écouter les changements de locale pour retraduire
+                        LocaleNotifier.of(context);
+                        
+                        // Retraduire le summary depuis le texte original si disponible
+                        String translatedSummary;
+                        if (widget.recipe.originalSummaryText != null && 
+                            widget.recipe.originalSummaryText!.isNotEmpty) {
+                          String summary = widget.recipe.originalSummaryText!;
+                          summary = summary.replaceAll(RegExp(r'step\s+\d+[:\s]*', caseSensitive: false), '');
+                          summary = summary.replaceAll(RegExp(r'Step\s+\d+[:\s]*', caseSensitive: false), '');
+                          summary = TranslationService.cleanAndTranslate(summary);
+                          
+                          // Prendre la première phrase ou les 200 premiers caractères
+                          final firstSentence = summary.split(RegExp(r'[.!?]')).first.trim();
+                          if (firstSentence.length > 20) {
+                            translatedSummary = firstSentence;
+                          } else {
+                            translatedSummary = summary.length > 200 ? summary.substring(0, 200) + '...' : summary;
+                          }
+                        } else {
+                          // Fallback : utiliser le summary déjà traduit
+                          translatedSummary = widget.recipe.summary!;
+                        }
+                        
+                        return Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                        ),
-                      ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Text(
+                              translatedSummary,
+                              style: TextStyle(
+                                fontSize: 16,
+                                height: 1.6,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 24),
                   ],

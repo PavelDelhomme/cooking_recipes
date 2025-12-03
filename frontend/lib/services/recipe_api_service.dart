@@ -275,11 +275,14 @@ class RecipeApiService {
       }
     }
 
-    // Extraire les instructions
-    String instructionsText = meal['strInstructions']?.toString() ?? '';
+    // Extraire les instructions - STOCKER LE TEXTE ORIGINAL
+    String originalInstructionsText = meal['strInstructions']?.toString() ?? '';
+    String instructionsText = originalInstructionsText;
+    
     if (instructionsText.isNotEmpty) {
       // Nettoyer l'encodage d'abord
       instructionsText = TranslationService.fixEncoding(instructionsText);
+      originalInstructionsText = instructionsText; // Garder le texte nettoyé mais non traduit
       
       // Nettoyer les "step 1", "step 2", etc. AVANT la traduction
       instructionsText = instructionsText.replaceAll(RegExp(r'step\s+\d+[:\s]*', caseSensitive: false), '');
@@ -318,22 +321,28 @@ class RecipeApiService {
     title = TranslationService.translateRecipeName(title);
     
     // La description est un résumé des instructions (première phrase ou 200 premiers caractères)
-    String summary = meal['strInstructions']?.toString() ?? '';
-    summary = TranslationService.fixEncoding(summary);
+    // STOCKER LE TEXTE ORIGINAL
+    String originalSummaryText = meal['strInstructions']?.toString() ?? '';
+    String summary = originalSummaryText;
     
-    // Nettoyer les "step" avant la traduction
-    summary = summary.replaceAll(RegExp(r'step\s+\d+[:\s]*', caseSensitive: false), '');
-    summary = summary.replaceAll(RegExp(r'Step\s+\d+[:\s]*', caseSensitive: false), '');
-    
-    // Traduire
-    summary = TranslationService.cleanAndTranslate(summary);
-    
-    // Prendre la première phrase ou les 200 premiers caractères
-    final firstSentence = summary.split(RegExp(r'[.!?]')).first.trim();
-    if (firstSentence.length > 20) {
-      summary = firstSentence;
-    } else {
-      summary = summary.length > 200 ? summary.substring(0, 200) + '...' : summary;
+    if (summary.isNotEmpty) {
+      summary = TranslationService.fixEncoding(summary);
+      originalSummaryText = summary; // Garder le texte nettoyé mais non traduit
+      
+      // Nettoyer les "step" avant la traduction
+      summary = summary.replaceAll(RegExp(r'step\s+\d+[:\s]*', caseSensitive: false), '');
+      summary = summary.replaceAll(RegExp(r'Step\s+\d+[:\s]*', caseSensitive: false), '');
+      
+      // Traduire
+      summary = TranslationService.cleanAndTranslate(summary);
+      
+      // Prendre la première phrase ou les 200 premiers caractères
+      final firstSentence = summary.split(RegExp(r'[.!?]')).first.trim();
+      if (firstSentence.length > 20) {
+        summary = firstSentence;
+      } else {
+        summary = summary.length > 200 ? summary.substring(0, 200) + '...' : summary;
+      }
     }
 
     return Recipe(
@@ -344,6 +353,8 @@ class RecipeApiService {
       ingredients: ingredients,
       instructions: instructions,
       servings: 4, // TheMealDB ne fournit pas cette info
+      originalInstructionsText: originalInstructionsText.isNotEmpty ? originalInstructionsText : null,
+      originalSummaryText: originalSummaryText.isNotEmpty ? originalSummaryText : null,
     );
   }
 

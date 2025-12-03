@@ -9,6 +9,9 @@ class Recipe {
   final List<String> instructions;
   final int? readyInMinutes;
   final int? servings;
+  // Stocker le texte original des instructions et summary pour retraduction dynamique
+  final String? _originalInstructionsText;
+  final String? _originalSummaryText;
 
   Recipe({
     required this.id,
@@ -19,7 +22,14 @@ class Recipe {
     required this.instructions,
     this.readyInMinutes,
     this.servings,
-  });
+    String? originalInstructionsText,
+    String? originalSummaryText,
+  }) : _originalInstructionsText = originalInstructionsText,
+       _originalSummaryText = originalSummaryText;
+  
+  // Getters pour le texte original
+  String? get originalInstructionsText => _originalInstructionsText;
+  String? get originalSummaryText => _originalSummaryText;
 
   Map<String, dynamic> toJson() {
     return {
@@ -31,6 +41,8 @@ class Recipe {
       'instructions': instructions,
       'readyInMinutes': readyInMinutes,
       'servings': servings,
+      'originalInstructionsText': _originalInstructionsText,
+      'originalSummaryText': _originalSummaryText,
     };
   }
 
@@ -50,6 +62,8 @@ class Recipe {
           [],
       readyInMinutes: json['readyInMinutes'] as int?,
       servings: json['servings'] as int?,
+      originalInstructionsText: json['originalInstructionsText'] as String?,
+      originalSummaryText: json['originalSummaryText'] as String?,
     );
   }
 }
