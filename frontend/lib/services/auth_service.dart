@@ -18,29 +18,53 @@ class AuthService {
     String? name,
   }) async {
     try {
+      // Préparer le body
+      final bodyData = <String, dynamic>{
+        'email': email.trim(),
+        'password': password,
+      };
+      if (name != null && name.trim().isNotEmpty) {
+        bodyData['name'] = name.trim();
+      }
+      
+      final bodyJson = json.encode(bodyData);
+      print('Signup request URL: $_baseUrl/auth/signup');
+      print('Signup request body: $bodyJson');
+      
       final response = await http.post(
         Uri.parse('$_baseUrl/auth/signup'),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept': 'application/json',
         },
-        body: json.encode({
-          'email': email.trim(),
-          'password': password,
-          if (name != null && name.trim().isNotEmpty) 'name': name.trim(),
-        }),
+        body: bodyJson,
       );
 
+      // Log pour debug
+      print('Signup response status: ${response.statusCode}');
+      print('Signup response body: ${response.body}');
+      
       if (response.statusCode == 201) {
         final data = json.decode(response.body);
         await _saveToken(data['token'] as String);
         await _saveUser(User.fromJson(data['user'] as Map<String, dynamic>));
         return {'success': true, 'user': data['user']};
       } else {
-        final error = json.decode(response.body);
-        return {'success': false, 'error': error['message'] ?? 'Erreur d\'inscription'};
+        // Essayer de parser le JSON d'erreur
+        try {
+          final error = json.decode(response.body);
+          final errorMessage = error['message'] ?? 'Erreur d\'inscription (${response.statusCode})';
+          print('Signup error: $errorMessage');
+          return {'success': false, 'error': errorMessage};
+        } catch (e) {
+          // Si le body n'est pas du JSON valide
+          print('Signup error - cannot parse response: ${response.body}');
+          return {'success': false, 'error': 'Erreur d\'inscription (${response.statusCode}): ${response.body}'};
+        }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('Signup exception: $e');
+      print('Stack trace: $stackTrace');
       return {'success': false, 'error': 'Erreur de connexion: $e'};
     }
   }
