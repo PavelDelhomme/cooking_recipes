@@ -229,15 +229,48 @@ class RecipeApiService {
         String ingredientName = TranslationService.fixEncoding(ingredient.toString().trim());
         ingredientName = TranslationService.translateIngredient(ingredientName);
         
-        // Parser et traduire l'unité
-        final unitString = _parseUnitSync(measure?.toString() ?? '');
-        final unit = TranslationService.translateUnit(unitString ?? '');
+        // Parser la quantité et l'unité
+        final measureStr = measure?.toString().trim() ?? '';
+        double? quantity = _parseQuantity(measureStr);
+        String? unitString = _parseUnitSync(measureStr);
+        
+        // Si l'unité est null ou vide, essayer de la déduire du nom de l'ingrédient
+        if (unitString == null || unitString.isEmpty) {
+          unitString = _guessUnitFromIngredient(ingredientName);
+        }
+        
+        // Traduire l'unité
+        String? unit = unitString != null ? TranslationService.translateUnit(unitString) : null;
+        
+        // Si l'unité est toujours vide après traduction, la mettre à null
+        if (unit != null && unit.isEmpty) {
+          unit = null;
+        }
+        
+        // Pour les herbes et épices, s'assurer que la quantité et l'unité sont cohérentes
+        if (_isHerbOrSpice(ingredientName)) {
+          // Si l'unité contient "L" ou "l" (absurde pour une herbe), la remplacer
+          if (unit != null && (unit.toLowerCase().contains('l') || unit.toLowerCase().contains('litre'))) {
+            unit = 'pot';
+            if (quantity == null || quantity <= 0) {
+              quantity = 1.0;
+            }
+          }
+          // Si pas d'unité mais une quantité, ajouter une unité par défaut
+          if (unit == null && quantity != null && quantity > 0) {
+            unit = 'pot';
+          }
+          // Si pas de quantité mais une unité, ajouter une quantité par défaut
+          if (quantity == null && unit != null) {
+            quantity = 1.0;
+          }
+        }
         
         ingredients.add(Ingredient(
           id: '${meal['idMeal']}_ingredient_$i',
           name: ingredientName,
-          quantity: _parseQuantity(measure?.toString() ?? ''),
-          unit: unit.isEmpty ? null : unit,
+          quantity: quantity,
+          unit: unit,
         ));
       }
     }
@@ -317,23 +350,206 @@ class RecipeApiService {
   // Parser la quantité depuis une mesure
   double? _parseQuantity(String measure) {
     if (measure.isEmpty) return null;
-    final regex = RegExp(r'(\d+\.?\d*)');
-    final match = regex.firstMatch(measure);
-    if (match != null) {
-      return double.tryParse(match.group(1) ?? '');
+    
+    // Nettoyer la mesure
+    String cleaned = measure.trim();
+    
+    // Patterns pour extraire les nombres (supporte fractions, décimales, etc.)
+    // Exemples: "1.5", "1/2", "2", "0.5", "1 1/2"
+    final patterns = [
+      RegExp(r'^(\d+\.?\d*)\s*'), // "1.5", "2", "0.5"
+      RegExp(r'(\d+\.?\d*)'), // N'importe quel nombre dans la chaîne
+    ];
+    
+    for (var pattern in patterns) {
+      final match = pattern.firstMatch(cleaned);
+      if (match != null) {
+        final quantityStr = match.group(1) ?? '';
+        final quantity = double.tryParse(quantityStr);
+        if (quantity != null && quantity > 0) {
+          return quantity;
+        }
+      }
     }
+    
     return null;
   }
 
   // Parser l'unité depuis une mesure (synchrone)
   String? _parseUnitSync(String measure) {
     if (measure.isEmpty) return null;
-    final regex = RegExp(r'\d+\.?\d*\s*(.+)');
-    final match = regex.firstMatch(measure);
-    if (match != null) {
-      return match.group(1)?.trim();
+    
+    String cleaned = measure.trim();
+    
+    // Enlever les nombres au début pour extraire l'unité
+    cleaned = cleaned.replaceAll(RegExp(r'^\d+\.?\d*\s*'), '');
+    cleaned = cleaned.trim();
+    
+    if (cleaned.isEmpty) return null;
+    
+    // Liste des unités invalides à ignorer ou remplacer
+    final invalidUnits = {
+      'medium': null, // "Medium" n'est pas une unité valide
+      'large': null,
+      'small': null,
+      'big': null,
+      'little': null,
+      'few': null,
+      'some': null,
+      'to taste': 'au goût',
+      'pinch': 'pincée',
+      'handful': 'poignée',
+    };
+    
+    final lowerCleaned = cleaned.toLowerCase();
+    
+    // Vérifier si c'est une unité invalide
+    for (var entry in invalidUnits.entries) {
+      if (lowerCleaned == entry.key || lowerCleaned.contains(entry.key)) {
+        return entry.value; // Retourne null si invalide, ou la traduction si disponible
+      }
     }
-    return measure.trim();
+    
+    // Nettoyer les unités bizarres ou mal formatées
+    // Exemples: "0.5 1" -> "L" (si on détecte que c'est probablement "0.5 L")
+    if (RegExp(r'^\d+\.?\d*\s*\d+$').hasMatch(cleaned)) {
+      // Si c'est juste des nombres, essayer de deviner l'unité
+      // Par exemple "0.5 1" pourrait être "0.5 L"
+      return null; // On ne peut pas deviner, donc null
+    }
+    
+    // Nettoyer les espaces multiples et caractères bizarres
+    cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ');
+    cleaned = cleaned.replaceAll(RegExp(r'[^\w\sÀ-ÿ]'), ''); // Enlever caractères spéciaux sauf lettres et accents
+    
+    // Unités communes à détecter et normaliser
+    final unitNormalizations = {
+      'l': 'L',
+      'ml': 'ml',
+      'g': 'g',
+      'kg': 'kg',
+      'cup': 'tasse',
+      'cups': 'tasses',
+      'tbsp': 'cuillère à soupe',
+      'tsp': 'cuillère à café',
+      'oz': 'oz',
+      'lb': 'lb',
+      'piece': 'pièce',
+      'pieces': 'pièces',
+      'pcs': 'pièces',
+      'bunch': 'botte',
+      'bunches': 'bottes',
+      'head': 'tête',
+      'heads': 'têtes',
+      'clove': 'gousse',
+      'cloves': 'gousses',
+      'sprig': 'brin',
+      'sprigs': 'brins',
+      'leaf': 'feuille',
+      'leaves': 'feuilles',
+      'stalk': 'branche',
+      'stalks': 'branches',
+    };
+    
+    final lowerUnit = cleaned.toLowerCase();
+    
+    // Vérifier les normalisations
+    for (var entry in unitNormalizations.entries) {
+      if (lowerUnit == entry.key || lowerUnit.contains(entry.key)) {
+        return entry.value;
+      }
+    }
+    
+    // Si l'unité contient des mots-clés d'herbes/épices, utiliser une unité appropriée
+    final herbKeywords = ['thyme', 'thym', 'basil', 'basilic', 'oregano', 'origan', 'rosemary', 'romarin', 'parsley', 'persil', 'mint', 'menthe', 'dill', 'aneth', 'sage', 'sauge', 'chives', 'ciboulette'];
+    final spiceKeywords = ['pepper', 'poivre', 'salt', 'sel', 'paprika', 'cumin', 'coriander', 'coriandre', 'cinnamon', 'cannelle', 'nutmeg', 'muscade', 'ginger', 'gingembre', 'turmeric', 'curcuma', 'curry'];
+    
+    final isHerb = herbKeywords.any((keyword) => lowerUnit.contains(keyword));
+    final isSpice = spiceKeywords.any((keyword) => lowerUnit.contains(keyword));
+    
+    if (isHerb || isSpice) {
+      // Pour les herbes et épices, utiliser des unités appropriées
+      if (lowerUnit.contains('bunch') || lowerUnit.contains('botte')) {
+        return 'botte';
+      } else if (lowerUnit.contains('sprig') || lowerUnit.contains('brin')) {
+        return 'brin';
+      } else if (lowerUnit.contains('tbsp') || lowerUnit.contains('cuillère à soupe')) {
+        return 'cuillère à soupe';
+      } else if (lowerUnit.contains('tsp') || lowerUnit.contains('cuillère à café')) {
+        return 'cuillère à café';
+      } else {
+        // Par défaut pour les herbes/épices, utiliser "pot" ou "pincée"
+        return 'pot';
+      }
+    }
+    
+    // Si l'unité contient "L" ou "l" mais que c'est pour une herbe/épice, c'est une erreur
+    if ((lowerUnit.contains('l') || lowerUnit.contains('liter') || lowerUnit.contains('litre')) && (isHerb || isSpice)) {
+      return 'pot'; // Remplacer par une unité appropriée
+    }
+    
+    // Retourner l'unité nettoyée si elle semble valide
+    if (cleaned.length > 0 && cleaned.length < 30) {
+      return cleaned;
+    }
+    
+    return null;
+  }
+  
+  // Deviner l'unité à partir du nom de l'ingrédient
+  String? _guessUnitFromIngredient(String ingredientName) {
+    final lowerName = ingredientName.toLowerCase();
+    
+    // Herbes (généralement en pot, botte, ou brin)
+    final herbs = ['thym', 'thyme', 'basilic', 'basil', 'origan', 'oregano', 'romarin', 'rosemary', 
+                   'persil', 'parsley', 'menthe', 'mint', 'aneth', 'dill', 'sauge', 'sage', 
+                   'ciboulette', 'chives', 'coriandre', 'coriander'];
+    if (herbs.any((herb) => lowerName.contains(herb))) {
+      return 'pot';
+    }
+    
+    // Épices (généralement en pot, cuillère, ou pincée)
+    final spices = ['poivre', 'pepper', 'sel', 'salt', 'paprika', 'cumin', 'cannelle', 'cinnamon',
+                   'muscade', 'nutmeg', 'gingembre', 'ginger', 'curcuma', 'turmeric', 'curry'];
+    if (spices.any((spice) => lowerName.contains(spice))) {
+      return 'pot';
+    }
+    
+    // Légumes entiers (généralement en pièce)
+    final wholeVegetables = ['oignon', 'onion', 'ail', 'garlic', 'citron', 'lemon', 'pomme', 'apple',
+                            'tomate', 'tomato', 'courgette', 'zucchini', 'poivron', 'pepper'];
+    if (wholeVegetables.any((veg) => lowerName.contains(veg))) {
+      return 'pièce';
+    }
+    
+    // Liquides (généralement en L ou ml)
+    final liquids = ['huile', 'oil', 'lait', 'milk', 'eau', 'water', 'vin', 'wine', 'vinaigre', 'vinegar',
+                    'crème', 'cream', 'bouillon', 'broth', 'stock'];
+    if (liquids.any((liquid) => lowerName.contains(liquid))) {
+      return 'ml';
+    }
+    
+    // Produits en poudre/farine (généralement en g)
+    final powders = ['farine', 'flour', 'sucre', 'sugar', 'cacao', 'cocoa', 'café', 'coffee'];
+    if (powders.any((powder) => lowerName.contains(powder))) {
+      return 'g';
+    }
+    
+    return null;
+  }
+  
+  // Vérifier si un ingrédient est une herbe ou une épice
+  bool _isHerbOrSpice(String ingredientName) {
+    final lowerName = ingredientName.toLowerCase();
+    
+    final herbs = ['thym', 'thyme', 'basilic', 'basil', 'origan', 'oregano', 'romarin', 'rosemary', 
+                   'persil', 'parsley', 'menthe', 'mint', 'aneth', 'dill', 'sauge', 'sage', 
+                   'ciboulette', 'chives', 'coriandre', 'coriander'];
+    final spices = ['poivre', 'pepper', 'sel', 'salt', 'paprika', 'cumin', 'cannelle', 'cinnamon',
+                   'muscade', 'nutmeg', 'gingembre', 'ginger', 'curcuma', 'turmeric', 'curry'];
+    
+    return herbs.any((herb) => lowerName.contains(herb)) || 
+           spices.any((spice) => lowerName.contains(spice));
   }
 }
 
