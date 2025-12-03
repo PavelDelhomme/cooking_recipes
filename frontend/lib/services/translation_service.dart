@@ -439,6 +439,8 @@ class TranslationService extends ChangeNotifier {
         'salmon': 'Saumon',
         'pasta': 'Pâtes',
         'spaghetti': 'Spaghettis',
+        'lasagna': 'Lasagne',
+        'lasagne': 'Lasagne',
         'rice': 'Riz',
         'soup': 'Soupe',
         'salad': 'Salade',
@@ -457,6 +459,10 @@ class TranslationService extends ChangeNotifier {
         'fried': 'Frit',
         'boiled': 'Bouilli',
         'steamed': 'Cuit à la vapeur',
+        'vegan': 'Végétalien',
+        'vegetarian': 'Végétarien',
+        'vegetable': 'Légume',
+        'vegetables': 'Légumes',
       };
       
       // Dictionnaire de traductions espagnol -> français pour les termes courants dans les noms de recettes
@@ -503,8 +509,11 @@ class TranslationService extends ChangeNotifier {
         translated = translated.replaceAll(regex, entry.value);
       }
       
-      // Ensuite traduire depuis l'anglais
-      for (var entry in recipeTermTranslations.entries) {
+      // Ensuite traduire depuis l'anglais (ordre important : termes longs d'abord)
+      final sortedEntries = recipeTermTranslations.entries.toList()
+        ..sort((a, b) => b.key.length.compareTo(a.key.length));
+      
+      for (var entry in sortedEntries) {
         final regex = RegExp(r'\b' + RegExp.escape(entry.key) + r'\b', caseSensitive: false);
         translated = translated.replaceAll(regex, entry.value);
       }
@@ -1039,13 +1048,40 @@ class TranslationService extends ChangeNotifier {
       reverseTranslations[entry.value.toLowerCase()] = entry.key;
     }
     
-    // Vérifier d'abord la correspondance exacte
+    // Ajouter des traductions spéciales pour les cas courants
+    final specialTranslations = {
+      'bœuf': 'beef',
+      'boeuf': 'beef',
+      'œuf': 'egg',
+      'oeuf': 'egg',
+      'œufs': 'eggs',
+      'oeufs': 'eggs',
+      'pain': 'bread',
+      'laitue': 'lettuce',
+      'tomate': 'tomato',
+      'tomates': 'tomatoes',
+      'oignon': 'onion',
+      'oignons': 'onions',
+      'poivre': 'pepper',
+      'poivron': 'pepper',
+      'poivrons': 'peppers',
+    };
+    
+    // Vérifier d'abord les traductions spéciales
+    if (specialTranslations.containsKey(lowerFrench)) {
+      return specialTranslations[lowerFrench]!;
+    }
+    
+    // Vérifier ensuite la correspondance exacte dans le dictionnaire inverse
     if (reverseTranslations.containsKey(lowerFrench)) {
       return reverseTranslations[lowerFrench]!;
     }
     
-    // Chercher une correspondance partielle
-    for (var entry in reverseTranslations.entries) {
+    // Chercher une correspondance partielle (termes longs d'abord)
+    final sortedEntries = reverseTranslations.entries.toList()
+      ..sort((a, b) => b.key.length.compareTo(a.key.length));
+    
+    for (var entry in sortedEntries) {
       if (lowerFrench.contains(entry.key) || entry.key.contains(lowerFrench)) {
         return entry.value;
       }

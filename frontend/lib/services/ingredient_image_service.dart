@@ -140,7 +140,14 @@ class IngredientImageService {
           .replaceAll('ï', 'i')
           .replaceAll('î', 'i')
           .replaceAll('œ', 'oe')
-          .replaceAll('æ', 'ae');
+          .replaceAll('æ', 'ae')
+          .replaceAll('ñ', 'n')
+          .replaceAll('ü', 'u')
+          .replaceAll('ö', 'o')
+          .replaceAll('ä', 'a');
+      
+      // Ne pas encoder complètement car on veut garder les underscores
+      // Juste s'assurer que les caractères spéciaux sont bien gérés
       
       // TheMealDB a des images d'ingrédients à cette URL
       final imageUrl = 'https://www.themealdb.com/images/ingredients/$query.png';
