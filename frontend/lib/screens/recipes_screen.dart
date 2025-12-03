@@ -414,118 +414,148 @@ class _RecipesScreenState extends State<RecipesScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return ListView(
-      padding: const EdgeInsets.all(8),
-      children: [
-        FutureBuilder<List<String>>(
-          future: _pantryService.getPantryItems().then((items) => items.map((item) => item.name).toList()),
-          builder: (context, snapshot) {
-            final hasItems = snapshot.hasData && snapshot.data!.isNotEmpty;
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    hasItems
-                        ? 'Suggestions basées sur votre placard'
-                        : 'Recettes suggérées',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                      if (!hasItems)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.info_outline,
-                                  size: 20,
-                                  color: Theme.of(context).colorScheme.primary,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Déterminer le nombre de colonnes selon la largeur de l'écran
+        // 2 colonnes si largeur >= 600px (tablettes et grands écrans)
+        // 1 colonne sinon (mobiles)
+        final crossAxisCount = constraints.maxWidth >= 600 ? 2 : 1;
+        final isWideScreen = crossAxisCount == 2;
+
+        return CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: FutureBuilder<List<String>>(
+                future: _pantryService.getPantryItems().then((items) => items.map((item) => item.name).toList()),
+                builder: (context, snapshot) {
+                  final hasItems = snapshot.hasData && snapshot.data!.isNotEmpty;
+                  return Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          hasItems
+                              ? 'Suggestions basées sur votre placard'
+                              : 'Recettes suggérées',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        if (!hasItems)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    'Votre placard est vide. Nous vous proposons des recettes populaires. Ajoutez des ingrédients à votre placard pour recevoir des suggestions personnalisées basées sur ce que vous avez !',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(context).brightness == Brightness.dark
-                                          ? Colors.white
-                                          : Theme.of(context).colorScheme.onSurface,
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.info_outline,
+                                    size: 20,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Votre placard est vide. Nous vous proposons des recettes populaires. Ajoutez des ingrédients à votre placard pour recevoir des suggestions personnalisées basées sur ce que vous avez !',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(context).brightness == Brightness.dark
+                                            ? Colors.white
+                                            : Theme.of(context).colorScheme.onSurface,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                ],
-              ),
-            );
-          },
-        ),
-        if (_suggestedRecipes.isEmpty)
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primaryContainer
-                          .withOpacity(0.3),
-                      shape: BoxShape.circle,
+                      ],
                     ),
-                    child: Icon(
-                      Icons.restaurant_menu,
-                      size: 64,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Aucune suggestion disponible',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Ajoutez des ingrédients à votre placard',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
-          )
-        else
-          ..._suggestedRecipes.map((recipe) => _buildRecipeCard(recipe)),
-      ],
+            if (_suggestedRecipes.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer
+                                .withOpacity(0.3),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.restaurant_menu,
+                            size: 64,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Aucune suggestion disponible',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Ajoutez des ingrédients à votre placard',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.all(8),
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: isWideScreen ? 1.1 : 1.5, // Ajuster le ratio pour les 2 colonnes
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      return _buildRecipeCard(_suggestedRecipes[index], isWideScreen: isWideScreen);
+                    },
+                    childCount: _suggestedRecipes.length,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildRecipeCard(Recipe recipe) {
+  Widget _buildRecipeCard(Recipe recipe, {bool isWideScreen = false}) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      margin: EdgeInsets.zero,
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -533,111 +563,231 @@ class _RecipesScreenState extends State<RecipesScreen> {
       child: InkWell(
         onTap: () => _navigateToRecipeDetail(recipe),
         borderRadius: BorderRadius.circular(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (recipe.image != null)
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
-                ),
-                child: Image.network(
-                  recipe.image!,
+        child: isWideScreen
+            ? _buildWideScreenCard(recipe)
+            : _buildMobileCard(recipe),
+      ),
+    );
+  }
+
+  // Carte pour mobile (layout horizontal)
+  Widget _buildMobileCard(Recipe recipe) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (recipe.image != null)
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              bottomLeft: Radius.circular(16),
+            ),
+            child: Image.network(
+              recipe.image!,
+              width: 140,
+              height: 140,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
                   width: 140,
                   height: 140,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: 140,
-                      height: 140,
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                      child: Icon(
-                        Icons.restaurant,
-                        size: 48,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  child: Icon(
+                    Icons.restaurant,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                );
+              },
+            ),
+          ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Builder(
+                  builder: (context) {
+                    LocaleNotifier.of(context);
+                    return Text(
+                      TranslationService.translateRecipeName(recipe.title),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     );
                   },
                 ),
-              ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
                   children: [
+                    if (recipe.prepTimeMinutes != null)
+                      _buildInfoChip(
+                        Icons.restaurant_outlined,
+                        'Prép: ${recipe.prepTimeMinutes} min',
+                        context,
+                      ),
+                    if (recipe.cookTimeMinutes != null)
+                      _buildInfoChip(
+                        Icons.local_fire_department_outlined,
+                        'Cuisson: ${recipe.cookTimeMinutes} min',
+                        context,
+                      ),
+                    if (recipe.readyInMinutes != null)
+                      _buildInfoChip(
+                        Icons.timer_outlined,
+                        'Total: ${recipe.readyInMinutes} min',
+                        context,
+                      ),
+                    if (recipe.servings != null)
+                      Builder(
+                        builder: (context) {
+                          LocaleNotifier.of(context);
+                          final portionsText = TranslationService.currentLanguageStatic == 'fr' 
+                              ? 'portions' 
+                              : TranslationService.currentLanguageStatic == 'es'
+                                  ? 'porciones'
+                                  : 'servings';
+                          return _buildInfoChip(
+                            Icons.people_outline,
+                            '${recipe.servings} $portionsText',
+                            context,
+                          );
+                        },
+                      ),
+                    if (recipe.ingredients.isNotEmpty)
+                      _buildInfoChip(
+                        Icons.shopping_basket_outlined,
+                        '${recipe.ingredients.length} ingrédients',
+                        context,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Carte pour grands écrans (layout vertical optimisé)
+  Widget _buildWideScreenCard(Recipe recipe) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (recipe.image != null)
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+            child: Image.network(
+              recipe.image!,
+              width: double.infinity,
+              height: 180,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  width: double.infinity,
+                  height: 180,
+                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  child: Icon(
+                    Icons.restaurant,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                );
+              },
+            ),
+          )
+        else
+          Container(
+            width: double.infinity,
+            height: 180,
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            child: Icon(
+              Icons.restaurant,
+              size: 64,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Builder(
+                builder: (context) {
+                  LocaleNotifier.of(context);
+                  return Text(
+                    TranslationService.translateRecipeName(recipe.title),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: [
+                  if (recipe.prepTimeMinutes != null)
+                    _buildInfoChip(
+                      Icons.restaurant_outlined,
+                      'Prép: ${recipe.prepTimeMinutes} min',
+                      context,
+                    ),
+                  if (recipe.cookTimeMinutes != null)
+                    _buildInfoChip(
+                      Icons.local_fire_department_outlined,
+                      'Cuisson: ${recipe.cookTimeMinutes} min',
+                      context,
+                    ),
+                  if (recipe.readyInMinutes != null)
+                    _buildInfoChip(
+                      Icons.timer_outlined,
+                      'Total: ${recipe.readyInMinutes} min',
+                      context,
+                    ),
+                  if (recipe.servings != null)
                     Builder(
                       builder: (context) {
-                        // Écouter les changements de locale
                         LocaleNotifier.of(context);
-                        return Text(
-                          TranslationService.translateRecipeName(recipe.title),
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        final portionsText = TranslationService.currentLanguageStatic == 'fr' 
+                            ? 'portions' 
+                            : TranslationService.currentLanguageStatic == 'es'
+                                ? 'porciones'
+                                : 'servings';
+                        return _buildInfoChip(
+                          Icons.people_outline,
+                          '${recipe.servings} $portionsText',
+                          context,
                         );
                       },
                     ),
-                    const SizedBox(height: 12),
-                           Wrap(
-                             spacing: 12,
-                             runSpacing: 8,
-                             children: [
-                               if (recipe.prepTimeMinutes != null)
-                                 _buildInfoChip(
-                                   Icons.restaurant_outlined,
-                                   'Prép: ${recipe.prepTimeMinutes} min',
-                                   context,
-                                 ),
-                               if (recipe.cookTimeMinutes != null)
-                                 _buildInfoChip(
-                                   Icons.local_fire_department_outlined,
-                                   'Cuisson: ${recipe.cookTimeMinutes} min',
-                                   context,
-                                 ),
-                               if (recipe.readyInMinutes != null)
-                                 _buildInfoChip(
-                                   Icons.timer_outlined,
-                                   'Total: ${recipe.readyInMinutes} min',
-                                   context,
-                                 ),
-                        if (recipe.servings != null)
-                          Builder(
-                            builder: (context) {
-                              // Écouter les changements de locale
-                              LocaleNotifier.of(context);
-                              final portionsText = TranslationService.currentLanguageStatic == 'fr' 
-                                  ? 'portions' 
-                                  : TranslationService.currentLanguageStatic == 'es'
-                                      ? 'porciones'
-                                      : 'servings';
-                              return _buildInfoChip(
-                                Icons.people_outline,
-                                '${recipe.servings} $portionsText',
-                                context,
-                              );
-                            },
-                          ),
-                        if (recipe.ingredients.isNotEmpty)
-                          _buildInfoChip(
-                            Icons.shopping_basket_outlined,
-                            '${recipe.ingredients.length} ingrédients',
-                            context,
-                          ),
-                      ],
+                  if (recipe.ingredients.isNotEmpty)
+                    _buildInfoChip(
+                      Icons.shopping_basket_outlined,
+                      '${recipe.ingredients.length} ingrédients',
+                      context,
                     ),
-                  ],
-                ),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
