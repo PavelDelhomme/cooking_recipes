@@ -276,6 +276,46 @@ test: ## Lance les tests
 test-api: ## Teste l'API et la récupération de recettes
 	@bash scripts/test_api.sh
 
+test-data: ## Ajoute des données de test (ingrédients dans le placard) - nécessite d'être connecté
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
+	@echo -e "$(GREEN)Ajout de données de test dans le placard$(NC)"
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
+	@echo ""
+	@echo -e "$(YELLOW)⚠️  Vous devez être connecté pour ajouter des données de test$(NC)"
+	@echo -e "$(YELLOW)⚠️  Récupérez votre token JWT depuis l'application web$(NC)"
+	@echo ""
+	@read -p "Token JWT (ou appuyez sur Entrée pour utiliser admin@cookingrecipe.com): " token; \
+	if [ -z "$$token" ]; then \
+		echo -e "$(YELLOW)Connexion avec le compte admin par défaut...$(NC)"; \
+		LOGIN_RESPONSE=$$(curl -s -X POST http://localhost:$(BACKEND_PORT)/api/auth/signin \
+			-H "Content-Type: application/json" \
+			-d '{"email":"admin@cookingrecipe.com","password":"admin123"}'); \
+		token=$$(echo $$LOGIN_RESPONSE | grep -o '"token":"[^"]*' | cut -d'"' -f4); \
+		if [ -z "$$token" ]; then \
+			echo -e "$(RED)❌ Erreur de connexion. Vérifiez que le backend est démarré et que le compte admin existe.$(NC)"; \
+			echo -e "$(YELLOW)Astuce: Lancez 'make db-reset' pour créer le compte admin$(NC)"; \
+			exit 1; \
+		fi; \
+		echo -e "$(GREEN)✓ Connexion réussie$(NC)"; \
+	fi; \
+	echo ""; \
+	echo -e "$(YELLOW)Ajout des données de test...$(NC)"; \
+	RESPONSE=$$(curl -s -X POST http://localhost:$(BACKEND_PORT)/api/admin/seed-test-data \
+		-H "Content-Type: application/json" \
+		-H "Authorization: Bearer $$token"); \
+	if echo "$$RESPONSE" | grep -q "Données de test ajoutées"; then \
+		INSERTED=$$(echo $$RESPONSE | grep -o '"inserted":[0-9]*' | cut -d':' -f2); \
+		TOTAL=$$(echo $$RESPONSE | grep -o '"total":[0-9]*' | cut -d':' -f2); \
+		echo -e "$(GREEN)✓ Données de test ajoutées avec succès$(NC)"; \
+		echo -e "$(GREEN)✓ $$INSERTED ingrédients ajoutés sur $$TOTAL$(NC)"; \
+		echo ""; \
+		echo -e "$(YELLOW)Vous pouvez maintenant voir les ingrédients dans votre placard !$(NC)"; \
+	else \
+		echo -e "$(RED)❌ Erreur lors de l'ajout des données de test$(NC)"; \
+		echo "$$RESPONSE"; \
+		exit 1; \
+	fi
+
 # Gestion de la base de données
 db-reset: ## Réinitialise complètement la base de données (supprime et recrée les tables)
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
