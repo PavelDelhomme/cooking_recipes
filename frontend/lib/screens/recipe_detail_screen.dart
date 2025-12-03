@@ -282,18 +282,24 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                widget.recipe.title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  shadows: [
-                    Shadow(
-                      offset: Offset(1, 1),
-                      blurRadius: 3,
-                      color: Colors.black54,
+              title: Builder(
+                builder: (context) {
+                  // Écouter les changements de locale
+                  LocaleNotifier.of(context);
+                  return Text(
+                    TranslationService.translateRecipeName(widget.recipe.title),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(1, 1),
+                          blurRadius: 3,
+                          color: Colors.black54,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
               background: widget.recipe.image != null
                   ? Image.network(
