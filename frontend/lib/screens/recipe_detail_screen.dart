@@ -9,6 +9,7 @@ import '../services/theme_service.dart';
 import '../services/app_localizations.dart';
 import '../services/translation_service.dart';
 import '../widgets/locale_notifier.dart';
+import '../widgets/translation_builder.dart';
 import '../models/pantry_item.dart';
 import '../models/shopping_list_item.dart';
 import '../models/user_profile.dart';
@@ -282,10 +283,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              title: Builder(
+              title: TranslationBuilder(
                 builder: (context) {
-                  // Écouter les changements de locale
-                  LocaleNotifier.of(context);
                   return Text(
                     TranslationService.translateRecipeName(widget.recipe.title),
                     style: const TextStyle(
@@ -604,11 +603,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       ),
                     )
                   else
-                    Builder(
+                    TranslationBuilder(
                       builder: (context) {
-                        // Écouter les changements de locale pour retraduire
-                        LocaleNotifier.of(context);
-                        
                         // Retraduire les instructions depuis le texte original si disponible
                         List<String> translatedInstructions;
                         if (widget.recipe.originalInstructionsText != null && 
@@ -704,11 +700,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Builder(
+                    TranslationBuilder(
                       builder: (context) {
-                        // Écouter les changements de locale pour retraduire
-                        LocaleNotifier.of(context);
-                        
                         // Retraduire le summary depuis le texte original si disponible
                         String translatedSummary;
                         if (widget.recipe.originalSummaryText != null && 

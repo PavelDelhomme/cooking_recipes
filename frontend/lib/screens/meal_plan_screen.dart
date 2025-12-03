@@ -11,6 +11,7 @@ import '../services/shopping_list_service.dart';
 import '../services/auto_meal_planner.dart';
 import '../services/translation_service.dart';
 import '../widgets/locale_notifier.dart';
+import '../widgets/translation_builder.dart';
 import 'recipe_detail_screen.dart';
 import 'recipes_screen.dart';
 import 'meal_plan_config_screen.dart';
@@ -327,20 +328,47 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                               ),
                                             )
                                           : const Icon(Icons.restaurant),
-                                      title: Builder(
+                                      title: TranslationBuilder(
                                         builder: (context) {
-                                          // Écouter les changements de locale
-                                          LocaleNotifier.of(context);
                                           return Text(
                                             TranslationService.translateRecipeName(recipe.title),
                                           );
                                         },
                                       ),
                                       subtitle: recipe.summary != null && recipe.summary!.isNotEmpty
-                                          ? Text(
-                                              recipe.summary!.length > 50 
-                                                  ? '${recipe.summary!.substring(0, 50)}...'
-                                                  : recipe.summary!,
+                                          ? TranslationBuilder(
+                                              builder: (context) {
+                                                // Retraduire le summary depuis le texte original si disponible
+                                                String translatedSummary;
+                                                if (recipe.originalSummaryText != null && 
+                                                    recipe.originalSummaryText!.isNotEmpty) {
+                                                  String summary = recipe.originalSummaryText!;
+                                                  summary = summary.replaceAll(RegExp(r'step\s+\d+[:\s]*', caseSensitive: false), '');
+                                                  summary = summary.replaceAll(RegExp(r'Step\s+\d+[:\s]*', caseSensitive: false), '');
+                                                  summary = TranslationService.cleanAndTranslate(summary);
+                                                  
+                                                  // Prendre la première phrase ou les 50 premiers caractères
+                                                  final firstSentence = summary.split(RegExp(r'[.!?]')).first.trim();
+                                                  if (firstSentence.length > 20) {
+                                                    translatedSummary = firstSentence.length > 50 
+                                                        ? '${firstSentence.substring(0, 50)}...'
+                                                        : firstSentence;
+                                                  } else {
+                                                    translatedSummary = summary.length > 50 
+                                                        ? '${summary.substring(0, 50)}...'
+                                                        : summary;
+                                                  }
+                                                } else {
+                                                  // Fallback : utiliser le summary déjà traduit
+                                                  translatedSummary = recipe.summary!;
+                                                }
+                                                
+                                                return Text(
+                                                  translatedSummary.length > 50 
+                                                      ? '${translatedSummary.substring(0, 50)}...'
+                                                      : translatedSummary,
+                                                );
+                                              },
                                             )
                                           : null,
                                       onTap: () {
@@ -676,8 +704,12 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remplacer ce repas?'),
-        content: Text(
-          'Voulez-vous remplacer "${mealPlan.recipe.title}" par une alternative basée sur votre placard?',
+        content: TranslationBuilder(
+          builder: (context) {
+            return Text(
+              'Voulez-vous remplacer "${TranslationService.translateRecipeName(mealPlan.recipe.title)}" par une alternative basée sur votre placard?',
+            );
+          },
         ),
         actions: [
           TextButton(
@@ -760,8 +792,12 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Supprimer'),
-        content: Text(
-          'Voulez-vous supprimer ${mealPlan.recipe.title} du planning ?',
+        content: TranslationBuilder(
+          builder: (context) {
+            return Text(
+              'Voulez-vous supprimer ${TranslationService.translateRecipeName(mealPlan.recipe.title)} du planning ?',
+            );
+          },
         ),
         actions: [
           TextButton(
@@ -1196,12 +1232,16 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                 color: Theme.of(context).colorScheme.onPrimaryContainer,
               ),
             ),
-            title: Text(
-              mealPlan.recipe.title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+            title: TranslationBuilder(
+              builder: (context) {
+                return Text(
+                  TranslationService.translateRecipeName(mealPlan.recipe.title),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                );
+              },
             ),
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 4),
@@ -1471,9 +1511,13 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                             _getMealTypeIcon(mealPlan.mealType),
                             color: Theme.of(context).colorScheme.primary,
                           ),
-                          title: Text(
-                            mealPlan.recipe.title,
-                            style: const TextStyle(fontSize: 14),
+                          title: TranslationBuilder(
+                            builder: (context) {
+                              return Text(
+                                TranslationService.translateRecipeName(mealPlan.recipe.title),
+                                style: const TextStyle(fontSize: 14),
+                              );
+                            },
                           ),
                           subtitle: Text(
                             _getMealTypeLabel(mealPlan.mealType),

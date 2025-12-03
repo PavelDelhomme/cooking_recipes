@@ -5,6 +5,7 @@ import '../services/recipe_api_service.dart';
 import '../services/pantry_service.dart';
 import '../services/translation_service.dart';
 import '../widgets/locale_notifier.dart';
+import '../widgets/translation_builder.dart';
 import 'recipe_detail_screen.dart';
 
 class RecipesScreen extends StatefulWidget {
@@ -606,9 +607,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Builder(
+                TranslationBuilder(
                   builder: (context) {
-                    LocaleNotifier.of(context);
                     return Text(
                       TranslationService.translateRecipeName(recipe.title),
                       style: TextStyle(
@@ -722,9 +722,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Builder(
+              TranslationBuilder(
                 builder: (context) {
-                  LocaleNotifier.of(context);
                   return Text(
                     TranslationService.translateRecipeName(recipe.title),
                     style: TextStyle(
