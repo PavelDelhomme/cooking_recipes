@@ -107,24 +107,51 @@ class PantryScreenState extends State<PantryScreen> {
 
   Future<void> _useIngredient(PantryItem item) async {
     final quantityController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Utiliser ${item.name}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Quantité disponible: ${item.quantity} ${item.unit}'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: quantityController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Quantité à utiliser',
-                suffixText: item.unit,
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Quantité disponible: ${item.quantity} ${item.unit ?? 'unité'}'),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: quantityController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: 'Quantité à utiliser',
+                  suffixText: item.unit,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,3}')),
+                  LengthLimitingTextInputFormatter(10), // Limiter à 10 caractères
+                ],
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Veuillez entrer une quantité';
+                  }
+                  final quantity = double.tryParse(value.trim());
+                  if (quantity == null) {
+                    return 'Veuillez entrer un nombre valide';
+                  }
+                  if (quantity <= 0) {
+                    return 'La quantité doit être supérieure à 0';
+                  }
+                  if (quantity > item.quantity) {
+                    return 'La quantité ne peut pas dépasser ${item.quantity} ${item.unit ?? 'unité'}';
+                  }
+                  return null;
+                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -132,7 +159,11 @@ class PantryScreenState extends State<PantryScreen> {
             child: const Text('Annuler'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                Navigator.pop(context, true);
+              }
+            },
             child: const Text('Utiliser'),
           ),
         ],
@@ -140,8 +171,41 @@ class PantryScreenState extends State<PantryScreen> {
     );
 
     if (confirmed == true) {
-      final quantity = double.tryParse(quantityController.text);
+      final quantity = double.tryParse(quantityController.text.trim());
       if (quantity != null && quantity > 0) {
+        // Vérifier que la quantité ne dépasse pas la quantité disponible
+        if (quantity > item.quantity) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Erreur: Vous ne pouvez pas utiliser plus que la quantité disponible (${item.quantity} ${item.unit ?? 'unité'})',
+                ),
+                backgroundColor: Theme.of(context).colorScheme.error,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+          return;
+        }
+
+        // Vérifier que la quantité ne devient pas négative
+        final newQuantity = item.quantity - quantity;
+        if (newQuantity < 0) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text(
+                  'Erreur: Impossible d\'utiliser cette quantité. La quantité ne peut pas être négative.',
+                ),
+                backgroundColor: Theme.of(context).colorScheme.error,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+          return;
+        }
+
         await _pantryService.useIngredient(item.id, quantity);
         
         // Ajouter à l'historique
@@ -157,7 +221,16 @@ class PantryScreenState extends State<PantryScreen> {
         loadItems();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Ingrédient utilisé')),
+            SnackBar(content: Text('${quantity} ${item.unit ?? 'unité'} de ${item.name} utilisé(s)')),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Veuillez entrer une quantité valide'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
           );
         }
       }
@@ -572,7 +645,20 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
       final parsedQty = double.tryParse(_quantityController.text.trim());
       if (parsedQty == null || parsedQty <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Veuillez entrer une quantité valide')),
+          const SnackBar(content: Text('Veuillez entrer une quantité valide (supérieure à 0)')),
+        );
+        return;
+      }
+      // Vérifier les limites pour prévenir les buffer overflows
+      if (parsedQty > 999999.999) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('La quantité ne peut pas dépasser 999999.999')),
+        );
+        return;
+      }
+      if (parsedQty < 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('La quantité ne peut pas être négative')),
         );
         return;
       }
@@ -692,6 +778,8 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
                 setState(() => _selectedUnit = unit);
               },
               ingredientName: _nameController.text.trim(),
+              maxLength: 10, // Limiter à 10 caractères pour prévenir buffer overflow
+              maxValue: 999999.999, // Valeur maximale raisonnable
             ),
             const SizedBox(height: 8),
             // Aide contextuelle

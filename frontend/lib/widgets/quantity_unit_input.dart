@@ -9,6 +9,8 @@ class QuantityUnitInput extends StatefulWidget {
   final ValueChanged<String?> onUnitChanged;
   final String? ingredientName;
   final List<String>? suggestedUnits;
+  final int? maxLength;
+  final double? maxValue;
 
   const QuantityUnitInput({
     super.key,
@@ -17,6 +19,8 @@ class QuantityUnitInput extends StatefulWidget {
     required this.onUnitChanged,
     this.ingredientName,
     this.suggestedUnits,
+    this.maxLength = 20, // Par défaut 20 caractères
+    this.maxValue = 999999.999, // Par défaut valeur maximale raisonnable
   });
 
   @override
@@ -98,6 +102,19 @@ class _QuantityUnitInputState extends State<QuantityUnitInput> {
     }
 
     if (quantity != null) {
+      // Vérifier les limites pour prévenir les buffer overflows
+      final quantityValue = double.tryParse(quantity);
+      if (quantityValue != null) {
+        if (quantityValue < 0) {
+          // Ne pas permettre les valeurs négatives
+          return;
+        }
+        if (widget.maxValue != null && quantityValue > widget.maxValue!) {
+          // Ne pas permettre les valeurs trop grandes
+          return;
+        }
+      }
+      
       setState(() {
         _isParsed = true;
       });
@@ -137,6 +154,7 @@ class _QuantityUnitInputState extends State<QuantityUnitInput> {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[\d\s\.a-zA-ZÀ-ÿ]')),
+            LengthLimitingTextInputFormatter(widget.maxLength ?? 20), // Limiter la longueur
           ],
         ),
         if (_isParsed && widget.selectedUnit != null)
