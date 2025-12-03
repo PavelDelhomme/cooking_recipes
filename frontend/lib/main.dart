@@ -39,8 +39,9 @@ class ThemeNotifier extends InheritedWidget {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialiser la locale française
-  // Note: Intl.defaultLocale est toujours utilisé mais le package intl moderne
-  // utilise Intl.Segmenter au lieu de Intl.v8BreakIterator
+  // Note: L'avertissement "Intl.v8BreakIterator is deprecated" est normal
+  // car flutter_localizations dépend de intl 0.19.0 qui utilise encore cette API.
+  // Cela sera corrigé dans une future version de Flutter et n'affecte pas le fonctionnement.
   Intl.defaultLocale = 'fr_FR';
   runApp(const MyApp());
 }
