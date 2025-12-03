@@ -118,10 +118,24 @@ class IngredientImageService {
 
   // Utiliser TheMealDB pour récupérer des images d'ingrédients (gratuit, pas de clé)
   // IMPORTANT: TheMealDB utilise les noms anglais, donc on doit convertir le nom français en anglais
-  Future<String?> getImageFromMealDB(String ingredientName) async {
+  // Si originalName est fourni, l'utiliser directement (c'est le nom anglais original)
+  Future<String?> getImageFromMealDB(String ingredientName, {String? originalName}) async {
     try {
-      // Convertir le nom français en anglais pour TheMealDB
-      final englishName = TranslationService.getEnglishName(ingredientName);
+      // Si on a le nom anglais original, l'utiliser directement
+      String englishName;
+      if (originalName != null && originalName.isNotEmpty) {
+        englishName = originalName;
+        print('✅ Utilisation du nom original: "$originalName"');
+      } else {
+        // Sinon, convertir le nom français en anglais
+        englishName = TranslationService.getEnglishName(ingredientName);
+        // Log pour déboguer
+        if (ingredientName != englishName) {
+          print('🔄 Conversion ingrédient: "$ingredientName" -> "$englishName"');
+        } else {
+          print('⚠️ Pas de conversion trouvée pour: "$ingredientName" (utilisé tel quel)');
+        }
+      }
       
       // Nettoyer le nom pour l'URL (minuscules, remplacer espaces par underscores, enlever apostrophes et accents)
       String query = englishName.toLowerCase()
@@ -146,11 +160,10 @@ class IngredientImageService {
           .replaceAll('ö', 'o')
           .replaceAll('ä', 'a');
       
-      // Ne pas encoder complètement car on veut garder les underscores
-      // Juste s'assurer que les caractères spéciaux sont bien gérés
-      
       // TheMealDB a des images d'ingrédients à cette URL
       final imageUrl = 'https://www.themealdb.com/images/ingredients/$query.png';
+      
+      print('🔍 Tentative de récupération image: $imageUrl');
       
       // Vérifier si l'image existe
       final response = await ApiLogger.interceptRequest(
@@ -159,11 +172,14 @@ class IngredientImageService {
         imageUrl,
       );
       if (response.statusCode == 200) {
+        print('✅ Image trouvée: $imageUrl');
         await _cacheImage(ingredientName, imageUrl);
         return imageUrl;
+      } else {
+        print('❌ Image non trouvée (${response.statusCode}): $imageUrl');
       }
     } catch (e) {
-      print('Erreur TheMealDB pour $ingredientName: $e');
+      print('❌ Erreur TheMealDB pour $ingredientName: $e');
     }
     return null;
   }

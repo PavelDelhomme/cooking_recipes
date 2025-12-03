@@ -1058,18 +1058,64 @@ class TranslationService extends ChangeNotifier {
   static String getEnglishName(String frenchName) {
     if (frenchName.isEmpty) return frenchName;
     
-    final lowerFrench = frenchName.toLowerCase().trim();
+    // Normaliser le nom (enlever accents, minuscules, etc.)
+    String normalized = frenchName.toLowerCase().trim();
+    
+    // Normaliser les caractères spéciaux (œ -> oe, etc.)
+    normalized = normalized
+        .replaceAll('œ', 'oe')
+        .replaceAll('æ', 'ae')
+        .replaceAll('é', 'e')
+        .replaceAll('è', 'e')
+        .replaceAll('ê', 'e')
+        .replaceAll('ë', 'e')
+        .replaceAll('à', 'a')
+        .replaceAll('â', 'a')
+        .replaceAll('ç', 'c')
+        .replaceAll('ô', 'o')
+        .replaceAll('ù', 'u')
+        .replaceAll('û', 'u')
+        .replaceAll('ï', 'i')
+        .replaceAll('î', 'i')
+        .replaceAll('ñ', 'n')
+        .replaceAll('ü', 'u')
+        .replaceAll('ö', 'o')
+        .replaceAll('ä', 'a');
     
     // Créer un dictionnaire inverse (français -> anglais)
     final reverseTranslations = <String, String>{};
     for (var entry in TranslationService._ingredientTranslations.entries) {
-      reverseTranslations[entry.value.toLowerCase()] = entry.key;
+      final frenchValue = entry.value.toLowerCase().trim();
+      // Normaliser aussi la valeur française
+      final normalizedFrench = frenchValue
+          .replaceAll('œ', 'oe')
+          .replaceAll('æ', 'ae')
+          .replaceAll('é', 'e')
+          .replaceAll('è', 'e')
+          .replaceAll('ê', 'e')
+          .replaceAll('ë', 'e')
+          .replaceAll('à', 'a')
+          .replaceAll('â', 'a')
+          .replaceAll('ç', 'c')
+          .replaceAll('ô', 'o')
+          .replaceAll('ù', 'u')
+          .replaceAll('û', 'u')
+          .replaceAll('ï', 'i')
+          .replaceAll('î', 'i')
+          .replaceAll('ñ', 'n')
+          .replaceAll('ü', 'u')
+          .replaceAll('ö', 'o')
+          .replaceAll('ä', 'a');
+      reverseTranslations[normalizedFrench] = entry.key;
+      // Ajouter aussi la version non normalisée pour correspondance exacte
+      reverseTranslations[frenchValue] = entry.key;
     }
     
-    // Ajouter des traductions spéciales pour les cas courants
+    // Ajouter des traductions spéciales pour les cas courants (avec et sans normalisation)
     final specialTranslations = {
       'bœuf': 'beef',
       'boeuf': 'beef',
+      'beuf': 'beef', // version normalisée
       'œuf': 'egg',
       'oeuf': 'egg',
       'œufs': 'eggs',
@@ -1083,16 +1129,93 @@ class TranslationService extends ChangeNotifier {
       'poivre': 'pepper',
       'poivron': 'pepper',
       'poivrons': 'peppers',
+      'poulet': 'chicken',
+      'porc': 'pork',
+      'poisson': 'fish',
+      'saumon': 'salmon',
+      'ail': 'garlic',
+      'carotte': 'carrot',
+      'carottes': 'carrots',
+      'pomme de terre': 'potato',
+      'pommes de terre': 'potatoes',
+      'courgette': 'zucchini',
+      'aubergine': 'eggplant',
+      'epinards': 'spinach',
+      'épinards': 'spinach',
+      'concombre': 'cucumber',
+      'champignon': 'mushroom',
+      'champignons': 'mushrooms',
+      'brocoli': 'broccoli',
+      'chou-fleur': 'cauliflower',
+      'chou': 'cabbage',
+      'celeri': 'celery',
+      'céleri': 'celery',
+      'poireau': 'leek',
+      'asperges': 'asparagus',
+      'pomme': 'apple',
+      'pommes': 'apples',
+      'banane': 'banana',
+      'bananes': 'bananas',
+      'orange': 'orange',
+      'oranges': 'oranges',
+      'citron': 'lemon',
+      'citrons': 'lemons',
+      'citron vert': 'lime',
+      'fraise': 'strawberry',
+      'fraises': 'strawberries',
+      'myrtille': 'blueberry',
+      'myrtilles': 'blueberries',
+      'framboise': 'raspberry',
+      'framboises': 'raspberries',
+      'lait': 'milk',
+      'fromage': 'cheese',
+      'beurre': 'butter',
+      'creme': 'cream',
+      'crème': 'cream',
+      'yaourt': 'yogurt',
+      'riz': 'rice',
+      'pates': 'pasta',
+      'pâtes': 'pasta',
+      'spaghettis': 'spaghetti',
+      'nouilles': 'noodles',
+      'farine': 'flour',
+      'farine de ble': 'wheat flour',
+      'farine de blé': 'wheat flour',
+      'mais': 'corn',
+      'maïs': 'corn',
+      'couscous': 'couscous',
+      'boulgour': 'bulgur',
+      'avoine': 'oats',
+      'orge': 'barley',
+      'sel': 'salt',
+      'poivre noir': 'black pepper',
+      'paprika': 'paprika',
+      'cumin': 'cumin',
+      'coriandre': 'coriander',
+      'persil': 'parsley',
+      'basilic': 'basil',
+      'origan': 'oregano',
+      'thym': 'thyme',
+      'romarin': 'rosemary',
+      'sauge': 'sage',
+      'menthe': 'mint',
     };
     
-    // Vérifier d'abord les traductions spéciales
-    if (specialTranslations.containsKey(lowerFrench)) {
-      return specialTranslations[lowerFrench]!;
+    // Vérifier d'abord les traductions spéciales (version originale et normalisée)
+    if (specialTranslations.containsKey(frenchName.toLowerCase().trim())) {
+      return specialTranslations[frenchName.toLowerCase().trim()]!;
+    }
+    if (specialTranslations.containsKey(normalized)) {
+      return specialTranslations[normalized]!;
     }
     
-    // Vérifier ensuite la correspondance exacte dans le dictionnaire inverse
+    // Vérifier ensuite la correspondance exacte dans le dictionnaire inverse (version originale et normalisée)
+    final lowerFrench = frenchName.toLowerCase().trim();
     if (reverseTranslations.containsKey(lowerFrench)) {
       return reverseTranslations[lowerFrench]!;
+    }
+    if (reverseTranslations.containsKey(normalized)) {
+      return reverseTranslations[normalized]!;
     }
     
     // Chercher une correspondance partielle (termes longs d'abord)
@@ -1100,12 +1223,13 @@ class TranslationService extends ChangeNotifier {
       ..sort((a, b) => b.key.length.compareTo(a.key.length));
     
     for (var entry in sortedEntries) {
-      if (lowerFrench.contains(entry.key) || entry.key.contains(lowerFrench)) {
+      if (normalized.contains(entry.key) || entry.key.contains(normalized)) {
         return entry.value;
       }
     }
     
     // Si aucune correspondance trouvée, retourner le nom tel quel (peut-être déjà en anglais)
+    // Mais d'abord, essayer de normaliser pour voir si ça correspond à quelque chose
     return frenchName;
   }
 }
