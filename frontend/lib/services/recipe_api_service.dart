@@ -346,7 +346,7 @@ class RecipeApiService {
     }
 
     // Extraire les temps de préparation et de cuisson depuis les instructions
-    final times = _extractTimesFromInstructions(originalInstructionsText);
+    final times = _extractTimesFromInstructions(originalInstructionsText, ingredients, instructions);
     final prepTime = times['prep'];
     final cookTime = times['cook'];
     final totalTime = prepTime != null && cookTime != null 
@@ -370,7 +370,7 @@ class RecipeApiService {
   }
 
   // Extraire les temps de préparation et de cuisson depuis les instructions
-  Map<String, int?> _extractTimesFromInstructions(String instructions) {
+  Map<String, int?> _extractTimesFromInstructions(String instructions, List<Ingredient> ingredients, List<String> instructionSteps) {
     int? prepTime;
     int? cookTime;
     
