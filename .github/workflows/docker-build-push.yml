@@ -55,6 +55,8 @@ jobs:
           tags: |
             ${{ env.FRONTEND_IMAGE }}:latest
             ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+          build-args: |
+            PRODUCTION_API_URL=${{ secrets.PRODUCTION_API_URL || 'https://cooking-recipe-api.delhomme.ovh/api' }}
           cache-from: type=registry,ref=${{ env.FRONTEND_IMAGE }}:buildcache
           cache-to: type=registry,ref=${{ env.FRONTEND_IMAGE }}:buildcache,mode=max
 
