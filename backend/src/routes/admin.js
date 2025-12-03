@@ -67,7 +67,7 @@ router.post('/clear-users', (req, res) => {
 router.post('/seed-test-data', authenticateToken, (req, res) => {
   try {
     const db = getDatabase();
-    const userId = req.user.id;
+    const userId = req.user.userId || req.user.id;
     const now = new Date().toISOString();
     
     // Liste d'ingrédients de test variés
