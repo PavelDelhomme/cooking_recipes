@@ -519,5 +519,33 @@ class TranslationService {
     // Si aucune traduction trouvée, retourner l'unité originale
     return unit;
   }
+
+  /// Convertit un nom d'ingrédient français en nom anglais (pour les images TheMealDB)
+  static String getEnglishName(String frenchName) {
+    if (frenchName.isEmpty) return frenchName;
+    
+    final lowerFrench = frenchName.toLowerCase().trim();
+    
+    // Créer un dictionnaire inverse (français -> anglais)
+    final reverseTranslations = <String, String>{};
+    for (var entry in _ingredientTranslations.entries) {
+      reverseTranslations[entry.value.toLowerCase()] = entry.key;
+    }
+    
+    // Vérifier d'abord la correspondance exacte
+    if (reverseTranslations.containsKey(lowerFrench)) {
+      return reverseTranslations[lowerFrench]!;
+    }
+    
+    // Chercher une correspondance partielle
+    for (var entry in reverseTranslations.entries) {
+      if (lowerFrench.contains(entry.key) || entry.key.contains(lowerFrench)) {
+        return entry.value;
+      }
+    }
+    
+    // Si aucune correspondance trouvée, retourner le nom tel quel (peut-être déjà en anglais)
+    return frenchName;
+  }
 }
 

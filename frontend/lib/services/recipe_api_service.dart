@@ -245,18 +245,20 @@ class RecipeApiService {
     // Extraire les instructions
     String instructionsText = meal['strInstructions']?.toString() ?? '';
     if (instructionsText.isNotEmpty) {
-      // Nettoyer l'encodage et traduire
+      // Nettoyer l'encodage d'abord
       instructionsText = TranslationService.fixEncoding(instructionsText);
-      instructionsText = TranslationService.cleanAndTranslate(instructionsText);
       
-      // Nettoyer les "step 1", "step 2", etc.
-      instructionsText = instructionsText.replaceAll(RegExp(r'step\s+\d+', caseSensitive: false), '');
-      instructionsText = instructionsText.replaceAll(RegExp(r'Step\s+\d+', caseSensitive: false), '');
-      instructionsText = instructionsText.replaceAll(RegExp(r'STEP\s+\d+', caseSensitive: false), '');
+      // Nettoyer les "step 1", "step 2", etc. AVANT la traduction
+      instructionsText = instructionsText.replaceAll(RegExp(r'step\s+\d+[:\s]*', caseSensitive: false), '');
+      instructionsText = instructionsText.replaceAll(RegExp(r'Step\s+\d+[:\s]*', caseSensitive: false), '');
+      instructionsText = instructionsText.replaceAll(RegExp(r'STEP\s+\d+[:\s]*', caseSensitive: false), '');
+      
+      // Traduire après le nettoyage
+      instructionsText = TranslationService.cleanAndTranslate(instructionsText);
       
       // Diviser par les retours à la ligne, les numéros, ou les points suivis d'un espace
       final lines = instructionsText
-          .split(RegExp(r'\n|\r\n|(?<=\d)\.\s+|(?<=[.!?])\s+(?=[A-Z])'))
+          .split(RegExp(r'\n|\r\n|(?<=\d)\.\s+|(?<=[.!?])\s+(?=[A-Z])|(?<=[.!?])\s+(?=\d+\.)'))
           .where((line) => line.trim().isNotEmpty)
           .map((line) {
             // Nettoyer chaque ligne
@@ -264,11 +266,14 @@ class RecipeApiService {
             // Enlever les numéros au début (1., 2., etc.)
             cleaned = cleaned.replaceAll(RegExp(r'^\d+\.\s*'), '');
             // Enlever les "step" restants
-            cleaned = cleaned.replaceAll(RegExp(r'^step\s+\d+:\s*', caseSensitive: false), '');
-            cleaned = cleaned.replaceAll(RegExp(r'^Step\s+\d+:\s*', caseSensitive: false), '');
+            cleaned = cleaned.replaceAll(RegExp(r'^step\s+\d+[:\s]*', caseSensitive: false), '');
+            cleaned = cleaned.replaceAll(RegExp(r'^Step\s+\d+[:\s]*', caseSensitive: false), '');
+            cleaned = cleaned.replaceAll(RegExp(r'^STEP\s+\d+[:\s]*', caseSensitive: false), '');
+            // Enlever les espaces multiples
+            cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ');
             return cleaned;
           })
-          .where((line) => line.trim().isNotEmpty && line.trim().length > 10) // Filtrer les lignes trop courtes
+          .where((line) => line.trim().isNotEmpty && line.trim().length > 5) // Filtrer les lignes trop courtes (réduit de 10 à 5)
           .toList();
       
       instructions.addAll(lines);
@@ -279,9 +284,24 @@ class RecipeApiService {
     title = TranslationService.fixEncoding(title);
     title = TranslationService.translateRecipeName(title);
     
+    // La description est un résumé des instructions (première phrase ou 200 premiers caractères)
     String summary = meal['strInstructions']?.toString() ?? '';
     summary = TranslationService.fixEncoding(summary);
+    
+    // Nettoyer les "step" avant la traduction
+    summary = summary.replaceAll(RegExp(r'step\s+\d+[:\s]*', caseSensitive: false), '');
+    summary = summary.replaceAll(RegExp(r'Step\s+\d+[:\s]*', caseSensitive: false), '');
+    
+    // Traduire
     summary = TranslationService.cleanAndTranslate(summary);
+    
+    // Prendre la première phrase ou les 200 premiers caractères
+    final firstSentence = summary.split(RegExp(r'[.!?]')).first.trim();
+    if (firstSentence.length > 20) {
+      summary = firstSentence;
+    } else {
+      summary = summary.length > 200 ? summary.substring(0, 200) + '...' : summary;
+    }
 
     return Recipe(
       id: meal['idMeal'].toString(),

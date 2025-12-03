@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'translation_service.dart';
 
 class IngredientImageService {
   static const String _cacheKeyPrefix = 'ingredient_image_';
@@ -109,9 +110,31 @@ class IngredientImageService {
   }
 
   // Utiliser TheMealDB pour récupérer des images d'ingrédients (gratuit, pas de clé)
+  // IMPORTANT: TheMealDB utilise les noms anglais, donc on doit convertir le nom français en anglais
   Future<String?> getImageFromMealDB(String ingredientName) async {
     try {
-      final query = ingredientName.toLowerCase().replaceAll(' ', '_');
+      // Convertir le nom français en anglais pour TheMealDB
+      final englishName = TranslationService.getEnglishName(ingredientName);
+      
+      // Nettoyer le nom pour l'URL (minuscules, remplacer espaces par underscores, enlever apostrophes et accents)
+      String query = englishName.toLowerCase()
+          .replaceAll(' ', '_')
+          .replaceAll("'", '')
+          .replaceAll('é', 'e')
+          .replaceAll('è', 'e')
+          .replaceAll('ê', 'e')
+          .replaceAll('ë', 'e')
+          .replaceAll('à', 'a')
+          .replaceAll('â', 'a')
+          .replaceAll('ç', 'c')
+          .replaceAll('ô', 'o')
+          .replaceAll('ù', 'u')
+          .replaceAll('û', 'u')
+          .replaceAll('ï', 'i')
+          .replaceAll('î', 'i')
+          .replaceAll('œ', 'oe')
+          .replaceAll('æ', 'ae');
+      
       // TheMealDB a des images d'ingrédients à cette URL
       final imageUrl = 'https://www.themealdb.com/images/ingredients/$query.png';
       
@@ -122,9 +145,8 @@ class IngredientImageService {
         return imageUrl;
       }
     } catch (e) {
-      print('Erreur TheMealDB: $e');
+      print('Erreur TheMealDB pour $ingredientName: $e');
     }
     return null;
   }
 }
-
