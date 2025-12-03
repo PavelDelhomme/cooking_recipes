@@ -39,6 +39,8 @@ class ThemeNotifier extends InheritedWidget {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialiser la locale française
+  // Note: Intl.defaultLocale est toujours utilisé mais le package intl moderne
+  // utilise Intl.Segmenter au lieu de Intl.v8BreakIterator
   Intl.defaultLocale = 'fr_FR';
   runApp(const MyApp());
 }
