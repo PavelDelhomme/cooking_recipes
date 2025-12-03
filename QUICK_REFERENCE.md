@@ -15,7 +15,7 @@ PORTAINER_WEBHOOK_URL = https://portainer.delhomme.ovh/api/webhooks/xxxxx (à cr
 ```
 
 ### Portainer
-- **Stack Name** : `cooking-recipes`
+- **Stack Name** : `cookingrecipes`
 - **Network** : `web` (externe, doit exister)
 - **Container API** : `cookingrecipes-api` (port interne: 7272)
 - **Container Frontend** : `cookingrecipes-frontend` (port interne: 8080)
@@ -29,17 +29,17 @@ PORTAINER_WEBHOOK_URL = https://portainer.delhomme.ovh/api/webhooks/xxxxx (à cr
 - **Options** : ✅ Cache Assets, ✅ Websockets, ✅ Block Exploits
 
 #### Backend API
-- **Domain** : `cookingrecipes-api.delhomme.ovh`
+- **Domain** : `api.cookingrecipes.delhomme.ovh`
 - **Forward to** : `cookingrecipes-api:7272`
 - **Options** : ✅ Websockets, ✅ Block Exploits, ❌ Cache Assets
 
 ### DNS OVH
 - **IP Serveur** : `95.111.227.204`
-- **A Record 1** : `cooking-recipe` → `95.111.227.204`
-- **A Record 2** : `cookingrecipes-api` → `95.111.227.204`
+- **A Record 1** : `cookingrecipes` → `95.111.227.204`
+- **A Record 2** : `api.cookingrecipes` → `95.111.227.204` (ou `api` si sous-domaine)
 
 ### Compte par Défaut
-- **Email** : `admin@cookingrecipe.com`
+- **Email** : `admin@cookingrecipes.com`
 - **Password** : `admin123`
 - ⚠️ **Changez ce mot de passe immédiatement !**
 
@@ -62,7 +62,7 @@ make deploy-full
 ### Test
 ```bash
 # Backend health
-curl https://cookingrecipes-api.delhomme.ovh/health
+curl https://api.cookingrecipes.delhomme.ovh/health
 
 # Frontend
 https://cookingrecipes.delhomme.ovh
@@ -75,20 +75,20 @@ https://cookingrecipes.delhomme.ovh
 1. [ ] Token Docker Hub créé → Ajouté dans GitHub Secrets
 2. [ ] Secrets GitHub configurés (3 secrets)
 3. [ ] Réseau `web` créé dans Portainer
-4. [ ] Stack `cooking-recipes` créée dans Portainer
+4. [ ] Stack `cookingrecipes` créée dans Portainer
 5. [ ] Webhook Portainer créé → URL dans GitHub Secrets
 6. [ ] 2 Proxy Hosts créés dans Nginx Proxy Manager
 7. [ ] 2 DNS A records créés dans OVH
 8. [ ] Test frontend : https://cookingrecipes.delhomme.ovh
-9. [ ] Test backend : https://cookingrecipes-api.delhomme.ovh/health
+9. [ ] Test backend : https://api.cookingrecipes.delhomme.ovh/health
 
 ---
 
 ## 🔗 URLs Importantes
 
 - **Frontend** : https://cookingrecipes.delhomme.ovh
-- **Backend API** : https://cookingrecipes-api.delhomme.ovh/api
-- **Backend Health** : https://cookingrecipes-api.delhomme.ovh/health
+- **Backend API** : https://api.cookingrecipes.delhomme.ovh/api
+- **Backend Health** : https://api.cookingrecipes.delhomme.ovh/health
 - **Portainer** : https://portainer.delhomme.ovh (ou votre URL)
 - **Nginx Proxy Manager** : https://ngin.delhomme.ovh (ou votre URL)
 
