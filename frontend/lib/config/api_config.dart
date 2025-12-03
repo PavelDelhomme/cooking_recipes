@@ -7,7 +7,7 @@ class ApiConfig {
   // Port du backend
   static const int backendPort = 7272;
   
-  // URL de l'API en production
+  // URL de l'API en production (HTTPS)
   static const String productionApiUrl = 'https://cooking-recipe-api.delhomme.ovh/api';
   
   // Détecter automatiquement l'URL de l'API
@@ -17,26 +17,32 @@ class ApiConfig {
         // Utiliser l'import conditionnel pour obtenir le hostname
         final hostname = getWebHostname();
         
-        // Si on est sur le domaine de production, utiliser l'API de production
+        // Si on est sur le domaine de production, utiliser l'API de production (HTTPS)
         if (hostname == 'cooking-recipe.delhomme.ovh' || 
-            hostname == 'www.cooking-recipe.delhomme.ovh') {
+            hostname == 'www.cooking-recipe.delhomme.ovh' ||
+            hostname == 'cookingrecipe.delhomme.ovh' ||
+            hostname == 'www.cookingrecipe.delhomme.ovh') {
           return productionApiUrl;
         }
         
-        // Si on est sur localhost, utiliser localhost
+        // Si on est sur localhost, utiliser localhost (HTTP pour dev local)
         if (hostname == 'localhost' || hostname == '127.0.0.1') {
           return 'http://localhost:$backendPort/api';
         }
         
         // Sinon, utiliser l'hostname avec le port (pour développement réseau)
-        return 'http://$hostname:$backendPort/api';
+        // Utiliser HTTPS si la page est en HTTPS, sinon HTTP
+        final protocol = hostname.contains('localhost') || hostname.contains('127.0.0.1') 
+            ? 'http' 
+            : 'https';
+        return '$protocol://$hostname:$backendPort/api';
       } catch (e) {
         // Fallback si erreur
         return 'http://localhost:$backendPort/api';
       }
     } else {
       // Pour mobile (Android/iOS)
-      // En mode release, utiliser l'API de production
+      // En mode release, utiliser l'API de production (HTTPS)
       if (const bool.fromEnvironment('dart.vm.product')) {
         return productionApiUrl;
       } else {
