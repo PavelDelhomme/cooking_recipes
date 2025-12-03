@@ -23,12 +23,11 @@ class ApiConfig {
         
         // Si on est sur un domaine de production (.delhomme.ovh), TOUJOURS utiliser HTTPS
         if (hostname != null && hostname.contains('.delhomme.ovh')) {
-          // Vérifier que productionApiUrl est définie
-          if (productionApiUrl.isNotEmpty) {
-            return productionApiUrl;
+          // PRODUCTION_API_URL DOIT être définie lors du build
+          if (productionApiUrl.isEmpty) {
+            throw Exception('PRODUCTION_API_URL non définie lors du build. Définissez-la via --dart-define.');
           }
-          // Fallback si non définie (ne devrait pas arriver en production)
-          return 'https://cooking-recipe-api.delhomme.ovh/api';
+          return productionApiUrl;
         }
         
         // Si on est sur localhost, utiliser localhost (HTTP pour dev local)
@@ -38,12 +37,11 @@ class ApiConfig {
         
         // Si la page est en HTTPS, utiliser l'API de production en HTTPS
         if (isHttps) {
-          // Vérifier que productionApiUrl est définie
-          if (productionApiUrl.isNotEmpty) {
-            return productionApiUrl;
+          // PRODUCTION_API_URL DOIT être définie lors du build
+          if (productionApiUrl.isEmpty) {
+            throw Exception('PRODUCTION_API_URL non définie lors du build. Définissez-la via --dart-define.');
           }
-          // Fallback si non définie (ne devrait pas arriver en production)
-          return 'https://cooking-recipe-api.delhomme.ovh/api';
+          return productionApiUrl;
         }
         
         // Sinon, utiliser HTTP avec le hostname et le port (pour développement réseau)
@@ -58,12 +56,11 @@ class ApiConfig {
         try {
           final protocol = getWebProtocol();
           if (protocol == 'https:') {
-            // Vérifier que productionApiUrl est définie
-            if (productionApiUrl.isNotEmpty) {
-              return productionApiUrl;
+            // PRODUCTION_API_URL DOIT être définie lors du build
+            if (productionApiUrl.isEmpty) {
+              throw Exception('PRODUCTION_API_URL non définie lors du build. Définissez-la via --dart-define.');
             }
-            // Fallback si non définie
-            return 'https://cooking-recipe-api.delhomme.ovh/api';
+            return productionApiUrl;
           }
         } catch (_) {}
         return 'http://localhost:$backendPort/api';
@@ -72,12 +69,11 @@ class ApiConfig {
       // Pour mobile (Android/iOS)
       // En mode release, utiliser l'API de production (HTTPS)
       if (const bool.fromEnvironment('dart.vm.product')) {
-        // Vérifier que productionApiUrl est définie
-        if (productionApiUrl.isNotEmpty) {
-          return productionApiUrl;
+        // PRODUCTION_API_URL DOIT être définie lors du build
+        if (productionApiUrl.isEmpty) {
+          throw Exception('PRODUCTION_API_URL non définie lors du build. Définissez-la via --dart-define.');
         }
-        // Fallback si non définie (ne devrait pas arriver en production)
-        return 'https://cooking-recipe-api.delhomme.ovh/api';
+        return productionApiUrl;
       } else {
         // Mode debug : utiliser localhost (pour développement local)
         return 'http://localhost:$backendPort/api';
