@@ -32,10 +32,12 @@ class ApiConfig {
         
         // Sinon, utiliser l'hostname avec le port (pour développement réseau)
         // Utiliser HTTPS si la page est en HTTPS, sinon HTTP
-        final protocol = hostname.contains('localhost') || hostname.contains('127.0.0.1') 
-            ? 'http' 
-            : 'https';
-        return '$protocol://$hostname:$backendPort/api';
+        if (hostname != null) {
+          final protocol = hostname.contains('localhost') || hostname.contains('127.0.0.1') 
+              ? 'http' 
+              : 'https';
+          return '$protocol://$hostname:$backendPort/api';
+        }
       } catch (e) {
         // Fallback si erreur
         return 'http://localhost:$backendPort/api';
