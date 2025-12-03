@@ -14,14 +14,17 @@ class ApiConfig {
   static String get baseUrl {
     if (kIsWeb) {
       try {
-        // Utiliser l'import conditionnel pour obtenir le hostname
+        // Utiliser l'import conditionnel pour obtenir le hostname et le protocole
         final hostname = getWebHostname();
+        final protocol = getWebProtocol();
+        final isHttps = protocol == 'https:';
         
         // Si on est sur le domaine de production, utiliser l'API de production (HTTPS)
         if (hostname == 'cooking-recipe.delhomme.ovh' || 
             hostname == 'www.cooking-recipe.delhomme.ovh' ||
             hostname == 'cookingrecipe.delhomme.ovh' ||
             hostname == 'www.cookingrecipe.delhomme.ovh') {
+          // Toujours utiliser HTTPS pour la production
           return productionApiUrl;
         }
         
@@ -30,13 +33,14 @@ class ApiConfig {
           return 'http://localhost:$backendPort/api';
         }
         
-        // Sinon, utiliser l'hostname avec le port (pour développement réseau)
-        // Utiliser HTTPS si la page est en HTTPS, sinon HTTP
+        // Sinon, utiliser le même protocole que la page (HTTPS si la page est en HTTPS)
         if (hostname != null) {
-          final protocol = hostname.contains('localhost') || hostname.contains('127.0.0.1') 
-              ? 'http' 
-              : 'https';
-          return '$protocol://$hostname:$backendPort/api';
+          final protocolStr = isHttps ? 'https' : 'http';
+          // Si on est en HTTPS, utiliser le domaine API sans port (via Nginx)
+          if (isHttps) {
+            return 'https://cooking-recipe-api.delhomme.ovh/api';
+          }
+          return '$protocolStr://$hostname:$backendPort/api';
         }
         
         // Fallback si hostname est null

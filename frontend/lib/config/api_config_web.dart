@@ -9,3 +9,11 @@ String? getWebHostname() {
   }
 }
 
+String getWebProtocol() {
+  try {
+    return html.window.location.protocol;
+  } catch (e) {
+    return 'http:';
+  }
+}
+
