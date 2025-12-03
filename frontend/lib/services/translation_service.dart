@@ -518,9 +518,27 @@ class TranslationService extends ChangeNotifier {
         translated = translated.replaceAll(regex, entry.value);
       }
       
-      // Capitaliser la première lettre
+      // Réorganiser les mots pour un ordre plus naturel en français
+      // Par exemple : "Vegan Lasagna" -> "Lasagne Végétalienne"
+      final words = translated.split(' ');
+      if (words.length > 1) {
+        // Si le premier mot est un adjectif (Végétalien, Végétarien), le mettre à la fin
+        final adjectives = ['Végétalien', 'Végétarien', 'Grillé', 'Frit', 'Cuit au four', 'Bouilli', 'Cuit à la vapeur', 'Rôti', 'Sauté'];
+        if (adjectives.contains(words[0])) {
+          final adj = words[0];
+          words.removeAt(0);
+          words.add(adj);
+          translated = words.join(' ');
+        }
+      }
+      
+      // Capitaliser la première lettre de chaque mot
       if (translated.isNotEmpty) {
-        translated = translated[0].toUpperCase() + translated.substring(1);
+        final capitalizedWords = translated.split(' ').map((word) {
+          if (word.isEmpty) return word;
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        }).toList();
+        translated = capitalizedWords.join(' ');
       }
       
       return translated;
