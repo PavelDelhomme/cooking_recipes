@@ -35,6 +35,11 @@
   <link rel="manifest" href="manifest.json">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script>
+    // Redirection automatique de l'ancien domaine vers le nouveau
+    if (window.location.hostname === 'cookingrecipe.delhomme.ovh') {
+      window.location.replace('https://cookingrecipes.delhomme.ovh' + window.location.pathname + window.location.search + window.location.hash);
+    }
+    
     // Désactiver complètement le service worker AVANT le chargement de Flutter
     (function() {
       'use strict';

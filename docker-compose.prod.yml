@@ -12,6 +12,7 @@ services:
       - HOST=0.0.0.0
       - NODE_ENV=production
       - JWT_SECRET=${JWT_SECRET:-change-this-secret-in-production}
+      - ALLOWED_ORIGINS=https://cookingrecipes.delhomme.ovh,https://cookingrecipe.delhomme.ovh
     networks:
       - cookingrecipes_network
       - web

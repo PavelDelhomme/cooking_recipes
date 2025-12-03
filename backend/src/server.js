@@ -40,6 +40,7 @@ app.use(helmet({
     },
   },
   crossOriginEmbedderPolicy: false, // Désactivé pour permettre les images externes
+  crossOriginResourcePolicy: { policy: "cross-origin" }, // Permettre les ressources cross-origin
 }));
 
 // CORS configuré de manière sécurisée
@@ -47,10 +48,25 @@ const corsOptions = {
   origin: function (origin, callback) {
     // En production, vérifier l'origine
     if (process.env.NODE_ENV === 'production') {
-      const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Domaines autorisés par défaut
+      const defaultOrigins = [
+        'https://cookingrecipes.delhomme.ovh',
+        'https://cookingrecipe.delhomme.ovh', // Ancien domaine pour redirection
+      ];
+      const allowedOrigins = process.env.ALLOWED_ORIGINS 
+        ? [...defaultOrigins, ...process.env.ALLOWED_ORIGINS.split(',')]
+        : defaultOrigins;
+      
+      // Autoriser les requêtes sans origine (Postman, curl, etc.)
+      if (!origin) {
+        return callback(null, true);
+      }
+      
+      // Vérifier si l'origine est autorisée
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.warn(`CORS: Origin not allowed: ${origin}`);
         callback(new Error('Not allowed by CORS'));
       }
     } else {
@@ -59,9 +75,13 @@ const corsOptions = {
     }
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200,
 };
 
+// Appliquer CORS AVANT Helmet pour éviter les conflits
 app.use(cors(corsOptions));
 
 // Rate limiting global
