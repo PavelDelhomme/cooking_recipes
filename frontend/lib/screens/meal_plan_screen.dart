@@ -1201,60 +1201,162 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
             day.year == DateTime.now().year;
         
         return Card(
-          margin: const EdgeInsets.symmetric(vertical: 6),
-          elevation: 2,
+          margin: EdgeInsets.symmetric(
+            vertical: 6,
+            horizontal: isToday ? 4 : 8, // Marge réduite pour le jour actuel pour le faire ressortir
+          ),
+          elevation: isToday ? 6 : 2, // Élévation plus élevée pour le jour actuel
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
+            // Bordure plus visible pour le jour actuel
+            side: isToday
+                ? BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 2.5,
+                  )
+                : BorderSide.none,
           ),
           color: isToday
-              ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2)
+              ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.4)
               : null,
           child: ExpansionTile(
             leading: Container(
-              width: 48,
-              height: 48,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 color: isToday
                     ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
+                // Ombre pour le jour actuel
+                boxShadow: isToday
+                    ? [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+                          blurRadius: 8,
+                          spreadRadius: 1,
+                        ),
+                      ]
+                    : null,
               ),
-              child: Center(
-                child: Text(
-                  DateFormat('d', 'fr_FR').format(day),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isToday
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : Theme.of(context).colorScheme.onPrimaryContainer,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Center(
+                    child: Text(
+                      DateFormat('d', 'fr_FR').format(day),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: isToday ? 20 : 18,
+                        color: isToday
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                  // Badge "Aujourd'hui" en haut à droite
+                  if (isToday)
+                    Positioned(
+                      top: 2,
+                      right: 2,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.circle,
+                          size: 8,
+                          color: Theme.of(context).colorScheme.onTertiary,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            title: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    DateFormat('EEEE', 'fr_FR').format(day),
+                    style: TextStyle(
+                      fontWeight: isToday ? FontWeight.bold : FontWeight.w600,
+                      fontSize: isToday ? 18 : 16,
+                      color: isToday
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
-              ),
+                if (isToday)
+                  Container(
+                    margin: const EdgeInsets.only(left: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Aujourd\'hui',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    ),
+                  ),
+              ],
             ),
-            title: Text(
-              DateFormat('EEEE', 'fr_FR').format(day),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            subtitle: Text(
-              DateFormat('dd MMMM yyyy', 'fr_FR').format(day),
-              style: TextStyle(
-                fontSize: 12,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                DateFormat('dd MMMM yyyy', 'fr_FR').format(day),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isToday ? FontWeight.w500 : FontWeight.normal,
+                  color: isToday
+                      ? Theme.of(context).colorScheme.primary.withOpacity(0.8)
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Chip(
-                  label: Text('${dayPlans.length}'),
-                  backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: isToday
+                        ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                        : Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                    border: isToday
+                        ? Border.all(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 1.5,
+                          )
+                        : null,
+                  ),
+                  child: Text(
+                    '${dayPlans.length}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isToday
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                  ),
                 ),
+                const SizedBox(width: 4),
                 IconButton(
-                  icon: Icon(Icons.add_circle_outline),
-                  color: Theme.of(context).colorScheme.primary,
+                  icon: Icon(
+                    Icons.add_circle_outline,
+                    size: isToday ? 28 : 24,
+                  ),
+                  color: isToday
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.primary,
                   onPressed: () => _showAddMealDialog(null, day, null),
                   tooltip: 'Ajouter un repas',
                 ),
