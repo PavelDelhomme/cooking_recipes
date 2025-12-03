@@ -40,7 +40,7 @@ class TranslationService extends ChangeNotifier {
   }
   
   static String get currentLanguageStatic => _instance.currentLanguage;
-  // Dictionnaire de traduction des ingrédients courants
+  // Dictionnaire de traduction des ingrédients courants (anglais -> français)
   static final Map<String, String> _ingredientTranslations = {
     // Viandes
     'chicken': 'Poulet',
@@ -247,6 +247,13 @@ class TranslationService extends ChangeNotifier {
     
     // Traduire les ingrédients dans le texte seulement si la langue est française
     if (_instance._currentLanguage == 'fr') {
+      // D'abord traduire depuis l'espagnol
+      for (var entry in TranslationService._spanishToFrenchIngredients.entries) {
+        final regex = RegExp(r'\b' + RegExp.escape(entry.key) + r'\b', caseSensitive: false);
+        cleaned = cleaned.replaceAll(regex, entry.value);
+      }
+      
+      // Ensuite traduire depuis l'anglais
       for (var entry in TranslationService._ingredientTranslations.entries) {
         final regex = RegExp(r'\b' + RegExp.escape(entry.key) + r'\b', caseSensitive: false);
         cleaned = cleaned.replaceAll(regex, entry.value);
@@ -265,7 +272,7 @@ class TranslationService extends ChangeNotifier {
     
     // Si la langue est française, traduire les termes courants dans les noms de recettes
     if (_instance._currentLanguage == 'fr') {
-      // Dictionnaire de traductions pour les termes courants dans les noms de recettes
+      // Dictionnaire de traductions anglais -> français pour les termes courants dans les noms de recettes
       final recipeTermTranslations = {
         'chicken': 'Poulet',
         'beef': 'Bœuf',
@@ -294,8 +301,51 @@ class TranslationService extends ChangeNotifier {
         'steamed': 'Cuit à la vapeur',
       };
       
-      // Traduire les termes courants (insensible à la casse)
+      // Dictionnaire de traductions espagnol -> français pour les termes courants dans les noms de recettes
+      final spanishRecipeTermTranslations = {
+        'pollo': 'Poulet',
+        'res': 'Bœuf',
+        'carne de res': 'Bœuf',
+        'cerdo': 'Porc',
+        'pescado': 'Poisson',
+        'salmón': 'Saumon',
+        'pasta': 'Pâtes',
+        'espagueti': 'Spaghettis',
+        'arroz': 'Riz',
+        'sopa': 'Soupe',
+        'ensalada': 'Salade',
+        'sándwich': 'Sandwich',
+        'hamburguesa': 'Burger',
+        'pizza': 'Pizza',
+        'pastel': 'Gâteau',
+        'tarta': 'Tarte',
+        'pan': 'Pain',
+        'estofado': 'Ragoût',
+        'curry': 'Curry',
+        'salteado': 'Sauté',
+        'asado': 'Rôti',
+        'a la parrilla': 'Grillé',
+        'al horno': 'Cuit au four',
+        'frito': 'Frit',
+        'hervido': 'Bouilli',
+        'al vapor': 'Cuit à la vapeur',
+        'paella': 'Paella',
+        'tortilla': 'Tortilla',
+        'gazpacho': 'Gaspacho',
+        'tapas': 'Tapas',
+        'empanada': 'Empanada',
+        'flan': 'Flan',
+        'churros': 'Churros',
+      };
+      
+      // Traduire d'abord depuis l'espagnol
       String translated = cleaned;
+      for (var entry in spanishRecipeTermTranslations.entries) {
+        final regex = RegExp(r'\b' + RegExp.escape(entry.key) + r'\b', caseSensitive: false);
+        translated = translated.replaceAll(regex, entry.value);
+      }
+      
+      // Ensuite traduire depuis l'anglais
       for (var entry in recipeTermTranslations.entries) {
         final regex = RegExp(r'\b' + RegExp.escape(entry.key) + r'\b', caseSensitive: false);
         translated = translated.replaceAll(regex, entry.value);
