@@ -405,45 +405,47 @@ class PantryScreenState extends State<PantryScreen> {
                                   ),
                                 ),
                                 if (item.expiryDate != null) ...[
-                              const SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  Icon(
-                                    isExpired
-                                        ? Icons.warning
-                                        : Icons.calendar_today,
-                                    size: 14,
-                                    color: isExpired
-                                        ? Theme.of(context).colorScheme.error
-                                        : isExpiringSoon
-                                            ? Theme.of(context).colorScheme.tertiary
-                                            : Theme.of(context)
-                                                .colorScheme
-                                                .onSurfaceVariant,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    isExpired
-                                        ? 'Expiré le ${DateFormat('dd/MM/yyyy').format(item.expiryDate!)}'
-                                        : 'Expire le ${DateFormat('dd/MM/yyyy').format(item.expiryDate!)}',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: isExpired
-                                          ? Theme.of(context).colorScheme.error
-                                          : isExpiringSoon
-                                              ? Theme.of(context).colorScheme.tertiary
-                                              : Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurfaceVariant,
-                                      fontWeight: isExpired || isExpiringSoon
-                                          ? FontWeight.w600
-                                          : FontWeight.normal,
-                                    ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        isExpired
+                                            ? Icons.warning
+                                            : Icons.calendar_today,
+                                        size: 14,
+                                        color: isExpired
+                                            ? Theme.of(context).colorScheme.error
+                                            : isExpiringSoon
+                                                ? Theme.of(context).colorScheme.tertiary
+                                                : Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        isExpired
+                                            ? 'Expiré le ${DateFormat('dd/MM/yyyy').format(item.expiryDate!)}'
+                                            : 'Expire le ${DateFormat('dd/MM/yyyy').format(item.expiryDate!)}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: isExpired
+                                              ? Theme.of(context).colorScheme.error
+                                              : isExpiringSoon
+                                                  ? Theme.of(context).colorScheme.tertiary
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                          fontWeight: isExpired || isExpiringSoon
+                                              ? FontWeight.w600
+                                              : FontWeight.normal,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
-                              ),
-                            ],
-                          ],
+                              ],
+                            );
+                          },
                         ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
