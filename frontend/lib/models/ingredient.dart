@@ -3,12 +3,14 @@ class Ingredient {
   final String name;
   final double? quantity;
   final String? unit;
+  final String? preparation; // Terme de préparation (chopped, diced, sliced, etc.)
 
   Ingredient({
     required this.id,
     required this.name,
     this.quantity,
     this.unit,
+    this.preparation,
   });
 
   Map<String, dynamic> toJson() {
@@ -17,6 +19,7 @@ class Ingredient {
       'name': name,
       'quantity': quantity,
       'unit': unit,
+      'preparation': preparation,
     };
   }
 
@@ -26,6 +29,7 @@ class Ingredient {
       name: json['name'] as String,
       quantity: json['quantity'] as double?,
       unit: json['unit'] as String?,
+      preparation: json['preparation'] as String?,
     );
   }
 
@@ -34,12 +38,14 @@ class Ingredient {
     String? name,
     double? quantity,
     String? unit,
+    String? preparation,
   }) {
     return Ingredient(
       id: id ?? this.id,
       name: name ?? this.name,
       quantity: quantity ?? this.quantity,
       unit: unit ?? this.unit,
+      preparation: preparation ?? this.preparation,
     );
   }
 }

@@ -451,32 +451,66 @@ class RecipeApiService {
     return {'prep': prepTime, 'cook': cookTime};
   }
 
-  // Parser la quantité depuis une mesure
-  double? _parseQuantity(String measure) {
-    if (measure.isEmpty) return null;
+  // Parser complètement une mesure (quantité, unité, préparation)
+  Map<String, dynamic> _parseMeasure(String measure) {
+    if (measure.isEmpty) {
+      return {'quantity': null, 'unit': null, 'preparation': null};
+    }
     
-    // Nettoyer la mesure
     String cleaned = measure.trim();
+    double? quantity;
+    String? unit;
+    String? preparation;
     
-    // Patterns pour extraire les nombres (supporte fractions, décimales, etc.)
-    // Exemples: "1.5", "1/2", "2", "0.5", "1 1/2"
-    final patterns = [
-      RegExp(r'^(\d+\.?\d*)\s*'), // "1.5", "2", "0.5"
-      RegExp(r'(\d+\.?\d*)'), // N'importe quel nombre dans la chaîne
-    ];
-    
-    for (var pattern in patterns) {
-      final match = pattern.firstMatch(cleaned);
-      if (match != null) {
-        final quantityStr = match.group(1) ?? '';
-        final quantity = double.tryParse(quantityStr);
-        if (quantity != null && quantity > 0) {
-          return quantity;
-        }
+    // Extraire la quantité
+    final quantityPattern = RegExp(r'^(\d+\.?\d*)\s*');
+    final quantityMatch = quantityPattern.firstMatch(cleaned);
+    if (quantityMatch != null) {
+      final quantityStr = quantityMatch.group(1) ?? '';
+      quantity = double.tryParse(quantityStr);
+      if (quantity != null && quantity > 0) {
+        // Enlever la quantité du texte
+        cleaned = cleaned.substring(quantityMatch.end).trim();
       }
     }
     
-    return null;
+    // Liste des termes de préparation à chercher
+    final preparationTerms = [
+      'chopped', 'diced', 'sliced', 'minced', 'grated', 'shredded', 'crushed', 'mashed',
+      'pureed', 'julienned', 'cubed', 'quartered', 'halved', 'whole', 'peeled', 'seeded',
+      'cored', 'trimmed', 'cleaned', 'washed', 'dried', 'toasted', 'roasted', 'grilled',
+      'fried', 'cooked', 'raw', 'fresh', 'frozen', 'canned', 'drained', 'rinsed', 'soaked',
+      'marinated', 'seasoned', 'salted', 'unsalted', 'melted', 'softened',
+      'large', 'medium', 'small', 'extra large', 'extra small', 'fine', 'coarse', 'thin', 'thick',
+      'round', 'square', 'long', 'short', 'wide', 'narrow',
+      'optional', 'to taste', 'as needed',
+    ];
+    
+    // Chercher les termes de préparation
+    final lowerCleaned = cleaned.toLowerCase();
+    for (var term in preparationTerms) {
+      if (lowerCleaned.contains(term)) {
+        preparation = term;
+        // Enlever le terme de préparation du texte
+        cleaned = cleaned.replaceAll(RegExp(term, caseSensitive: false), '').trim();
+        break;
+      }
+    }
+    
+    // Parser l'unité depuis le reste
+    unit = _parseUnitSync(cleaned);
+    
+    return {
+      'quantity': quantity,
+      'unit': unit,
+      'preparation': preparation,
+    };
+  }
+
+  // Parser la quantité depuis une mesure (méthode conservée pour compatibilité)
+  double? _parseQuantity(String measure) {
+    final parsed = _parseMeasure(measure);
+    return parsed['quantity'] as double?;
   }
 
   // Parser l'unité depuis une mesure (synchrone)
@@ -553,6 +587,38 @@ class RecipeApiService {
       'leaves': 'feuilles',
       'stalk': 'branche',
       'stalks': 'branches',
+      'knob': 'noix',
+      'knobs': 'noix',
+      'tbs': 'cuillère à soupe',
+      'tb': 'cuillère à soupe',
+      't': 'cuillère à soupe',
+      'tbl': 'cuillère à soupe',
+      'tblsp': 'cuillère à soupe',
+      'tblspn': 'cuillère à soupe',
+      'ts': 'cuillère à café',
+      'dash': 'filet',
+      'dashes': 'filets',
+      'drop': 'goutte',
+      'drops': 'gouttes',
+      'rib': 'côte',
+      'ribs': 'côtes',
+      'fillet': 'filet',
+      'fillets': 'filets',
+      'strip': 'bande',
+      'strips': 'bandes',
+      'chunk': 'morceau',
+      'chunks': 'morceaux',
+      'wedge': 'quartier',
+      'wedges': 'quartiers',
+      'segment': 'segment',
+      'segments': 'segments',
+      'half': 'demi',
+      'quarter': 'quart',
+      'quarters': 'quarts',
+      'third': 'tiers',
+      'thirds': 'tiers',
+      'eighth': 'huitième',
+      'eighths': 'huitièmes',
     };
     
     final lowerUnit = cleaned.toLowerCase();
