@@ -211,8 +211,8 @@ make docker-build-push
 ./scripts/deploy-portainer.sh
 
 # Vérifier les images Docker Hub
-docker pull paveldelhomme/cookingrecipe-api:latest
-docker pull paveldelhomme/cookingrecipe-frontend:latest
+docker pull paveldelhomme/cookingrecipes-api:latest
+docker pull paveldelhomme/cookingrecipes-frontend:latest
 ```
 
 ---

@@ -43,7 +43,7 @@ COPY . .
 
     # Build de production
     # Passer la variable d'environnement PRODUCTION_API_URL au build Flutter
-    ARG PRODUCTION_API_URL=https://api.cookingrecipe.delhomme.ovh/api
+    ARG PRODUCTION_API_URL=https://api.cookingrecipes.delhomme.ovh/api
     RUN flutter build web --release --base-href / --dart-define=PRODUCTION_API_URL=$PRODUCTION_API_URL
 
 # Configurer Nginx pour servir les fichiers build

@@ -33,7 +33,7 @@ services:
     volumes:
       - cookingrecipes_frontend_build:/app/build
     environment:
-      - API_URL=https://api.cookingrecipe.delhomme.ovh
+      - API_URL=https://api.cookingrecipes.delhomme.ovh
       - FLUTTER_WEB_USE_SKIA=true
     depends_on:
       - cookingrecipes-api
