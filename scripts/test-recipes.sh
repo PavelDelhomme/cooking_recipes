@@ -313,10 +313,11 @@ if [ -f /tmp/recipe_test_results.txt ]; then
         TOTAL=$(echo "$LANG_RESULTS" | wc -l)
         
         # Statistiques de traduction
+        # Format: recipe_id|ingredient|expected_translation|is_translated|translation_correct|correct_translation|translation_comment|measure|measure_correct|correct_measure|measure_comment|lang
         if [ "$TEST_LANG" != "en" ]; then
-            TRANSLATION_CORRECT=$(echo "$LANG_RESULTS" | grep -c "|true|true|" || echo "0")
-            TRANSLATION_INCORRECT=$(echo "$LANG_RESULTS" | grep -c "|true|false|" || echo "0")
-            NOT_TRANSLATED=$(echo "$LANG_RESULTS" | grep -c "|false|" || echo "0")
+            TRANSLATION_CORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($5 == "true") print}' | wc -l)
+            TRANSLATION_INCORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($5 == "false") print}' | wc -l)
+            NOT_TRANSLATED=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($4 == "false") print}' | wc -l)
         else
             TRANSLATION_CORRECT=0
             TRANSLATION_INCORRECT=0
@@ -324,8 +325,8 @@ if [ -f /tmp/recipe_test_results.txt ]; then
         fi
         
         # Statistiques de mesure
-        MEASURE_CORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($7 == "true") print}' | wc -l)
-        MEASURE_INCORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($7 == "false") print}' | wc -l)
+        MEASURE_CORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($9 == "true") print}' | wc -l)
+        MEASURE_INCORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($9 == "false") print}' | wc -l)
     else
         TOTAL=0
         TRANSLATION_CORRECT=0
