@@ -73,10 +73,10 @@ install: ## [INSTALL] Installe les dépendances (backend + frontend)
 	@cd frontend && $(FLUTTER) pub get
 	@echo -e "$(GREEN)✓ Dépendances installées$(NC)"
 
-dev: _get-ip ## Lance tout en mode développement (local)
+dev: _get-ip ## [DEV] Lance tout en mode développement (local)
 	@bash scripts/dev.sh
 
-dev-web: _get-ip ## Lance uniquement le frontend web (PC) sans détecter les appareils Android
+dev-web: _get-ip ## [DEV] Lance uniquement le frontend web (PC) sans détecter les appareils Android
 	@FORCE_WEB_ONLY=true bash scripts/dev.sh
 
 dev-stacktrace: _get-ip ## Lance en mode développement avec stacktrace détaillée
