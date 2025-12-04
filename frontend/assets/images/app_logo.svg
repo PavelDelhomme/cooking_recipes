@@ -1,0 +1,44 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond avec dégradé orange -->
+  <defs>
+    <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F7931E;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="whiteGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F5F5F5;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fond arrondi -->
+  <rect width="192" height="192" rx="40" fill="url(#orangeGradient)"/>
+  
+  <!-- Casserole/poêle -->
+  <ellipse cx="96" cy="140" rx="60" ry="20" fill="url(#whiteGradient)" opacity="0.9"/>
+  <ellipse cx="96" cy="135" rx="55" ry="18" fill="none" stroke="#333" stroke-width="3" opacity="0.3"/>
+  
+  <!-- Manche de la poêle -->
+  <rect x="150" y="120" width="25" height="8" rx="4" fill="#8B4513" opacity="0.8"/>
+  <rect x="150" y="122" width="25" height="4" rx="2" fill="#654321"/>
+  
+  <!-- Vapeur -->
+  <path d="M 80 100 Q 85 85 90 100" stroke="#FFFFFF" stroke-width="4" fill="none" opacity="0.7" stroke-linecap="round"/>
+  <path d="M 96 95 Q 101 80 106 95" stroke="#FFFFFF" stroke-width="4" fill="none" opacity="0.7" stroke-linecap="round"/>
+  <path d="M 112 100 Q 117 85 122 100" stroke="#FFFFFF" stroke-width="4" fill="none" opacity="0.7" stroke-linecap="round"/>
+  
+  <!-- Étoile/épice (décoratif) -->
+  <path d="M 96 50 L 98 60 L 108 60 L 100 66 L 102 76 L 96 70 L 90 76 L 92 66 L 84 60 L 94 60 Z" 
+        fill="#FFD700" opacity="0.9"/>
+  
+  <!-- Cuillère décorative -->
+  <ellipse cx="70" cy="70" rx="8" ry="25" fill="#FFFFFF" opacity="0.8" transform="rotate(-30 70 70)"/>
+  <ellipse cx="70" cy="70" rx="6" ry="20" fill="url(#whiteGradient)" transform="rotate(-30 70 70)"/>
+  
+  <!-- Fourchette décorative -->
+  <rect x="120" y="65" width="4" height="20" rx="2" fill="#FFFFFF" opacity="0.8"/>
+  <rect x="118" y="65" width="8" height="4" rx="2" fill="#FFFFFF" opacity="0.8"/>
+  <rect x="118" y="72" width="8" height="4" rx="2" fill="#FFFFFF" opacity="0.8"/>
+  <rect x="118" y="79" width="8" height="4" rx="2" fill="#FFFFFF" opacity="0.8"/>
+</svg>
+
