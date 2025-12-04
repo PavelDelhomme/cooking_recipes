@@ -175,7 +175,22 @@ router.post('/signin', authLimiter, async (req, res) => {
           return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
         }
 
-        const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '30d' });
+        // Générer un jti (JWT ID) unique pour pouvoir révoquer le token
+        const jti = crypto.randomBytes(16).toString('hex');
+        const token = jwt.sign(
+          { userId: user.id, email: user.email, jti },
+          JWT_SECRET,
+          { expiresIn: '30d', algorithm: 'HS256' }
+        );
+
+        // Logger la connexion réussie
+        logSecurityEvent(SECURITY_EVENTS.AUTH_SUCCESS, {
+          ip: req.ip || req.connection.remoteAddress,
+          userId: user.id,
+          email: user.email,
+          action: 'signin',
+          severity: 'INFO',
+        });
 
         res.json({
           token,
@@ -225,6 +240,31 @@ router.get('/me', authenticateToken, (req, res) => {
       });
     }
   );
+});
+
+// Déconnexion (révoquer le token)
+router.post('/signout', authenticateToken, async (req, res) => {
+  try {
+    const { revokeToken } = require('../middleware/sessionSecurity');
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token) {
+      revokeToken(token, req.user.userId, 'User logout');
+      
+      logSecurityEvent(SECURITY_EVENTS.AUTH_SUCCESS, {
+        ip: req.ip || req.connection.remoteAddress,
+        userId: req.user.userId,
+        action: 'signout',
+        severity: 'INFO',
+      });
+    }
+
+    res.json({ message: 'Déconnexion réussie' });
+  } catch (error) {
+    console.error('Erreur déconnexion:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
 });
 
 module.exports = router;
