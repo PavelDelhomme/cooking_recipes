@@ -665,10 +665,12 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 # Analyser les résultats (filtrer par langue si nécessaire)
-if [ -f /tmp/recipe_test_results.txt ]; then
+if [ -f "$RESULTS_FILE" ]; then
     # Séparer les résultats de titre et d'ingrédients
-    TITLE_RESULTS=$(grep "^RECIPE_TITLE|" /tmp/recipe_test_results.txt | grep "|$TEST_LANG|" || echo "")
-    INGREDIENT_RESULTS=$(grep -v "^RECIPE_TITLE|" /tmp/recipe_test_results.txt | grep "|$TEST_LANG$" || echo "")
+    # Format titre: RECIPE_TITLE|recipe_id|recipe_name|original_lang|test_lang|...
+    # Format ingrédient: recipe_id|ingredient|ingredient_original_lang|...|test_lang
+    TITLE_RESULTS=$(grep "^RECIPE_TITLE|" "$RESULTS_FILE" | grep "|$TEST_LANG|" || echo "")
+    INGREDIENT_RESULTS=$(grep -v "^RECIPE_TITLE|" "$RESULTS_FILE" | grep "|$TEST_LANG$" || echo "")
     
     # Filtrer les résultats pour la langue actuelle (ingrédients uniquement)
     LANG_RESULTS="$INGREDIENT_RESULTS"
