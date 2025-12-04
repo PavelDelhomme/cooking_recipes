@@ -3,7 +3,8 @@
 # Menu interactif complet pour le système d'entraînement IA de traduction
 # Usage: make train-ai
 
-set -e
+# Ne pas utiliser set -e car cela peut causer des problèmes avec les opérations conditionnelles
+# set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RESULTS_FILE="/tmp/recipe_test_results.txt"
