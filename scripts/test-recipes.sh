@@ -197,6 +197,9 @@ test_recipe() {
             
             # Demander si la traduction est correcte (si ce n'est pas l'anglais)
             local translation_correct="true"
+            local correct_translation="$expected_translation"
+            local translation_comment=""
+            
             if [ "$TEST_LANG" != "en" ]; then
                 if [ "$is_translated" = "false" ]; then
                     echo -n "   ├─ ⚠️  Ingrédient non traduit - Correct? (o/n/q): "
@@ -213,6 +216,14 @@ test_recipe() {
                 
                 if [ "$translation_response" != "o" ] && [ "$translation_response" != "O" ] && [ -n "$translation_response" ]; then
                     translation_correct="false"
+                    # Demander la traduction correcte
+                    echo -n "   │  📝 Quelle devrait être la traduction correcte ($TEST_LANG)? "
+                    read -r correct_translation
+                    if [ -z "$correct_translation" ]; then
+                        correct_translation="$expected_translation"
+                    fi
+                    echo -n "   │  💬 Commentaire (optionnel): "
+                    read -r translation_comment
                 fi
             fi
             
@@ -227,12 +238,26 @@ test_recipe() {
             fi
             
             local measure_correct="false"
-            if [ "$measure_response" = "o" ] || [ "$measure_response" = "O" ] || [ "$measure_response" = "" ]; then
+            local correct_measure="$measure"
+            local measure_comment=""
+            
+            if [ "$measure_response" != "o" ] && [ "$measure_response" != "O" ] && [ -n "$measure_response" ]; then
+                measure_correct="false"
+                # Demander la mesure correcte
+                echo -n "   │  📏 Quelle devrait être la mesure correcte? "
+                read -r correct_measure
+                if [ -z "$correct_measure" ]; then
+                    correct_measure="$measure"
+                fi
+                echo -n "   │  💬 Commentaire (optionnel): "
+                read -r measure_comment
+            else
                 measure_correct="true"
             fi
             
             # Stocker le résultat avec toutes les informations
-            echo "$recipe_id|$ingredient|$expected_translation|$is_translated|$translation_correct|$measure|$measure_correct|$TEST_LANG" >> /tmp/recipe_test_results.txt
+            # Format: recipe_id|ingredient|expected_translation|is_translated|translation_correct|correct_translation|translation_comment|measure|measure_correct|correct_measure|measure_comment|lang
+            echo "$recipe_id|$ingredient|$expected_translation|$is_translated|$translation_correct|$correct_translation|$translation_comment|$measure|$measure_correct|$correct_measure|$measure_comment|$TEST_LANG" >> /tmp/recipe_test_results.txt
             echo ""
         fi
     done
@@ -349,5 +374,10 @@ fi
 echo ""
 echo "📁 $(get_label saved): /tmp/recipe_test_results.txt"
 echo "   Langue testée: $LANG_NAME ($TEST_LANG)"
+echo ""
+echo "📋 Format des résultats:"
+echo "   recipe_id|ingredient|expected_translation|is_translated|translation_correct|correct_translation|translation_comment|measure|measure_correct|correct_measure|measure_comment|lang"
+echo ""
+echo "💡 Les traductions et mesures correctes suggérées sont stockées pour analyse future"
 echo ""
 
