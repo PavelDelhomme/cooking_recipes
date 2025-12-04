@@ -246,12 +246,24 @@ rm -f /tmp/recipe_test_results.txt
 touch /tmp/recipe_test_results.txt
 
 # Tester plusieurs recettes
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📊 Progression globale: 0/$NUM_RECIPES recettes testées"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
 for i in $(seq 1 $NUM_RECIPES); do
     echo "🔄 Récupération de la recette $i/$NUM_RECIPES..."
     RECIPE=$(curl -s "https://www.themealdb.com/api/json/v1/1/random.php" | jq -r '.meals[0]')
     
     if [ -n "$RECIPE" ] && [ "$RECIPE" != "null" ]; then
-        test_recipe "$RECIPE"
+        test_recipe "$RECIPE" "$i" "$NUM_RECIPES"
+        
+        # Afficher la progression après chaque recette
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "📊 Progression globale: $i/$NUM_RECIPES recettes testées"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
     else
         echo "⚠️  Erreur lors de la récupération de la recette $i"
     fi
