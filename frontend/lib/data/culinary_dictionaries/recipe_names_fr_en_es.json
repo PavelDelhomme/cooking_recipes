@@ -1,0 +1,2875 @@
+{
+  "metadata": {
+    "version": "2.0.0",
+    "source": "TheMealDB",
+    "languages": [
+      "en",
+      "fr",
+      "es"
+    ],
+    "total_terms": 572,
+    "last_updated": "2025-12-04"
+  },
+  "recipe_names": {
+    " bubble & squeak": {
+      "en": " Bubble & Squeak",
+      "fr": " Bubble & Squeak",
+      "es": " Bubble & Squeak"
+    },
+    "15-minute chicken & halloumi burgers": {
+      "en": "15-minute chicken & halloumi burgers",
+      "fr": "15-minute chicken & halloumi burgers",
+      "es": "15-minute chicken & halloumi burgers"
+    },
+    "adana kebab": {
+      "en": "Adana kebab",
+      "fr": "Adana kebab",
+      "es": "Adana kebab"
+    },
+    "air fryer patatas bravas": {
+      "en": "Air fryer patatas bravas",
+      "fr": "Air fryer patatas bravas",
+      "es": "Air fryer patatas bravas"
+    },
+    "ajo blanco": {
+      "en": "Ajo blanco",
+      "fr": "Ajo blanco",
+      "es": "Ajo blanco"
+    },
+    "alfajores": {
+      "en": "Alfajores",
+      "fr": "Alfajores",
+      "es": "Alfajores"
+    },
+    "algerian bouzgene berber bread with roasted pepper sauce": {
+      "en": "Algerian Bouzgene Berber Bread with Roasted Pepper Sauce",
+      "fr": "Algerian Bouzgene Berber Bread with Roasted Pepper Sauce",
+      "es": "Algerian Bouzgene Berber Bread with Roasted Pepper Sauce"
+    },
+    "algerian carrots": {
+      "en": "Algerian Carrots",
+      "fr": "Algerian Carrots",
+      "es": "Algerian Carrots"
+    },
+    "algerian flafla (bell pepper salad)": {
+      "en": "Algerian Flafla (Bell Pepper Salad)",
+      "fr": "Algerian Flafla (Bell Pepper Salad)",
+      "es": "Algerian Flafla (Bell Pepper Salad)"
+    },
+    "algerian kefta (meatballs)": {
+      "en": "Algerian Kefta (Meatballs)",
+      "fr": "Algerian Kefta (Meatballs)",
+      "es": "Algerian Kefta (Meatballs)"
+    },
+    "anzac biscuits": {
+      "en": "Anzac biscuits",
+      "fr": "Anzac biscuits",
+      "es": "Anzac biscuits"
+    },
+    "apam balik": {
+      "en": "Apam balik",
+      "fr": "Apam balik",
+      "es": "Apam balik"
+    },
+    "apple & blackberry crumble": {
+      "en": "Apple & Blackberry Crumble",
+      "fr": "Apple & Blackberry Crumble",
+      "es": "Apple & Blackberry Crumble"
+    },
+    "apple frangipan tart": {
+      "en": "Apple Frangipan Tart",
+      "fr": "Apple Frangipan Tart",
+      "es": "Apple Frangipan Tart"
+    },
+    "apricot & turkish delight mess": {
+      "en": "Apricot & Turkish delight mess",
+      "fr": "Apricot & Turkish delight mess",
+      "es": "Apricot & Turkish delight mess"
+    },
+    "arepa pabellón": {
+      "en": "Arepa Pabellón",
+      "fr": "Arepa Pabellón",
+      "es": "Arepa Pabellón"
+    },
+    "arepa pelua": {
+      "en": "Arepa pelua",
+      "fr": "Arepa pelua",
+      "es": "Arepa pelua"
+    },
+    "arroz al horno (baked rice)": {
+      "en": "Arroz al horno (baked rice)",
+      "fr": "Arroz al horno (baked rice)",
+      "es": "Arroz al horno (baked rice)"
+    },
+    "arroz con gambas y calamar": {
+      "en": "Arroz con gambas y calamar",
+      "fr": "Arroz con gambas y calamar",
+      "es": "Arroz con gambas y calamar"
+    },
+    "asado": {
+      "en": "Asado",
+      "fr": "Asado",
+      "es": "Asado"
+    },
+    "aubergine & hummus grills": {
+      "en": "Aubergine & hummus grills",
+      "fr": "Aubergine & hummus grills",
+      "es": "Aubergine & hummus grills"
+    },
+    "aubergine couscous salad": {
+      "en": "Aubergine couscous salad",
+      "fr": "Aubergine couscous salad",
+      "es": "Aubergine couscous salad"
+    },
+    "aussie burgers": {
+      "en": "Aussie Burgers",
+      "fr": "Aussie Burgers",
+      "es": "Aussie Burgers"
+    },
+    "authentic norwegian kransekake": {
+      "en": "Authentic Norwegian Kransekake",
+      "fr": "Authentic Norwegian Kransekake",
+      "es": "Authentic Norwegian Kransekake"
+    },
+    "avocado dip with new potatoes": {
+      "en": "Avocado dip with new potatoes",
+      "fr": "Avocado dip with new potatoes",
+      "es": "Avocado dip with new potatoes"
+    },
+    "ayam percik": {
+      "en": "Ayam Percik",
+      "fr": "Ayam Percik",
+      "es": "Ayam Percik"
+    },
+    "bbq pork sloppy joes": {
+      "en": "BBQ Pork Sloppy Joes",
+      "fr": "BBQ Pork Sloppy Joes",
+      "es": "BBQ Pork Sloppy Joes"
+    },
+    "baba ghanoush": {
+      "en": "Baba Ghanoush",
+      "fr": "Baba Ghanoush",
+      "es": "Baba Ghanoush"
+    },
+    "baingan bharta": {
+      "en": "Baingan Bharta",
+      "fr": "Baingan Bharta",
+      "es": "Baingan Bharta"
+    },
+    "baked salmon with fennel & tomatoes": {
+      "en": "Baked salmon with fennel & tomatoes",
+      "fr": "Baked salmon with fennel & tomatoes",
+      "es": "Baked salmon with fennel & tomatoes"
+    },
+    "bakewell tart": {
+      "en": "Bakewell tart",
+      "fr": "Bakewell tart",
+      "es": "Bakewell tart"
+    },
+    "baklava with spiced nuts, ricotta & chocolate": {
+      "en": "Baklava with spiced nuts, ricotta & chocolate",
+      "fr": "Baklava with spiced nuts, ricotta & chocolate",
+      "es": "Baklava with spiced nuts, ricotta & chocolate"
+    },
+    "banana pancakes": {
+      "en": "Banana Pancakes",
+      "fr": "Banana Pancakes",
+      "es": "Banana Pancakes"
+    },
+    "bang bang prawn salad": {
+      "en": "Bang bang prawn salad",
+      "fr": "Bang bang prawn salad",
+      "es": "Bang bang prawn salad"
+    },
+    "barbecue pork buns": {
+      "en": "Barbecue pork buns",
+      "fr": "Barbecue pork buns",
+      "es": "Barbecue pork buns"
+    },
+    "barramundi with moroccan spices": {
+      "en": "Barramundi with Moroccan spices",
+      "fr": "Barramundi with Moroccan spices",
+      "es": "Barramundi with Moroccan spices"
+    },
+    "battenberg cake": {
+      "en": "Battenberg Cake",
+      "fr": "Battenberg Cake",
+      "es": "Battenberg Cake"
+    },
+    "bean & sausage hotpot": {
+      "en": "Bean & Sausage Hotpot",
+      "fr": "Bean & Sausage Hotpot",
+      "es": "Bean & Sausage Hotpot"
+    },
+    "beavertails": {
+      "en": "BeaverTails",
+      "fr": "BeaverTails",
+      "es": "BeaverTails"
+    },
+    "beef asado": {
+      "en": "Beef Asado",
+      "fr": "Beef Asado",
+      "es": "Beef Asado"
+    },
+    "beef banh mi bowls with sriracha mayo, carrot & pickled cucumber": {
+      "en": "Beef Banh Mi Bowls with Sriracha Mayo, Carrot & Pickled Cucumber",
+      "fr": "Beef Banh Mi Bowls with Sriracha Mayo, Carrot & Pickled Cucumber",
+      "es": "Beef Banh Mi Bowls with Sriracha Mayo, Carrot & Pickled Cucumber"
+    },
+    "beef bourguignon": {
+      "en": "Beef Bourguignon",
+      "fr": "Beef Bourguignon",
+      "es": "Beef Bourguignon"
+    },
+    "beef brisket pot roast": {
+      "en": "Beef Brisket Pot Roast",
+      "fr": "Beef Brisket Pot Roast",
+      "es": "Beef Brisket Pot Roast"
+    },
+    "beef caldereta": {
+      "en": "Beef Caldereta",
+      "fr": "Beef Caldereta",
+      "es": "Beef Caldereta"
+    },
+    "beef dumpling stew": {
+      "en": "Beef Dumpling Stew",
+      "fr": "Beef Dumpling Stew",
+      "es": "Beef Dumpling Stew"
+    },
+    "beef empanadas": {
+      "en": "Beef Empanadas",
+      "fr": "Beef Empanadas",
+      "es": "Beef Empanadas"
+    },
+    "beef lo mein": {
+      "en": "Beef Lo Mein",
+      "fr": "Beef Lo Mein",
+      "es": "Beef Lo Mein"
+    },
+    "beef mechado": {
+      "en": "Beef Mechado",
+      "fr": "Beef Mechado",
+      "es": "Beef Mechado"
+    },
+    "beef rendang": {
+      "en": "Beef Rendang",
+      "fr": "Beef Rendang",
+      "es": "Beef Rendang"
+    },
+    "beef sunday roast": {
+      "en": "Beef Sunday Roast",
+      "fr": "Beef Sunday Roast",
+      "es": "Beef Sunday Roast"
+    },
+    "beef wellington": {
+      "en": "Beef Wellington",
+      "fr": "Beef Wellington",
+      "es": "Beef Wellington"
+    },
+    "beef and mustard pie": {
+      "en": "Beef and Mustard Pie",
+      "fr": "Beef and Mustard Pie",
+      "es": "Beef and Mustard Pie"
+    },
+    "beef and oyster pie": {
+      "en": "Beef and Oyster pie",
+      "fr": "Beef and Oyster pie",
+      "es": "Beef and Oyster pie"
+    },
+    "beef pho": {
+      "en": "Beef pho",
+      "fr": "Beef pho",
+      "es": "Beef pho"
+    },
+    "beef stroganoff": {
+      "en": "Beef stroganoff",
+      "fr": "Beef stroganoff",
+      "es": "Beef stroganoff"
+    },
+    "beetroot & red cabbage sauerkraut": {
+      "en": "Beetroot & red cabbage sauerkraut",
+      "fr": "Beetroot & red cabbage sauerkraut",
+      "es": "Beetroot & red cabbage sauerkraut"
+    },
+    "beetroot soup (borscht)": {
+      "en": "Beetroot Soup (Borscht)",
+      "fr": "Beetroot Soup (Borscht)",
+      "es": "Beetroot Soup (Borscht)"
+    },
+    "beetroot latkes": {
+      "en": "Beetroot latkes",
+      "fr": "Beetroot latkes",
+      "es": "Beetroot latkes"
+    },
+    "beetroot pancakes": {
+      "en": "Beetroot pancakes",
+      "fr": "Beetroot pancakes",
+      "es": "Beetroot pancakes"
+    },
+    "big mac": {
+      "en": "Big Mac",
+      "fr": "Big Mac",
+      "es": "Big Mac"
+    },
+    "bigos (hunters stew)": {
+      "en": "Bigos (Hunters Stew)",
+      "fr": "Bigos (Hunters Stew)",
+      "es": "Bigos (Hunters Stew)"
+    },
+    "bigos (polish hunter's stew)": {
+      "en": "Bigos (Polish hunter's stew)",
+      "fr": "Bigos (Polish hunter's stew)",
+      "es": "Bigos (Polish hunter's stew)"
+    },
+    "bistek": {
+      "en": "Bistek",
+      "fr": "Bistek",
+      "es": "Bistek"
+    },
+    "bitterballen (dutch meatballs)": {
+      "en": "Bitterballen (Dutch meatballs)",
+      "fr": "Bitterballen (Dutch meatballs)",
+      "es": "Bitterballen (Dutch meatballs)"
+    },
+    "blackberry fool": {
+      "en": "Blackberry Fool",
+      "fr": "Blackberry Fool",
+      "es": "Blackberry Fool"
+    },
+    "blini pancakes": {
+      "en": "Blini Pancakes",
+      "fr": "Blini Pancakes",
+      "es": "Blini Pancakes"
+    },
+    "blueberry & lemon friands": {
+      "en": "Blueberry & lemon friands",
+      "fr": "Blueberry & lemon friands",
+      "es": "Blueberry & lemon friands"
+    },
+    "borsch": {
+      "en": "Borsch",
+      "fr": "Borsch",
+      "es": "Borsch"
+    },
+    "boulangère potatoes": {
+      "en": "Boulangère Potatoes",
+      "fr": "Boulangère Potatoes",
+      "es": "Boulangère Potatoes"
+    },
+    "boxty breakfast": {
+      "en": "Boxty Breakfast",
+      "fr": "Boxty Breakfast",
+      "es": "Boxty Breakfast"
+    },
+    "braised beef chilli": {
+      "en": "Braised Beef Chilli",
+      "fr": "Braised Beef Chilli",
+      "es": "Braised Beef Chilli"
+    },
+    "braised stuffed cabbage": {
+      "en": "Braised stuffed cabbage",
+      "fr": "Braised stuffed cabbage",
+      "es": "Braised stuffed cabbage"
+    },
+    "bread and butter pudding": {
+      "en": "Bread and Butter Pudding",
+      "fr": "Bread and Butter Pudding",
+      "es": "Bread and Butter Pudding"
+    },
+    "bread omelette": {
+      "en": "Bread omelette",
+      "fr": "Bread omelette",
+      "es": "Bread omelette"
+    },
+    "breakfast potatoes": {
+      "en": "Breakfast Potatoes",
+      "fr": "Breakfast Potatoes",
+      "es": "Breakfast Potatoes"
+    },
+    "brie wrapped in prosciutto & brioche": {
+      "en": "Brie wrapped in prosciutto & brioche",
+      "fr": "Brie wrapped in prosciutto & brioche",
+      "es": "Brie wrapped in prosciutto & brioche"
+    },
+    "broccoli & stilton soup": {
+      "en": "Broccoli & Stilton soup",
+      "fr": "Broccoli & Stilton soup",
+      "es": "Broccoli & Stilton soup"
+    },
+    "brown stew chicken": {
+      "en": "Brown Stew Chicken",
+      "fr": "Brown Stew Chicken",
+      "es": "Brown Stew Chicken"
+    },
+    "brun lapskaus (norwegian beef vegetable stew)": {
+      "en": "Brun Lapskaus (Norwegian Beef Vegetable Stew)",
+      "fr": "Brun Lapskaus (Norwegian Beef Vegetable Stew)",
+      "es": "Brun Lapskaus (Norwegian Beef Vegetable Stew)"
+    },
+    "bryndzové halušky": {
+      "en": "Bryndzové Halušky",
+      "fr": "Bryndzové Halušky",
+      "es": "Bryndzové Halušky"
+    },
+    "budino di ricotta": {
+      "en": "Budino Di Ricotta",
+      "fr": "Budino Di Ricotta",
+      "es": "Budino Di Ricotta"
+    },
+    "burek": {
+      "en": "Burek",
+      "fr": "Burek",
+      "es": "Burek"
+    },
+    "cabbage soup (shchi)": {
+      "en": "Cabbage Soup (Shchi)",
+      "fr": "Cabbage Soup (Shchi)",
+      "es": "Cabbage Soup (Shchi)"
+    },
+    "cacik": {
+      "en": "Cacik",
+      "fr": "Cacik",
+      "es": "Cacik"
+    },
+    "cajun spiced fish tacos": {
+      "en": "Cajun spiced fish tacos",
+      "fr": "Cajun spiced fish tacos",
+      "es": "Cajun spiced fish tacos"
+    },
+    "callaloo jamaican style": {
+      "en": "Callaloo Jamaican Style",
+      "fr": "Callaloo Jamaican Style",
+      "es": "Callaloo Jamaican Style"
+    },
+    "canadian butter tarts": {
+      "en": "Canadian Butter Tarts",
+      "fr": "Canadian Butter Tarts",
+      "es": "Canadian Butter Tarts"
+    },
+    "carbonada criolla": {
+      "en": "Carbonada Criolla",
+      "fr": "Carbonada Criolla",
+      "es": "Carbonada Criolla"
+    },
+    "carrot cake": {
+      "en": "Carrot Cake",
+      "fr": "Carrot Cake",
+      "es": "Carrot Cake"
+    },
+    "cashew ghoriba biscuits": {
+      "en": "Cashew Ghoriba Biscuits",
+      "fr": "Cashew Ghoriba Biscuits",
+      "es": "Cashew Ghoriba Biscuits"
+    },
+    "cassava pizza": {
+      "en": "Cassava pizza",
+      "fr": "Cassava pizza",
+      "es": "Cassava pizza"
+    },
+    "cevapi sausages": {
+      "en": "Cevapi Sausages",
+      "fr": "Cevapi Sausages",
+      "es": "Cevapi Sausages"
+    },
+    "chakchouka ": {
+      "en": "Chakchouka ",
+      "fr": "Chakchouka ",
+      "es": "Chakchouka "
+    },
+    "challah": {
+      "en": "Challah",
+      "fr": "Challah",
+      "es": "Challah"
+    },
+    "cheese borek": {
+      "en": "Cheese Borek",
+      "fr": "Cheese Borek",
+      "es": "Cheese Borek"
+    },
+    "chelsea buns": {
+      "en": "Chelsea Buns",
+      "fr": "Chelsea Buns",
+      "es": "Chelsea Buns"
+    },
+    "chick-fil-a sandwich": {
+      "en": "Chick-Fil-A Sandwich",
+      "fr": "Chick-Fil-A Sandwich",
+      "es": "Chick-Fil-A Sandwich"
+    },
+    "chicken & chorizo rice pot": {
+      "en": "Chicken & chorizo rice pot",
+      "fr": "Chicken & chorizo rice pot",
+      "es": "Chicken & chorizo rice pot"
+    },
+    "chicken & mushroom hotpot": {
+      "en": "Chicken & mushroom Hotpot",
+      "fr": "Chicken & mushroom Hotpot",
+      "es": "Chicken & mushroom Hotpot"
+    },
+    "chicken alfredo primavera": {
+      "en": "Chicken Alfredo Primavera",
+      "fr": "Chicken Alfredo Primavera",
+      "es": "Chicken Alfredo Primavera"
+    },
+    "chicken basquaise": {
+      "en": "Chicken Basquaise",
+      "fr": "Chicken Basquaise",
+      "es": "Chicken Basquaise"
+    },
+    "chicken congee": {
+      "en": "Chicken Congee",
+      "fr": "Chicken Congee",
+      "es": "Chicken Congee"
+    },
+    "chicken couscous": {
+      "en": "Chicken Couscous",
+      "fr": "Chicken Couscous",
+      "es": "Chicken Couscous"
+    },
+    "chicken enchilada casserole": {
+      "en": "Chicken Enchilada Casserole",
+      "fr": "Chicken Enchilada Casserole",
+      "es": "Chicken Enchilada Casserole"
+    },
+    "chicken fajita mac and cheese": {
+      "en": "Chicken Fajita Mac and Cheese",
+      "fr": "Chicken Fajita Mac and Cheese",
+      "es": "Chicken Fajita Mac and Cheese"
+    },
+    "chicken ham and leek pie": {
+      "en": "Chicken Ham and Leek Pie",
+      "fr": "Chicken Ham and Leek Pie",
+      "es": "Chicken Ham and Leek Pie"
+    },
+    "chicken handi": {
+      "en": "Chicken Handi",
+      "fr": "Chicken Handi",
+      "es": "Chicken Handi"
+    },
+    "chicken karaage": {
+      "en": "Chicken Karaage",
+      "fr": "Chicken Karaage",
+      "es": "Chicken Karaage"
+    },
+    "chicken marengo": {
+      "en": "Chicken Marengo",
+      "fr": "Chicken Marengo",
+      "es": "Chicken Marengo"
+    },
+    "chicken parmentier": {
+      "en": "Chicken Parmentier",
+      "fr": "Chicken Parmentier",
+      "es": "Chicken Parmentier"
+    },
+    "chicken quinoa greek salad": {
+      "en": "Chicken Quinoa Greek Salad",
+      "fr": "Chicken Quinoa Greek Salad",
+      "es": "Chicken Quinoa Greek Salad"
+    },
+    "chicken shawarma with homemade garlic herb yoghurt sauce": {
+      "en": "Chicken Shawarma with homemade garlic herb yoghurt sauce",
+      "fr": "Chicken Shawarma with homemade garlic herb yoghurt sauce",
+      "es": "Chicken Shawarma with homemade garlic herb yoghurt sauce"
+    },
+    "chicken wings with cumin, lemon & garlic": {
+      "en": "Chicken wings with cumin, lemon & garlic",
+      "fr": "Chicken wings with cumin, lemon & garlic",
+      "es": "Chicken wings with cumin, lemon & garlic"
+    },
+    "chicken with saffron, raisins & pine nuts": {
+      "en": "Chicken with saffron, raisins & pine nuts",
+      "fr": "Chicken with saffron, raisins & pine nuts",
+      "es": "Chicken with saffron, raisins & pine nuts"
+    },
+    "chickpea fajitas": {
+      "en": "Chickpea Fajitas",
+      "fr": "Chickpea Fajitas",
+      "es": "Chickpea Fajitas"
+    },
+    "chickpea, chorizo & spinach stew": {
+      "en": "Chickpea, chorizo & spinach stew",
+      "fr": "Chickpea, chorizo & spinach stew",
+      "es": "Chickpea, chorizo & spinach stew"
+    },
+    "chilli ginger lamb chops": {
+      "en": "Chilli ginger lamb chops",
+      "fr": "Chilli ginger lamb chops",
+      "es": "Chilli ginger lamb chops"
+    },
+    "chilli prawn linguine": {
+      "en": "Chilli prawn linguine",
+      "fr": "Chilli prawn linguine",
+      "es": "Chilli prawn linguine"
+    },
+    "chinon apple tarts": {
+      "en": "Chinon Apple Tarts",
+      "fr": "Chinon Apple Tarts",
+      "es": "Chinon Apple Tarts"
+    },
+    "chivito sandwich": {
+      "en": "Chivito sandwich",
+      "fr": "Chivito sandwich",
+      "es": "Chivito sandwich"
+    },
+    "chivito uruguayo": {
+      "en": "Chivito uruguayo",
+      "fr": "Chivito uruguayo",
+      "es": "Chivito uruguayo"
+    },
+    "choc chip pecan pie": {
+      "en": "Choc Chip Pecan Pie",
+      "fr": "Choc Chip Pecan Pie",
+      "es": "Choc Chip Pecan Pie"
+    },
+    "chocolate avocado mousse": {
+      "en": "Chocolate Avocado Mousse",
+      "fr": "Chocolate Avocado Mousse",
+      "es": "Chocolate Avocado Mousse"
+    },
+    "chocolate caramel crispy": {
+      "en": "Chocolate Caramel Crispy",
+      "fr": "Chocolate Caramel Crispy",
+      "es": "Chocolate Caramel Crispy"
+    },
+    "chocolate coconut squares": {
+      "en": "Chocolate Coconut Squares",
+      "fr": "Chocolate Coconut Squares",
+      "es": "Chocolate Coconut Squares"
+    },
+    "chocolate gateau": {
+      "en": "Chocolate Gateau",
+      "fr": "Chocolate Gateau",
+      "es": "Chocolate Gateau"
+    },
+    "chocolate raspberry brownies": {
+      "en": "Chocolate Raspberry Brownies",
+      "fr": "Chocolate Raspberry Brownies",
+      "es": "Chocolate Raspberry Brownies"
+    },
+    "chocolate souffle": {
+      "en": "Chocolate Souffle",
+      "fr": "Chocolate Souffle",
+      "es": "Chocolate Souffle"
+    },
+    "chocolate alfajores": {
+      "en": "Chocolate alfajores",
+      "fr": "Chocolate alfajores",
+      "es": "Chocolate alfajores"
+    },
+    "chocolate churros with chocolate & salted caramel sauce": {
+      "en": "Chocolate churros with chocolate & salted caramel sauce",
+      "fr": "Chocolate churros with chocolate & salted caramel sauce",
+      "es": "Chocolate churros with chocolate & salted caramel sauce"
+    },
+    "chocolate empanadas": {
+      "en": "Chocolate empanadas",
+      "fr": "Chocolate empanadas",
+      "es": "Chocolate empanadas"
+    },
+    "chorba hamra bel frik (algerian lamb, tomato, and freekeh soup)": {
+      "en": "Chorba Hamra bel Frik (Algerian Lamb, Tomato, and Freekeh Soup)",
+      "fr": "Chorba Hamra bel Frik (Algerian Lamb, Tomato, and Freekeh Soup)",
+      "es": "Chorba Hamra bel Frik (Algerian Lamb, Tomato, and Freekeh Soup)"
+    },
+    "choripán": {
+      "en": "Choripán",
+      "fr": "Choripán",
+      "es": "Choripán"
+    },
+    "chorizo & chickpea soup": {
+      "en": "Chorizo & chickpea soup",
+      "fr": "Chorizo & chickpea soup",
+      "es": "Chorizo & chickpea soup"
+    },
+    "chorizo & soft-boiled egg salad": {
+      "en": "Chorizo & soft-boiled egg salad",
+      "fr": "Chorizo & soft-boiled egg salad",
+      "es": "Chorizo & soft-boiled egg salad"
+    },
+    "chorizo & tomato salad": {
+      "en": "Chorizo & tomato salad",
+      "fr": "Chorizo & tomato salad",
+      "es": "Chorizo & tomato salad"
+    },
+    "chorizo, potato & cheese omelette": {
+      "en": "Chorizo, potato & cheese omelette",
+      "fr": "Chorizo, potato & cheese omelette",
+      "es": "Chorizo, potato & cheese omelette"
+    },
+    "christmas pudding flapjack": {
+      "en": "Christmas Pudding Flapjack",
+      "fr": "Christmas Pudding Flapjack",
+      "es": "Christmas Pudding Flapjack"
+    },
+    "christmas pudding trifle": {
+      "en": "Christmas Pudding Trifle",
+      "fr": "Christmas Pudding Trifle",
+      "es": "Christmas Pudding Trifle"
+    },
+    "christmas cake": {
+      "en": "Christmas cake",
+      "fr": "Christmas cake",
+      "es": "Christmas cake"
+    },
+    "chtitha batata (algerian potato stew)": {
+      "en": "Chtitha Batata (Algerian Potato Stew)",
+      "fr": "Chtitha Batata (Algerian Potato Stew)",
+      "es": "Chtitha Batata (Algerian Potato Stew)"
+    },
+    "churros": {
+      "en": "Churros",
+      "fr": "Churros",
+      "es": "Churros"
+    },
+    "cinnamon buns": {
+      "en": "Cinnamon buns",
+      "fr": "Cinnamon buns",
+      "es": "Cinnamon buns"
+    },
+    "clam chowder": {
+      "en": "Clam chowder",
+      "fr": "Clam chowder",
+      "es": "Clam chowder"
+    },
+    "clam, chorizo & white bean stew": {
+      "en": "Clam, chorizo & white bean stew",
+      "fr": "Clam, chorizo & white bean stew",
+      "es": "Clam, chorizo & white bean stew"
+    },
+    "classic christmas pudding": {
+      "en": "Classic Christmas pudding",
+      "fr": "Classic Christmas pudding",
+      "es": "Classic Christmas pudding"
+    },
+    "classic tourtière": {
+      "en": "Classic Tourtière",
+      "fr": "Classic Tourtière",
+      "es": "Classic Tourtière"
+    },
+    "coddled pork with cider": {
+      "en": "Coddled pork with cider",
+      "fr": "Coddled pork with cider",
+      "es": "Coddled pork with cider"
+    },
+    "coq au vin": {
+      "en": "Coq au vin",
+      "fr": "Coq au vin",
+      "es": "Coq au vin"
+    },
+    "corba": {
+      "en": "Corba",
+      "fr": "Corba",
+      "es": "Corba"
+    },
+    "corned beef hash": {
+      "en": "Corned Beef Hash",
+      "fr": "Corned Beef Hash",
+      "es": "Corned Beef Hash"
+    },
+    "corned beef and cabbage": {
+      "en": "Corned Beef and Cabbage",
+      "fr": "Corned Beef and Cabbage",
+      "es": "Corned Beef and Cabbage"
+    },
+    "corned beef and cabbage – jamaican style": {
+      "en": "Corned Beef and Cabbage – Jamaican Style",
+      "fr": "Corned Beef and Cabbage – Jamaican Style",
+      "es": "Corned Beef and Cabbage – Jamaican Style"
+    },
+    "cornes de gazelle (gazelle horns)": {
+      "en": "Cornes de Gazelle (Gazelle Horns)",
+      "fr": "Cornes de Gazelle (Gazelle Horns)",
+      "es": "Cornes de Gazelle (Gazelle Horns)"
+    },
+    "cream cheese tart": {
+      "en": "Cream Cheese Tart",
+      "fr": "Cream Cheese Tart",
+      "es": "Cream Cheese Tart"
+    },
+    "creamy tomato soup": {
+      "en": "Creamy Tomato Soup",
+      "fr": "Creamy Tomato Soup",
+      "es": "Creamy Tomato Soup"
+    },
+    "crema catalana": {
+      "en": "Crema Catalana",
+      "fr": "Crema Catalana",
+      "es": "Crema Catalana"
+    },
+    "crispy eggplant": {
+      "en": "Crispy Eggplant",
+      "fr": "Crispy Eggplant",
+      "es": "Crispy Eggplant"
+    },
+    "crispy sausages and greens": {
+      "en": "Crispy Sausages and Greens",
+      "fr": "Crispy Sausages and Greens",
+      "es": "Crispy Sausages and Greens"
+    },
+    "croatian bean stew": {
+      "en": "Croatian Bean Stew",
+      "fr": "Croatian Bean Stew",
+      "es": "Croatian Bean Stew"
+    },
+    "croatian lamb peka": {
+      "en": "Croatian lamb peka",
+      "fr": "Croatian lamb peka",
+      "es": "Croatian lamb peka"
+    },
+    "crock pot chicken baked tacos": {
+      "en": "Crock Pot Chicken Baked Tacos",
+      "fr": "Crock Pot Chicken Baked Tacos",
+      "es": "Crock Pot Chicken Baked Tacos"
+    },
+    "cucumber & fennel salad": {
+      "en": "Cucumber & fennel salad",
+      "fr": "Cucumber & fennel salad",
+      "es": "Cucumber & fennel salad"
+    },
+    "cumberland pie": {
+      "en": "Cumberland Pie",
+      "fr": "Cumberland Pie",
+      "es": "Cumberland Pie"
+    },
+    "dal fry": {
+      "en": "Dal fry",
+      "fr": "Dal fry",
+      "es": "Dal fry"
+    },
+    "date squares": {
+      "en": "Date squares",
+      "fr": "Date squares",
+      "es": "Date squares"
+    },
+    "drunken noodles (pad kee mao)": {
+      "en": "Drunken noodles (pad kee mao)",
+      "fr": "Drunken noodles (pad kee mao)",
+      "es": "Drunken noodles (pad kee mao)"
+    },
+    "duck confit": {
+      "en": "Duck Confit",
+      "fr": "Duck Confit",
+      "es": "Duck Confit"
+    },
+    "dulce de leche": {
+      "en": "Dulce de Leche",
+      "fr": "Dulce de Leche",
+      "es": "Dulce de Leche"
+    },
+    "dundee cake": {
+      "en": "Dundee cake",
+      "fr": "Dundee cake",
+      "es": "Dundee cake"
+    },
+    "dziriat (algerian almond tarts)": {
+      "en": "Dziriat (Algerian Almond Tarts)",
+      "fr": "Dziriat (Algerian Almond Tarts)",
+      "es": "Dziriat (Algerian Almond Tarts)"
+    },
+    "easy spanish chicken": {
+      "en": "Easy Spanish chicken",
+      "fr": "Easy Spanish chicken",
+      "es": "Easy Spanish chicken"
+    },
+    "eccles cakes": {
+      "en": "Eccles Cakes",
+      "fr": "Eccles Cakes",
+      "es": "Eccles Cakes"
+    },
+    "egg drop soup": {
+      "en": "Egg Drop Soup",
+      "fr": "Egg Drop Soup",
+      "es": "Egg Drop Soup"
+    },
+    "eggplant adobo": {
+      "en": "Eggplant Adobo",
+      "fr": "Eggplant Adobo",
+      "es": "Eggplant Adobo"
+    },
+    "egyptian fatteh": {
+      "en": "Egyptian Fatteh",
+      "fr": "Egyptian Fatteh",
+      "es": "Egyptian Fatteh"
+    },
+    "empanadas": {
+      "en": "Empanadas",
+      "fr": "Empanadas",
+      "es": "Empanadas"
+    },
+    "english breakfast": {
+      "en": "English Breakfast",
+      "fr": "English Breakfast",
+      "es": "English Breakfast"
+    },
+    "ensaimada": {
+      "en": "Ensaimada",
+      "fr": "Ensaimada",
+      "es": "Ensaimada"
+    },
+    "escovitch fish": {
+      "en": "Escovitch Fish",
+      "fr": "Escovitch Fish",
+      "es": "Escovitch Fish"
+    },
+    "eton mess": {
+      "en": "Eton Mess",
+      "fr": "Eton Mess",
+      "es": "Eton Mess"
+    },
+    "ezme": {
+      "en": "Ezme",
+      "fr": "Ezme",
+      "es": "Ezme"
+    },
+    "fainá": {
+      "en": "Fainá",
+      "fr": "Fainá",
+      "es": "Fainá"
+    },
+    "falafel": {
+      "en": "Falafel",
+      "fr": "Falafel",
+      "es": "Falafel"
+    },
+    "falafel pita sandwich with tahini sauce": {
+      "en": "Falafel Pita Sandwich with Tahini Sauce",
+      "fr": "Falafel Pita Sandwich with Tahini Sauce",
+      "es": "Falafel Pita Sandwich with Tahini Sauce"
+    },
+    "fasoliyyeh bi z-zayt (syrian green beans with olive oil)": {
+      "en": "Fasoliyyeh Bi Z-Zayt (Syrian Green Beans with Olive Oil)",
+      "fr": "Fasoliyyeh Bi Z-Zayt (Syrian Green Beans with Olive Oil)",
+      "es": "Fasoliyyeh Bi Z-Zayt (Syrian Green Beans with Olive Oil)"
+    },
+    "fašírky": {
+      "en": "Fašírky",
+      "fr": "Fašírky",
+      "es": "Fašírky"
+    },
+    "fennel dauphinoise": {
+      "en": "Fennel Dauphinoise",
+      "fr": "Fennel Dauphinoise",
+      "es": "Fennel Dauphinoise"
+    },
+    "feteer meshaltet": {
+      "en": "Feteer Meshaltet",
+      "fr": "Feteer Meshaltet",
+      "es": "Feteer Meshaltet"
+    },
+    "fettuccine alfredo": {
+      "en": "Fettuccine Alfredo",
+      "fr": "Fettuccine Alfredo",
+      "es": "Fettuccine Alfredo"
+    },
+    "fettucine alfredo": {
+      "en": "Fettucine alfredo",
+      "fr": "Fettucine alfredo",
+      "es": "Fettucine alfredo"
+    },
+    "figgy duff": {
+      "en": "Figgy Duff",
+      "fr": "Figgy Duff",
+      "es": "Figgy Duff"
+    },
+    "fish soup (ukha)": {
+      "en": "Fish Soup (Ukha)",
+      "fr": "Fish Soup (Ukha)",
+      "es": "Fish Soup (Ukha)"
+    },
+    "fish stew with rouille": {
+      "en": "Fish Stew with Rouille",
+      "fr": "Fish Stew with Rouille",
+      "es": "Fish Stew with Rouille"
+    },
+    "fish fofos": {
+      "en": "Fish fofos",
+      "fr": "Fish fofos",
+      "es": "Fish fofos"
+    },
+    "fish pie": {
+      "en": "Fish pie",
+      "fr": "Fish pie",
+      "es": "Fish pie"
+    },
+    "fiskesuppe (creamy norwegian fish soup)": {
+      "en": "Fiskesuppe (Creamy Norwegian Fish Soup)",
+      "fr": "Fiskesuppe (Creamy Norwegian Fish Soup)",
+      "es": "Fiskesuppe (Creamy Norwegian Fish Soup)"
+    },
+    "flamiche": {
+      "en": "Flamiche",
+      "fr": "Flamiche",
+      "es": "Flamiche"
+    },
+    "flan": {
+      "en": "Flan",
+      "fr": "Flan",
+      "es": "Flan"
+    },
+    "flapper pie": {
+      "en": "Flapper Pie",
+      "fr": "Flapper Pie",
+      "es": "Flapper Pie"
+    },
+    "french lentils with garlic and thyme": {
+      "en": "French Lentils With Garlic and Thyme",
+      "fr": "French Lentils With Garlic and Thyme",
+      "es": "French Lentils With Garlic and Thyme"
+    },
+    "french omelette": {
+      "en": "French Omelette",
+      "fr": "French Omelette",
+      "es": "French Omelette"
+    },
+    "french onion chicken with roasted carrots & mashed potatoes": {
+      "en": "French Onion Chicken with Roasted Carrots & Mashed Potatoes",
+      "fr": "French Onion Chicken with Roasted Carrots & Mashed Potatoes",
+      "es": "French Onion Chicken with Roasted Carrots & Mashed Potatoes"
+    },
+    "french onion soup": {
+      "en": "French Onion Soup",
+      "fr": "French Onion Soup",
+      "es": "French Onion Soup"
+    },
+    "fresh sardines": {
+      "en": "Fresh sardines",
+      "fr": "Fresh sardines",
+      "es": "Fresh sardines"
+    },
+    "fried calamari": {
+      "en": "Fried calamari",
+      "fr": "Fried calamari",
+      "es": "Fried calamari"
+    },
+    "fruit and cream cheese breakfast pastries": {
+      "en": "Fruit and Cream Cheese Breakfast Pastries",
+      "fr": "Fruit and Cream Cheese Breakfast Pastries",
+      "es": "Fruit and Cream Cheese Breakfast Pastries"
+    },
+    "ful medames": {
+      "en": "Ful Medames",
+      "fr": "Ful Medames",
+      "es": "Ful Medames"
+    },
+    "full english breakfast": {
+      "en": "Full English Breakfast",
+      "fr": "Full English Breakfast",
+      "es": "Full English Breakfast"
+    },
+    "fyrstekake – norwegian prince cake": {
+      "en": "Fyrstekake – Norwegian Prince Cake",
+      "fr": "Fyrstekake – Norwegian Prince Cake",
+      "es": "Fyrstekake – Norwegian Prince Cake"
+    },
+    "fårikål (norwegian national dish)": {
+      "en": "Fårikål (Norwegian National Dish)",
+      "fr": "Fårikål (Norwegian National Dish)",
+      "es": "Fårikål (Norwegian National Dish)"
+    },
+    "gambas al ajillo": {
+      "en": "Gambas al ajillo",
+      "fr": "Gambas al ajillo",
+      "es": "Gambas al ajillo"
+    },
+    "garides saganaki": {
+      "en": "Garides Saganaki",
+      "fr": "Garides Saganaki",
+      "es": "Garides Saganaki"
+    },
+    "garlicky prawns with sherry": {
+      "en": "Garlicky prawns with sherry",
+      "fr": "Garlicky prawns with sherry",
+      "es": "Garlicky prawns with sherry"
+    },
+    "general tsos chicken": {
+      "en": "General Tsos Chicken",
+      "fr": "General Tsos Chicken",
+      "es": "General Tsos Chicken"
+    },
+    "gigantes plaki": {
+      "en": "Gigantes Plaki",
+      "fr": "Gigantes Plaki",
+      "es": "Gigantes Plaki"
+    },
+    "golabki (cabbage roll)": {
+      "en": "Golabki (cabbage roll)",
+      "fr": "Golabki (cabbage roll)",
+      "es": "Golabki (cabbage roll)"
+    },
+    "grape nut ice cream": {
+      "en": "Grape Nut Ice Cream",
+      "fr": "Grape Nut Ice Cream",
+      "es": "Grape Nut Ice Cream"
+    },
+    "griddled aubergines with sesame dressing": {
+      "en": "Griddled aubergines with sesame dressing",
+      "fr": "Griddled aubergines with sesame dressing",
+      "es": "Griddled aubergines with sesame dressing"
+    },
+    "griddled flatbreads": {
+      "en": "Griddled flatbreads",
+      "fr": "Griddled flatbreads",
+      "es": "Griddled flatbreads"
+    },
+    "grilled mac and cheese sandwich": {
+      "en": "Grilled Mac and Cheese Sandwich",
+      "fr": "Grilled Mac and Cheese Sandwich",
+      "es": "Grilled Mac and Cheese Sandwich"
+    },
+    "grilled portuguese sardines": {
+      "en": "Grilled Portuguese sardines",
+      "fr": "Grilled Portuguese sardines",
+      "es": "Grilled Portuguese sardines"
+    },
+    "grilled aubergines with spicy chickpeas & walnut sauce": {
+      "en": "Grilled aubergines with spicy chickpeas & walnut sauce",
+      "fr": "Grilled aubergines with spicy chickpeas & walnut sauce",
+      "es": "Grilled aubergines with spicy chickpeas & walnut sauce"
+    },
+    "grilled eggplant with coconut milk": {
+      "en": "Grilled eggplant with coconut milk",
+      "fr": "Grilled eggplant with coconut milk",
+      "es": "Grilled eggplant with coconut milk"
+    },
+    "ham croquetas": {
+      "en": "Ham croquetas",
+      "fr": "Ham croquetas",
+      "es": "Ham croquetas"
+    },
+    "ham hock colcannon": {
+      "en": "Ham hock colcannon",
+      "fr": "Ham hock colcannon",
+      "es": "Ham hock colcannon"
+    },
+    "hodge podge": {
+      "en": "Hodge Podge",
+      "fr": "Hodge Podge",
+      "es": "Hodge Podge"
+    },
+    "home-made mandazi": {
+      "en": "Home-made Mandazi",
+      "fr": "Home-made Mandazi",
+      "es": "Home-made Mandazi"
+    },
+    "honey balsamic chicken with crispy broccoli & potatoes": {
+      "en": "Honey Balsamic Chicken with Crispy Broccoli & Potatoes",
+      "fr": "Honey Balsamic Chicken with Crispy Broccoli & Potatoes",
+      "es": "Honey Balsamic Chicken with Crispy Broccoli & Potatoes"
+    },
+    "honey teriyaki salmon": {
+      "en": "Honey Teriyaki Salmon",
+      "fr": "Honey Teriyaki Salmon",
+      "es": "Honey Teriyaki Salmon"
+    },
+    "honey yogurt cheesecake": {
+      "en": "Honey Yogurt Cheesecake",
+      "fr": "Honey Yogurt Cheesecake",
+      "es": "Honey Yogurt Cheesecake"
+    },
+    "hot chocolate fudge": {
+      "en": "Hot Chocolate Fudge",
+      "fr": "Hot Chocolate Fudge",
+      "es": "Hot Chocolate Fudge"
+    },
+    "hot and sour soup": {
+      "en": "Hot and Sour Soup",
+      "fr": "Hot and Sour Soup",
+      "es": "Hot and Sour Soup"
+    },
+    "hot cumin lamb wrap with crunchy slaw & spicy mayo": {
+      "en": "Hot cumin lamb wrap with crunchy slaw & spicy mayo",
+      "fr": "Hot cumin lamb wrap with crunchy slaw & spicy mayo",
+      "es": "Hot cumin lamb wrap with crunchy slaw & spicy mayo"
+    },
+    "hummus": {
+      "en": "Hummus",
+      "fr": "Hummus",
+      "es": "Hummus"
+    },
+    "imam bayildi with bbq lamb & tzatziki": {
+      "en": "Imam bayildi with BBQ lamb & tzatziki",
+      "fr": "Imam bayildi with BBQ lamb & tzatziki",
+      "es": "Imam bayildi with BBQ lamb & tzatziki"
+    },
+    "irish stew": {
+      "en": "Irish stew",
+      "fr": "Irish stew",
+      "es": "Irish stew"
+    },
+    "jam roly-poly": {
+      "en": "Jam Roly-Poly",
+      "fr": "Jam Roly-Poly",
+      "es": "Jam Roly-Poly"
+    },
+    "jam jam cookies": {
+      "en": "Jam jam cookies",
+      "fr": "Jam jam cookies",
+      "es": "Jam jam cookies"
+    },
+    "jamaican banana fritters": {
+      "en": "Jamaican Banana Fritters",
+      "fr": "Jamaican Banana Fritters",
+      "es": "Jamaican Banana Fritters"
+    },
+    "jamaican beef patties": {
+      "en": "Jamaican Beef Patties",
+      "fr": "Jamaican Beef Patties",
+      "es": "Jamaican Beef Patties"
+    },
+    "jamaican boiled dumplings": {
+      "en": "Jamaican Boiled Dumplings",
+      "fr": "Jamaican Boiled Dumplings",
+      "es": "Jamaican Boiled Dumplings"
+    },
+    "jamaican curry chicken recipe": {
+      "en": "Jamaican Curry Chicken Recipe",
+      "fr": "Jamaican Curry Chicken Recipe",
+      "es": "Jamaican Curry Chicken Recipe"
+    },
+    "jamaican curry goat": {
+      "en": "Jamaican Curry Goat",
+      "fr": "Jamaican Curry Goat",
+      "es": "Jamaican Curry Goat"
+    },
+    "jamaican festival (sweet dumpling)": {
+      "en": "Jamaican Festival (Sweet Dumpling)",
+      "fr": "Jamaican Festival (Sweet Dumpling)",
+      "es": "Jamaican Festival (Sweet Dumpling)"
+    },
+    "jamaican fried dumplings": {
+      "en": "Jamaican Fried Dumplings",
+      "fr": "Jamaican Fried Dumplings",
+      "es": "Jamaican Fried Dumplings"
+    },
+    "jamaican instant pot rice and beans": {
+      "en": "Jamaican Instant Pot Rice and Beans",
+      "fr": "Jamaican Instant Pot Rice and Beans",
+      "es": "Jamaican Instant Pot Rice and Beans"
+    },
+    "jamaican pepper shrimp": {
+      "en": "Jamaican Pepper Shrimp",
+      "fr": "Jamaican Pepper Shrimp",
+      "es": "Jamaican Pepper Shrimp"
+    },
+    "jamaican rice and peas": {
+      "en": "Jamaican Rice and Peas",
+      "fr": "Jamaican Rice and Peas",
+      "es": "Jamaican Rice and Peas"
+    },
+    "jamaican spice bun recipe": {
+      "en": "Jamaican Spice Bun Recipe",
+      "fr": "Jamaican Spice Bun Recipe",
+      "es": "Jamaican Spice Bun Recipe"
+    },
+    "jamaican sweet potato pudding": {
+      "en": "Jamaican Sweet Potato Pudding",
+      "fr": "Jamaican Sweet Potato Pudding",
+      "es": "Jamaican Sweet Potato Pudding"
+    },
+    "jamon & wild garlic croquetas": {
+      "en": "Jamon & wild garlic croquetas",
+      "fr": "Jamon & wild garlic croquetas",
+      "es": "Jamon & wild garlic croquetas"
+    },
+    "japanese katsudon": {
+      "en": "Japanese Katsudon",
+      "fr": "Japanese Katsudon",
+      "es": "Japanese Katsudon"
+    },
+    "japanese gohan rice": {
+      "en": "Japanese gohan rice",
+      "fr": "Japanese gohan rice",
+      "es": "Japanese gohan rice"
+    },
+    "jerk chicken with rice & peas": {
+      "en": "Jerk chicken with rice & peas",
+      "fr": "Jerk chicken with rice & peas",
+      "es": "Jerk chicken with rice & peas"
+    },
+    "jiggs dinner": {
+      "en": "Jiggs Dinner",
+      "fr": "Jiggs Dinner",
+      "es": "Jiggs Dinner"
+    },
+    "kafteji": {
+      "en": "Kafteji",
+      "fr": "Kafteji",
+      "es": "Kafteji"
+    },
+    "kapsalon": {
+      "en": "Kapsalon",
+      "fr": "Kapsalon",
+      "es": "Kapsalon"
+    },
+    "karbonader (lean beef patties) with caramelized onions": {
+      "en": "Karbonader (Lean Beef Patties) with Caramelized Onions",
+      "fr": "Karbonader (Lean Beef Patties) with Caramelized Onions",
+      "es": "Karbonader (Lean Beef Patties) with Caramelized Onions"
+    },
+    "katsu chicken curry": {
+      "en": "Katsu Chicken curry",
+      "fr": "Katsu Chicken curry",
+      "es": "Katsu Chicken curry"
+    },
+    "kedgeree": {
+      "en": "Kedgeree",
+      "fr": "Kedgeree",
+      "es": "Kedgeree"
+    },
+    "keleya zaara": {
+      "en": "Keleya Zaara",
+      "fr": "Keleya Zaara",
+      "es": "Keleya Zaara"
+    },
+    "kentucky fried chicken": {
+      "en": "Kentucky Fried Chicken",
+      "fr": "Kentucky Fried Chicken",
+      "es": "Kentucky Fried Chicken"
+    },
+    "kenyan beef curry": {
+      "en": "Kenyan Beef Curry",
+      "fr": "Kenyan Beef Curry",
+      "es": "Kenyan Beef Curry"
+    },
+    "key lime pie": {
+      "en": "Key Lime Pie",
+      "fr": "Key Lime Pie",
+      "es": "Key Lime Pie"
+    },
+    "khobz el dar (algerian semolina bread)": {
+      "en": "Khobz el Dar (Algerian Semolina Bread)",
+      "fr": "Khobz el Dar (Algerian Semolina Bread)",
+      "es": "Khobz el Dar (Algerian Semolina Bread)"
+    },
+    "kidney bean curry": {
+      "en": "Kidney Bean Curry",
+      "fr": "Kidney Bean Curry",
+      "es": "Kidney Bean Curry"
+    },
+    "knafeh": {
+      "en": "Knafeh",
+      "fr": "Knafeh",
+      "es": "Knafeh"
+    },
+    "koshari": {
+      "en": "Koshari",
+      "fr": "Koshari",
+      "es": "Koshari"
+    },
+    "krispy kreme donut": {
+      "en": "Krispy Kreme Donut",
+      "fr": "Krispy Kreme Donut",
+      "es": "Krispy Kreme Donut"
+    },
+    "kumpir": {
+      "en": "Kumpir",
+      "fr": "Kumpir",
+      "es": "Kumpir"
+    },
+    "kung pao chicken": {
+      "en": "Kung Pao Chicken",
+      "fr": "Kung Pao Chicken",
+      "es": "Kung Pao Chicken"
+    },
+    "kung po prawns": {
+      "en": "Kung Po Prawns",
+      "fr": "Kung Po Prawns",
+      "es": "Kung Po Prawns"
+    },
+    "kvæfjord cake “verdens beste” (world’s best cake)": {
+      "en": "Kvæfjord Cake “Verdens Beste” (World’s Best Cake)",
+      "fr": "Kvæfjord Cake “Verdens Beste” (World’s Best Cake)",
+      "es": "Kvæfjord Cake “Verdens Beste” (World’s Best Cake)"
+    },
+    "laksa king prawn noodles": {
+      "en": "Laksa King Prawn Noodles",
+      "fr": "Laksa King Prawn Noodles",
+      "es": "Laksa King Prawn Noodles"
+    },
+    "lamb & apricot meatballs": {
+      "en": "Lamb & apricot meatballs",
+      "fr": "Lamb & apricot meatballs",
+      "es": "Lamb & apricot meatballs"
+    },
+    "lamb biryani": {
+      "en": "Lamb Biryani",
+      "fr": "Lamb Biryani",
+      "es": "Lamb Biryani"
+    },
+    "lamb pilaf (plov)": {
+      "en": "Lamb Pilaf (Plov)",
+      "fr": "Lamb Pilaf (Plov)",
+      "es": "Lamb Pilaf (Plov)"
+    },
+    "lamb rogan josh": {
+      "en": "Lamb Rogan josh",
+      "fr": "Lamb Rogan josh",
+      "es": "Lamb Rogan josh"
+    },
+    "lamb tagine": {
+      "en": "Lamb Tagine",
+      "fr": "Lamb Tagine",
+      "es": "Lamb Tagine"
+    },
+    "lamb tzatziki burgers": {
+      "en": "Lamb Tzatziki Burgers",
+      "fr": "Lamb Tzatziki Burgers",
+      "es": "Lamb Tzatziki Burgers"
+    },
+    "lamb and lemon souvlaki": {
+      "en": "Lamb and Lemon Souvlaki",
+      "fr": "Lamb and Lemon Souvlaki",
+      "es": "Lamb and Lemon Souvlaki"
+    },
+    "lamb and potato pie": {
+      "en": "Lamb and Potato pie",
+      "fr": "Lamb and Potato pie",
+      "es": "Lamb and Potato pie"
+    },
+    "lamb tomato and sweet spices": {
+      "en": "Lamb tomato and sweet spices",
+      "fr": "Lamb tomato and sweet spices",
+      "es": "Lamb tomato and sweet spices"
+    },
+    "lamingtons": {
+      "en": "Lamingtons",
+      "fr": "Lamingtons",
+      "es": "Lamingtons"
+    },
+    "lancashire hotpot": {
+      "en": "Lancashire hotpot",
+      "fr": "Lancashire hotpot",
+      "es": "Lancashire hotpot"
+    },
+    "lasagna sandwiches": {
+      "en": "Lasagna Sandwiches",
+      "fr": "Lasagna Sandwiches",
+      "es": "Lasagna Sandwiches"
+    },
+    "lasagne": {
+      "en": "Lasagne",
+      "fr": "Lasagne",
+      "es": "Lasagne"
+    },
+    "leblebi soup": {
+      "en": "Leblebi Soup",
+      "fr": "Leblebi Soup",
+      "es": "Leblebi Soup"
+    },
+    "lemongrass beef stew with noodles": {
+      "en": "Lemongrass beef stew with noodles",
+      "fr": "Lemongrass beef stew with noodles",
+      "es": "Lemongrass beef stew with noodles"
+    },
+    "locro": {
+      "en": "Locro",
+      "fr": "Locro",
+      "es": "Locro"
+    },
+    "ma po tofu": {
+      "en": "Ma Po Tofu",
+      "fr": "Ma Po Tofu",
+      "es": "Ma Po Tofu"
+    },
+    "madeira cake": {
+      "en": "Madeira Cake",
+      "fr": "Madeira Cake",
+      "es": "Madeira Cake"
+    },
+    "mamoul (eid biscuits)": {
+      "en": "Mamoul (Eid biscuits)",
+      "fr": "Mamoul (Eid biscuits)",
+      "es": "Mamoul (Eid biscuits)"
+    },
+    "massaman beef curry": {
+      "en": "Massaman Beef curry",
+      "fr": "Massaman Beef curry",
+      "es": "Massaman Beef curry"
+    },
+    "matambre a la pizza": {
+      "en": "Matambre a la Pizza",
+      "fr": "Matambre a la Pizza",
+      "es": "Matambre a la Pizza"
+    },
+    "matar paneer": {
+      "en": "Matar Paneer",
+      "fr": "Matar Paneer",
+      "es": "Matar Paneer"
+    },
+    "mazariner – scandinavian almond tartlets": {
+      "en": "Mazariner – Scandinavian Almond Tartlets",
+      "fr": "Mazariner – Scandinavian Almond Tartlets",
+      "es": "Mazariner – Scandinavian Almond Tartlets"
+    },
+    "mbuzi choma (roasted goat)": {
+      "en": "Mbuzi Choma (Roasted Goat)",
+      "fr": "Mbuzi Choma (Roasted Goat)",
+      "es": "Mbuzi Choma (Roasted Goat)"
+    },
+    "mcsinghs scotch pie": {
+      "en": "McSinghs Scotch pie",
+      "fr": "McSinghs Scotch pie",
+      "es": "McSinghs Scotch pie"
+    },
+    "mediterranean pasta salad": {
+      "en": "Mediterranean Pasta Salad",
+      "fr": "Mediterranean Pasta Salad",
+      "es": "Mediterranean Pasta Salad"
+    },
+    "mee goreng mamak": {
+      "en": "Mee goreng mamak",
+      "fr": "Mee goreng mamak",
+      "es": "Mee goreng mamak"
+    },
+    "migas": {
+      "en": "Migas",
+      "fr": "Migas",
+      "es": "Migas"
+    },
+    "milanesa": {
+      "en": "Milanesa",
+      "fr": "Milanesa",
+      "es": "Milanesa"
+    },
+    "mince pies": {
+      "en": "Mince Pies",
+      "fr": "Mince Pies",
+      "es": "Mince Pies"
+    },
+    "minced beef pie": {
+      "en": "Minced Beef Pie",
+      "fr": "Minced Beef Pie",
+      "es": "Minced Beef Pie"
+    },
+    "mini bundt cakes": {
+      "en": "Mini bundt cakes",
+      "fr": "Mini bundt cakes",
+      "es": "Mini bundt cakes"
+    },
+    "mini chilli beef pies": {
+      "en": "Mini chilli beef pies",
+      "fr": "Mini chilli beef pies",
+      "es": "Mini chilli beef pies"
+    },
+    "molasses baked beans": {
+      "en": "Molasses Baked Beans",
+      "fr": "Molasses Baked Beans",
+      "es": "Molasses Baked Beans"
+    },
+    "montreal smoked meat": {
+      "en": "Montreal Smoked Meat",
+      "fr": "Montreal Smoked Meat",
+      "es": "Montreal Smoked Meat"
+    },
+    "moroccan carrot soup": {
+      "en": "Moroccan Carrot Soup",
+      "fr": "Moroccan Carrot Soup",
+      "es": "Moroccan Carrot Soup"
+    },
+    "moussaka": {
+      "en": "Moussaka",
+      "fr": "Moussaka",
+      "es": "Moussaka"
+    },
+    "mulukhiyah": {
+      "en": "Mulukhiyah",
+      "fr": "Mulukhiyah",
+      "es": "Mulukhiyah"
+    },
+    "mushroom & chestnut rotolo": {
+      "en": "Mushroom & Chestnut Rotolo",
+      "fr": "Mushroom & Chestnut Rotolo",
+      "es": "Mushroom & Chestnut Rotolo"
+    },
+    "mushroom soup with buckwheat": {
+      "en": "Mushroom soup with buckwheat",
+      "fr": "Mushroom soup with buckwheat",
+      "es": "Mushroom soup with buckwheat"
+    },
+    "mustard champ": {
+      "en": "Mustard champ",
+      "fr": "Mustard champ",
+      "es": "Mustard champ"
+    },
+    "mutabbaq": {
+      "en": "Mutabbaq",
+      "fr": "Mutabbaq",
+      "es": "Mutabbaq"
+    },
+    "nanaimo bars": {
+      "en": "Nanaimo Bars",
+      "fr": "Nanaimo Bars",
+      "es": "Nanaimo Bars"
+    },
+    "nasi lemak": {
+      "en": "Nasi lemak",
+      "fr": "Nasi lemak",
+      "es": "Nasi lemak"
+    },
+    "new york cheesecake": {
+      "en": "New York cheesecake",
+      "fr": "New York cheesecake",
+      "es": "New York cheesecake"
+    },
+    "no-churn rum raisin ice cream": {
+      "en": "No-Churn Rum Raisin Ice Cream",
+      "fr": "No-Churn Rum Raisin Ice Cream",
+      "es": "No-Churn Rum Raisin Ice Cream"
+    },
+    "noodle bowl salad": {
+      "en": "Noodle bowl salad",
+      "fr": "Noodle bowl salad",
+      "es": "Noodle bowl salad"
+    },
+    "nordic smørrebrød with asparagus and horseradish cream": {
+      "en": "Nordic smørrebrød with asparagus and horseradish cream",
+      "fr": "Nordic smørrebrød with asparagus and horseradish cream",
+      "es": "Nordic smørrebrød with asparagus and horseradish cream"
+    },
+    "norwegian krumkake": {
+      "en": "Norwegian Krumkake",
+      "fr": "Norwegian Krumkake",
+      "es": "Norwegian Krumkake"
+    },
+    "norwegian potato lefse": {
+      "en": "Norwegian Potato Lefse",
+      "fr": "Norwegian Potato Lefse",
+      "es": "Norwegian Potato Lefse"
+    },
+    "nutty chicken curry": {
+      "en": "Nutty Chicken Curry",
+      "fr": "Nutty Chicken Curry",
+      "es": "Nutty Chicken Curry"
+    },
+    "oatmeal pancakes": {
+      "en": "Oatmeal pancakes",
+      "fr": "Oatmeal pancakes",
+      "es": "Oatmeal pancakes"
+    },
+    "osso buco alla milanese": {
+      "en": "Osso Buco alla Milanese",
+      "fr": "Osso Buco alla Milanese",
+      "es": "Osso Buco alla Milanese"
+    },
+    "oxtail with broad beans": {
+      "en": "Oxtail with broad beans",
+      "fr": "Oxtail with broad beans",
+      "es": "Oxtail with broad beans"
+    },
+    "pad see ew": {
+      "en": "Pad See Ew",
+      "fr": "Pad See Ew",
+      "es": "Pad See Ew"
+    },
+    "pad thai": {
+      "en": "Pad Thai",
+      "fr": "Pad Thai",
+      "es": "Pad Thai"
+    },
+    "padron peppers": {
+      "en": "Padron peppers",
+      "fr": "Padron peppers",
+      "es": "Padron peppers"
+    },
+    "paella": {
+      "en": "Paella",
+      "fr": "Paella",
+      "es": "Paella"
+    },
+    "pan-fried hake, white bean & chorizo broth": {
+      "en": "Pan-fried hake, white bean & chorizo broth",
+      "fr": "Pan-fried hake, white bean & chorizo broth",
+      "es": "Pan-fried hake, white bean & chorizo broth"
+    },
+    "panang chicken curry (kaeng panang gai)": {
+      "en": "Panang chicken curry (kaeng panang gai)",
+      "fr": "Panang chicken curry (kaeng panang gai)",
+      "es": "Panang chicken curry (kaeng panang gai)"
+    },
+    "pancakes": {
+      "en": "Pancakes",
+      "fr": "Pancakes",
+      "es": "Pancakes"
+    },
+    "parkin cake": {
+      "en": "Parkin Cake",
+      "fr": "Parkin Cake",
+      "es": "Parkin Cake"
+    },
+    "passion fruit mousse": {
+      "en": "Passion fruit mousse",
+      "fr": "Passion fruit mousse",
+      "es": "Passion fruit mousse"
+    },
+    "paszteciki (polish pasties)": {
+      "en": "Paszteciki (Polish Pasties)",
+      "fr": "Paszteciki (Polish Pasties)",
+      "es": "Paszteciki (Polish Pasties)"
+    },
+    "patatas bravas": {
+      "en": "Patatas bravas",
+      "fr": "Patatas bravas",
+      "es": "Patatas bravas"
+    },
+    "pate chinois": {
+      "en": "Pate Chinois",
+      "fr": "Pate Chinois",
+      "es": "Pate Chinois"
+    },
+    "peach & blueberry grunt": {
+      "en": "Peach & Blueberry Grunt",
+      "fr": "Peach & Blueberry Grunt",
+      "es": "Peach & Blueberry Grunt"
+    },
+    "peanut butter cheesecake": {
+      "en": "Peanut Butter Cheesecake",
+      "fr": "Peanut Butter Cheesecake",
+      "es": "Peanut Butter Cheesecake"
+    },
+    "peanut butter cookies": {
+      "en": "Peanut Butter Cookies",
+      "fr": "Peanut Butter Cookies",
+      "es": "Peanut Butter Cookies"
+    },
+    "pear tarte tatin": {
+      "en": "Pear Tarte Tatin",
+      "fr": "Pear Tarte Tatin",
+      "es": "Pear Tarte Tatin"
+    },
+    "piernik (polish gingerbread)": {
+      "en": "Piernik (Polish gingerbread)",
+      "fr": "Piernik (Polish gingerbread)",
+      "es": "Piernik (Polish gingerbread)"
+    },
+    "pierogi (polish dumplings)": {
+      "en": "Pierogi (Polish Dumplings)",
+      "fr": "Pierogi (Polish Dumplings)",
+      "es": "Pierogi (Polish Dumplings)"
+    },
+    "pilchard puttanesca": {
+      "en": "Pilchard puttanesca",
+      "fr": "Pilchard puttanesca",
+      "es": "Pilchard puttanesca"
+    },
+    "piri-piri chicken and slaw": {
+      "en": "Piri-piri chicken and slaw",
+      "fr": "Piri-piri chicken and slaw",
+      "es": "Piri-piri chicken and slaw"
+    },
+    "pistachio kunafa chocolate cake and cupcakes": {
+      "en": "Pistachio Kunafa Chocolate Cake and Cupcakes",
+      "fr": "Pistachio Kunafa Chocolate Cake and Cupcakes",
+      "es": "Pistachio Kunafa Chocolate Cake and Cupcakes"
+    },
+    "pistachio cake": {
+      "en": "Pistachio cake",
+      "fr": "Pistachio cake",
+      "es": "Pistachio cake"
+    },
+    "pisto con huevos": {
+      "en": "Pisto con huevos",
+      "fr": "Pisto con huevos",
+      "es": "Pisto con huevos"
+    },
+    "pizza express margherita": {
+      "en": "Pizza Express Margherita",
+      "fr": "Pizza Express Margherita",
+      "es": "Pizza Express Margherita"
+    },
+    "polish chocolate & walnut cake": {
+      "en": "Polish chocolate & walnut cake",
+      "fr": "Polish chocolate & walnut cake",
+      "es": "Polish chocolate & walnut cake"
+    },
+    "polish doughnuts (pączki)": {
+      "en": "Polish doughnuts (Pączki)",
+      "fr": "Polish doughnuts (Pączki)",
+      "es": "Polish doughnuts (Pączki)"
+    },
+    "polish patties (kotlety)": {
+      "en": "Polish patties (kotlety)",
+      "fr": "Polish patties (kotlety)",
+      "es": "Polish patties (kotlety)"
+    },
+    "pollo en pepitoria": {
+      "en": "Pollo en pepitoria",
+      "fr": "Pollo en pepitoria",
+      "es": "Pollo en pepitoria"
+    },
+    "polskie nalesniki (polish pancakes)": {
+      "en": "Polskie Nalesniki (Polish Pancakes)",
+      "fr": "Polskie Nalesniki (Polish Pancakes)",
+      "es": "Polskie Nalesniki (Polish Pancakes)"
+    },
+    "pomegranate salad": {
+      "en": "Pomegranate salad",
+      "fr": "Pomegranate salad",
+      "es": "Pomegranate salad"
+    },
+    "pork & sauerkraut goulash": {
+      "en": "Pork & sauerkraut goulash",
+      "fr": "Pork & sauerkraut goulash",
+      "es": "Pork & sauerkraut goulash"
+    },
+    "pork cassoulet": {
+      "en": "Pork Cassoulet",
+      "fr": "Pork Cassoulet",
+      "es": "Pork Cassoulet"
+    },
+    "pork rib bortsch": {
+      "en": "Pork rib bortsch",
+      "fr": "Pork rib bortsch",
+      "es": "Pork rib bortsch"
+    },
+    "portuguese barbecued pork (febras assadas)": {
+      "en": "Portuguese barbecued pork (Febras assadas)",
+      "fr": "Portuguese barbecued pork (Febras assadas)",
+      "es": "Portuguese barbecued pork (Febras assadas)"
+    },
+    "portuguese custard tarts": {
+      "en": "Portuguese custard tarts",
+      "fr": "Portuguese custard tarts",
+      "es": "Portuguese custard tarts"
+    },
+    "portuguese fish stew (caldeirada de peixe)": {
+      "en": "Portuguese fish stew (Caldeirada de peixe)",
+      "fr": "Portuguese fish stew (Caldeirada de peixe)",
+      "es": "Portuguese fish stew (Caldeirada de peixe)"
+    },
+    "portuguese prego with green piri-piri": {
+      "en": "Portuguese prego with green piri-piri",
+      "fr": "Portuguese prego with green piri-piri",
+      "es": "Portuguese prego with green piri-piri"
+    },
+    "postre chajá": {
+      "en": "Postre Chajá",
+      "fr": "Postre Chajá",
+      "es": "Postre Chajá"
+    },
+    "potato gratin with chicken": {
+      "en": "Potato Gratin with Chicken",
+      "fr": "Potato Gratin with Chicken",
+      "es": "Potato Gratin with Chicken"
+    },
+    "potato salad (olivier salad)": {
+      "en": "Potato Salad (Olivier Salad)",
+      "fr": "Potato Salad (Olivier Salad)",
+      "es": "Potato Salad (Olivier Salad)"
+    },
+    "pouding chomeur": {
+      "en": "Pouding chomeur",
+      "fr": "Pouding chomeur",
+      "es": "Pouding chomeur"
+    },
+    "poulet roti a l'algerienne (algerian roast chicken)": {
+      "en": "Poulet Roti a l'Algerienne (Algerian Roast Chicken)",
+      "fr": "Poulet Roti a l'Algerienne (Algerian Roast Chicken)",
+      "es": "Poulet Roti a l'Algerienne (Algerian Roast Chicken)"
+    },
+    "poutine": {
+      "en": "Poutine",
+      "fr": "Poutine",
+      "es": "Poutine"
+    },
+    "prawn & fennel bisque": {
+      "en": "Prawn & Fennel Bisque",
+      "fr": "Prawn & Fennel Bisque",
+      "es": "Prawn & Fennel Bisque"
+    },
+    "prawn & noodle salad with crispy shallots": {
+      "en": "Prawn & noodle salad with crispy shallots",
+      "fr": "Prawn & noodle salad with crispy shallots",
+      "es": "Prawn & noodle salad with crispy shallots"
+    },
+    "prawn stir-fry": {
+      "en": "Prawn stir-fry",
+      "fr": "Prawn stir-fry",
+      "es": "Prawn stir-fry"
+    },
+    "prawns with romesco sauce": {
+      "en": "Prawns with Romesco sauce",
+      "fr": "Prawns with Romesco sauce",
+      "es": "Prawns with Romesco sauce"
+    },
+    "provençal omelette cake": {
+      "en": "Provençal Omelette Cake",
+      "fr": "Provençal Omelette Cake",
+      "es": "Provençal Omelette Cake"
+    },
+    "pumpkin pie": {
+      "en": "Pumpkin Pie",
+      "fr": "Pumpkin Pie",
+      "es": "Pumpkin Pie"
+    },
+    "purple sprouting broccoli tempura with nuoc cham": {
+      "en": "Purple sprouting broccoli tempura with nuoc cham",
+      "fr": "Purple sprouting broccoli tempura with nuoc cham",
+      "es": "Purple sprouting broccoli tempura with nuoc cham"
+    },
+    "quick gazpacho": {
+      "en": "Quick gazpacho",
+      "fr": "Quick gazpacho",
+      "es": "Quick gazpacho"
+    },
+    "quick salt & pepper squid": {
+      "en": "Quick salt & pepper squid",
+      "fr": "Quick salt & pepper squid",
+      "es": "Quick salt & pepper squid"
+    },
+    "rappie pie": {
+      "en": "Rappie Pie",
+      "fr": "Rappie Pie",
+      "es": "Rappie Pie"
+    },
+    "raspberry mousse": {
+      "en": "Raspberry mousse",
+      "fr": "Raspberry mousse",
+      "es": "Raspberry mousse"
+    },
+    "raspeballer (norwegian potato dumplings)": {
+      "en": "Raspeballer (Norwegian Potato Dumplings)",
+      "fr": "Raspeballer (Norwegian Potato Dumplings)",
+      "es": "Raspeballer (Norwegian Potato Dumplings)"
+    },
+    "ratatouille": {
+      "en": "Ratatouille",
+      "fr": "Ratatouille",
+      "es": "Ratatouille"
+    },
+    "recheado masala fish": {
+      "en": "Recheado Masala Fish",
+      "fr": "Recheado Masala Fish",
+      "es": "Recheado Masala Fish"
+    },
+    "red peas soup": {
+      "en": "Red Peas Soup",
+      "fr": "Red Peas Soup",
+      "es": "Red Peas Soup"
+    },
+    "red curry chicken kebabs": {
+      "en": "Red curry chicken kebabs",
+      "fr": "Red curry chicken kebabs",
+      "es": "Red curry chicken kebabs"
+    },
+    "red onion pickle": {
+      "en": "Red onion pickle",
+      "fr": "Red onion pickle",
+      "es": "Red onion pickle"
+    },
+    "ribollita": {
+      "en": "Ribollita",
+      "fr": "Ribollita",
+      "es": "Ribollita"
+    },
+    "rice paper dumplings": {
+      "en": "Rice paper dumplings",
+      "fr": "Rice paper dumplings",
+      "es": "Rice paper dumplings"
+    },
+    "rigatoni with fennel sausage sauce": {
+      "en": "Rigatoni with fennel sausage sauce",
+      "fr": "Rigatoni with fennel sausage sauce",
+      "es": "Rigatoni with fennel sausage sauce"
+    },
+    "roast aubergine with goat's cheese & toasted flatbread": {
+      "en": "Roast aubergine with goat's cheese & toasted flatbread",
+      "fr": "Roast aubergine with goat's cheese & toasted flatbread",
+      "es": "Roast aubergine with goat's cheese & toasted flatbread"
+    },
+    "roast fennel and aubergine paella": {
+      "en": "Roast fennel and aubergine paella",
+      "fr": "Roast fennel and aubergine paella",
+      "es": "Roast fennel and aubergine paella"
+    },
+    "roasted eggplant with tahini, pine nuts, and lentils": {
+      "en": "Roasted Eggplant With Tahini, Pine Nuts, and Lentils",
+      "fr": "Roasted Eggplant With Tahini, Pine Nuts, and Lentils",
+      "es": "Roasted Eggplant With Tahini, Pine Nuts, and Lentils"
+    },
+    "roasted chicken with creamy walnut sauce": {
+      "en": "Roasted chicken with creamy walnut sauce",
+      "fr": "Roasted chicken with creamy walnut sauce",
+      "es": "Roasted chicken with creamy walnut sauce"
+    },
+    "rock cakes": {
+      "en": "Rock Cakes",
+      "fr": "Rock Cakes",
+      "es": "Rock Cakes"
+    },
+    "rocky road fudge": {
+      "en": "Rocky Road Fudge",
+      "fr": "Rocky Road Fudge",
+      "es": "Rocky Road Fudge"
+    },
+    "rogaliki (polish croissant cookies)": {
+      "en": "Rogaliki (Polish Croissant Cookies)",
+      "fr": "Rogaliki (Polish Croissant Cookies)",
+      "es": "Rogaliki (Polish Croissant Cookies)"
+    },
+    "rosemary braised red cabbage with kabanos": {
+      "en": "Rosemary braised red cabbage with kabanos",
+      "fr": "Rosemary braised red cabbage with kabanos",
+      "es": "Rosemary braised red cabbage with kabanos"
+    },
+    "rosol (polish chicken soup)": {
+      "en": "Rosol (Polish Chicken Soup)",
+      "fr": "Rosol (Polish Chicken Soup)",
+      "es": "Rosol (Polish Chicken Soup)"
+    },
+    "roti john": {
+      "en": "Roti john",
+      "fr": "Roti john",
+      "es": "Roti john"
+    },
+    "rye bread": {
+      "en": "Rye bread",
+      "fr": "Rye bread",
+      "es": "Rye bread"
+    },
+    "rømmegrøt – norwegian sour cream porridge": {
+      "en": "Rømmegrøt – Norwegian Sour Cream Porridge",
+      "fr": "Rømmegrøt – Norwegian Sour Cream Porridge",
+      "es": "Rømmegrøt – Norwegian Sour Cream Porridge"
+    },
+    "salmon avocado salad": {
+      "en": "Salmon Avocado Salad",
+      "fr": "Salmon Avocado Salad",
+      "es": "Salmon Avocado Salad"
+    },
+    "salmon eggs eggs benedict": {
+      "en": "Salmon Eggs Eggs Benedict",
+      "fr": "Salmon Eggs Eggs Benedict",
+      "es": "Salmon Eggs Eggs Benedict"
+    },
+    "salmon prawn risotto": {
+      "en": "Salmon Prawn Risotto",
+      "fr": "Salmon Prawn Risotto",
+      "es": "Salmon Prawn Risotto"
+    },
+    "salmon noodle soup": {
+      "en": "Salmon noodle soup",
+      "fr": "Salmon noodle soup",
+      "es": "Salmon noodle soup"
+    },
+    "salmon noodle wraps": {
+      "en": "Salmon noodle wraps",
+      "fr": "Salmon noodle wraps",
+      "es": "Salmon noodle wraps"
+    },
+    "salt & pepper squid": {
+      "en": "Salt & pepper squid",
+      "fr": "Salt & pepper squid",
+      "es": "Salt & pepper squid"
+    },
+    "salt cod tortilla": {
+      "en": "Salt cod tortilla",
+      "fr": "Salt cod tortilla",
+      "es": "Salt cod tortilla"
+    },
+    "salted caramel cheescake": {
+      "en": "Salted Caramel Cheescake",
+      "fr": "Salted Caramel Cheescake",
+      "es": "Salted Caramel Cheescake"
+    },
+    "saltfish and ackee": {
+      "en": "Saltfish and Ackee",
+      "fr": "Saltfish and Ackee",
+      "es": "Saltfish and Ackee"
+    },
+    "saskatoon pie": {
+      "en": "Saskatoon Pie",
+      "fr": "Saskatoon Pie",
+      "es": "Saskatoon Pie"
+    },
+    "sauerkraut pierogi": {
+      "en": "Sauerkraut pierogi",
+      "fr": "Sauerkraut pierogi",
+      "es": "Sauerkraut pierogi"
+    },
+    "sauerkraut pierogii": {
+      "en": "Sauerkraut pierogii",
+      "fr": "Sauerkraut pierogii",
+      "es": "Sauerkraut pierogii"
+    },
+    "sea bass with sizzled ginger, chilli & spring onions": {
+      "en": "Sea bass with sizzled ginger, chilli & spring onions",
+      "fr": "Sea bass with sizzled ginger, chilli & spring onions",
+      "es": "Sea bass with sizzled ginger, chilli & spring onions"
+    },
+    "seafood fideuà": {
+      "en": "Seafood fideuà",
+      "fr": "Seafood fideuà",
+      "es": "Seafood fideuà"
+    },
+    "seafood rice": {
+      "en": "Seafood rice",
+      "fr": "Seafood rice",
+      "es": "Seafood rice"
+    },
+    "seri muka kuih": {
+      "en": "Seri muka kuih",
+      "fr": "Seri muka kuih",
+      "es": "Seri muka kuih"
+    },
+    "shakshouka": {
+      "en": "Shakshouka",
+      "fr": "Shakshouka",
+      "es": "Shakshouka"
+    },
+    "shakshuka": {
+      "en": "Shakshuka",
+      "fr": "Shakshuka",
+      "es": "Shakshuka"
+    },
+    "shakshuka feta cheese": {
+      "en": "Shakshuka Feta Cheese",
+      "fr": "Shakshuka Feta Cheese",
+      "es": "Shakshuka Feta Cheese"
+    },
+    "shawarma": {
+      "en": "Shawarma",
+      "fr": "Shawarma",
+      "es": "Shawarma"
+    },
+    "shawarma bread": {
+      "en": "Shawarma bread",
+      "fr": "Shawarma bread",
+      "es": "Shawarma bread"
+    },
+    "shawarma chuck roast wrap": {
+      "en": "Shawarma chuck roast wrap",
+      "fr": "Shawarma chuck roast wrap",
+      "es": "Shawarma chuck roast wrap"
+    },
+    "shrimp chow fun": {
+      "en": "Shrimp Chow Fun",
+      "fr": "Shrimp Chow Fun",
+      "es": "Shrimp Chow Fun"
+    },
+    "skillet apple pork chops with roasted sweet potatoes & zucchini": {
+      "en": "Skillet Apple Pork Chops with Roasted Sweet Potatoes & Zucchini",
+      "fr": "Skillet Apple Pork Chops with Roasted Sweet Potatoes & Zucchini",
+      "es": "Skillet Apple Pork Chops with Roasted Sweet Potatoes & Zucchini"
+    },
+    "sledz w oleju (polish herrings)": {
+      "en": "Sledz w Oleju (Polish Herrings)",
+      "fr": "Sledz w Oleju (Polish Herrings)",
+      "es": "Sledz w Oleju (Polish Herrings)"
+    },
+    "slow-roast lamb with cinnamon, fennel & citrus": {
+      "en": "Slow-roast lamb with cinnamon, fennel & citrus",
+      "fr": "Slow-roast lamb with cinnamon, fennel & citrus",
+      "es": "Slow-roast lamb with cinnamon, fennel & citrus"
+    },
+    "slow-roasted ham with lemon, garlic & sage": {
+      "en": "Slow-roasted ham with lemon, garlic & sage",
+      "fr": "Slow-roasted ham with lemon, garlic & sage",
+      "es": "Slow-roasted ham with lemon, garlic & sage"
+    },
+    "smoked haddock kedgeree": {
+      "en": "Smoked Haddock Kedgeree",
+      "fr": "Smoked Haddock Kedgeree",
+      "es": "Smoked Haddock Kedgeree"
+    },
+    "smoked aubergine purée": {
+      "en": "Smoked aubergine purée",
+      "fr": "Smoked aubergine purée",
+      "es": "Smoked aubergine purée"
+    },
+    "smoky lentil chili with squash": {
+      "en": "Smoky Lentil Chili with Squash",
+      "fr": "Smoky Lentil Chili with Squash",
+      "es": "Smoky Lentil Chili with Squash"
+    },
+    "smoky chicken skewers": {
+      "en": "Smoky chicken skewers",
+      "fr": "Smoky chicken skewers",
+      "es": "Smoky chicken skewers"
+    },
+    "snert (dutch split pea soup)": {
+      "en": "Snert (Dutch Split Pea Soup)",
+      "fr": "Snert (Dutch Split Pea Soup)",
+      "es": "Snert (Dutch Split Pea Soup)"
+    },
+    "soy-glazed meatloaves with wasabi mashed potatoes & roasted carrots": {
+      "en": "Soy-Glazed Meatloaves with Wasabi Mashed Potatoes & Roasted Carrots",
+      "fr": "Soy-Glazed Meatloaves with Wasabi Mashed Potatoes & Roasted Carrots",
+      "es": "Soy-Glazed Meatloaves with Wasabi Mashed Potatoes & Roasted Carrots"
+    },
+    "spaghetti bolognese": {
+      "en": "Spaghetti Bolognese",
+      "fr": "Spaghetti Bolognese",
+      "es": "Spaghetti Bolognese"
+    },
+    "spaghetti alla carbonara": {
+      "en": "Spaghetti alla Carbonara",
+      "fr": "Spaghetti alla Carbonara",
+      "es": "Spaghetti alla Carbonara"
+    },
+    "spaghetti with spanish flavours": {
+      "en": "Spaghetti with Spanish flavours",
+      "fr": "Spaghetti with Spanish flavours",
+      "es": "Spaghetti with Spanish flavours"
+    },
+    "spanish chicken": {
+      "en": "Spanish Chicken",
+      "fr": "Spanish Chicken",
+      "es": "Spanish Chicken"
+    },
+    "spanish tortilla": {
+      "en": "Spanish Tortilla",
+      "fr": "Spanish Tortilla",
+      "es": "Spanish Tortilla"
+    },
+    "spanish beans with chicken & chorizo": {
+      "en": "Spanish beans with chicken & chorizo",
+      "fr": "Spanish beans with chicken & chorizo",
+      "es": "Spanish beans with chicken & chorizo"
+    },
+    "spanish chicken pie": {
+      "en": "Spanish chicken pie",
+      "fr": "Spanish chicken pie",
+      "es": "Spanish chicken pie"
+    },
+    "spanish fig & almond balls": {
+      "en": "Spanish fig & almond balls",
+      "fr": "Spanish fig & almond balls",
+      "es": "Spanish fig & almond balls"
+    },
+    "spanish meatballs with clams, chorizo & squid": {
+      "en": "Spanish meatballs with clams, chorizo & squid",
+      "fr": "Spanish meatballs with clams, chorizo & squid",
+      "es": "Spanish meatballs with clams, chorizo & squid"
+    },
+    "spanish rice & prawn one-pot": {
+      "en": "Spanish rice & prawn one-pot",
+      "fr": "Spanish rice & prawn one-pot",
+      "es": "Spanish rice & prawn one-pot"
+    },
+    "spanish seafood rice": {
+      "en": "Spanish seafood rice",
+      "fr": "Spanish seafood rice",
+      "es": "Spanish seafood rice"
+    },
+    "spanish tomato bread with jamón serrano": {
+      "en": "Spanish tomato bread with jamón Serrano",
+      "fr": "Spanish tomato bread with jamón Serrano",
+      "es": "Spanish tomato bread with jamón Serrano"
+    },
+    "spanish-style slow-cooked lamb shoulder & beans": {
+      "en": "Spanish-style slow-cooked lamb shoulder & beans",
+      "fr": "Spanish-style slow-cooked lamb shoulder & beans",
+      "es": "Spanish-style slow-cooked lamb shoulder & beans"
+    },
+    "spiced smoky barbecued chicken": {
+      "en": "Spiced smoky barbecued chicken",
+      "fr": "Spiced smoky barbecued chicken",
+      "es": "Spiced smoky barbecued chicken"
+    },
+    "spiced tortilla": {
+      "en": "Spiced tortilla",
+      "fr": "Spiced tortilla",
+      "es": "Spiced tortilla"
+    },
+    "spicy arrabiata penne": {
+      "en": "Spicy Arrabiata Penne",
+      "fr": "Spicy Arrabiata Penne",
+      "es": "Spicy Arrabiata Penne"
+    },
+    "spicy north african potato salad": {
+      "en": "Spicy North African Potato Salad",
+      "fr": "Spicy North African Potato Salad",
+      "es": "Spicy North African Potato Salad"
+    },
+    "spicy thai prawn noodles": {
+      "en": "Spicy Thai prawn noodles",
+      "fr": "Spicy Thai prawn noodles",
+      "es": "Spicy Thai prawn noodles"
+    },
+    "spinach & ricotta cannelloni": {
+      "en": "Spinach & Ricotta Cannelloni",
+      "fr": "Spinach & Ricotta Cannelloni",
+      "es": "Spinach & Ricotta Cannelloni"
+    },
+    "split pea soup": {
+      "en": "Split Pea Soup",
+      "fr": "Split Pea Soup",
+      "es": "Split Pea Soup"
+    },
+    "spotted dick": {
+      "en": "Spotted Dick",
+      "fr": "Spotted Dick",
+      "es": "Spotted Dick"
+    },
+    "spring onion and prawn empanadas": {
+      "en": "Spring onion and prawn empanadas",
+      "fr": "Spring onion and prawn empanadas",
+      "es": "Spring onion and prawn empanadas"
+    },
+    "squash linguine": {
+      "en": "Squash linguine",
+      "fr": "Squash linguine",
+      "es": "Squash linguine"
+    },
+    "squid, chickpea & chorizo salad": {
+      "en": "Squid, chickpea & chorizo salad",
+      "fr": "Squid, chickpea & chorizo salad",
+      "es": "Squid, chickpea & chorizo salad"
+    },
+    "stamppot": {
+      "en": "Stamppot",
+      "fr": "Stamppot",
+      "es": "Stamppot"
+    },
+    "steak & vietnamese noodle salad": {
+      "en": "Steak & Vietnamese noodle salad",
+      "fr": "Steak & Vietnamese noodle salad",
+      "es": "Steak & Vietnamese noodle salad"
+    },
+    "steak diane": {
+      "en": "Steak Diane",
+      "fr": "Steak Diane",
+      "es": "Steak Diane"
+    },
+    "steak and kidney pie": {
+      "en": "Steak and Kidney Pie",
+      "fr": "Steak and Kidney Pie",
+      "es": "Steak and Kidney Pie"
+    },
+    "sticky chicken": {
+      "en": "Sticky Chicken",
+      "fr": "Sticky Chicken",
+      "es": "Sticky Chicken"
+    },
+    "sticky toffee pudding": {
+      "en": "Sticky Toffee Pudding",
+      "fr": "Sticky Toffee Pudding",
+      "es": "Sticky Toffee Pudding"
+    },
+    "sticky toffee pudding ultimate": {
+      "en": "Sticky Toffee Pudding Ultimate",
+      "fr": "Sticky Toffee Pudding Ultimate",
+      "es": "Sticky Toffee Pudding Ultimate"
+    },
+    "stir-fried chicken with chillies & basil": {
+      "en": "Stir-fried chicken with chillies & basil",
+      "fr": "Stir-fried chicken with chillies & basil",
+      "es": "Stir-fried chicken with chillies & basil"
+    },
+    "stovetop eggplant with harissa, chickpeas, and cumin yogurt": {
+      "en": "Stovetop Eggplant With Harissa, Chickpeas, and Cumin Yogurt",
+      "fr": "Stovetop Eggplant With Harissa, Chickpeas, and Cumin Yogurt",
+      "es": "Stovetop Eggplant With Harissa, Chickpeas, and Cumin Yogurt"
+    },
+    "strawberries romanoff": {
+      "en": "Strawberries Romanoff",
+      "fr": "Strawberries Romanoff",
+      "es": "Strawberries Romanoff"
+    },
+    "strawberry rhubarb pie": {
+      "en": "Strawberry Rhubarb Pie",
+      "fr": "Strawberry Rhubarb Pie",
+      "es": "Strawberry Rhubarb Pie"
+    },
+    "stuffed bell peppers with quinoa and black beans": {
+      "en": "Stuffed Bell Peppers with Quinoa and Black Beans",
+      "fr": "Stuffed Bell Peppers with Quinoa and Black Beans",
+      "es": "Stuffed Bell Peppers with Quinoa and Black Beans"
+    },
+    "stuffed lamb tomatoes": {
+      "en": "Stuffed Lamb Tomatoes",
+      "fr": "Stuffed Lamb Tomatoes",
+      "es": "Stuffed Lamb Tomatoes"
+    },
+    "sugar pie": {
+      "en": "Sugar Pie",
+      "fr": "Sugar Pie",
+      "es": "Sugar Pie"
+    },
+    "suksessterte (norwegian almond “success cake”)": {
+      "en": "Suksessterte (Norwegian almond “success cake”)",
+      "fr": "Suksessterte (Norwegian almond “success cake”)",
+      "es": "Suksessterte (Norwegian almond “success cake”)"
+    },
+    "sukuma wiki": {
+      "en": "Sukuma Wiki",
+      "fr": "Sukuma Wiki",
+      "es": "Sukuma Wiki"
+    },
+    "summer pistou": {
+      "en": "Summer Pistou",
+      "fr": "Summer Pistou",
+      "es": "Summer Pistou"
+    },
+    "summer pudding": {
+      "en": "Summer Pudding",
+      "fr": "Summer Pudding",
+      "es": "Summer Pudding"
+    },
+    "sushi": {
+      "en": "Sushi",
+      "fr": "Sushi",
+      "es": "Sushi"
+    },
+    "sweet and sour pork": {
+      "en": "Sweet and Sour Pork",
+      "fr": "Sweet and Sour Pork",
+      "es": "Sweet and Sour Pork"
+    },
+    "sweet potato salad": {
+      "en": "Sweet potato salad",
+      "fr": "Sweet potato salad",
+      "es": "Sweet potato salad"
+    },
+    "syrian bread": {
+      "en": "Syrian Bread",
+      "fr": "Syrian Bread",
+      "es": "Syrian Bread"
+    },
+    "syrian rice with meat": {
+      "en": "Syrian Rice with Meat",
+      "fr": "Syrian Rice with Meat",
+      "es": "Syrian Rice with Meat"
+    },
+    "syrian spaghetti": {
+      "en": "Syrian Spaghetti",
+      "fr": "Syrian Spaghetti",
+      "es": "Syrian Spaghetti"
+    },
+    "szechuan beef": {
+      "en": "Szechuan Beef",
+      "fr": "Szechuan Beef",
+      "es": "Szechuan Beef"
+    },
+    "tahini lentils": {
+      "en": "Tahini Lentils",
+      "fr": "Tahini Lentils",
+      "es": "Tahini Lentils"
+    },
+    "tajine de poulet aux carottes et patates douces (chicken and sweet potato tagine)": {
+      "en": "Tajine de Poulet aux Carottes et Patates Douces (Chicken and Sweet Potato Tagine)",
+      "fr": "Tajine de Poulet aux Carottes et Patates Douces (Chicken and Sweet Potato Tagine)",
+      "es": "Tajine de Poulet aux Carottes et Patates Douces (Chicken and Sweet Potato Tagine)"
+    },
+    "tall skoleboller": {
+      "en": "Tall Skoleboller",
+      "fr": "Tall Skoleboller",
+      "es": "Tall Skoleboller"
+    },
+    "tamiya": {
+      "en": "Tamiya",
+      "fr": "Tamiya",
+      "es": "Tamiya"
+    },
+    "tandoori chicken": {
+      "en": "Tandoori chicken",
+      "fr": "Tandoori chicken",
+      "es": "Tandoori chicken"
+    },
+    "tangy cabbage slaw": {
+      "en": "Tangy cabbage slaw",
+      "fr": "Tangy cabbage slaw",
+      "es": "Tangy cabbage slaw"
+    },
+    "tangy carrot, cabbage & onion salad": {
+      "en": "Tangy carrot, cabbage & onion salad",
+      "fr": "Tangy carrot, cabbage & onion salad",
+      "es": "Tangy carrot, cabbage & onion salad"
+    },
+    "tarte tatin": {
+      "en": "Tarte Tatin",
+      "fr": "Tarte Tatin",
+      "es": "Tarte Tatin"
+    },
+    "teriyaki chicken casserole": {
+      "en": "Teriyaki Chicken Casserole",
+      "fr": "Teriyaki Chicken Casserole",
+      "es": "Teriyaki Chicken Casserole"
+    },
+    "thai green curry": {
+      "en": "Thai Green Curry",
+      "fr": "Thai Green Curry",
+      "es": "Thai Green Curry"
+    },
+    "thai beef stir-fry": {
+      "en": "Thai beef stir-fry",
+      "fr": "Thai beef stir-fry",
+      "es": "Thai beef stir-fry"
+    },
+    "thai chicken cakes with sweet chilli sauce": {
+      "en": "Thai chicken cakes with sweet chilli sauce",
+      "fr": "Thai chicken cakes with sweet chilli sauce",
+      "es": "Thai chicken cakes with sweet chilli sauce"
+    },
+    "thai coconut & veg broth": {
+      "en": "Thai coconut & veg broth",
+      "fr": "Thai coconut & veg broth",
+      "es": "Thai coconut & veg broth"
+    },
+    "thai curry noodle soup": {
+      "en": "Thai curry noodle soup",
+      "fr": "Thai curry noodle soup",
+      "es": "Thai curry noodle soup"
+    },
+    "thai drumsticks": {
+      "en": "Thai drumsticks",
+      "fr": "Thai drumsticks",
+      "es": "Thai drumsticks"
+    },
+    "thai fried rice with prawns & peas": {
+      "en": "Thai fried rice with prawns & peas",
+      "fr": "Thai fried rice with prawns & peas",
+      "es": "Thai fried rice with prawns & peas"
+    },
+    "thai green chicken soup": {
+      "en": "Thai green chicken soup",
+      "fr": "Thai green chicken soup",
+      "es": "Thai green chicken soup"
+    },
+    "thai pork & peanut curry": {
+      "en": "Thai pork & peanut curry",
+      "fr": "Thai pork & peanut curry",
+      "es": "Thai pork & peanut curry"
+    },
+    "thai prawn curry": {
+      "en": "Thai prawn curry",
+      "fr": "Thai prawn curry",
+      "es": "Thai prawn curry"
+    },
+    "thai pumpkin soup": {
+      "en": "Thai pumpkin soup",
+      "fr": "Thai pumpkin soup",
+      "es": "Thai pumpkin soup"
+    },
+    "thai rice noodle salad": {
+      "en": "Thai rice noodle salad",
+      "fr": "Thai rice noodle salad",
+      "es": "Thai rice noodle salad"
+    },
+    "thai-style fish broth with greens": {
+      "en": "Thai-style fish broth with greens",
+      "fr": "Thai-style fish broth with greens",
+      "es": "Thai-style fish broth with greens"
+    },
+    "thai-style steamed fish": {
+      "en": "Thai-style steamed fish",
+      "fr": "Thai-style steamed fish",
+      "es": "Thai-style steamed fish"
+    },
+    "three fish pie": {
+      "en": "Three Fish Pie",
+      "fr": "Three Fish Pie",
+      "es": "Three Fish Pie"
+    },
+    "three-cheese souffles": {
+      "en": "Three-cheese souffles",
+      "fr": "Three-cheese souffles",
+      "es": "Three-cheese souffles"
+    },
+    "timbits": {
+      "en": "Timbits",
+      "fr": "Timbits",
+      "es": "Timbits"
+    },
+    "toad in the hole": {
+      "en": "Toad In The Hole",
+      "fr": "Toad In The Hole",
+      "es": "Toad In The Hole"
+    },
+    "tofu, greens & cashew stir-fry": {
+      "en": "Tofu, greens & cashew stir-fry",
+      "fr": "Tofu, greens & cashew stir-fry",
+      "es": "Tofu, greens & cashew stir-fry"
+    },
+    "tom kha gai": {
+      "en": "Tom kha gai",
+      "fr": "Tom kha gai",
+      "es": "Tom kha gai"
+    },
+    "tom yum (hot & sour) soup with prawns": {
+      "en": "Tom yum (hot & sour) soup with prawns",
+      "fr": "Tom yum (hot & sour) soup with prawns",
+      "es": "Tom yum (hot & sour) soup with prawns"
+    },
+    "tom yum soup with prawns": {
+      "en": "Tom yum soup with prawns",
+      "fr": "Tom yum soup with prawns",
+      "es": "Tom yum soup with prawns"
+    },
+    "tonkatsu pork": {
+      "en": "Tonkatsu pork",
+      "fr": "Tonkatsu pork",
+      "es": "Tonkatsu pork"
+    },
+    "torrijas with sherry": {
+      "en": "Torrijas with sherry",
+      "fr": "Torrijas with sherry",
+      "es": "Torrijas with sherry"
+    },
+    "torta de fiambre": {
+      "en": "Torta de fiambre",
+      "fr": "Torta de fiambre",
+      "es": "Torta de fiambre"
+    },
+    "tortang talong": {
+      "en": "Tortang Talong",
+      "fr": "Tortang Talong",
+      "es": "Tortang Talong"
+    },
+    "tourtiere": {
+      "en": "Tourtiere",
+      "fr": "Tourtiere",
+      "es": "Tourtiere"
+    },
+    "traditional croatian goulash": {
+      "en": "Traditional Croatian Goulash",
+      "fr": "Traditional Croatian Goulash",
+      "es": "Traditional Croatian Goulash"
+    },
+    "treacle tart": {
+      "en": "Treacle Tart",
+      "fr": "Treacle Tart",
+      "es": "Treacle Tart"
+    },
+    "tuna nicoise": {
+      "en": "Tuna Nicoise",
+      "fr": "Tuna Nicoise",
+      "es": "Tuna Nicoise"
+    },
+    "tuna and egg briks": {
+      "en": "Tuna and Egg Briks",
+      "fr": "Tuna and Egg Briks",
+      "es": "Tuna and Egg Briks"
+    },
+    "tunisian lamb soup": {
+      "en": "Tunisian Lamb Soup",
+      "fr": "Tunisian Lamb Soup",
+      "es": "Tunisian Lamb Soup"
+    },
+    "tunisian orange cake": {
+      "en": "Tunisian Orange Cake",
+      "fr": "Tunisian Orange Cake",
+      "es": "Tunisian Orange Cake"
+    },
+    "turkey bánh mì": {
+      "en": "Turkey Bánh mì",
+      "fr": "Turkey Bánh mì",
+      "es": "Turkey Bánh mì"
+    },
+    "turkey meatloaf": {
+      "en": "Turkey Meatloaf",
+      "fr": "Turkey Meatloaf",
+      "es": "Turkey Meatloaf"
+    },
+    "turkish lahmacun": {
+      "en": "Turkish lahmacun",
+      "fr": "Turkish lahmacun",
+      "es": "Turkish lahmacun"
+    },
+    "turkish lamb pilau": {
+      "en": "Turkish lamb pilau",
+      "fr": "Turkish lamb pilau",
+      "es": "Turkish lamb pilau"
+    },
+    "turkish rice (vermicelli rice)": {
+      "en": "Turkish rice (vermicelli rice)",
+      "fr": "Turkish rice (vermicelli rice)",
+      "es": "Turkish rice (vermicelli rice)"
+    },
+    "turkish-style lamb": {
+      "en": "Turkish-style lamb",
+      "fr": "Turkish-style lamb",
+      "es": "Turkish-style lamb"
+    },
+    "ugali – kenyan cornmeal": {
+      "en": "Ugali – Kenyan cornmeal",
+      "fr": "Ugali – Kenyan cornmeal",
+      "es": "Ugali – Kenyan cornmeal"
+    },
+    "vanilla alfajores": {
+      "en": "Vanilla alfajores",
+      "fr": "Vanilla alfajores",
+      "es": "Vanilla alfajores"
+    },
+    "vegan chocolate cake": {
+      "en": "Vegan Chocolate Cake",
+      "fr": "Vegan Chocolate Cake",
+      "es": "Vegan Chocolate Cake"
+    },
+    "vegan lasagna": {
+      "en": "Vegan Lasagna",
+      "fr": "Vegan Lasagna",
+      "es": "Vegan Lasagna"
+    },
+    "vegan banh mi": {
+      "en": "Vegan banh mi",
+      "fr": "Vegan banh mi",
+      "es": "Vegan banh mi"
+    },
+    "vegetable shepherds pie": {
+      "en": "Vegetable Shepherds Pie",
+      "fr": "Vegetable Shepherds Pie",
+      "es": "Vegetable Shepherds Pie"
+    },
+    "vegetarian casserole": {
+      "en": "Vegetarian Casserole",
+      "fr": "Vegetarian Casserole",
+      "es": "Vegetarian Casserole"
+    },
+    "vegetarian chilli": {
+      "en": "Vegetarian Chilli",
+      "fr": "Vegetarian Chilli",
+      "es": "Vegetarian Chilli"
+    },
+    "vegetarian shakshuka": {
+      "en": "Vegetarian Shakshuka",
+      "fr": "Vegetarian Shakshuka",
+      "es": "Vegetarian Shakshuka"
+    },
+    "venetian duck ragu": {
+      "en": "Venetian Duck Ragu",
+      "fr": "Venetian Duck Ragu",
+      "es": "Venetian Duck Ragu"
+    },
+    "venezuelan arepas": {
+      "en": "Venezuelan Arepas",
+      "fr": "Venezuelan Arepas",
+      "es": "Venezuelan Arepas"
+    },
+    "venezuelan coconut chicken": {
+      "en": "Venezuelan Coconut Chicken",
+      "fr": "Venezuelan Coconut Chicken",
+      "es": "Venezuelan Coconut Chicken"
+    },
+    "venezuelan sancocho": {
+      "en": "Venezuelan Sancocho",
+      "fr": "Venezuelan Sancocho",
+      "es": "Venezuelan Sancocho"
+    },
+    "venezuelan shredded beef": {
+      "en": "Venezuelan Shredded Beef",
+      "fr": "Venezuelan Shredded Beef",
+      "es": "Venezuelan Shredded Beef"
+    },
+    "venezuelan turnovers": {
+      "en": "Venezuelan turnovers",
+      "fr": "Venezuelan turnovers",
+      "es": "Venezuelan turnovers"
+    },
+    "vietnamese grilled pork (bun-thit-nuong)": {
+      "en": "Vietnamese Grilled Pork (bun-thit-nuong)",
+      "fr": "Vietnamese Grilled Pork (bun-thit-nuong)",
+      "es": "Vietnamese Grilled Pork (bun-thit-nuong)"
+    },
+    "vietnamese caramel trout": {
+      "en": "Vietnamese caramel trout",
+      "fr": "Vietnamese caramel trout",
+      "es": "Vietnamese caramel trout"
+    },
+    "vietnamese chicken salad": {
+      "en": "Vietnamese chicken salad",
+      "fr": "Vietnamese chicken salad",
+      "es": "Vietnamese chicken salad"
+    },
+    "vietnamese lamb shanks with sweet potatoes": {
+      "en": "Vietnamese lamb shanks with sweet potatoes",
+      "fr": "Vietnamese lamb shanks with sweet potatoes",
+      "es": "Vietnamese lamb shanks with sweet potatoes"
+    },
+    "vietnamese pork salad": {
+      "en": "Vietnamese pork salad",
+      "fr": "Vietnamese pork salad",
+      "es": "Vietnamese pork salad"
+    },
+    "vietnamese prawn spiralized rolls": {
+      "en": "Vietnamese prawn spiralized rolls",
+      "fr": "Vietnamese prawn spiralized rolls",
+      "es": "Vietnamese prawn spiralized rolls"
+    },
+    "vietnamese veg parcels": {
+      "en": "Vietnamese veg parcels",
+      "fr": "Vietnamese veg parcels",
+      "es": "Vietnamese veg parcels"
+    },
+    "vietnamese-style caramel pork": {
+      "en": "Vietnamese-style caramel pork",
+      "fr": "Vietnamese-style caramel pork",
+      "es": "Vietnamese-style caramel pork"
+    },
+    "vietnamese-style veggie hotpot": {
+      "en": "Vietnamese-style veggie hotpot",
+      "fr": "Vietnamese-style veggie hotpot",
+      "es": "Vietnamese-style veggie hotpot"
+    },
+    "walnut roll gužvara": {
+      "en": "Walnut Roll Gužvara",
+      "fr": "Walnut Roll Gužvara",
+      "es": "Walnut Roll Gužvara"
+    },
+    "walnut, date & honey cake": {
+      "en": "Walnut, date & honey cake",
+      "fr": "Walnut, date & honey cake",
+      "es": "Walnut, date & honey cake"
+    },
+    "warm roast asparagus salad": {
+      "en": "Warm roast asparagus salad",
+      "fr": "Warm roast asparagus salad",
+      "es": "Warm roast asparagus salad"
+    },
+    "white chocolate creme brulee": {
+      "en": "White chocolate creme brulee",
+      "fr": "White chocolate creme brulee",
+      "es": "White chocolate creme brulee"
+    },
+    "wontons": {
+      "en": "Wontons",
+      "fr": "Wontons",
+      "es": "Wontons"
+    },
+    "yaki udon": {
+      "en": "Yaki Udon",
+      "fr": "Yaki Udon",
+      "es": "Yaki Udon"
+    },
+    "yemeni lahsa (elite shakshuka)": {
+      "en": "Yemeni Lahsa (Elite Shakshuka)",
+      "fr": "Yemeni Lahsa (Elite Shakshuka)",
+      "es": "Yemeni Lahsa (Elite Shakshuka)"
+    },
+    "yorkshire puddings": {
+      "en": "Yorkshire Puddings",
+      "fr": "Yorkshire Puddings",
+      "es": "Yorkshire Puddings"
+    },
+    "zapiekanki": {
+      "en": "Zapiekanki",
+      "fr": "Zapiekanki",
+      "es": "Zapiekanki"
+    },
+    "zemiakové placky": {
+      "en": "Zemiakové Placky",
+      "fr": "Zemiakové Placky",
+      "es": "Zemiakové Placky"
+    },
+    "kabse": {
+      "en": "kabse",
+      "fr": "kabse",
+      "es": "kabse"
+    },
+    "kofta burgers": {
+      "en": "kofta burgers",
+      "fr": "kofta burgers",
+      "es": "kofta burgers"
+    },
+    "æbleskiver": {
+      "en": "Æbleskiver",
+      "fr": "Æbleskiver",
+      "es": "Æbleskiver"
+    },
+    "šúĺlance s makom": {
+      "en": "Šúĺlance s Makom",
+      "fr": "Šúĺlance s Makom",
+      "es": "Šúĺlance s Makom"
+    }
+  }
+}

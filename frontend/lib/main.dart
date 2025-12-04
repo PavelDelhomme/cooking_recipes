@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 import 'screens/pantry_screen.dart' show PantryScreen, PantryScreenState;
@@ -8,6 +9,7 @@ import 'screens/shopping_list_screen.dart' show ShoppingListScreen, ShoppingList
 import 'screens/profile_screen.dart';
 import 'screens/auth_screen.dart';
 import 'screens/favorites_screen.dart';
+import 'screens/recipe_history_screen.dart';
 import 'services/profile_service.dart';
 import 'services/auth_service.dart';
 import 'services/locale_service.dart';
@@ -44,6 +46,13 @@ void main() async {
   // car flutter_localizations dépend de intl 0.19.0 qui utilise encore cette API.
   // Cela sera corrigé dans une future version de Flutter et n'affecte pas le fonctionnement.
   Intl.defaultLocale = 'fr_FR';
+  
+  // Démarrer le monitoring mémoire en mode debug
+  if (kDebugMode) {
+    // Le monitoring mémoire sera démarré automatiquement si nécessaire
+    // Voir MemoryMonitor pour plus de détails
+  }
+  
   runApp(const MyApp());
 }
 
@@ -62,18 +71,28 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _loadTheme();
-    _loadLocale();
+    // Charger le thème et la locale en parallèle pour optimiser
+    _loadThemeAndLocale();
   }
 
-  Future<void> _loadTheme() async {
-    final isDark = await _themeService.isDarkMode();
-    setState(() => _isDarkMode = isDark);
+  Future<void> _loadThemeAndLocale() async {
+    // Charger en parallèle pour optimiser
+    final results = await Future.wait([
+      _themeService.isDarkMode(),
+      LocaleService.getLocale(),
+      TranslationService.initStatic(),
+    ]);
+    
+    if (mounted) {
+      setState(() {
+        _isDarkMode = results[0] as bool;
+        _locale = results[1] as Locale;
+      });
+    }
   }
 
   Future<void> _loadLocale() async {
     final locale = await LocaleService.getLocale();
-    await TranslationService.initStatic();
     if (mounted) {
       setState(() => _locale = locale);
     }
@@ -89,14 +108,16 @@ class _MyAppState extends State<MyApp> {
 
   void _toggleTheme() async {
     final newValue = !_isDarkMode;
-    await _themeService.setDarkMode(newValue);
+    // Mettre à jour l'état immédiatement pour une réponse rapide
     if (mounted) {
-      // Mettre à jour le thème sans reconstruire toute l'app
-      // Le MaterialApp se mettra à jour automatiquement grâce à themeMode
       setState(() {
         _isDarkMode = newValue;
       });
     }
+    // Sauvegarder en arrière-plan (non bloquant)
+    _themeService.setDarkMode(newValue).catchError((e) {
+      if (kDebugMode) print('Erreur sauvegarde thème: $e');
+    });
   }
   
   // Méthode publique pour permettre aux écrans enfants de changer le thème
@@ -482,11 +503,19 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 if (_currentProfile != null) ...[
                   const SizedBox(height: 8),
-                  Text(
-                    '${_currentProfile!.name} - ${_currentProfile!.numberOfPeople} ${_currentProfile!.numberOfPeople > 1 ? 'personnes' : 'personne'}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '${_currentProfile!.name} - ${_currentProfile!.numberOfPeople} ${_currentProfile!.numberOfPeople > 1 ? 'personnes' : 'personne'}',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],
@@ -535,7 +564,7 @@ class _MainScreenState extends State<MainScreen> {
                   ? Theme.of(context).colorScheme.primary
                   : null,
             ),
-            title: Text(AppLocalizations.of(context)?.shoppingList ?? 'Liste de courses'),
+            title: Text(AppLocalizations.of(context)?.shoppingList ?? 'Courses'),
             selected: _selectedIndex == 2,
             onTap: () {
               setState(() => _selectedIndex = 2);
@@ -577,11 +606,22 @@ class _MainScreenState extends State<MainScreen> {
           ListTile(
             leading: const Icon(Icons.favorite),
             title: const Text('Mes Favoris'),
-            onTap: () {
+            onTap: () async {
               Navigator.pop(context);
-              Navigator.push(
+              await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const FavoritesScreen()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.history),
+            title: const Text('Historique'),
+            onTap: () async {
+              Navigator.pop(context);
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const RecipeHistoryScreen()),
               );
             },
           ),

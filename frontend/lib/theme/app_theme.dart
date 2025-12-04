@@ -159,18 +159,18 @@ class AppTheme {
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: const Color(0xFF1E1E1E),
-      indicatorColor: Colors.orange.shade700.withOpacity(0.3),
+      indicatorColor: Colors.orange.shade700.withOpacity(0.5), // Plus visible
       labelTextStyle: MaterialStateProperty.resolveWith((states) {
         if (states.contains(MaterialState.selected)) {
-          return const TextStyle(color: Colors.white, fontWeight: FontWeight.w600);
+          return TextStyle(color: Colors.orange.shade400, fontWeight: FontWeight.w600); // Orange pour sélectionné
         }
-        return TextStyle(color: Colors.grey[400]!);
+        return TextStyle(color: Colors.grey[500]!, fontWeight: FontWeight.normal); // Gris pour non sélectionné
       }),
       iconTheme: MaterialStateProperty.resolveWith((states) {
         if (states.contains(MaterialState.selected)) {
-          return const IconThemeData(color: Colors.white); // Icône blanche sur orange
+          return IconThemeData(color: Colors.orange.shade400); // Orange pour sélectionné
         }
-        return IconThemeData(color: Colors.grey[400]!);
+        return IconThemeData(color: Colors.grey[500]!); // Gris pour non sélectionné
       }),
     ),
   );

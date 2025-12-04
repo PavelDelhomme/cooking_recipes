@@ -4,6 +4,7 @@ import '../models/recipe.dart';
 import '../models/ingredient.dart';
 import 'translation_service.dart';
 import 'locale_service.dart';
+import 'recipe_cache_service.dart';
 import 'api_logger.dart'; // Logger pour les requêtes API
 
 class RecipeApiService {
@@ -127,9 +128,15 @@ class RecipeApiService {
     }
   }
 
-  // Obtenir une recette par ID
+  // Obtenir une recette par ID (avec cache)
   Future<Recipe?> getRecipeById(String id) async {
     try {
+      // Vérifier le cache d'abord
+      final cachedRecipe = await RecipeCacheService.getCachedRecipe(id);
+      if (cachedRecipe != null) {
+        return cachedRecipe;
+      }
+      
       final url = '$baseUrl/lookup.php?i=$id';
       final response = await ApiLogger.interceptRequest(
         () => http.get(Uri.parse(url)),
@@ -142,7 +149,12 @@ class RecipeApiService {
         final utf8Body = utf8.decode(response.bodyBytes);
         final data = json.decode(utf8Body);
         if (data['meals'] != null && data['meals'].isNotEmpty) {
-          return await _convertMealToRecipe(data['meals'][0]);
+          final recipe = await _convertMealToRecipe(data['meals'][0]);
+          // Mettre en cache
+          if (recipe != null) {
+            await RecipeCacheService.cacheRecipe(recipe);
+          }
+          return recipe;
         }
       }
       return null;

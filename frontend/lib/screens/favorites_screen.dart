@@ -245,16 +245,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: InkWell(
-                              onTap: () {
-                                Navigator.push(
+                              onTap: () async {
+                                await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => RecipeDetailScreen(recipe: recipe),
                                   ),
-                                ).then((_) {
-                                  // Recharger après retour si nécessaire
-                                  _loadFavorites();
-                                });
+                                );
+                                // Recharger après retour pour mettre à jour les favoris
+                                _loadFavorites();
                               },
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,

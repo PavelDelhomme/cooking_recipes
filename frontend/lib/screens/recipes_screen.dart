@@ -538,7 +538,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                     crossAxisCount: crossAxisCount,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: isWideScreen ? 1.1 : 1.5, // Ajuster le ratio pour les 2 colonnes
+                    childAspectRatio: isWideScreen ? 0.85 : 1.1, // Optimisé pour réduire l'espace vertical
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
@@ -584,17 +584,34 @@ class _RecipesScreenState extends State<RecipesScreen> {
             ),
             child: Image.network(
               recipe.image!,
-              width: 140,
-              height: 140,
+              width: 120,
+              height: 120,
               fit: BoxFit.cover,
+              cacheWidth: 240, // Optimisation mémoire
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Container(
+                  width: 120,
+                  height: 120,
+                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                          : null,
+                      strokeWidth: 2,
+                    ),
+                  ),
+                );
+              },
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  width: 140,
-                  height: 140,
+                  width: 120,
+                  height: 120,
                   color: Theme.of(context).colorScheme.surfaceVariant,
                   child: Icon(
                     Icons.restaurant,
-                    size: 48,
+                    size: 40,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 );
@@ -603,16 +620,17 @@ class _RecipesScreenState extends State<RecipesScreen> {
           ),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 TranslationBuilder(
                   builder: (context) {
                     return Text(
                       TranslationService.translateRecipeName(recipe.title),
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
@@ -621,10 +639,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 Wrap(
-                  spacing: 12,
-                  runSpacing: 8,
+                  spacing: 8,
+                  runSpacing: 6,
                   children: [
                     if (recipe.prepTimeMinutes != null)
                       _buildInfoChip(
@@ -680,6 +698,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   Widget _buildWideScreenCard(Recipe recipe) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (recipe.image != null)
           ClipRRect(
@@ -690,16 +709,32 @@ class _RecipesScreenState extends State<RecipesScreen> {
             child: Image.network(
               recipe.image!,
               width: double.infinity,
-              height: 180,
+              height: 120,
               fit: BoxFit.cover,
+              cacheWidth: 300, // Optimisation mémoire
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Container(
+                  height: 120,
+                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                          : null,
+                      strokeWidth: 2,
+                    ),
+                  ),
+                );
+              },
               errorBuilder: (context, error, stackTrace) {
                 return Container(
                   width: double.infinity,
-                  height: 180,
+                  height: 120,
                   color: Theme.of(context).colorScheme.surfaceVariant,
                   child: Icon(
                     Icons.restaurant,
-                    size: 64,
+                    size: 40,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 );
@@ -709,25 +744,26 @@ class _RecipesScreenState extends State<RecipesScreen> {
         else
           Container(
             width: double.infinity,
-            height: 180,
+            height: 120,
             color: Theme.of(context).colorScheme.surfaceVariant,
             child: Icon(
               Icons.restaurant,
-              size: 64,
+              size: 40,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               TranslationBuilder(
                 builder: (context) {
                   return Text(
                     TranslationService.translateRecipeName(recipe.title),
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
@@ -736,10 +772,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Wrap(
-                spacing: 8,
-                runSpacing: 6,
+                spacing: 4,
+                runSpacing: 3,
                 children: [
                   if (recipe.prepTimeMinutes != null)
                     _buildInfoChip(
@@ -792,10 +828,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   Widget _buildInfoChip(IconData icon, String label, BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

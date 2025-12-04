@@ -1,0 +1,120 @@
+═══════════════════════════════════════════════════════════
+RAPPORT MÉMOIRE COMPLET - Cooking Recipes
+═══════════════════════════════════════════════════════════
+Date: jeu. 04 déc. 2025 23:28:17 CET
+
+--- SYSTÈME ---
+Mémoire totale: 48057.51 MB
+Mémoire utilisée: 33822.70 MB (70.37%)
+Mémoire disponible: 14234.80 MB
+
+--- BACKEND (Node.js) ---
+PID: 1735483
+Mémoire RSS: 44.78 MB
+État: S
+Threads: 11
+Fichiers ouverts: 47
+
+--- FRONTEND (Flutter) ---
+PID: 1762335
+Mémoire RSS: 125.50 MB
+État: S
+Threads: 4
+Fichiers ouverts: 68
+
+--- TOUS LES PROCESSUS LIÉS ---
+Backend (Node.js):
+pactivi+ 1734589  0.0  0.1 1459571212 73456 ?    Sl   22:10   0:00 /tmp/.mount_cursorCSscnO/usr/share/cursor/cursor /home/pactivisme/.cursor/extensions/ms-azuretools.vscode-containers-2.1.0-universal/dist/dockerfile-language-server-nodejs/lib/server.js --node-ipc --node-ipc --clientProcessId=1611496
+pactivi+ 1734590  0.0  0.1 1459571148 70152 ?    Sl   22:10   0:00 /tmp/.mount_cursorCSscnO/usr/share/cursor/cursor /home/pactivisme/.cursor/extensions/ms-azuretools.vscode-containers-2.1.0-universal/dist/dockerfile-language-server-nodejs/lib/server.js --node-ipc --node-ipc --clientProcessId=2236030
+pactivi+ 1734591  0.0  0.1 1459571212 70192 ?    Sl   22:10   0:00 /tmp/.mount_cursorCSscnO/usr/share/cursor/cursor /home/pactivisme/.cursor/extensions/ms-azuretools.vscode-containers-2.1.0-universal/dist/dockerfile-language-server-nodejs/lib/server.js --node-ipc --node-ipc --clientProcessId=2569626
+pactivi+ 1735498  0.0  0.0 1716812 47544 pts/12  Sl+  22:10   0:00 node /home/pactivisme/Documents/Dev/Perso/cookingRecipes/flutter_cooking_recipe/backend/node_modules/.bin/nodemon src/server.js
+pactivi+ 1735568  0.0  0.1 1721812 50808 pts/12  Sl+  22:10   0:00 /usr/bin/node src/server.js
+root     1779243  0.0  0.1 11190048 66344 ?      Sl   22:25   0:00 node src/server.js
+1001     1780148  0.0  0.1 697396 59456 ?        Sl   22:26   0:00 node /app/node_modules/.bin/nodemon src/server.js
+1001     1780207  0.0  0.1 11262688 83908 ?      Sl   22:26   0:00 /usr/local/bin/node src/server.js
+root     1780668  0.0  0.0   2576  1572 ?        S    22:26   0:00 sh -c node src/server.js
+root     1780669  0.6  0.2 23528684 108168 ?     Sl   22:26   0:25 node src/server.js
+1001     1781813  0.0  0.1 664800 60704 ?        Sl   22:26   0:00 node src/server.js
+1001     1781897  0.0  0.1 760076 64040 ?        Sl   22:26   0:00 node src/server.js
+1001     1782120  0.0  0.1 760068 65748 ?        Sl   22:26   0:00 node src/server.js
+1001     1782161  0.0  0.1 665064 62092 ?        Sl   22:26   0:00 node src/server.js
+1001     1782167  0.0  0.1 11245492 68504 ?      Sl   22:26   0:00 node src/server.js
+1001     1782175  0.0  0.1 11245720 65348 ?      Sl   22:26   0:00 node src/server.js
+1001     1782176  0.0  0.1 697368 63088 ?        Sl   22:26   0:00 node /app/node_modules/.bin/nodemon src/server.js
+1001     1782177  0.0  0.1 760088 65808 ?        Sl   22:26   0:00 node src/server.js
+1001     1782202  0.0  0.1 697364 61540 ?        Sl   22:26   0:00 node /app/node_modules/.bin/nodemon src/server.js
+1001     1782218  0.0  0.1 760084 63828 ?        Sl   22:26   0:00 node src/server.js
+1001     1782282  0.0  0.1 760336 73344 ?        Sl   22:26   0:00 /usr/local/bin/node src/server.js
+1001     1782317  0.0  0.1 760100 72864 ?        Sl   22:26   0:00 node src/server.js
+1001     1782376  0.0  0.1 11250160 77520 ?      Sl   22:26   0:00 /usr/local/bin/node src/server.js
+1001     1858412  0.0  0.0   2576  1612 ?        S    23:01   0:00 sh -c node src/server.js
+1001     1858413  0.0  0.1 2470352 81916 ?       Sl   23:01   0:00 node src/server.js
+1001     1870538  0.0  0.4 907752 230440 ?       Sl   23:07   0:01 node src/server.js
+
+Frontend (Flutter/Dart):
+pactivi+ 1735498  0.0  0.0 1716812 47544 pts/12  Sl+  22:10   0:00 node /home/pactivisme/Documents/Dev/Perso/cookingRecipes/flutter_cooking_recipe/backend/node_modules/.bin/nodemon src/server.js
+pactivi+ 1762335  0.0  0.2 874768 128512 ?       SNl  22:19   0:03 /opt/flutter/bin/cache/dart-sdk/bin/dart --disable-dart-dev --packages=/opt/flutter/packages/flutter_tools/.dart_tool/package_config.json /opt/flutter/bin/cache/flutter_tools.snapshot run -d web-server --web-port=7070 --web-hostname=localhost
+pactivi+ 1762336  0.0  0.0   6144  4060 ?        SN   22:19   0:00 /home/pactivisme/Applications/cursor.AppImage /tmp/flutter_run.log
+pactivi+ 1762414  0.5  1.0 1313008 509152 ?      SNl  22:19   0:21 /opt/flutter/bin/cache/dart-sdk/bin/dartaotruntime --disable-dart-dev /opt/flutter/bin/cache/dart-sdk/bin/snapshots/frontend_server_aot.dart.snapshot --sdk-root /opt/flutter/bin/cache/flutter_web_sdk/ --incremental --target=dartdevc --experimental-emit-debug-metadata --output-dill /tmp/flutter_tools.STMRYY/flutter_tool.JTWSWZ/app.dill --packages /home/pactivisme/Documents/Dev/Perso/cookingRecipes/flutter_cooking_recipe/frontend/.dart_tool/package_config.json -Ddart.vm.profile=false -Ddart.vm.product=false --enable-asserts --track-widget-creation --filesystem-root /tmp/flutter_tools.STMRYY/flutter_tools.BEIOGW --filesystem-scheme org-dartlang-app --initialize-from-dill build/80b1a4cf4e7b90e1ab5f72022a0bc624.cache.dill.track.dill --platform file:///opt/flutter/bin/cache/flutter_web_sdk/kernel/ddc_outline_sound.dill --verbosity=error --sound-null-safety
+
+--- TOP 10 PROCESSUS PAR MÉMOIRE ---
+pactivi+  667140 55.2  9.4 1481956980 4654512 ?  Rl   déc.02 2370:39 /tmp/.mount_cursorCSscnO/usr/share/cursor/cursor --type=zygote --no-sandbox
+pactivi+ 2235725  0.8  5.1 1461784568 2545464 ?  Sl   déc.02  28:50 /usr/lib/brave-browser/brave --type=renderer --crashpad-handler-pid=3256 --enable-crash-reporter=6824a455-457b-4dc1-8653-1e53df4222fa, --enable-distillability-service --origin-trial-public-key=bYUKPJoPnCxeNvu72j4EmPuK7tr1PAC7SHh8ld9Mw3E=,fMS4mpO6buLQ/QMd+zJmxzty/VQ6B1EUZqoCU04zoRU= --change-stack-guard-on-fork=enable --ozone-platform=x11 --lang=fr --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=1211 --time-ticks-at-unix-epoch=-1764570561200005 --launch-time-ticks=113950884976 --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,14005136164372668622,2463561615322326740,2097152 --field-trial-handle=3,i,14733860795634915312,5718819849447718517,262144 --variations-seed-version=main@69c2005032bb14f803911c3458ab063c42bfa450 --trace-process-track-uuid=3190710121069550633
+pactivi+ 1594838 13.1  3.6 1480264728 1796784 ?  Rl   déc.03 345:00 /tmp/.mount_cursorCSscnO/usr/share/cursor/cursor --type=zygote --no-sandbox
+pactivi+ 2237973 11.6  3.0 1481974648 1522824 ?  Sl   déc.03 233:37 /tmp/.mount_cursorCSscnO/usr/share/cursor/cursor --type=zygote --no-sandbox
+pactivi+ 1618524  1.9  2.6 1460099216 1301040 ?  Sl   21:13   2:40 /usr/lib/brave-browser/brave --type=renderer --crashpad-handler-pid=3256 --enable-crash-reporter=6824a455-457b-4dc1-8653-1e53df4222fa, --enable-distillability-service --origin-trial-public-key=bYUKPJoPnCxeNvu72j4EmPuK7tr1PAC7SHh8ld9Mw3E=,fMS4mpO6buLQ/QMd+zJmxzty/VQ6B1EUZqoCU04zoRU= --change-stack-guard-on-fork=enable --ozone-platform=x11 --lang=fr --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=2991 --time-ticks-at-unix-epoch=-1764570561200005 --launch-time-ticks=308655931292 --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,17033844932313863127,4052363873382507222,2097152 --field-trial-handle=3,i,14733860795634915312,5718819849447718517,262144 --variations-seed-version=main@69c2005032bb14f803911c3458ab063c42bfa450 --trace-process-track-uuid=3190711789004041853
+pactivi+ 1611420 22.0  2.3 1481947692 1157476 ?  Rl   21:10  30:26 /tmp/.mount_cursorCSscnO/usr/share/cursor/cursor --type=zygote --no-sandbox
+pactivi+  610643  0.2  1.9 1460061952 939336 ?   Sl   déc.02   8:34 /usr/lib/brave-browser/brave --type=renderer --crashpad-handler-pid=3256 --enable-crash-reporter=6824a455-457b-4dc1-8653-1e53df4222fa, --enable-distillability-service --origin-trial-public-key=bYUKPJoPnCxeNvu72j4EmPuK7tr1PAC7SHh8ld9Mw3E=,fMS4mpO6buLQ/QMd+zJmxzty/VQ6B1EUZqoCU04zoRU= --change-stack-guard-on-fork=enable --ozone-platform=x11 --lang=fr --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=694 --time-ticks-at-unix-epoch=-1764570561200005 --launch-time-ticks=133760489624 --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,17747975326750421678,11652967758895746355,2097152 --field-trial-handle=3,i,14733860795634915312,5718819849447718517,262144 --variations-seed-version=main@69c2005032bb14f803911c3458ab063c42bfa450 --trace-process-track-uuid=3190709636618914700
+pactivi+ 1875546 40.8  1.6 1480224296 813948 ?   Sl   23:09   7:28 /tmp/.mount_cursorCSscnO/usr/share/cursor/cursor --type=zygote --no-sandbox
+pactivi+ 3304727 18.5  1.4 22598504 733920 ?     Ssl  déc.03 266:26 H:\Documents\ULTRAKILL\ULTRAKILL.exe
+pactivi+    3504  0.0  1.4 1460101776 714784 ?   Sl   déc.01   2:35 /usr/lib/brave-browser/brave --type=renderer --crashpad-handler-pid=3256 --enable-crash-reporter=6824a455-457b-4dc1-8653-1e53df4222fa, --enable-distillability-service --origin-trial-public-key=bYUKPJoPnCxeNvu72j4EmPuK7tr1PAC7SHh8ld9Mw3E=,fMS4mpO6buLQ/QMd+zJmxzty/VQ6B1EUZqoCU04zoRU= --change-stack-guard-on-fork=enable --ozone-platform=x11 --lang=fr --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=12 --time-ticks-at-unix-epoch=-1764570561200005 --launch-time-ticks=154957882 --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,10385922255167881947,15144193770860681025,2097152 --field-trial-handle=3,i,14733860795634915312,5718819849447718517,262144 --variations-seed-version=main@69c2005032bb14f803911c3458ab063c42bfa450 --trace-process-track-uuid=3190708997556373682
+
+--- FICHIERS OUVERTS (TOP 20) ---
+Backend:
+COMMAND       PID       USER  FD      TYPE DEVICE SIZE/OFF     NODE NAME
+npm\x20ru 1735483 pactivisme cwd       DIR   0,46      212  4724123 /home/pactivisme/Documents/Dev/Perso/cookingRecipes/flutter_cooking_recipe/backend
+npm\x20ru 1735483 pactivisme rtd       DIR   0,30      216      256 /
+npm\x20ru 1735483 pactivisme txt       REG   0,30 68628912   588986 /usr/bin/node
+npm\x20ru 1735483 pactivisme mem       REG   0,28            588986 /usr/bin/node (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,28              9038 /usr/lib/libicudata.so.76.1 (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,28            361702 /usr/lib/libc.so.6 (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,28            331770 /usr/lib/libstdc++.so.6.0.34 (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,28              9043 /usr/lib/libicuuc.so.76.1 (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,28              9039 /usr/lib/libicui18n.so.76.1 (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,16          39831595 anon_inode:[io_uring] (stat: No such file or directory)
+npm\x20ru 1735483 pactivisme mem       REG   0,28              8918 /usr/lib/libbrotlicommon.so.1.1.0 (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,28            331740 /usr/lib/libgcc_s.so.1 (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,28            361712 /usr/lib/libm.so.6 (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,28            365848 /usr/lib/libssl.so.3 (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,28            365846 /usr/lib/libcrypto.so.3 (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,28            378721 /usr/lib/libnghttp2.so.14.29.1 (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,28            588757 /usr/lib/libcares.so.2.19.4 (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,28              8920 /usr/lib/libbrotlienc.so.1.1.0 (path dev=0,30)
+npm\x20ru 1735483 pactivisme mem       REG   0,28              8919 /usr/lib/libbrotlidec.so.1.1.0 (path dev=0,30)
+Frontend:
+COMMAND       PID       USER  FD      TYPE             DEVICE SIZE/OFF       NODE NAME
+dart:flut 1762335 pactivisme cwd       DIR               0,46      570    4724122 /home/pactivisme/Documents/Dev/Perso/cookingRecipes/flutter_cooking_recipe/frontend
+dart:flut 1762335 pactivisme rtd       DIR               0,30      216        256 /
+dart:flut 1762335 pactivisme txt       REG               0,30 39537520    6603026 /opt/flutter/bin/cache/dart-sdk/bin/dart
+dart:flut 1762335 pactivisme mem       REG               0,28             6603026 /opt/flutter/bin/cache/dart-sdk/bin/dart (path dev=0,30)
+dart:flut 1762335 pactivisme mem       REG               0,28              373730 /usr/lib/libnss_myhostname.so.2 (path dev=0,30)
+dart:flut 1762335 pactivisme mem       REG               0,28              373731 /usr/lib/libnss_mymachines.so.2 (path dev=0,30)
+dart:flut 1762335 pactivisme mem       REG               0,28              373732 /usr/lib/libnss_resolve.so.2 (path dev=0,30)
+dart:flut 1762335 pactivisme mem       REG               0,28              331740 /usr/lib/libgcc_s.so.1 (path dev=0,30)
+dart:flut 1762335 pactivisme mem       REG               0,28             6602407 /opt/flutter/bin/cache/flutter_tools.snapshot (path dev=0,30)
+dart:flut 1762335 pactivisme mem       REG               0,28             6603027 /opt/flutter/bin/cache/dart-sdk/bin/dart.sym (path dev=0,30)
+dart:flut 1762335 pactivisme mem       REG               0,28              361702 /usr/lib/libc.so.6 (path dev=0,30)
+dart:flut 1762335 pactivisme mem       REG               0,28              361712 /usr/lib/libm.so.6 (path dev=0,30)
+dart:flut 1762335 pactivisme mem       REG               0,28              361729 /usr/lib/libpthread.so.0 (path dev=0,30)
+dart:flut 1762335 pactivisme mem       REG               0,28              361707 /usr/lib/libdl.so.2 (path dev=0,30)
+dart:flut 1762335 pactivisme mem       REG               0,28               99209 /usr/lib/libnss_mdns_minimal.so.2 (path dev=0,30)
+dart:flut 1762335 pactivisme mem       REG               0,28                8930 /usr/lib/libcap.so.2.76 (path dev=0,30)
+dart:flut 1762335 pactivisme mem       REG               0,28              361693 /usr/lib/ld-linux-x86-64.so.2 (path dev=0,30)
+dart:flut 1762335 pactivisme   1w     FIFO               0,15      0t0   40154380 pipe
+dart:flut 1762335 pactivisme   2w     FIFO               0,15      0t0   40154380 pipe
+
+--- CACHE SYSTÈME ---
+Buffers:              12 kB
+Cached:          6697748 kB
+SwapCached:      2333364 kB
+

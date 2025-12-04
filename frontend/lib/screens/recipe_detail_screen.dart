@@ -9,6 +9,8 @@ import '../services/theme_service.dart';
 import '../services/app_localizations.dart';
 import '../services/translation_service.dart';
 import '../services/favorite_service.dart';
+import '../services/ingredient_image_service.dart';
+import '../services/recipe_history_service.dart';
 import '../widgets/locale_notifier.dart';
 import '../widgets/translation_builder.dart';
 import '../models/pantry_item.dart';
@@ -32,11 +34,13 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   final ProfileService _profileService = ProfileService();
   final ThemeService _themeService = ThemeService();
   final FavoriteService _favoriteService = FavoriteService();
+  final IngredientImageService _imageService = IngredientImageService();
   List<PantryItem> _pantryItems = [];
   UserProfile? _currentProfile;
   bool _isDarkMode = false;
   bool _isFavorite = false;
   bool _isLoadingFavorite = false;
+  final Map<String, String?> _ingredientImages = {};
 
   @override
   void initState() {
@@ -45,6 +49,27 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     _loadProfile();
     _loadTheme();
     _checkFavorite();
+    _loadIngredientImages();
+    // Ajouter à l'historique
+    RecipeHistoryService.addToHistory(widget.recipe);
+  }
+
+  Future<void> _loadIngredientImages() async {
+    final Map<String, String?> images = {};
+    for (var ingredient in widget.recipe.ingredients) {
+      if (!_ingredientImages.containsKey(ingredient.name)) {
+        final imageUrl = await _imageService.getImageFromMealDB(
+          ingredient.name,
+          originalName: ingredient.originalName,
+        );
+        images[ingredient.name] = imageUrl;
+      }
+    }
+    if (mounted) {
+      setState(() {
+        _ingredientImages.addAll(images);
+      });
+    }
   }
 
   Future<void> _checkFavorite() async {
@@ -76,6 +101,10 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             duration: const Duration(seconds: 2),
           ),
         );
+        // Notifier que les favoris ont changé (pour recharger la liste)
+        if (_isFavorite) {
+          // Optionnel : utiliser un callback ou un service pour notifier
+        }
       } else {
         setState(() => _isLoadingFavorite = false);
       }
@@ -539,23 +568,57 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           horizontal: 16,
                           vertical: 8,
                         ),
-                        leading: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: hasIngredient
-                                ? Theme.of(context).colorScheme.primaryContainer
-                                : Theme.of(context).colorScheme.surfaceVariant,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            hasIngredient
-                                ? Icons.check_circle
-                                : Icons.circle_outlined,
-                            color: hasIngredient
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                        leading: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: hasIngredient
+                                    ? Theme.of(context).colorScheme.primaryContainer
+                                    : Theme.of(context).colorScheme.surfaceVariant,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: _ingredientImages[ingredient.name] != null
+                                    ? Image.network(
+                                        _ingredientImages[ingredient.name]!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Icon(
+                                            hasIngredient
+                                                ? Icons.check_circle
+                                                : Icons.circle_outlined,
+                                            color: hasIngredient
+                                                ? Theme.of(context).colorScheme.primary
+                                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                                          );
+                                        },
+                                        loadingBuilder: (context, child, loadingProgress) {
+                                          if (loadingProgress == null) return child;
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              value: loadingProgress.expectedTotalBytes != null
+                                                  ? loadingProgress.cumulativeBytesLoaded /
+                                                      loadingProgress.expectedTotalBytes!
+                                                  : null,
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    : Icon(
+                                        hasIngredient
+                                            ? Icons.check_circle
+                                            : Icons.circle_outlined,
+                                        color: hasIngredient
+                                            ? Theme.of(context).colorScheme.primary
+                                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                              ),
+                            ),
+                          ],
                         ),
                         title: Builder(
                           builder: (context) {

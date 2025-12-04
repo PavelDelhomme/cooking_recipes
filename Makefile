@@ -55,6 +55,10 @@ help: ## Affiche cette aide
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## \[TEST\].*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## \\[TEST\\] "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
+	@echo -e "$(YELLOW)💾 Monitoring Mémoire$(NC)"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## \[MEMORY\].*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## \\[MEMORY\\] "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
 	@echo -e "$(YELLOW)🤖 Système d'Entraînement IA$(NC)"
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## \[AI\].*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## \\[AI\\] "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
@@ -142,6 +146,22 @@ restart: _get-ip ## [DEV] Redémarre tous les services (down puis dev)
 	@echo ""
 	@echo -e "$(GREEN)Redémarrage des services...$(NC)"
 	@bash scripts/dev.sh
+
+memory-report: ## [MEMORY] Génère un rapport mémoire complet
+	@bash scripts/memory_monitor.sh report
+
+memory-monitor: ## [MEMORY] Monitoring mémoire en temps réel (Ctrl+C pour arrêter)
+	@bash scripts/memory_monitor.sh monitor
+
+memory-leak: ## [MEMORY] Détecte les fuites mémoire (durée: 5 min par défaut)
+	@echo -e "$(GREEN)Détection de fuites mémoire...$(NC)"
+	@echo -e "$(YELLOW)Durée: 5 minutes (300 secondes)$(NC)"
+	@bash scripts/memory_monitor.sh leak 300 10
+
+memory-leak-extended: ## [MEMORY] Détection de fuites mémoire étendue (durée: 15 min)
+	@echo -e "$(GREEN)Détection de fuites mémoire étendue...$(NC)"
+	@echo -e "$(YELLOW)Durée: 15 minutes (900 secondes)$(NC)"
+	@bash scripts/memory_monitor.sh leak 900 15
 
 logs: ## [DEV] Affiche les logs en temps réel
 	@bash -c ' \

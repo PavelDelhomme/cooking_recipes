@@ -664,7 +664,57 @@ cleanup() {
   exit 0
 }
 
-trap cleanup INT TERM
+# Fonction pour redémarrer l'application
+restart_app() {
+  echo ""
+  echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
+  echo -e "${GREEN}🔄 Redémarrage de l'application...${NC}"
+  echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
+  echo ""
+  
+  # Arrêter les processus
+  if [ ! -z "$BACKEND_PID" ]; then
+    kill $BACKEND_PID 2>/dev/null || true
+  fi
+  if [ ! -z "$FRONTEND_PID" ]; then
+    kill $FRONTEND_PID 2>/dev/null || true
+  fi
+  if [ ! -z "$FRONTEND_ANDROID_PID" ]; then
+    kill $FRONTEND_ANDROID_PID 2>/dev/null || true
+  fi
+  if [ ! -z "$FRONTEND_WEB_PID" ]; then
+    kill $FRONTEND_WEB_PID 2>/dev/null || true
+  fi
+  
+  # Tuer aussi les processus enfants
+  pkill -f "node.*server.js" 2>/dev/null || true
+  pkill -f "flutter.*web-server" 2>/dev/null || true
+  pkill -f "flutter.*android" 2>/dev/null || true
+  
+  # Attendre un peu pour que les processus se terminent
+  sleep 2
+  
+  # Libérer les ports
+  if command -v lsof >/dev/null 2>&1; then
+    PIDS_7272=$(lsof -ti:7272 2>/dev/null || echo "")
+    if [ ! -z "$PIDS_7272" ]; then
+      echo $PIDS_7272 | xargs kill -9 2>/dev/null || true
+    fi
+    PIDS_7070=$(lsof -ti:7070 2>/dev/null || echo "")
+    if [ ! -z "$PIDS_7070" ]; then
+      echo $PIDS_7070 | xargs kill -9 2>/dev/null || true
+    fi
+  fi
+  
+  # Redémarrer en appelant le script à nouveau
+  echo -e "${YELLOW}Redémarrage dans 2 secondes...${NC}"
+  sleep 2
+  exec "$0" "$@"
+}
+
+# Gérer Ctrl+C : redémarrer au lieu d'arrêter
+trap restart_app INT
+trap cleanup TERM
 
 # Vérifier que les dépendances sont installées
 if [ ! -d "$PROJECT_ROOT/backend/node_modules" ]; then
@@ -997,7 +1047,7 @@ elif [ "$DEVICE_CHOICE" = "3" ]; then
 else
     echo -e "${YELLOW}Application lancée sur: http://$MACHINE_IP:7070${NC}"
 fi
-echo -e "${YELLOW}Appuyez sur Ctrl+C pour arrêter${NC}"
+echo -e "${YELLOW}Appuyez sur Ctrl+C pour redémarrer (Shift+C pour arrêter définitivement)${NC}"
 echo ""
 
 # Attendre que les processus se terminent

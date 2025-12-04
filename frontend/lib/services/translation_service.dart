@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'locale_service.dart';
+import 'auto_translator.dart';
+import 'culinary_dictionary_loader.dart';
+import 'auto_translator.dart';
 
 /// Service de traduction pour convertir les éléments de recettes
 class TranslationService extends ChangeNotifier {
@@ -16,6 +19,8 @@ class TranslationService extends ChangeNotifier {
   // Initialiser la langue
   Future<void> init() async {
     _currentLanguage = await LocaleService.getLanguageCode();
+    // Charger les dictionnaires culinaires
+    await CulinaryDictionaryLoader.loadDictionaries();
     notifyListeners();
   }
   
@@ -382,6 +387,14 @@ class TranslationService extends ChangeNotifier {
 
   /// Traduit un ingrédient (méthode statique pour compatibilité)
   static String translateIngredient(String ingredient) {
+    // Si la langue est française, utiliser le traducteur automatique
+    if (_instance._currentLanguage == 'fr') {
+      final autoTranslated = AutoTranslator.translateWord(ingredient);
+      if (autoTranslated != ingredient && autoTranslated.toLowerCase() != ingredient.toLowerCase()) {
+        return autoTranslated;
+      }
+    }
+    // Fallback sur l'ancien système
     return _instance.translateIngredientInstance(ingredient);
   }
 
@@ -405,13 +418,50 @@ class TranslationService extends ChangeNotifier {
     
     // Traduire les ingrédients dans le texte seulement si la langue est française
     if (_instance._currentLanguage == 'fr') {
-      // D'abord traduire depuis l'espagnol
+      // Utiliser le traducteur automatique pour traduire les phrases
+      // Diviser en phrases et traduire chacune
+      final sentences = cleaned.split(RegExp(r'[.!?]\s+'));
+      final translatedSentences = sentences.map((sentence) {
+        if (sentence.trim().isEmpty) return sentence;
+        return AutoTranslator.translatePhrase(sentence.trim());
+      }).toList();
+      cleaned = translatedSentences.join('. ');
+      
+      // Continuer avec l'ancien système pour les ingrédients spécifiques qui n'ont pas été traduits
+      // Créer un dictionnaire inverse français -> anglais pour détecter les mots français dans un texte anglais
+      final frenchToEnglish = <String, String>{};
+      for (var entry in TranslationService._ingredientTranslations.entries) {
+        frenchToEnglish[entry.value.toLowerCase()] = entry.key;
+      }
+      for (var entry in TranslationService._spanishToFrenchIngredients.entries) {
+        frenchToEnglish[entry.value.toLowerCase()] = entry.key;
+      }
+      
+      // D'abord traduire les mots français qui apparaissent dans un texte anglais/espagnol
+      // (ex: "Oeufs" dans "In a bowl, beat the Oeufs")
+      final sortedFrenchEntries = frenchToEnglish.entries.toList()
+        ..sort((a, b) => b.key.length.compareTo(a.key.length));
+      
+      for (var entry in sortedFrenchEntries) {
+        // Chercher le mot français (avec majuscule possible)
+        final frenchWord = entry.key;
+        final capitalizedFrench = frenchWord[0].toUpperCase() + frenchWord.substring(1);
+        final englishWord = entry.value;
+        final capitalizedEnglish = englishWord[0].toUpperCase() + englishWord.substring(1);
+        
+        // Remplacer les occurrences avec majuscule
+        cleaned = cleaned.replaceAll(RegExp(r'\b' + RegExp.escape(capitalizedFrench) + r'\b', caseSensitive: false), capitalizedEnglish);
+        // Remplacer les occurrences avec minuscule
+        cleaned = cleaned.replaceAll(RegExp(r'\b' + RegExp.escape(frenchWord) + r'\b', caseSensitive: false), englishWord);
+      }
+      
+      // Ensuite traduire depuis l'espagnol vers français
       for (var entry in TranslationService._spanishToFrenchIngredients.entries) {
         final regex = RegExp(r'\b' + RegExp.escape(entry.key) + r'\b', caseSensitive: false);
         cleaned = cleaned.replaceAll(regex, entry.value);
       }
       
-      // Ensuite traduire depuis l'anglais
+      // Enfin traduire depuis l'anglais vers français
       for (var entry in TranslationService._ingredientTranslations.entries) {
         final regex = RegExp(r'\b' + RegExp.escape(entry.key) + r'\b', caseSensitive: false);
         cleaned = cleaned.replaceAll(regex, entry.value);
@@ -428,41 +478,87 @@ class TranslationService extends ChangeNotifier {
     // Nettoyer l'encodage d'abord
     String cleaned = fixEncoding(recipeName);
     
-    // Si la langue est française, traduire les termes courants dans les noms de recettes
+    // Si la langue est française, utiliser le traducteur automatique
     if (_instance._currentLanguage == 'fr') {
+      // Utiliser le traducteur automatique en premier
+      final autoTranslated = AutoTranslator.translateRecipeName(cleaned);
+      if (autoTranslated != cleaned && autoTranslated.toLowerCase() != cleaned.toLowerCase()) {
+        return autoTranslated;
+      }
+      
+      // Fallback sur l'ancien système si le traducteur automatique ne trouve rien
       // Dictionnaire de traductions anglais -> français pour les termes courants dans les noms de recettes
+      // IMPORTANT: Les termes longs doivent être en premier pour éviter les remplacements partiels
       final recipeTermTranslations = {
+        // Légumineuses et haricots (en premier car termes longs)
+        'kidney beans': 'Haricots Rouges',
+        'kidney bean': 'Haricot Rouge',
+        'red kidney beans': 'Haricots Rouges',
+        'red kidney bean': 'Haricot Rouge',
+        'black beans': 'Haricots Noirs',
+        'black bean': 'Haricot Noir',
+        'white beans': 'Haricots Blancs',
+        'white bean': 'Haricot Blanc',
+        'butter beans': 'Haricots de Lima',
+        'butter bean': 'Haricot de Lima',
+        'green beans': 'Haricots Verts',
+        'green bean': 'Haricot Vert',
+        'chickpeas': 'Pois Chiches',
+        'chickpea': 'Pois Chiche',
+        'lentils': 'Lentilles',
+        'lentil': 'Lentille',
+        'beans': 'Haricots',
+        'bean': 'Haricot',
+        'peas': 'Pois',
+        'pea': 'Pois',
+        // Viandes
         'chicken': 'Poulet',
         'beef': 'Bœuf',
         'pork': 'Porc',
+        'lamb': 'Agneau',
+        'turkey': 'Dinde',
+        'duck': 'Canard',
         'fish': 'Poisson',
         'salmon': 'Saumon',
+        'tuna': 'Thon',
+        // Céréales et féculents
         'pasta': 'Pâtes',
         'spaghetti': 'Spaghettis',
         'lasagna': 'Lasagne',
         'lasagne': 'Lasagne',
         'rice': 'Riz',
+        'bread': 'Pain',
+        // Types de plats
         'soup': 'Soupe',
         'salad': 'Salade',
         'sandwich': 'Sandwich',
         'burger': 'Burger',
+        'burgers': 'Burgers',
         'pizza': 'Pizza',
         'cake': 'Gâteau',
         'pie': 'Tarte',
-        'bread': 'Pain',
         'stew': 'Ragoût',
         'curry': 'Curry',
         'stir fry': 'Sauté',
         'roast': 'Rôti',
+        // Méthodes de cuisson
         'grilled': 'Grillé',
         'baked': 'Cuit au four',
         'fried': 'Frit',
         'boiled': 'Bouilli',
         'steamed': 'Cuit à la vapeur',
+        'smoked': 'Fumé',
+        'braised': 'Braisé',
+        // Types de régimes
         'vegan': 'Végétalien',
         'vegetarian': 'Végétarien',
         'vegetable': 'Légume',
         'vegetables': 'Légumes',
+        // Autres termes courants
+        'and': 'et',
+        'with': 'aux',
+        'in': 'en',
+        'on': 'sur',
       };
       
       // Dictionnaire de traductions espagnol -> français pour les termes courants dans les noms de recettes
@@ -519,12 +615,33 @@ class TranslationService extends ChangeNotifier {
       }
       
       // Réorganiser les mots pour un ordre plus naturel en français
-      // Par exemple : "Vegan Lasagna" -> "Lasagne Végétalienne"
-      final words = translated.split(' ');
+      // Par exemple : "Kidney Bean Curry" -> "Curry aux Haricots Rouges"
+      // ou "Vegan Lasagna" -> "Lasagne Végétalienne"
+      final words = translated.split(' ').where((w) => w.isNotEmpty).toList();
       if (words.length > 1) {
+        // Réorganiser les structures "X Y" où Y est un type de plat et X est un ingrédient
+        // Exemple : "Kidney Bean Curry" -> "Curry aux Haricots Rouges"
+        final dishTypes = ['Curry', 'Soupe', 'Salade', 'Ragoût', 'Burger', 'Burgers', 'Sandwich', 'Pizza', 'Gâteau', 'Tarte', 'Rôti', 'Sauté'];
+        for (var dishType in dishTypes) {
+          final index = words.indexOf(dishType);
+          if (index > 0) {
+            // Si on trouve un type de plat qui n'est pas en premier
+            // Réorganiser : "Kidney Bean Curry" -> "Curry aux Haricots Rouges"
+            final beforeDish = words.sublist(0, index);
+            final afterDish = words.sublist(index + 1);
+            if (beforeDish.isNotEmpty) {
+              // Construire "Curry aux Haricots Rouges"
+              final dishTypeWord = words[index];
+              final ingredients = beforeDish.join(' ');
+              translated = '$dishTypeWord aux $ingredients${afterDish.isNotEmpty ? ' ${afterDish.join(' ')}' : ''}';
+              break;
+            }
+          }
+        }
+        
         // Si le premier mot est un adjectif (Végétalien, Végétarien), le mettre à la fin
-        final adjectives = ['Végétalien', 'Végétarien', 'Grillé', 'Frit', 'Cuit au four', 'Bouilli', 'Cuit à la vapeur', 'Rôti', 'Sauté'];
-        if (adjectives.contains(words[0])) {
+        final adjectives = ['Végétalien', 'Végétarien', 'Grillé', 'Frit', 'Cuit au four', 'Bouilli', 'Cuit à la vapeur', 'Rôti', 'Sauté', 'Fumé', 'Braisé'];
+        if (adjectives.contains(words[0]) && !translated.contains('aux')) {
           final adj = words[0];
           words.removeAt(0);
           words.add(adj);
@@ -532,10 +649,14 @@ class TranslationService extends ChangeNotifier {
         }
       }
       
-      // Capitaliser la première lettre de chaque mot
+      // Capitaliser la première lettre de chaque mot (en respectant les mots composés)
       if (translated.isNotEmpty) {
         final capitalizedWords = translated.split(' ').map((word) {
           if (word.isEmpty) return word;
+          // Ne pas modifier les mots qui commencent déjà par une majuscule (comme "Curry")
+          if (word[0] == word[0].toUpperCase() && word.length > 1 && word[1] == word[1].toLowerCase()) {
+            return word; // Déjà capitalisé correctement
+          }
           return word[0].toUpperCase() + word.substring(1).toLowerCase();
         }).toList();
         translated = capitalizedWords.join(' ');
