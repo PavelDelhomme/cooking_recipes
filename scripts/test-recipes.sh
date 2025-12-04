@@ -123,6 +123,91 @@ get_label() {
     esac
 }
 
+# Fonction pour simuler la traduction automatique du titre (comme TranslationService.translateRecipeName)
+simulate_title_translation() {
+    local title="$1"
+    local lang="$2"
+    
+    if [ "$lang" = "en" ]; then
+        echo "$title"
+        return
+    fi
+    
+    # Dictionnaires de traduction (simplifiés pour bash)
+    local translated="$title"
+    local translated_words=""
+    local translation_steps=""
+    
+    if [ "$lang" = "fr" ]; then
+        # Dictionnaire anglais -> français (termes courants)
+        declare -A recipe_terms=(
+            ["chicken"]="Poulet"
+            ["beef"]="Bœuf"
+            ["pork"]="Porc"
+            ["fish"]="Poisson"
+            ["salmon"]="Saumon"
+            ["pasta"]="Pâtes"
+            ["spaghetti"]="Spaghettis"
+            ["lasagna"]="Lasagne"
+            ["lasagne"]="Lasagne"
+            ["rice"]="Riz"
+            ["soup"]="Soupe"
+            ["salad"]="Salade"
+            ["sandwich"]="Sandwich"
+            ["burger"]="Burger"
+            ["pizza"]="Pizza"
+            ["cake"]="Gâteau"
+            ["pie"]="Tarte"
+            ["bread"]="Pain"
+            ["stew"]="Ragoût"
+            ["curry"]="Curry"
+            ["stir fry"]="Sauté"
+            ["roast"]="Rôti"
+            ["grilled"]="Grillé"
+            ["baked"]="Cuit au four"
+            ["fried"]="Frit"
+            ["boiled"]="Bouilli"
+            ["steamed"]="Cuit à la vapeur"
+            ["vegan"]="Végétalien"
+            ["vegetarian"]="Végétarien"
+            ["vegetable"]="Légume"
+            ["vegetables"]="Légumes"
+        )
+        
+        # Traduire mot par mot (simplifié)
+        local words=$(echo "$title" | tr '[:upper:]' '[:lower:]' | tr -s ' ' | sed 's/^ *//;s/ *$//')
+        local result_words=""
+        local word_translations=""
+        
+        for word in $words; do
+            # Nettoyer le mot (enlever ponctuation)
+            local clean_word=$(echo "$word" | sed 's/[^a-z]//g')
+            local translation="${recipe_terms[$clean_word]}"
+            
+            if [ -n "$translation" ]; then
+                result_words="$result_words $translation"
+                word_translations="$word_translations|$clean_word->$translation"
+            else
+                result_words="$result_words $word"
+                word_translations="$word_translations|$clean_word->[NON_TRADUIT]"
+            fi
+        done
+        
+        # Nettoyer et capitaliser
+        result_words=$(echo "$result_words" | sed 's/^ *//;s/ *$//' | sed 's/\([a-z]\)/\U\1/g' | sed 's/\([A-Z]\)\([A-Z]*\)/\1\L\2/g')
+        translated="$result_words"
+        translation_steps="${word_translations#|}"  # Enlever le premier |
+    elif [ "$lang" = "es" ]; then
+        # Pour l'espagnol, on peut faire quelque chose de similaire
+        # Pour l'instant, on retourne juste le titre
+        translated="$title"
+        translation_steps="[TRADUCTION_ES_NON_IMPLÉMENTÉE]"
+    fi
+    
+    # Retourner la traduction et les détails
+    echo "$translated|$translation_steps"
+}
+
 # Fonction pour afficher une recette et demander validation
 test_recipe() {
     local recipe_json="$1"
@@ -162,9 +247,31 @@ test_recipe() {
     echo "   📋 Titre original (EN): $recipe_name"
     
     if [ "$TEST_LANG" != "en" ]; then
-        # Obtenir une traduction approximative (on simule ce que le système ferait)
-        # Pour l'instant, on affiche juste le titre original et on demande la validation
-        echo -n "   ✅ Traduction correcte pour '$recipe_name' ($TEST_LANG)? (o/n/q): "
+        # Simuler la traduction automatique du système
+        local auto_translation_result=$(simulate_title_translation "$recipe_name" "$TEST_LANG")
+        local auto_translated_title=$(echo "$auto_translation_result" | cut -d'|' -f1)
+        local translation_details=$(echo "$auto_translation_result" | cut -d'|' -f2-)
+        
+        echo "   🤖 Traduction automatique ($TEST_LANG): $auto_translated_title"
+        if [ -n "$translation_details" ] && [ "$translation_details" != "[TRADUCTION_ES_NON_IMPLÉMENTÉE]" ]; then
+            echo "   📝 Détails de traduction (mots individuels):"
+            echo "$translation_details" | tr '|' '\n' | while IFS='->' read -r word trans; do
+                if [ -n "$word" ] && [ -n "$trans" ]; then
+                    # Nettoyer les espaces
+                    word=$(echo "$word" | sed 's/^ *//;s/ *$//')
+                    trans=$(echo "$trans" | sed 's/^ *//;s/ *$//')
+                    if [ -n "$word" ] && [ -n "$trans" ]; then
+                        if [ "$trans" != "[NON_TRADUIT]" ]; then
+                            echo "      • $word → $trans"
+                        else
+                            echo "      • $word → [NON TRADUIT]"
+                        fi
+                    fi
+                fi
+            done
+        fi
+        echo ""
+        echo -n "   ✅ Traduction automatique correcte? (o/n/q): "
         read -r title_response
         
         if [ "$title_response" = "q" ] || [ "$title_response" = "Q" ]; then
@@ -207,9 +314,9 @@ test_recipe() {
             done
         fi
         
-        # Stocker le résultat du titre
-        # Format: RECIPE_TITLE|recipe_id|recipe_name|lang|title_correct|correct_title|title_comment
-        echo "RECIPE_TITLE|$recipe_id|$recipe_name|$TEST_LANG|$title_correct|$correct_title|$title_comment" >> /tmp/recipe_test_results.txt
+        # Stocker le résultat du titre avec la traduction automatique
+        # Format: RECIPE_TITLE|recipe_id|recipe_name|lang|auto_translated_title|translation_details|title_correct|correct_title|title_comment
+        echo "RECIPE_TITLE|$recipe_id|$recipe_name|$TEST_LANG|$auto_translated_title|$translation_details|$title_correct|$correct_title|$title_comment" >> /tmp/recipe_test_results.txt
     fi
     
     echo ""
@@ -500,7 +607,9 @@ fi
     echo "   Langue testée: $LANG_NAME ($TEST_LANG)"
     echo ""
     echo "📋 Format des résultats:"
-    echo "   Titres: RECIPE_TITLE|recipe_id|recipe_name|lang|title_correct|correct_title|title_comment"
+    echo "   Titres: RECIPE_TITLE|recipe_id|recipe_name|lang|auto_translated_title|translation_details|title_correct|correct_title|title_comment"
+    echo "     - auto_translated_title: Traduction automatique générée par le système"
+    echo "     - translation_details: Détails des mots traduits (mot->traduction|mot->traduction|...)"
     echo "   Ingrédients: recipe_id|ingredient|expected_translation|is_translated|translation_correct|correct_translation|translation_comment|measure|measure_correct|correct_measure|measure_comment|lang"
     echo ""
     echo "💡 Les traductions et mesures correctes suggérées sont stockées pour analyse future"
