@@ -1058,10 +1058,15 @@ class TranslationService extends ChangeNotifier {
   static String getEnglishName(String frenchName) {
     if (frenchName.isEmpty) return frenchName;
     
+    // Nettoyer le nom (trim, etc.)
+    final cleaned = frenchName.trim();
+    if (cleaned.isEmpty) return frenchName;
+    
     // Normaliser le nom (enlever accents, minuscules, etc.)
-    String normalized = frenchName.toLowerCase().trim();
+    String normalized = cleaned.toLowerCase();
     
     // Normaliser les caractères spéciaux (œ -> oe, etc.)
+    // IMPORTANT: Faire cette normalisation AVANT de créer le dictionnaire inverse
     normalized = normalized
         .replaceAll('œ', 'oe')
         .replaceAll('æ', 'ae')
@@ -1203,7 +1208,9 @@ class TranslationService extends ChangeNotifier {
     };
     
     // Vérifier d'abord les traductions spéciales (version originale et normalisée)
-    final lowerFrench = frenchName.toLowerCase().trim();
+    final lowerFrench = cleaned.toLowerCase();
+    print('🔍 Recherche traduction pour: "$frenchName" (lower: "$lowerFrench", normalized: "$normalized")');
+    
     if (specialTranslations.containsKey(lowerFrench)) {
       final result = specialTranslations[lowerFrench]!;
       print('✅ Traduction spéciale trouvée: "$frenchName" -> "$result"');
