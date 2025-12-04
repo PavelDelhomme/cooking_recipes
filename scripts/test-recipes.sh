@@ -6,9 +6,10 @@
 # Ne pas utiliser set -e car cela peut causer des problèmes avec l'arithmétique et les commandes interactives
 # set -e
 
-# Charger les traductions d'ingrédients
+# Charger les traductions d'ingrédients et la détection de langue
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/ingredient_translations.sh"
+source "$SCRIPT_DIR/detect-language.sh"
 
 echo "🧪 Test interactif des recettes - Portions et unités de mesure"
 echo "================================================================"
@@ -315,9 +316,9 @@ test_recipe() {
             done
         fi
         
-        # Stocker le résultat du titre avec la traduction automatique
-        # Format: RECIPE_TITLE|recipe_id|recipe_name|lang|auto_translated_title|translation_details|title_correct|correct_title|title_comment
-        echo "RECIPE_TITLE|$recipe_id|$recipe_name|$TEST_LANG|$auto_translated_title|$translation_details|$title_correct|$correct_title|$title_comment" >> /tmp/recipe_test_results.txt
+        # Stocker le résultat du titre avec la traduction automatique et la langue originale
+        # Format: RECIPE_TITLE|recipe_id|recipe_name|original_lang|test_lang|auto_translated_title|translation_details|title_correct|correct_title|title_comment
+        echo "RECIPE_TITLE|$recipe_id|$recipe_name|$original_lang|$TEST_LANG|$auto_translated_title|$translation_details|$title_correct|$correct_title|$title_comment" >> /tmp/recipe_test_results.txt
     fi
     
     echo ""
@@ -464,9 +465,9 @@ test_recipe() {
                 measure_correct="true"
             fi
             
-            # Stocker le résultat avec toutes les informations
-            # Format: recipe_id|ingredient|expected_translation|is_translated|translation_correct|correct_translation|translation_comment|measure|measure_correct|correct_measure|measure_comment|lang
-            echo "$recipe_id|$ingredient|$expected_translation|$is_translated|$translation_correct|$correct_translation|$translation_comment|$measure|$measure_correct|$correct_measure|$measure_comment|$TEST_LANG" >> /tmp/recipe_test_results.txt
+            # Stocker le résultat avec toutes les informations incluant la langue originale
+            # Format: recipe_id|ingredient|ingredient_original_lang|expected_translation|is_translated|translation_correct|correct_translation|translation_comment|measure|measure_correct|correct_measure|measure_comment|test_lang
+            echo "$recipe_id|$ingredient|$ingredient_original_lang|$expected_translation|$is_translated|$translation_correct|$correct_translation|$translation_comment|$measure|$measure_correct|$correct_measure|$measure_comment|$TEST_LANG" >> /tmp/recipe_test_results.txt
             echo ""
         fi
     done
@@ -526,11 +527,14 @@ if [ -f /tmp/recipe_test_results.txt ]; then
         TOTAL=$(echo "$LANG_RESULTS" | wc -l)
         
         # Statistiques de traduction
-        # Format: recipe_id|ingredient|expected_translation|is_translated|translation_correct|correct_translation|translation_comment|measure|measure_correct|correct_measure|measure_comment|lang
+        # Format: recipe_id|ingredient|ingredient_original_lang|expected_translation|is_translated|translation_correct|correct_translation|translation_comment|measure|measure_correct|correct_measure|measure_comment|test_lang
         if [ "$TEST_LANG" != "en" ]; then
-            TRANSLATION_CORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($5 == "true") print}' | wc -l)
-            TRANSLATION_INCORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($5 == "false") print}' | wc -l)
-            NOT_TRANSLATED=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($4 == "false") print}' | wc -l)
+            TRANSLATION_CORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($6 == "true") print}' | wc -l | tr -d ' ')
+            TRANSLATION_INCORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($6 == "false") print}' | wc -l | tr -d ' ')
+            NOT_TRANSLATED=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($5 == "false") print}' | wc -l | tr -d ' ')
+            TRANSLATION_CORRECT=${TRANSLATION_CORRECT:-0}
+            TRANSLATION_INCORRECT=${TRANSLATION_INCORRECT:-0}
+            NOT_TRANSLATED=${NOT_TRANSLATED:-0}
         else
             TRANSLATION_CORRECT=0
             TRANSLATION_INCORRECT=0
@@ -538,8 +542,10 @@ if [ -f /tmp/recipe_test_results.txt ]; then
         fi
         
         # Statistiques de mesure
-        MEASURE_CORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($9 == "true") print}' | wc -l)
-        MEASURE_INCORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($9 == "false") print}' | wc -l)
+        MEASURE_CORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($10 == "true") print}' | wc -l | tr -d ' ')
+        MEASURE_INCORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($10 == "false") print}' | wc -l | tr -d ' ')
+        MEASURE_CORRECT=${MEASURE_CORRECT:-0}
+        MEASURE_INCORRECT=${MEASURE_INCORRECT:-0}
     else
         TOTAL=0
         TRANSLATION_CORRECT=0
@@ -608,10 +614,12 @@ fi
     echo "   Langue testée: $LANG_NAME ($TEST_LANG)"
     echo ""
     echo "📋 Format des résultats:"
-    echo "   Titres: RECIPE_TITLE|recipe_id|recipe_name|lang|auto_translated_title|translation_details|title_correct|correct_title|title_comment"
+    echo "   Titres: RECIPE_TITLE|recipe_id|recipe_name|original_lang|test_lang|auto_translated_title|translation_details|title_correct|correct_title|title_comment"
+    echo "     - original_lang: Langue originale détectée automatiquement (en/es)"
     echo "     - auto_translated_title: Traduction automatique générée par le système"
     echo "     - translation_details: Détails des mots traduits (mot->traduction|mot->traduction|...)"
-    echo "   Ingrédients: recipe_id|ingredient|expected_translation|is_translated|translation_correct|correct_translation|translation_comment|measure|measure_correct|correct_measure|measure_comment|lang"
+    echo "   Ingrédients: recipe_id|ingredient|ingredient_original_lang|expected_translation|is_translated|translation_correct|correct_translation|translation_comment|measure|measure_correct|correct_measure|measure_comment|test_lang"
+    echo "     - ingredient_original_lang: Langue originale de l'ingrédient détectée automatiquement (en/es)"
     echo ""
     echo "💡 Les traductions et mesures correctes suggérées sont stockées pour analyse future"
     echo ""
