@@ -373,22 +373,51 @@ class _MainScreenState extends State<MainScreen> {
             tooltip: 'Menu',
           ),
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        title: Row(
           children: [
-            const Text(
-              'Cooking Recipes',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            // Image de l'application
+            Image.asset(
+              'assets/images/app_logo.png',
+              width: 32,
+              height: 32,
+              errorBuilder: (context, error, stackTrace) {
+                // Fallback vers l'icône si l'image n'existe pas
+                return Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.restaurant_menu,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                );
+              },
             ),
-            if (_currentProfile != null)
-              Text(
-                '${_currentProfile!.name} - ${_currentProfile!.numberOfPeople} ${_currentProfile!.numberOfPeople > 1 ? 'personnes' : 'personne'}',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Cooking Recipes',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  if (_currentProfile != null)
+                    Text(
+                      '${_currentProfile!.name} - ${_currentProfile!.numberOfPeople} ${_currentProfile!.numberOfPeople > 1 ? 'personnes' : 'personne'}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                ],
               ),
+            ),
           ],
         ),
         actions: [
@@ -420,18 +449,27 @@ class _MainScreenState extends State<MainScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.restaurant_menu,
-                    size: 32,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
+                // Image de l'application
+                Image.asset(
+                  'assets/images/app_logo.png',
+                  width: 80,
+                  height: 80,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Fallback vers l'icône si l'image n'existe pas
+                    return Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(
+                        Icons.restaurant_menu,
+                        size: 48,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 12),
                 const Text(

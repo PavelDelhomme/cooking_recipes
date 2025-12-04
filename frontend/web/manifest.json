@@ -1,11 +1,11 @@
 {
-    "name": "cookingrecipe",
-    "short_name": "cookingrecipe",
+    "name": "Cooking Recipes",
+    "short_name": "Cooking Recipes",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A cooking recipe flutter project",
+    "description": "Application de gestion de recettes de cuisine avec placard, liste de courses et planning de repas",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
