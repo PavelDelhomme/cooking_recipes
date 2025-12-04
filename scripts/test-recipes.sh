@@ -407,8 +407,12 @@ echo ""
 
 # Analyser les résultats (filtrer par langue si nécessaire)
 if [ -f /tmp/recipe_test_results.txt ]; then
-    # Filtrer les résultats pour la langue actuelle
-    LANG_RESULTS=$(grep "|$TEST_LANG$" /tmp/recipe_test_results.txt || echo "")
+    # Séparer les résultats de titre et d'ingrédients
+    TITLE_RESULTS=$(grep "^RECIPE_TITLE|" /tmp/recipe_test_results.txt | grep "|$TEST_LANG|" || echo "")
+    INGREDIENT_RESULTS=$(grep -v "^RECIPE_TITLE|" /tmp/recipe_test_results.txt | grep "|$TEST_LANG$" || echo "")
+    
+    # Filtrer les résultats pour la langue actuelle (ingrédients uniquement)
+    LANG_RESULTS="$INGREDIENT_RESULTS"
     
     if [ -n "$LANG_RESULTS" ]; then
         TOTAL=$(echo "$LANG_RESULTS" | wc -l)
