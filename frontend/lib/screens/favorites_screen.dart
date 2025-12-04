@@ -42,8 +42,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       }
 
       final apiUrl = ApiConfig.baseUrl;
+      print('🔍 Chargement favoris depuis: $apiUrl/favorites');
       final response = await http.get(
-        Uri.parse('$apiUrl/api/favorites'),
+        Uri.parse('$apiUrl/favorites'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
