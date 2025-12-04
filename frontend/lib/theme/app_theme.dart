@@ -7,7 +7,7 @@ class AppTheme {
       seedColor: Colors.orange,
       brightness: Brightness.light,
     ),
-    cardTheme: const CardThemeData(
+    cardTheme: CardTheme(
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -84,7 +84,7 @@ class AppTheme {
       onSurfaceVariant: Colors.grey[300]!,
     ),
     scaffoldBackgroundColor: const Color(0xFF121212),
-    cardTheme: const CardThemeData(
+    cardTheme: CardTheme(
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(16)),
