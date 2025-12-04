@@ -217,6 +217,7 @@ test_recipe() {
                 if [ "$translation_response" != "o" ] && [ "$translation_response" != "O" ] && [ -n "$translation_response" ]; then
                     translation_correct="false"
                     # Demander la traduction correcte
+                    echo ""
                     echo -n "   │  📝 Quelle devrait être la traduction correcte ($TEST_LANG)? "
                     read -r correct_translation
                     if [ -z "$correct_translation" ]; then
@@ -244,6 +245,7 @@ test_recipe() {
             if [ "$measure_response" != "o" ] && [ "$measure_response" != "O" ] && [ -n "$measure_response" ]; then
                 measure_correct="false"
                 # Demander la mesure correcte
+                echo ""
                 echo -n "   │  📏 Quelle devrait être la mesure correcte? "
                 read -r correct_measure
                 if [ -z "$correct_measure" ]; then
