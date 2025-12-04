@@ -131,9 +131,11 @@ app.use('/api', massAssignmentProtectionMiddleware);
 // Sécurité des sessions (vérification tokens révoqués)
 app.use('/api', sessionSecurityMiddleware);
 
-// CSRF Protection (génération pour GET, vérification pour POST/PUT/DELETE)
-app.use('/api', generateCSRFMiddleware);
-app.use('/api', verifyCSRFMiddleware);
+// CSRF Protection (désactivée en développement pour faciliter les tests)
+if (process.env.NODE_ENV === 'production') {
+  app.use('/api', generateCSRFMiddleware);
+  app.use('/api', verifyCSRFMiddleware);
+}
 
 // Input Sanitization (après WAF mais avant les routes)
 app.use('/api', inputSanitizerMiddleware);

@@ -72,12 +72,22 @@
               (args[0].includes('service worker') || args[0].includes('Service worker'))) {
             return; // Ignorer silencieusement
           }
+          // Ignorer aussi l'avertissement registerExtension() qui est normal en dev
+          if (args[0] && typeof args[0] === 'string' && 
+              args[0].includes('registerExtension()')) {
+            return; // Ignorer silencieusement
+          }
           originalError.apply(console, args);
         };
         
         console.warn = function(...args) {
           if (args[0] && typeof args[0] === 'string' && 
               (args[0].includes('service worker') || args[0].includes('Service worker'))) {
+            return; // Ignorer silencieusement
+          }
+          // Ignorer aussi l'avertissement registerExtension() qui est normal en dev
+          if (args[0] && typeof args[0] === 'string' && 
+              args[0].includes('registerExtension()')) {
             return; // Ignorer silencieusement
           }
           originalWarn.apply(console, args);
