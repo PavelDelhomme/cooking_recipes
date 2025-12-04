@@ -240,14 +240,26 @@ test_recipe() {
     echo "   $instructions..."
     echo ""
     
-    # Validation du titre de la recette
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📝 Validation du titre de la recette"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-    echo "   📋 Titre original (EN): $recipe_name"
-    
-    if [ "$TEST_LANG" != "en" ]; then
+    # Validation du titre de la recette (boucle pour permettre les modifications)
+    while true; do
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "📝 Validation du titre de la recette"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo ""
+        
+        # Détecter la langue originale du titre
+        local original_lang=$(detect_language "$recipe_name")
+        local lang_name=""
+        case "$original_lang" in
+            es) lang_name="Espagnol" ;;
+            en) lang_name="Anglais" ;;
+            *) lang_name="Inconnu" ;;
+        esac
+        
+        echo "   📋 Titre original ($lang_name): $recipe_name"
+        echo "   🌍 Langue détectée: $lang_name ($original_lang)"
+        
+        if [ "$TEST_LANG" != "en" ]; then
         # Simuler la traduction automatique du système
         local auto_translation_result=$(simulate_title_translation "$recipe_name" "$TEST_LANG")
         local auto_translated_title=$(echo "$auto_translation_result" | cut -d'|' -f1)
@@ -286,7 +298,7 @@ test_recipe() {
         if [ "$title_response" = "a" ] || [ "$title_response" = "A" ]; then
             echo ""
             echo "   ↺ Annulation, retour à la validation du titre..."
-            continue 2  # Retourner au début de la boucle de validation du titre
+            continue  # Retourner au début de la boucle de validation du titre
         fi
         
         local title_correct="true"
@@ -356,7 +368,9 @@ test_recipe() {
         
         # Stocker le résultat du titre avec la traduction automatique et la langue originale
         # Format: RECIPE_TITLE|recipe_id|recipe_name|original_lang|test_lang|auto_translated_title|translation_details|title_correct|correct_title|title_comment
-        echo "RECIPE_TITLE|$recipe_id|$recipe_name|$original_lang|$TEST_LANG|$auto_translated_title|$translation_details|$title_correct|$correct_title|$title_comment" >> /tmp/recipe_test_results.txt
+        if [ "$TEST_LANG" != "en" ]; then
+            echo "RECIPE_TITLE|$recipe_id|$recipe_name|$original_lang|$TEST_LANG|$auto_translated_title|$translation_details|$title_correct|$correct_title|$title_comment" >> /tmp/recipe_test_results.txt
+        fi
         break  # Sortir de la boucle de validation du titre
     done
     
