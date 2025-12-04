@@ -5,6 +5,10 @@
 
 set -e
 
+# Charger les traductions d'ingrédients
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/ingredient_translations.sh"
+
 echo "🧪 Test interactif des recettes - Portions et unités de mesure"
 echo "================================================================"
 echo ""
@@ -156,24 +160,65 @@ test_recipe() {
         local measure=$(echo "$recipe_json" | jq -r ".strMeasure$i // empty")
         
         if [ -n "$ingredient" ] && [ "$ingredient" != "null" ] && [ "$ingredient" != "" ]; then
-            echo "   ┌─ $(get_label ingredient): $ingredient"
-            echo "   │  $(get_label measure): $measure"
-            echo -n "   └─ ✅ $(get_label correct) (o/n/q): "
-            read -r response
+            # Obtenir la traduction attendue
+            local expected_translation=$(get_ingredient_translation "$ingredient" "$TEST_LANG")
+            local is_translated="true"
             
-            if [ "$response" = "q" ] || [ "$response" = "Q" ]; then
+            if [ -z "$expected_translation" ]; then
+                expected_translation="[NON TRADUIT]"
+                is_translated="false"
+            fi
+            
+            echo "   ┌─ $(get_label ingredient) original (EN): $ingredient"
+            if [ "$TEST_LANG" != "en" ]; then
+                if [ "$is_translated" = "true" ]; then
+                    echo "   │  Traduction attendue ($TEST_LANG): $expected_translation"
+                else
+                    echo "   │  ⚠️  Traduction attendue ($TEST_LANG): $expected_translation"
+                fi
+            fi
+            echo "   │  $(get_label measure): $measure"
+            echo ""
+            
+            # Demander si la traduction est correcte (si ce n'est pas l'anglais)
+            local translation_correct="true"
+            if [ "$TEST_LANG" != "en" ]; then
+                if [ "$is_translated" = "false" ]; then
+                    echo -n "   ├─ ⚠️  Ingrédient non traduit - Correct? (o/n/q): "
+                else
+                    echo -n "   ├─ ✅ Traduction correcte? (o/n/q): "
+                fi
+                read -r translation_response
+                
+                if [ "$translation_response" = "q" ] || [ "$translation_response" = "Q" ]; then
+                    echo ""
+                    echo "👋 $(get_label quit)."
+                    exit 0
+                fi
+                
+                if [ "$translation_response" != "o" ] && [ "$translation_response" != "O" ] && [ -n "$translation_response" ]; then
+                    translation_correct="false"
+                fi
+            fi
+            
+            # Demander si la mesure est correcte
+            echo -n "   └─ ✅ $(get_label measure) correcte pour cet ingrédient? (o/n/q): "
+            read -r measure_response
+            
+            if [ "$measure_response" = "q" ] || [ "$measure_response" = "Q" ]; then
                 echo ""
                 echo "👋 $(get_label quit)."
                 exit 0
             fi
             
-            local is_correct="false"
-            if [ "$response" = "o" ] || [ "$response" = "O" ] || [ "$response" = "" ]; then
-                is_correct="true"
+            local measure_correct="false"
+            if [ "$measure_response" = "o" ] || [ "$measure_response" = "O" ] || [ "$measure_response" = "" ]; then
+                measure_correct="true"
             fi
             
-            # Stocker le résultat avec la langue
-            echo "$recipe_id|$ingredient|$measure|$is_correct|$TEST_LANG" >> /tmp/recipe_test_results.txt
+            # Stocker le résultat avec toutes les informations
+            echo "$recipe_id|$ingredient|$expected_translation|$is_translated|$translation_correct|$measure|$measure_correct|$TEST_LANG" >> /tmp/recipe_test_results.txt
+            echo ""
         fi
     done
     
@@ -214,28 +259,64 @@ if [ -f /tmp/recipe_test_results.txt ]; then
     
     if [ -n "$LANG_RESULTS" ]; then
         TOTAL=$(echo "$LANG_RESULTS" | wc -l)
-        CORRECT=$(echo "$LANG_RESULTS" | grep -c "|true|" || echo "0")
-        INCORRECT=$(echo "$LANG_RESULTS" | grep -c "|false|" || echo "0")
+        
+        # Statistiques de traduction
+        if [ "$TEST_LANG" != "en" ]; then
+            TRANSLATION_CORRECT=$(echo "$LANG_RESULTS" | grep -c "|true|true|" || echo "0")
+            TRANSLATION_INCORRECT=$(echo "$LANG_RESULTS" | grep -c "|true|false|" || echo "0")
+            NOT_TRANSLATED=$(echo "$LANG_RESULTS" | grep -c "|false|" || echo "0")
+        else
+            TRANSLATION_CORRECT=0
+            TRANSLATION_INCORRECT=0
+            NOT_TRANSLATED=0
+        fi
+        
+        # Statistiques de mesure
+        MEASURE_CORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($7 == "true") print}' | wc -l)
+        MEASURE_INCORRECT=$(echo "$LANG_RESULTS" | awk -F'|' '{if ($7 == "false") print}' | wc -l)
     else
         TOTAL=0
-        CORRECT=0
-        INCORRECT=0
+        TRANSLATION_CORRECT=0
+        TRANSLATION_INCORRECT=0
+        NOT_TRANSLATED=0
+        MEASURE_CORRECT=0
+        MEASURE_INCORRECT=0
     fi
 else
     TOTAL=0
-    CORRECT=0
-    INCORRECT=0
+    TRANSLATION_CORRECT=0
+    TRANSLATION_INCORRECT=0
+    NOT_TRANSLATED=0
+    MEASURE_CORRECT=0
+    MEASURE_INCORRECT=0
 fi
 
 echo "📈 Statistiques [$TEST_LANG]:"
 echo "   • $(get_label total): $TOTAL"
-echo "   • $(get_label correct_count): $CORRECT"
-echo "   • $(get_label incorrect_count): $INCORRECT"
+echo ""
+
+if [ "$TEST_LANG" != "en" ]; then
+    echo "   📝 Traductions:"
+    echo "      • Correctes: $TRANSLATION_CORRECT"
+    echo "      • Incorrectes: $TRANSLATION_INCORRECT"
+    echo "      • Non traduites: $NOT_TRANSLATED"
+    echo ""
+    
+    if [ $TOTAL -gt 0 ]; then
+        TRANSLATION_PERCENTAGE=$((TRANSLATION_CORRECT * 100 / TOTAL))
+        echo "      • Taux de réussite traduction: ${TRANSLATION_PERCENTAGE}%"
+    fi
+    echo ""
+fi
+
+echo "   📏 Mesures:"
+echo "      • Correctes: $MEASURE_CORRECT"
+echo "      • Incorrectes: $MEASURE_INCORRECT"
 echo ""
 
 if [ $TOTAL -gt 0 ]; then
-    PERCENTAGE=$((CORRECT * 100 / TOTAL))
-    echo "   • $(get_label success_rate): ${PERCENTAGE}%"
+    MEASURE_PERCENTAGE=$((MEASURE_CORRECT * 100 / TOTAL))
+    echo "      • Taux de réussite mesure: ${MEASURE_PERCENTAGE}%"
 fi
 
 echo ""
