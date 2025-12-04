@@ -11,7 +11,7 @@ const ATTACK_PATTERNS = {
   sqlInjection: [
     /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|SCRIPT)\b)/i,
     /(\b(OR|AND)\s+\d+\s*=\s*\d+)/i,
-    /('|(\\')|(;)|(\\;)|(\|)|(\\|)|(\*)|(\\*)|(%)|(\\%)|(\()|(\\()|(\))|(\\))/i,
+    /(['";|&`*%()\\])/i,
     /(\b(UNION|SELECT).*FROM)/i,
     /(\b(SELECT|INSERT|UPDATE|DELETE).*WHERE)/i,
     /(\b(DROP|CREATE|ALTER).*(TABLE|DATABASE|INDEX))/i,
