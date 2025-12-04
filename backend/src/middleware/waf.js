@@ -1,12 +1,22 @@
 /**
  * Web Application Firewall (WAF) Middleware
- * Détecte et bloque les attaques courantes : SQL Injection, XSS, Path Traversal, etc.
+ * Détecte et bloque les attaques courantes adaptées à notre stack :
+ * - SQL Injection (SQLite)
+ * - XSS (Cross-Site Scripting)
+ * - Path Traversal
+ * - Command Injection
+ * - File Upload malveillants
+ * 
+ * Stack technique :
+ * - Base de données : SQLite
+ * - Backend : Node.js/Express
+ * - Frontend : Flutter Web
  */
 
-const { getDatabase } = require('../database/db');
 const { addToBlacklist } = require('./ipBlacklist');
+const { logSecurityEvent, SECURITY_EVENTS } = require('./securityLogger');
 
-// Patterns de détection d'attaques
+// Patterns de détection d'attaques adaptés à notre stack
 const ATTACK_PATTERNS = {
   sqlInjection: [
     /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|SCRIPT)\b)/i,
@@ -42,18 +52,13 @@ const ATTACK_PATTERNS = {
     /\/windows\/system32/gi,
   ],
   commandInjection: [
-    /(\||&|;|`|\$\(|\$\{)/g,
-    /(\b(cat|ls|pwd|whoami|id|uname|ps|kill|rm|mv|cp|chmod|chown)\b)/i,
-    /(\b(powershell|cmd|bash|sh|zsh|fish)\b)/i,
-    /(\b(nc|netcat|wget|curl|python|perl|ruby|php)\b)/i,
-  ],
-  ldapInjection: [
-    /(\*|\(|\)|&|\|)/g,
-    /(\b(OU|CN|DC|DN)\s*=)/i,
-  ],
-  nosqlInjection: [
-    /(\$where|\$ne|\$gt|\$lt|\$gte|\$lte|\$in|\$nin|\$regex)/i,
-    /(\{\s*"\$)/i,
+    /([|&;`$])/g,
+    /(\$\(|\$\{)/g,
+    /(\b(cat|ls|pwd|whoami|id|uname|ps|kill|rm|mv|cp|chmod|chown|sudo|su)\b)/i,
+    /(\b(bash|sh|zsh|fish|dash|ksh)\b)/i,
+    /(\b(nc|netcat|wget|curl|ping|nmap)\b)/i,
+    /(\b(python|perl|ruby|php|node|npm)\b)/i,
+    /(>\s*\w+|<\s*\w+)/g,
   ],
   fileUpload: [
     /\.(php|phtml|php3|php4|php5|phps|cgi|exe|pl|asp|aspx|jsp|sh|bat|cmd|com|pif|scr|vbs|js|jar|war|ear|zip|rar|7z|tar|gz|bz2)/i,
@@ -232,7 +237,7 @@ function wafMiddleware(req, res, next) {
     });
 
     // Ajouter l'IP à la blacklist (temporairement, 1 heure)
-    addToBlacklist(clientIP, `WAF: ${attackType} détecté`, 60 * 60 * 1000);
+    addToBlacklist(clientIP, 60, `WAF: ${attackType} détecté`);
 
     // Retourner une erreur 403
     return res.status(403).json({
