@@ -154,6 +154,9 @@ app.use(bodyParser.urlencoded({
   type: 'application/x-www-form-urlencoded'
 }));
 
+// Servir les fichiers statiques (pages d'erreur)
+app.use(express.static('public'));
+
 // Middleware pour forcer l'encodage UTF-8
 app.use((req, res, next) => {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');

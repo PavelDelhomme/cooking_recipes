@@ -1,180 +1,199 @@
+/**
+ * Error Handler Middleware
+ * Gère les erreurs et sert des pages HTML personnalisées ou des réponses JSON
+ */
+
 const path = require('path');
 const fs = require('fs');
 
-// Fonction pour servir une page d'erreur HTML
-function serveErrorPage(res, statusCode, title, message, details = null) {
-  const errorPage = `
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title} - Cooking Recipes API</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .error-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
-            width: 100%;
-            padding: 40px;
-            text-align: center;
-        }
-        .error-code {
-            font-size: 120px;
-            font-weight: bold;
-            color: #FF6B35;
-            line-height: 1;
-            margin-bottom: 20px;
-        }
-        .error-title {
-            font-size: 32px;
-            color: #333;
-            margin-bottom: 16px;
-        }
-        .error-message {
-            font-size: 18px;
-            color: #666;
-            margin-bottom: 24px;
-            line-height: 1.6;
-        }
-        .error-details {
-            background: #f5f5f5;
-            border-radius: 10px;
-            padding: 16px;
-            margin-top: 24px;
-            text-align: left;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            color: #333;
-            word-break: break-all;
-        }
-        .home-button {
-            display: inline-block;
-            margin-top: 24px;
-            padding: 12px 32px;
-            background: #FF6B35;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: background 0.3s;
-        }
-        .home-button:hover {
-            background: #F7931E;
-        }
-        @media (max-width: 600px) {
-            .error-code {
-                font-size: 80px;
-            }
-            .error-title {
-                font-size: 24px;
-            }
-            .error-message {
-                font-size: 16px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="error-container">
-        <div class="error-code">${statusCode}</div>
-        <h1 class="error-title">${title}</h1>
-        <p class="error-message">${message}</p>
-        ${details ? `<div class="error-details">${details}</div>` : ''}
-        <a href="https://cookingrecipes.delhomme.ovh" class="home-button">Retour à l'accueil</a>
-    </div>
-</body>
-</html>
-  `;
-  
-  res.status(statusCode).setHeader('Content-Type', 'text/html; charset=utf-8').send(errorPage);
+// Chemin vers les pages d'erreur
+const ERROR_PAGES_DIR = path.join(__dirname, '../../public/errors');
+
+/**
+ * Lit une page d'erreur HTML
+ */
+function readErrorPage(statusCode) {
+  const errorPagePath = path.join(ERROR_PAGES_DIR, `${statusCode}.html`);
+  try {
+    if (fs.existsSync(errorPagePath)) {
+      return fs.readFileSync(errorPagePath, 'utf8');
+    }
+  } catch (error) {
+    console.error(`Erreur lecture page d'erreur ${statusCode}:`, error);
+  }
+  return null;
 }
 
-// Middleware pour gérer les erreurs 404
-function notFoundHandler(req, res, next) {
-  serveErrorPage(
-    res,
-    404,
-    'Page non trouvée',
-    'La ressource demandée n\'existe pas ou a été déplacée.',
-    `URL: ${req.originalUrl}`
-  );
+/**
+ * Handler pour 401 Unauthorized
+ */
+function unauthorizedHandler(req, res, message = 'Vous devez être connecté pour accéder à cette ressource.') {
+  // Si c'est une requête API (JSON), retourner JSON
+  if (req.headers['accept'] && req.headers['accept'].includes('application/json')) {
+    return res.status(401).json({
+      error: 'Unauthorized',
+      message,
+      code: 'AUTH_REQUIRED',
+    });
+  }
+
+  // Sinon, servir la page HTML
+  const html = readErrorPage(401);
+  if (html) {
+    return res.status(401).type('text/html').send(html);
+  }
+
+  // Fallback si la page n'existe pas
+  res.status(401).type('text/html').send(`
+    <!DOCTYPE html>
+    <html>
+    <head><title>401 - Authentification requise</title></head>
+    <body><h1>401 - Authentification requise</h1><p>${message}</p></body>
+    </html>
+  `);
 }
 
-// Middleware pour gérer les erreurs 429 (Too Many Requests)
-function tooManyRequestsHandler(req, res, retryAfter = null) {
-  const message = retryAfter 
-    ? `Trop de requêtes. Veuillez réessayer dans ${Math.ceil(retryAfter / 60)} minute(s).`
-    : 'Trop de requêtes. Veuillez réessayer plus tard.';
-  
-  serveErrorPage(
-    res,
-    429,
-    'Trop de requêtes',
-    message,
-    `IP: ${req.clientIP || req.ip || 'Inconnue'}`
-  );
+/**
+ * Handler pour 403 Forbidden
+ */
+function forbiddenHandler(req, res, message = 'Accès refusé.') {
+  // Si c'est une requête API (JSON), retourner JSON
+  if (req.headers['accept'] && req.headers['accept'].includes('application/json')) {
+    return res.status(403).json({
+      error: 'Forbidden',
+      message,
+      code: 'ACCESS_DENIED',
+    });
+  }
+
+  // Sinon, servir la page HTML
+  const html = readErrorPage(403);
+  if (html) {
+    return res.status(403).type('text/html').send(html);
+  }
+
+  // Fallback si la page n'existe pas
+  res.status(403).type('text/html').send(`
+    <!DOCTYPE html>
+    <html>
+    <head><title>403 - Accès refusé</title></head>
+    <body><h1>403 - Accès refusé</h1><p>${message}</p></body>
+    </html>
+  `);
 }
 
-// Middleware pour gérer les erreurs 403 (Forbidden - IP blacklistée)
-function forbiddenHandler(req, res, message = 'Accès refusé') {
-  serveErrorPage(
-    res,
-    403,
-    'Accès refusé',
-    message,
-    `IP: ${req.clientIP || req.ip || 'Inconnue'}`
-  );
+/**
+ * Handler pour 404 Not Found
+ */
+function notFoundHandler(req, res) {
+  // Si c'est une requête API (JSON), retourner JSON
+  if (req.headers['accept'] && req.headers['accept'].includes('application/json')) {
+    return res.status(404).json({
+      error: 'Not Found',
+      message: 'La ressource demandée n\'a pas été trouvée.',
+      code: 'NOT_FOUND',
+      path: req.path,
+    });
+  }
+
+  // Sinon, servir la page HTML
+  const html = readErrorPage(404);
+  if (html) {
+    return res.status(404).type('text/html').send(html);
+  }
+
+  // Fallback si la page n'existe pas
+  res.status(404).type('text/html').send(`
+    <!DOCTYPE html>
+    <html>
+    <head><title>404 - Page non trouvée</title></head>
+    <body><h1>404 - Page non trouvée</h1><p>La page que vous recherchez n'existe pas.</p></body>
+    </html>
+  `);
 }
 
-// Middleware pour gérer les erreurs 401 (Unauthorized)
-function unauthorizedHandler(req, res, message = 'Authentification requise') {
-  serveErrorPage(
-    res,
-    401,
-    'Authentification requise',
-    message,
-    'Veuillez vous connecter pour accéder à cette ressource.'
-  );
+/**
+ * Handler pour 429 Too Many Requests
+ */
+function tooManyRequestsHandler(req, res, retryAfter = 60) {
+  // Si c'est une requête API (JSON), retourner JSON
+  if (req.headers['accept'] && req.headers['accept'].includes('application/json')) {
+    return res.status(429).json({
+      error: 'Too Many Requests',
+      message: 'Trop de requêtes. Veuillez patienter avant de réessayer.',
+      code: 'RATE_LIMIT_EXCEEDED',
+      retryAfter,
+    });
+  }
+
+  // Sinon, servir la page HTML avec retryAfter dans l'URL
+  const html = readErrorPage(429);
+  if (html) {
+    // Injecter retryAfter dans l'URL si présent
+    const htmlWithRetry = html.replace('location.reload()', `location.href='?retryAfter=${retryAfter}'`);
+    return res.status(429)
+      .set('Retry-After', retryAfter.toString())
+      .type('text/html')
+      .send(htmlWithRetry);
+  }
+
+  // Fallback si la page n'existe pas
+  res.status(429)
+    .set('Retry-After', retryAfter.toString())
+    .type('text/html')
+    .send(`
+    <!DOCTYPE html>
+    <html>
+    <head><title>429 - Trop de requêtes</title></head>
+    <body>
+      <h1>429 - Trop de requêtes</h1>
+      <p>Veuillez patienter ${retryAfter} secondes avant de réessayer.</p>
+    </body>
+    </html>
+  `);
 }
 
-// Middleware pour gérer les erreurs 500 (Internal Server Error)
+/**
+ * Handler pour 500 Internal Server Error
+ */
 function internalErrorHandler(err, req, res, next) {
   console.error('Erreur serveur:', err);
-  
-  const isDevelopment = process.env.NODE_ENV !== 'production';
-  const details = isDevelopment ? err.stack : null;
-  
-  serveErrorPage(
-    res,
-    500,
-    'Erreur serveur',
-    'Une erreur interne s\'est produite. Veuillez réessayer plus tard.',
-    details
-  );
+
+  // Si c'est une requête API (JSON), retourner JSON
+  if (req.headers['accept'] && req.headers['accept'].includes('application/json')) {
+    return res.status(500).json({
+      error: 'Internal Server Error',
+      message: process.env.NODE_ENV === 'production' 
+        ? 'Une erreur interne s\'est produite.'
+        : err.message,
+      code: 'INTERNAL_ERROR',
+    });
+  }
+
+  // Sinon, servir la page HTML
+  const html = readErrorPage(500);
+  if (html) {
+    return res.status(500).type('text/html').send(html);
+  }
+
+  // Fallback si la page n'existe pas
+  res.status(500).type('text/html').send(`
+    <!DOCTYPE html>
+    <html>
+    <head><title>500 - Erreur serveur</title></head>
+    <body>
+      <h1>500 - Erreur serveur</h1>
+      <p>Une erreur interne s'est produite.</p>
+      ${process.env.NODE_ENV !== 'production' ? `<pre>${err.stack}</pre>` : ''}
+    </body>
+    </html>
+  `);
 }
 
 module.exports = {
-  serveErrorPage,
+  unauthorizedHandler,
+  forbiddenHandler,
   notFoundHandler,
   tooManyRequestsHandler,
-  forbiddenHandler,
-  unauthorizedHandler,
   internalErrorHandler,
 };
-

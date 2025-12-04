@@ -4,6 +4,17 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 ## [Non versionné] - 2024-12-XX
 
+### 🎨 Pages d'Erreur Personnalisées
+- **Pages d'erreur HTML modernes** : Design professionnel et responsive
+  - 401 - Authentification requise
+  - 403 - Accès refusé
+  - 404 - Page non trouvée
+  - 429 - Trop de requêtes (avec compte à rebours)
+  - 500 - Erreur serveur
+- **Détection automatique** : JSON pour API, HTML pour navigateur
+- **Intégration Nginx** : Configuration pour servir les pages depuis le backend
+- **Fichiers** : `backend/public/errors/*.html`
+
 ### 🔒 Sécurité - Protection Avancée Complète
 
 #### Ajouté

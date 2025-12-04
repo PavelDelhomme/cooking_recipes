@@ -250,6 +250,21 @@ services:
    - Analyser la base: `SELECT * FROM security_logs WHERE event_type = 'WAF_BLOCKED'`
    - Blacklist permanente si nécessaire
 
+### 12. Pages d'Erreur Personnalisées
+
+- **Fichier**: `backend/public/errors/*.html`
+- **Pages disponibles**:
+  - `401.html` - Authentification requise
+  - `403.html` - Accès refusé
+  - `404.html` - Page non trouvée
+  - `429.html` - Trop de requêtes (avec compte à rebours)
+  - `500.html` - Erreur serveur
+- **Fonctionnalités**:
+  - Design moderne et responsive
+  - Détection automatique JSON vs HTML
+  - Intégration avec Nginx (proxy_pass vers backend)
+  - Compte à rebours pour 429
+
 ### Commandes Utiles
 
 ```bash
@@ -261,6 +276,10 @@ grep "WAF_BLOCKED" backend/logs/security/*.log
 
 # Vérifier les IPs blacklistées
 sqlite3 backend/data/database.sqlite "SELECT * FROM ip_blacklist;"
+
+# Tester les pages d'erreur
+curl http://localhost:7272/api/nonexistent
+curl http://localhost:7272/errors/404.html
 ```
 
 ## 📋 Checklist de Sécurité
