@@ -273,13 +273,20 @@ test_recipe() {
             done
         fi
         echo ""
-        echo -n "   ✅ Traduction automatique correcte? (o/n/q): "
+        echo -n "   ✅ Traduction automatique correcte? (o/n/a/q) [a=annuler, q=quitter]: "
         read -r title_response
         
         if [ "$title_response" = "q" ] || [ "$title_response" = "Q" ]; then
             echo ""
             echo "👋 $(get_label quit)."
             exit 0
+        fi
+        
+        # Si annulation, revenir au début de la validation du titre
+        if [ "$title_response" = "a" ] || [ "$title_response" = "A" ]; then
+            echo ""
+            echo "   ↺ Annulation, retour à la validation du titre..."
+            continue 2  # Retourner au début de la boucle de validation du titre
         fi
         
         local title_correct="true"
@@ -289,37 +296,69 @@ test_recipe() {
         if [ "$title_response" != "o" ] && [ "$title_response" != "O" ] && [ -n "$title_response" ]; then
             title_correct="false"
             echo ""
-            echo -n "   │  📝 Quelle devrait être la traduction correcte ($TEST_LANG)? "
+            echo -n "   │  📝 Quelle devrait être la traduction correcte ($TEST_LANG)? (a=annuler): "
             read -r correct_title
-            if [ -z "$correct_title" ]; then
+            
+            # Annulation de la correction
+            if [ "$correct_title" = "a" ] || [ "$correct_title" = "A" ]; then
+                echo "   ↺ Annulation de la correction, retour à la validation..."
+                title_correct="true"
                 correct_title="$recipe_name"
-            fi
-            echo "   │  💬 Commentaire détaillé (optionnel, appuyez sur Entrée deux fois pour terminer):"
-            title_comment=""
-            local first_line=true
-            while true; do
-                echo -n "   │     "
-                read -r line
-                if [ -z "$line" ]; then
-                    if [ "$first_line" = "false" ]; then
+            else
+                if [ -z "$correct_title" ]; then
+                    correct_title="$recipe_name"
+                fi
+                echo "   │  💬 Commentaire détaillé (optionnel, appuyez sur Entrée deux fois pour terminer, 'a' pour annuler):"
+                title_comment=""
+                local first_line=true
+                while true; do
+                    echo -n "   │     "
+                    read -r line
+                    if [ "$line" = "a" ] || [ "$line" = "A" ]; then
+                        echo "   ↺ Annulation du commentaire"
+                        title_comment=""
                         break
                     fi
+                    if [ -z "$line" ]; then
+                        if [ "$first_line" = "false" ]; then
+                            break
+                        fi
+                        first_line=false
+                        continue
+                    fi
                     first_line=false
-                    continue
-                fi
-                first_line=false
-                if [ -n "$title_comment" ]; then
-                    title_comment="$title_comment|$line"
-                else
-                    title_comment="$line"
-                fi
-            done
+                    if [ -n "$title_comment" ]; then
+                        title_comment="$title_comment|$line"
+                    else
+                        title_comment="$line"
+                    fi
+                done
+            fi
+        fi
+        
+        # Demander confirmation ou modification
+        echo ""
+        echo -n "   💾 Valider ce titre? (o/m/q) [o=valider, m=modifier, q=quitter]: "
+        read -r title_confirm
+        
+        if [ "$title_confirm" = "q" ] || [ "$title_confirm" = "Q" ]; then
+            echo ""
+            echo "👋 $(get_label quit)."
+            exit 0
+        fi
+        
+        # Si modification demandée, recommencer la validation
+        if [ "$title_confirm" = "m" ] || [ "$title_confirm" = "M" ]; then
+            echo ""
+            echo "   ↺ Modification du titre, retour à la validation..."
+            continue
         fi
         
         # Stocker le résultat du titre avec la traduction automatique et la langue originale
         # Format: RECIPE_TITLE|recipe_id|recipe_name|original_lang|test_lang|auto_translated_title|translation_details|title_correct|correct_title|title_comment
         echo "RECIPE_TITLE|$recipe_id|$recipe_name|$original_lang|$TEST_LANG|$auto_translated_title|$translation_details|$title_correct|$correct_title|$title_comment" >> /tmp/recipe_test_results.txt
-    fi
+        break  # Sortir de la boucle de validation du titre
+    done
     
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -373,9 +412,9 @@ test_recipe() {
             
             if [ "$TEST_LANG" != "en" ]; then
                 if [ "$is_translated" = "false" ]; then
-                    echo -n "   ├─ ⚠️  Ingrédient non traduit - Correct? (o/n/q): "
+                    echo -n "   ├─ ⚠️  Ingrédient non traduit - Correct? (o/n/b/a/q) [b=retour, a=annuler, q=quitter]: "
                 else
-                    echo -n "   ├─ ✅ Traduction correcte? (o/n/q): "
+                    echo -n "   ├─ ✅ Traduction correcte? (o/n/b/a/q) [b=retour, a=annuler, q=quitter]: "
                 fi
                 read -r translation_response
                 
@@ -385,40 +424,86 @@ test_recipe() {
                     exit 0
                 fi
                 
-                if [ "$translation_response" != "o" ] && [ "$translation_response" != "O" ] && [ -n "$translation_response" ]; then
+                # Retour en arrière à l'ingrédient précédent
+                if [ "$translation_response" = "b" ] || [ "$translation_response" = "B" ]; then
+                    if [ $current_ingredient -gt 1 ]; then
+                        echo ""
+                        echo "   ↺ Retour à l'ingrédient précédent..."
+                        # Revenir de 2 positions dans la boucle (on va revenir au début de cette itération)
+                        current_ingredient=$((current_ingredient - 2))
+                        # Trouver l'ingrédient précédent dans la liste
+                        local prev_i=$((i - 1))
+                        while [ $prev_i -gt 0 ]; do
+                            local prev_ingredient=$(echo "$recipe_json" | jq -r ".strIngredient$prev_i // empty")
+                            if [ -n "$prev_ingredient" ] && [ "$prev_ingredient" != "null" ] && [ "$prev_ingredient" != "" ]; then
+                                i=$prev_i
+                                break
+                            fi
+                            prev_i=$((prev_i - 1))
+                        done
+                        continue
+                    else
+                        echo "   ⚠️  Pas d'ingrédient précédent, retour au titre..."
+                        # Retourner au titre
+                        continue 2
+                    fi
+                fi
+                
+                # Annulation
+                if [ "$translation_response" = "a" ] || [ "$translation_response" = "A" ]; then
+                    echo ""
+                    echo "   ↺ Annulation, passage à l'ingrédient suivant..."
+                    translation_correct="true"
+                    correct_translation="$expected_translation"
+                    translation_comment=""
+                elif [ "$translation_response" != "o" ] && [ "$translation_response" != "O" ] && [ -n "$translation_response" ]; then
                     translation_correct="false"
                     # Demander la traduction correcte
                     echo ""
-                    echo -n "   │  📝 Quelle devrait être la traduction correcte ($TEST_LANG)? "
+                    echo -n "   │  📝 Quelle devrait être la traduction correcte ($TEST_LANG)? (a=annuler): "
                     read -r correct_translation
-                    if [ -z "$correct_translation" ]; then
+                    
+                    # Annulation de la correction
+                    if [ "$correct_translation" = "a" ] || [ "$correct_translation" = "A" ]; then
+                        echo "   ↺ Annulation de la correction"
+                        translation_correct="true"
                         correct_translation="$expected_translation"
-                    fi
-                echo "   │  💬 Commentaire détaillé (optionnel, appuyez sur Entrée deux fois pour terminer):"
-                translation_comment=""
-                local first_line=true
-                while true; do
-                    echo -n "   │     "
-                    read -r line
-                    if [ -z "$line" ]; then
-                        if [ "$first_line" = "false" ]; then
-                            break
-                        fi
-                        first_line=false
-                        continue
-                    fi
-                    first_line=false
-                    if [ -n "$translation_comment" ]; then
-                        translation_comment="$translation_comment|$line"
+                        translation_comment=""
                     else
-                        translation_comment="$line"
+                        if [ -z "$correct_translation" ]; then
+                            correct_translation="$expected_translation"
+                        fi
+                        echo "   │  💬 Commentaire détaillé (optionnel, appuyez sur Entrée deux fois pour terminer, 'a' pour annuler):"
+                        translation_comment=""
+                        local first_line=true
+                        while true; do
+                            echo -n "   │     "
+                            read -r line
+                            if [ "$line" = "a" ] || [ "$line" = "A" ]; then
+                                echo "   ↺ Annulation du commentaire"
+                                translation_comment=""
+                                break
+                            fi
+                            if [ -z "$line" ]; then
+                                if [ "$first_line" = "false" ]; then
+                                    break
+                                fi
+                                first_line=false
+                                continue
+                            fi
+                            first_line=false
+                            if [ -n "$translation_comment" ]; then
+                                translation_comment="$translation_comment|$line"
+                            else
+                                translation_comment="$line"
+                            fi
+                        done
                     fi
-                done
                 fi
             fi
             
             # Demander si la mesure est correcte
-            echo -n "   └─ ✅ $(get_label measure) correcte pour cet ingrédient? (o/n/q): "
+            echo -n "   └─ ✅ $(get_label measure) correcte pour cet ingrédient? (o/n/b/a/q) [b=retour traduction, a=annuler, q=quitter]: "
             read -r measure_response
             
             if [ "$measure_response" = "q" ] || [ "$measure_response" = "Q" ]; then
@@ -427,40 +512,85 @@ test_recipe() {
                 exit 0
             fi
             
+            # Retour à la validation de la traduction
+            if [ "$measure_response" = "b" ] || [ "$measure_response" = "B" ]; then
+                echo ""
+                echo "   ↺ Retour à la validation de la traduction..."
+                # Revenir à la question de traduction
+                if [ "$TEST_LANG" != "en" ]; then
+                    if [ "$is_translated" = "false" ]; then
+                        echo -n "   ├─ ⚠️  Ingrédient non traduit - Correct? (o/n/b/a/q): "
+                    else
+                        echo -n "   ├─ ✅ Traduction correcte? (o/n/b/a/q): "
+                    fi
+                    read -r translation_response_retry
+                    # Traiter la réponse (simplifié pour l'exemple)
+                    if [ "$translation_response_retry" = "a" ] || [ "$translation_response_retry" = "A" ]; then
+                        translation_correct="true"
+                        correct_translation="$expected_translation"
+                        translation_comment=""
+                    fi
+                fi
+                # Continuer avec la mesure
+                echo -n "   └─ ✅ $(get_label measure) correcte pour cet ingrédient? (o/n/a/q): "
+                read -r measure_response
+            fi
+            
             local measure_correct="false"
             local correct_measure="$measure"
             local measure_comment=""
             
-            if [ "$measure_response" != "o" ] && [ "$measure_response" != "O" ] && [ -n "$measure_response" ]; then
+            # Annulation
+            if [ "$measure_response" = "a" ] || [ "$measure_response" = "A" ]; then
+                echo ""
+                echo "   ↺ Annulation, passage à l'ingrédient suivant..."
+                measure_correct="true"
+                correct_measure="$measure"
+                measure_comment=""
+            elif [ "$measure_response" != "o" ] && [ "$measure_response" != "O" ] && [ -n "$measure_response" ]; then
                 measure_correct="false"
                 # Demander la mesure correcte
                 echo ""
-                echo -n "   │  📏 Quelle devrait être la mesure correcte? "
+                echo -n "   │  📏 Quelle devrait être la mesure correcte? (a=annuler): "
                 read -r correct_measure
-                if [ -z "$correct_measure" ]; then
+                
+                # Annulation de la correction
+                if [ "$correct_measure" = "a" ] || [ "$correct_measure" = "A" ]; then
+                    echo "   ↺ Annulation de la correction"
+                    measure_correct="true"
                     correct_measure="$measure"
-                fi
-                echo "   │  💬 Commentaire détaillé (optionnel, appuyez sur Entrée deux fois pour terminer):"
-                echo "   │     Exemple: '1 cup ≈ 240-250 ml. Équivalent: tasse. 1/2 cup ≈ 120 ml, 1/3 cup ≈ 80 ml, 1/4 cup ≈ 60 ml.'"
-                measure_comment=""
-                local first_line=true
-                while true; do
-                    echo -n "   │     "
-                    read -r line
-                    if [ -z "$line" ]; then
-                        if [ "$first_line" = "false" ]; then
+                    measure_comment=""
+                else
+                    if [ -z "$correct_measure" ]; then
+                        correct_measure="$measure"
+                    fi
+                    echo "   │  💬 Commentaire détaillé (optionnel, appuyez sur Entrée deux fois pour terminer, 'a' pour annuler):"
+                    echo "   │     Exemple: '1 cup ≈ 240-250 ml. Équivalent: tasse. 1/2 cup ≈ 120 ml, 1/3 cup ≈ 80 ml, 1/4 cup ≈ 60 ml.'"
+                    measure_comment=""
+                    local first_line=true
+                    while true; do
+                        echo -n "   │     "
+                        read -r line
+                        if [ "$line" = "a" ] || [ "$line" = "A" ]; then
+                            echo "   ↺ Annulation du commentaire"
+                            measure_comment=""
                             break
                         fi
+                        if [ -z "$line" ]; then
+                            if [ "$first_line" = "false" ]; then
+                                break
+                            fi
+                            first_line=false
+                            continue
+                        fi
                         first_line=false
-                        continue
-                    fi
-                    first_line=false
-                    if [ -n "$measure_comment" ]; then
-                        measure_comment="$measure_comment|$line"
-                    else
-                        measure_comment="$line"
-                    fi
-                done
+                        if [ -n "$measure_comment" ]; then
+                            measure_comment="$measure_comment|$line"
+                        else
+                            measure_comment="$line"
+                        fi
+                    done
+                fi
             else
                 measure_correct="true"
             fi
