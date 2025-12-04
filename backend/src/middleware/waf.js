@@ -19,13 +19,19 @@ const { logSecurityEvent, SECURITY_EVENTS } = require('./securityLogger');
 // Patterns de détection d'attaques adaptés à notre stack
 const ATTACK_PATTERNS = {
   sqlInjection: [
-    /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|SCRIPT)\b)/i,
+    // Commandes SQL dangereuses
+    /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|SCRIPT|TRUNCATE|REPLACE)\b)/i,
+    // Patterns d'injection classiques
     /(\b(OR|AND)\s+\d+\s*=\s*\d+)/i,
-    /(['";|&`*%()\\])/i,
     /(\b(UNION|SELECT).*FROM)/i,
     /(\b(SELECT|INSERT|UPDATE|DELETE).*WHERE)/i,
-    /(\b(DROP|CREATE|ALTER).*(TABLE|DATABASE|INDEX))/i,
-    /(;|\||&|`|'|"|\\|\*|%|\(|\))/i,
+    /(\b(DROP|CREATE|ALTER).*(TABLE|DATABASE|INDEX|VIEW|TRIGGER))/i,
+    // Caractères spéciaux SQL dangereux
+    /(['";|&`*%()\\])/i,
+    // Injection via commentaires SQL
+    /(--|\/\*|\*\/|#)/i,
+    // Tentatives de bypass avec espaces
+    /(\bSELECT\s+\*\s+FROM)/i,
   ],
   xss: [
     /<script[^>]*>.*?<\/script>/gi,
