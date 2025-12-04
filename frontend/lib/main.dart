@@ -7,6 +7,7 @@ import 'screens/meal_plan_screen.dart';
 import 'screens/shopping_list_screen.dart' show ShoppingListScreen, ShoppingListScreenState;
 import 'screens/profile_screen.dart';
 import 'screens/auth_screen.dart';
+import 'screens/favorites_screen.dart';
 import 'services/profile_service.dart';
 import 'services/auth_service.dart';
 import 'services/locale_service.dart';
@@ -571,6 +572,17 @@ class _MainScreenState extends State<MainScreen> {
               setState(() => _selectedIndex = 4);
               Navigator.pop(context);
               _loadProfile();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.favorite),
+            title: const Text('Mes Favoris'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FavoritesScreen()),
+              );
             },
           ),
           const Divider(),

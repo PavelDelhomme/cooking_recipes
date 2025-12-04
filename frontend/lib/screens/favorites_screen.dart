@@ -277,7 +277,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          recipe.name,
+                                          recipe.title,
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -285,7 +285,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        if (recipe.area != null && recipe.area!.isNotEmpty)
                                           Padding(
                                             padding: const EdgeInsets.only(top: 4),
                                             child: Text(
