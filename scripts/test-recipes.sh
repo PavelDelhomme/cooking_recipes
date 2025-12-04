@@ -592,10 +592,14 @@ if [ $TOTAL -gt 0 ]; then
 fi
 
     # Statistiques des titres
+    # Format: RECIPE_TITLE|recipe_id|recipe_name|original_lang|test_lang|auto_translated_title|translation_details|title_correct|correct_title|title_comment
     if [ -n "$TITLE_RESULTS" ] && [ "$TEST_LANG" != "en" ]; then
-        TITLE_TOTAL=$(echo "$TITLE_RESULTS" | wc -l)
-        TITLE_CORRECT=$(echo "$TITLE_RESULTS" | awk -F'|' '{if ($5 == "true") print}' | wc -l)
-        TITLE_INCORRECT=$(echo "$TITLE_RESULTS" | awk -F'|' '{if ($5 == "false") print}' | wc -l)
+        TITLE_TOTAL=$(echo "$TITLE_RESULTS" | wc -l | tr -d ' ')
+        TITLE_CORRECT=$(echo "$TITLE_RESULTS" | awk -F'|' '{if ($8 == "true") print}' | wc -l | tr -d ' ')
+        TITLE_INCORRECT=$(echo "$TITLE_RESULTS" | awk -F'|' '{if ($8 == "false") print}' | wc -l | tr -d ' ')
+        TITLE_TOTAL=${TITLE_TOTAL:-0}
+        TITLE_CORRECT=${TITLE_CORRECT:-0}
+        TITLE_INCORRECT=${TITLE_INCORRECT:-0}
         
         echo ""
         echo "📈 Statistiques des titres de recettes ($TEST_LANG):"
