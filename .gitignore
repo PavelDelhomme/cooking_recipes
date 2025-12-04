@@ -25,3 +25,7 @@ Thumbs.db
 data/training_results/*.txt
 !data/training_results/README.md
 
+# Security logs (keep directory structure but ignore actual logs)
+backend/logs/security/*.log
+!backend/logs/security/README.md
+

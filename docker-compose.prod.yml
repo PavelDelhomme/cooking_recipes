@@ -7,6 +7,7 @@ services:
       - "7272"
     volumes:
       - cookingrecipes_backend_data:/app/data
+      - cookingrecipes_security_logs:/app/logs
     environment:
       - PORT=7272
       - HOST=0.0.0.0
@@ -24,6 +25,12 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp
+      - /var/tmp
 
   cookingrecipes-frontend:
     image: paveldelhomme/cookingrecipes-frontend:latest
@@ -49,6 +56,12 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/tmp
 
 volumes:
   cookingrecipes_backend_data:
@@ -57,11 +70,15 @@ volumes:
   cookingrecipes_frontend_build:
     driver: local
     name: cookingrecipes_frontend_build
+  cookingrecipes_security_logs:
+    driver: local
+    name: cookingrecipes_security_logs
 
 networks:
   cookingrecipes_network:
     driver: bridge
     name: cookingrecipes_network
+    internal: false
   web:
     external: true
     name: web

@@ -1,4 +1,5 @@
 const { getDatabase } = require('../database/db');
+const { logSecurityEvent, SECURITY_EVENTS } = require('./securityLogger');
 
 // Fonction pour obtenir l'IP réelle du client
 function getClientIP(req) {

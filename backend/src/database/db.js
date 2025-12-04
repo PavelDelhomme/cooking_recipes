@@ -146,6 +146,43 @@ function initDatabase() {
         console.error('Erreur création table favorites:', err);
         return reject(err);
       }
+    });
+
+    // Table Security Logs
+    database.run(`
+      CREATE TABLE IF NOT EXISTS security_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT NOT NULL,
+        event_type TEXT NOT NULL,
+        ip_address TEXT,
+        user_id TEXT,
+        details TEXT,
+        severity TEXT DEFAULT 'INFO',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `, (err) => {
+      if (err) {
+        console.error('Erreur création table security_logs:', err);
+        return reject(err);
+      }
+    });
+
+    // Index pour recherche rapide
+    database.run(`
+      CREATE INDEX IF NOT EXISTS idx_security_logs_timestamp ON security_logs(timestamp)
+    `, (err) => {
+      if (err) {
+        console.error('Erreur création index security_logs:', err);
+      }
+    });
+
+    database.run(`
+      CREATE INDEX IF NOT EXISTS idx_security_logs_ip ON security_logs(ip_address)
+    `, (err) => {
+      if (err) {
+        console.error('Erreur création index security_logs_ip:', err);
+      }
       console.log('✅ Base de données initialisée');
       resolve();
     });

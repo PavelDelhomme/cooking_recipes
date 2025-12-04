@@ -12,6 +12,10 @@ const favoritesRoutes = require('./routes/favorites');
 const adminRoutes = require('./routes/admin');
 const { initDatabase, createDefaultUser } = require('./database/db');
 const { checkBlacklist } = require('./middleware/ipBlacklist');
+const { wafMiddleware } = require('./middleware/waf');
+const { generateCSRFMiddleware, verifyCSRFMiddleware } = require('./middleware/csrf');
+const { securityLoggerMiddleware } = require('./middleware/securityLogger');
+const { inputSanitizerMiddleware } = require('./middleware/inputSanitizer');
 const { 
   notFoundHandler, 
   internalErrorHandler 
@@ -92,8 +96,27 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }, // Permettre les ressources cross-origin
 }));
 
+// Logging de sécurité (en premier pour capturer toutes les requêtes)
+app.use(securityLoggerMiddleware);
+
+// WAF - Web Application Firewall (avant les autres middlewares)
+app.use('/api', wafMiddleware);
+
 // Vérification de la blacklist pour toutes les routes API
 app.use('/api', checkBlacklist);
+
+// CSRF Protection (génération pour GET, vérification pour POST/PUT/DELETE)
+app.use('/api', generateCSRFMiddleware);
+app.use('/api', verifyCSRFMiddleware);
+
+// Input Sanitization (après WAF mais avant les routes)
+app.use('/api', inputSanitizerMiddleware);
+
+// Protection contre NoSQL Injection (même si on utilise SQLite, bonne pratique)
+app.use(mongoSanitize());
+
+// Protection contre HTTP Parameter Pollution
+app.use(hpp());
 
 // Body parser avec limites (AVANT les routes)
 app.use(bodyParser.json({ 

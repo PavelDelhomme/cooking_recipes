@@ -5,6 +5,7 @@ const { getDatabase } = require('../database/db');
 const { authenticateToken } = require('../middleware/auth');
 const { authLimiter, signupLimiter } = require('../middleware/rateLimiter');
 const { validateEmail, validatePassword, validateName } = require('../utils/validation');
+const { logSecurityEvent, SECURITY_EVENTS } = require('../middleware/securityLogger');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -85,6 +86,15 @@ router.post('/signup', signupLimiter, async (req, res) => {
 
             const token = jwt.sign({ userId, email: emailValidation.email }, JWT_SECRET, { expiresIn: '30d' });
 
+            // Logger l'inscription réussie
+            logSecurityEvent(SECURITY_EVENTS.AUTH_SUCCESS, {
+              ip: req.ip || req.connection.remoteAddress,
+              userId,
+              email: emailValidation.email,
+              action: 'signup',
+              severity: 'INFO',
+            });
+
             res.status(201).json({
               token,
               user: {
@@ -148,7 +158,13 @@ router.post('/signin', authLimiter, async (req, res) => {
 
         if (!user || !validPassword) {
           // Log de la tentative échouée (sans exposer d'informations sensibles)
-          console.warn(`Tentative de connexion échouée pour: ${emailValidation.email}`);
+          // Logger l'échec de connexion
+          logSecurityEvent(SECURITY_EVENTS.AUTH_FAILURE, {
+            ip: req.ip || req.connection.remoteAddress,
+            email: emailValidation.email,
+            reason: 'Invalid credentials',
+            severity: 'MEDIUM',
+          });
           return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
         }
 
