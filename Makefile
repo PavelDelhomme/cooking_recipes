@@ -23,8 +23,30 @@ YELLOW = \033[1;33m
 NC = \033[0m
 
 help: ## Affiche cette aide
-	@echo -e "$(GREEN)Commandes disponibles:$(NC)"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-20s$(NC) %s\n", $$1, $$2}'
+	@echo -e "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
+	@echo -e "$(GREEN)🍳 Cooking Recipes - Aide des commandes Make$(NC)"
+	@echo -e "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
+	@echo ""
+	@echo -e "$(YELLOW)📋 Commandes principales:$(NC)"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo -e "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
+	@echo -e "$(YELLOW)🤖 Système d'entraînement de traduction IA:$(NC)"
+	@echo ""
+	@echo -e "   $(GREEN)1.$(NC) Lancez '$(YELLOW)make test-recipes [NUM_RECIPES=10]$(NC)' pour tester des recettes"
+	@echo -e "      • Validez/corrigez les traductions de titres et ingrédients"
+	@echo -e "      • Les corrections sont enregistrées dans /tmp/recipe_test_results.txt"
+	@echo ""
+	@echo -e "   $(GREEN)2.$(NC) Lancez '$(YELLOW)make train-translation$(NC)' pour analyser les corrections"
+	@echo -e "      • Extrait les nouvelles traductions des résultats de test"
+	@echo -e "      • Génère des fichiers JSON avec les corrections apprises"
+	@echo ""
+	@echo -e "   $(GREEN)3.$(NC) Lancez '$(YELLOW)make apply-translations$(NC)' pour voir les traductions à ajouter"
+	@echo -e "      • Affiche les nouvelles traductions à intégrer au code"
+	@echo ""
+	@echo -e "$(YELLOW)💡$(NC) Le système apprend de vos corrections pour améliorer les traductions futures"
+	@echo -e "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
 
 install: ## Installe les dépendances (backend + frontend)
 	@echo -e "$(GREEN)Installation des dépendances...$(NC)"
@@ -276,8 +298,14 @@ test: ## Lance les tests
 test-api: ## Teste l'API et la récupération de recettes
 	@bash scripts/test_api.sh
 
-test-recipes: ## Test interactif des recettes (portions et unités de mesure)
-	@bash scripts/test-recipes.sh
+test-recipes: ## Test interactif des recettes pour entraîner le modèle de traduction
+	@bash scripts/test-recipes.sh $(NUM_RECIPES)
+
+train-translation: ## Entraîner le modèle de traduction à partir des résultats de test
+	@bash scripts/train-translation-model.sh
+
+apply-translations: ## Appliquer les traductions apprises au code source
+	@bash scripts/apply-translations.sh
 
 test-data: ## Ajoute des données de test (ingrédients dans le placard) - nécessite d'être connecté
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
