@@ -371,6 +371,7 @@ test_recipe() {
         if [ "$TEST_LANG" != "en" ]; then
             echo "RECIPE_TITLE|$recipe_id|$recipe_name|$original_lang|$TEST_LANG|$auto_translated_title|$translation_details|$title_correct|$correct_title|$title_comment" >> /tmp/recipe_test_results.txt
         fi
+        fi  # Fin du if TEST_LANG != "en"
         break  # Sortir de la boucle de validation du titre
     done
     
