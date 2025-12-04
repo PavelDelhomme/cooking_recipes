@@ -120,8 +120,10 @@ app.use('/api', wafMiddleware);
 // Vérification de la blacklist pour toutes les routes API
 app.use('/api', checkBlacklist);
 
-// Protection contre les attaques de rejeu
-app.use('/api', replayProtectionMiddleware);
+// Protection contre les attaques de rejeu (désactivée en développement)
+if (process.env.NODE_ENV === 'production') {
+  app.use('/api', replayProtectionMiddleware);
+}
 
 // Protection contre Mass Assignment
 app.use('/api', massAssignmentProtectionMiddleware);
