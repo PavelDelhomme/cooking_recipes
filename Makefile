@@ -45,6 +45,9 @@ help: ## Affiche cette aide
 	@echo -e "   $(GREEN)3.$(NC) Lancez '$(YELLOW)make apply-translations$(NC)' pour voir les traductions à ajouter"
 	@echo -e "      • Affiche les nouvelles traductions à intégrer au code"
 	@echo ""
+	@echo -e "   $(GREEN)🎯 OU$(NC) Utilisez '$(YELLOW)make train-ai$(NC)' pour le menu interactif complet"
+	@echo -e "      • Menu avec toutes les fonctionnalités en un seul endroit"
+	@echo ""
 	@echo -e "$(YELLOW)💡$(NC) Le système apprend de vos corrections pour améliorer les traductions futures"
 	@echo -e "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
 
@@ -306,6 +309,9 @@ train-translation: ## Entraîner le modèle de traduction à partir des résulta
 
 apply-translations: ## Appliquer les traductions apprises au code source
 	@bash scripts/apply-translations.sh
+
+train-ai: ## Menu interactif complet pour le système d'entraînement IA
+	@bash scripts/ai-training-menu.sh
 
 test-data: ## Ajoute des données de test (ingrédients dans le placard) - nécessite d'être connecté
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
