@@ -76,13 +76,33 @@ test_recipes() {
     show_header
     echo -e "${YELLOW}🧪 Test de recettes pour entraînement${NC}"
     echo ""
-    echo -e "Combien de recettes voulez-vous tester ?"
-    echo -n "   Nombre [10]: "
-    read -r num_recipes
-    num_recipes=${num_recipes:-10}
+    
+    while true; do
+        echo -e "Combien de recettes voulez-vous tester ?"
+        echo -n "   Nombre [10]: "
+        read -r num_recipes
+        
+        # Si vide, utiliser la valeur par défaut
+        if [ -z "$num_recipes" ]; then
+            num_recipes=10
+            break
+        fi
+        
+        # Nettoyer l'input (enlever les espaces)
+        num_recipes=$(echo "$num_recipes" | tr -d '[:space:]')
+        
+        # Vérifier que c'est un nombre positif
+        if [[ "$num_recipes" =~ ^[0-9]+$ ]] && [ "$num_recipes" -gt 0 ]; then
+            break
+        else
+            echo ""
+            echo -e "${RED}❌ Erreur: Veuillez entrer un nombre positif (ex: 5, 10, 20)${NC}"
+            echo ""
+        fi
+    done
     
     echo ""
-    echo -e "${GREEN}Lancement du test interactif...${NC}"
+    echo -e "${GREEN}Lancement du test interactif avec $num_recipes recette(s)...${NC}"
     echo ""
     
     bash "$SCRIPT_DIR/test-recipes.sh" "$num_recipes"
