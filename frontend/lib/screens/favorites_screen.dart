@@ -118,7 +118,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
       final apiUrl = ApiConfig.baseUrl;
       final response = await http.delete(
-        Uri.parse('$apiUrl/api/favorites/$recipeId'),
+        Uri.parse('$apiUrl/favorites/$recipeId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
