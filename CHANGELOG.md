@@ -2,6 +2,28 @@
 
 Toutes les modifications notables de ce projet seront documentées dans ce fichier.
 
+## [Non versionné] - 2024-12-XX
+
+### 🔒 Sécurité - WAF Adapté au Stack Réel
+- **Refactorisation du WAF** : Adaptation aux technologies réellement utilisées
+  - ❌ **Retiré** : Protections LDAP (non utilisé dans le projet)
+  - ❌ **Retiré** : Protections NoSQL Injection (SQLite utilisé, pas MongoDB)
+  - ✅ **Renforcé** : Patterns SQL Injection spécifiques à SQLite
+  - ✅ **Renforcé** : Protection XSS adaptée pour Flutter Web
+  - ✅ **Optimisé** : WAF plus léger et ciblé sur les vraies menaces
+- **Documentation mise à jour** :
+  - `SECURITY.md` : Section "Stack Technique" ajoutée avec détails des adaptations
+  - Patterns de détection documentés pour chaque type d'attaque
+- **Performance** : WAF plus rapide en retirant les vérifications inutiles
+
+### 🔒 Sécurité - Implémentation Complète
+- **WAF (Web Application Firewall)** : Détection et blocage des attaques
+- **Protection CSRF** : Tokens CSRF pour toutes les requêtes modifiantes
+- **Logging de sécurité** : Enregistrement de tous les événements de sécurité
+- **Input Sanitization** : Nettoyage automatique des inputs
+- **Architecture DMZ** : Documentation complète de l'architecture sécurisée
+- **Routes de sécurité** : API pour consulter logs et statistiques
+
 ## [Non versionné] - 2024-12-03
 
 ### 🛡️ Sécurité et Rate Limiting
