@@ -1216,7 +1216,6 @@ class TranslationService extends ChangeNotifier {
     }
     
     // Vérifier ensuite la correspondance exacte dans le dictionnaire inverse (version originale et normalisée)
-    final lowerFrench = frenchName.toLowerCase().trim();
     if (reverseTranslations.containsKey(lowerFrench)) {
       return reverseTranslations[lowerFrench]!;
     }
