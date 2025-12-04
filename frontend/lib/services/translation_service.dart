@@ -1217,10 +1217,14 @@ class TranslationService extends ChangeNotifier {
     
     // Vérifier ensuite la correspondance exacte dans le dictionnaire inverse (version originale et normalisée)
     if (reverseTranslations.containsKey(lowerFrench)) {
-      return reverseTranslations[lowerFrench]!;
+      final result = reverseTranslations[lowerFrench]!;
+      print('✅ Traduction dictionnaire trouvée: "$frenchName" -> "$result"');
+      return result;
     }
     if (reverseTranslations.containsKey(normalized)) {
-      return reverseTranslations[normalized]!;
+      final result = reverseTranslations[normalized]!;
+      print('✅ Traduction dictionnaire normalisée trouvée: "$frenchName" -> "$result"');
+      return result;
     }
     
     // Chercher une correspondance partielle (termes longs d'abord)
@@ -1229,12 +1233,15 @@ class TranslationService extends ChangeNotifier {
     
     for (var entry in sortedEntries) {
       if (normalized.contains(entry.key) || entry.key.contains(normalized)) {
-        return entry.value;
+        final result = entry.value;
+        print('✅ Traduction partielle trouvée: "$frenchName" -> "$result"');
+        return result;
       }
     }
     
     // Si aucune correspondance trouvée, retourner le nom tel quel (peut-être déjà en anglais)
     // Mais d'abord, essayer de normaliser pour voir si ça correspond à quelque chose
+    print('⚠️ Aucune traduction trouvée pour: "$frenchName" (normalisé: "$normalized"), utilisation du nom original');
     return frenchName;
   }
 }

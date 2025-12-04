@@ -121,6 +121,8 @@ class IngredientImageService {
   // Si originalName est fourni, l'utiliser directement (c'est le nom anglais original)
   Future<String?> getImageFromMealDB(String ingredientName, {String? originalName}) async {
     try {
+      print('🖼️ Récupération image pour ingrédient: "$ingredientName" (originalName: ${originalName ?? "null"})');
+      
       // Si on a le nom anglais original, l'utiliser directement
       String englishName;
       if (originalName != null && originalName.isNotEmpty) {
@@ -134,6 +136,26 @@ class IngredientImageService {
           print('🔄 Conversion ingrédient: "$ingredientName" -> "$englishName"');
         } else {
           print('⚠️ Pas de conversion trouvée pour: "$ingredientName" (utilisé tel quel)');
+          // Si pas de conversion, essayer de normaliser le nom français pour l'URL
+          // Par exemple : "bœuf" -> "boeuf" -> "beef" via getEnglishName
+          final normalized = ingredientName.toLowerCase()
+              .replaceAll('œ', 'oe')
+              .replaceAll('é', 'e')
+              .replaceAll('è', 'e')
+              .replaceAll('ê', 'e')
+              .replaceAll('à', 'a')
+              .replaceAll('â', 'a')
+              .replaceAll('ç', 'c')
+              .replaceAll('ô', 'o')
+              .replaceAll('ù', 'u')
+              .replaceAll('û', 'u')
+              .replaceAll('ï', 'i')
+              .replaceAll('î', 'i');
+          final retryEnglish = TranslationService.getEnglishName(normalized);
+          if (retryEnglish != normalized && retryEnglish != ingredientName) {
+            englishName = retryEnglish;
+            print('🔄 Conversion après normalisation: "$normalized" -> "$englishName"');
+          }
         }
       }
       
