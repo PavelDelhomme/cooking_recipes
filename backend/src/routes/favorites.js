@@ -34,7 +34,7 @@ router.get('/', authenticateToken, (req, res) => {
 // Ajouter un favori
 router.post('/', authenticateToken, (req, res) => {
   const db = getDatabase();
-  const userId = req.user.id;
+  const userId = req.user.userId || req.user.id;
   const { recipeId, recipeTitle, recipeImage, recipeData } = req.body;
 
   if (!recipeId || !recipeTitle || !recipeData) {
@@ -71,7 +71,7 @@ router.post('/', authenticateToken, (req, res) => {
 // Vérifier si une recette est en favoris
 router.get('/check/:recipeId', authenticateToken, (req, res) => {
   const db = getDatabase();
-  const userId = req.user.id;
+  const userId = req.user.userId || req.user.id;
   const { recipeId } = req.params;
 
   db.get(
@@ -91,7 +91,7 @@ router.get('/check/:recipeId', authenticateToken, (req, res) => {
 // Supprimer un favori
 router.delete('/:recipeId', authenticateToken, (req, res) => {
   const db = getDatabase();
-  const userId = req.user.id;
+  const userId = req.user.userId || req.user.id;
   const { recipeId } = req.params;
 
   db.run(

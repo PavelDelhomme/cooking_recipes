@@ -52,16 +52,43 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
+        print('🔍 Favoris reçus: ${data.length}');
+        print('🔍 Premier favori: ${data.isNotEmpty ? data[0] : 'aucun'}');
+        
         setState(() {
           _favorites = data.map((item) {
-            // Si recipeData est une string JSON, la parser
-            if (item['recipeData'] is String) {
-              final recipeJson = json.decode(item['recipeData']);
-              return Recipe.fromJson(recipeJson);
-            } else {
-              return Recipe.fromJson(item['recipeData']);
+            try {
+              // Si recipeData est une string JSON, la parser
+              dynamic recipeData = item['recipeData'];
+              if (recipeData is String) {
+                recipeData = json.decode(recipeData);
+              }
+              // S'assurer que recipeData a les champs nécessaires
+              if (recipeData is Map<String, dynamic>) {
+                // Utiliser recipeTitle si title n'existe pas
+                if (!recipeData.containsKey('title') && item['recipeTitle'] != null) {
+                  recipeData['title'] = item['recipeTitle'];
+                }
+                // Utiliser recipeId si id n'existe pas
+                if (!recipeData.containsKey('id') && item['recipeId'] != null) {
+                  recipeData['id'] = item['recipeId'];
+                }
+                // Utiliser recipeImage si image n'existe pas
+                if (!recipeData.containsKey('image') && item['recipeImage'] != null) {
+                  recipeData['image'] = item['recipeImage'];
+                }
+                return Recipe.fromJson(recipeData);
+              } else {
+                print('⚠️ recipeData n\'est pas un Map: $recipeData');
+                return null;
+              }
+            } catch (e) {
+              print('❌ Erreur parsing favori: $e');
+              print('   Item: $item');
+              return null;
             }
-          }).toList();
+          }).where((recipe) => recipe != null).cast<Recipe>().toList();
+          print('✅ Favoris parsés: ${_favorites.length}');
           _isLoading = false;
         });
       } else if (response.statusCode == 401) {
