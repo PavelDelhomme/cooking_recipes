@@ -21,3 +21,7 @@ frontend/.flutter-plugins-dependencies
 .DS_Store
 Thumbs.db
 
+# Training results (keep directory structure but ignore actual results)
+data/training_results/*.txt
+!data/training_results/README.md
+

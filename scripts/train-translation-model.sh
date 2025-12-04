@@ -7,7 +7,8 @@
 # set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RESULTS_FILE="/tmp/recipe_test_results.txt"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+RESULTS_FILE="$PROJECT_ROOT/data/training_results/recipe_test_results.txt"
 OUTPUT_DIR="$SCRIPT_DIR/../frontend/lib/services/translation_data"
 
 echo "🤖 Entraînement du modèle de traduction"

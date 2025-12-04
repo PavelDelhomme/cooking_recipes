@@ -8,8 +8,13 @@
 
 # Charger les traductions d'ingrédients et la détection de langue
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+RESULTS_FILE="$PROJECT_ROOT/data/training_results/recipe_test_results.txt"
 source "$SCRIPT_DIR/ingredient_translations.sh"
 source "$SCRIPT_DIR/detect-language.sh"
+
+# Créer le répertoire s'il n'existe pas
+mkdir -p "$(dirname "$RESULTS_FILE")"
 
 echo "🧪 Test interactif des recettes - Portions et unités de mesure"
 echo "================================================================"
@@ -369,7 +374,7 @@ test_recipe() {
         # Stocker le résultat du titre avec la traduction automatique et la langue originale
         # Format: RECIPE_TITLE|recipe_id|recipe_name|original_lang|test_lang|auto_translated_title|translation_details|title_correct|correct_title|title_comment
         if [ "$TEST_LANG" != "en" ]; then
-            echo "RECIPE_TITLE|$recipe_id|$recipe_name|$original_lang|$TEST_LANG|$auto_translated_title|$translation_details|$title_correct|$correct_title|$title_comment" >> /tmp/recipe_test_results.txt
+            echo "RECIPE_TITLE|$recipe_id|$recipe_name|$original_lang|$TEST_LANG|$auto_translated_title|$translation_details|$title_correct|$correct_title|$title_comment" >> "$RESULTS_FILE"
         fi
         fi  # Fin du if TEST_LANG != "en"
         break  # Sortir de la boucle de validation du titre
@@ -612,7 +617,7 @@ test_recipe() {
             
             # Stocker le résultat avec toutes les informations incluant la langue originale
             # Format: recipe_id|ingredient|ingredient_original_lang|expected_translation|is_translated|translation_correct|correct_translation|translation_comment|measure|measure_correct|correct_measure|measure_comment|test_lang
-            echo "$recipe_id|$ingredient|$ingredient_original_lang|$expected_translation|$is_translated|$translation_correct|$correct_translation|$translation_comment|$measure|$measure_correct|$correct_measure|$measure_comment|$TEST_LANG" >> /tmp/recipe_test_results.txt
+            echo "$recipe_id|$ingredient|$ingredient_original_lang|$expected_translation|$is_translated|$translation_correct|$correct_translation|$translation_comment|$measure|$measure_correct|$correct_measure|$measure_comment|$TEST_LANG" >> "$RESULTS_FILE"
             echo ""
         fi
     done
@@ -623,8 +628,8 @@ test_recipe() {
 }
 
 # Créer le fichier de résultats
-rm -f /tmp/recipe_test_results.txt
-touch /tmp/recipe_test_results.txt
+rm -f "$RESULTS_FILE"
+touch "$RESULTS_FILE"
 
 # Tester plusieurs recettes
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -759,7 +764,7 @@ fi
     fi
     
     echo ""
-    echo "📁 $(get_label saved): /tmp/recipe_test_results.txt"
+    echo "📁 $(get_label saved): $RESULTS_FILE"
     echo "   Langue testée: $LANG_NAME ($TEST_LANG)"
     echo ""
     echo "📋 Format des résultats:"
