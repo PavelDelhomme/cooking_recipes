@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F7931E;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Fond avec gradient -->
+  <rect width="512" height="512" rx="100" fill="url(#grad1)"/>
+  
+  <!-- Casserole/poêle -->
+  <ellipse cx="256" cy="380" rx="180" ry="40" fill="#FFF" opacity="0.3"/>
+  <ellipse cx="256" cy="360" rx="160" ry="30" fill="#FFF" opacity="0.5"/>
+  
+  <!-- Poignée -->
+  <rect x="420" y="320" width="50" height="15" rx="7" fill="#FFF" opacity="0.8"/>
+  <rect x="465" y="315" width="20" height="25" rx="10" fill="#FFF" opacity="0.6"/>
+  
+  <!-- Vapeur -->
+  <path d="M 200 280 Q 210 250 220 280" stroke="#FFF" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 240 270 Q 250 240 260 270" stroke="#FFF" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.7"/>
+  <path d="M 280 280 Q 290 250 300 280" stroke="#FFF" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 320 270 Q 330 240 340 270" stroke="#FFF" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.5"/>
+  
+  <!-- Étoile/chef hat simplifié -->
+  <path d="M 256 120 L 280 180 L 340 180 L 295 220 L 310 280 L 256 250 L 202 280 L 217 220 L 172 180 L 232 180 Z" 
+        fill="#FFF" opacity="0.9"/>
+  
+  <!-- Points décoratifs (ingrédients) -->
+  <circle cx="180" cy="200" r="8" fill="#FFF" opacity="0.7"/>
+  <circle cx="332" cy="200" r="8" fill="#FFF" opacity="0.7"/>
+  <circle cx="150" cy="240" r="6" fill="#FFF" opacity="0.6"/>
+  <circle cx="362" cy="240" r="6" fill="#FFF" opacity="0.6"/>
+</svg>
+
