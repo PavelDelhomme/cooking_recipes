@@ -255,7 +255,8 @@ test_recipe() {
         echo "   🤖 Traduction automatique ($TEST_LANG): $auto_translated_title"
         if [ -n "$translation_details" ] && [ "$translation_details" != "[TRADUCTION_ES_NON_IMPLÉMENTÉE]" ]; then
             echo "   📝 Détails de traduction (mots individuels):"
-            echo "$translation_details" | tr '|' '\n' | while IFS='->' read -r word trans; do
+            # Parser les détails de traduction
+            echo "$translation_details" | tr '|' '\n' | while IFS='->' read -r word trans || [ -n "$word" ]; do
                 if [ -n "$word" ] && [ -n "$trans" ]; then
                     # Nettoyer les espaces
                     word=$(echo "$word" | sed 's/^ *//;s/ *$//')
