@@ -125,12 +125,14 @@ get_label() {
 # Fonction pour afficher une recette et demander validation
 test_recipe() {
     local recipe_json="$1"
+    local recipe_num="$2"  # Numéro de la recette (1, 2, 3...)
+    local total_recipes="$3"  # Nombre total de recettes
     local recipe_id=$(echo "$recipe_json" | jq -r '.idMeal')
     local recipe_name=$(echo "$recipe_json" | jq -r '.strMeal')
     
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📋 $(get_label recipe): $recipe_name (ID: $recipe_id) [$TEST_LANG]"
+    echo "📋 $(get_label recipe) $recipe_num/$total_recipes: $recipe_name (ID: $recipe_id) [$TEST_LANG]"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
     
@@ -151,15 +153,26 @@ test_recipe() {
     echo "   $instructions..."
     echo ""
     
+    # Compter le nombre total d'ingrédients pour cette recette
+    local total_ingredients=0
+    for i in {1..20}; do
+        local ingredient=$(echo "$recipe_json" | jq -r ".strIngredient$i // empty")
+        if [ -n "$ingredient" ] && [ "$ingredient" != "null" ] && [ "$ingredient" != "" ]; then
+            ((total_ingredients++))
+        fi
+    done
+    
     # Demander validation pour chaque ingrédient
     echo "🔍 Validation des ingrédients (appuyez sur Entrée pour passer, 'q' pour quitter):"
     echo ""
     
+    local current_ingredient=0
     for i in {1..20}; do
         local ingredient=$(echo "$recipe_json" | jq -r ".strIngredient$i // empty")
         local measure=$(echo "$recipe_json" | jq -r ".strMeasure$i // empty")
         
         if [ -n "$ingredient" ] && [ "$ingredient" != "null" ] && [ "$ingredient" != "" ]; then
+            ((current_ingredient++))
             # Obtenir la traduction attendue
             local expected_translation=$(get_ingredient_translation "$ingredient" "$TEST_LANG")
             local is_translated="true"
@@ -169,7 +182,7 @@ test_recipe() {
                 is_translated="false"
             fi
             
-            echo "   ┌─ $(get_label ingredient) original (EN): $ingredient"
+            echo "   ┌─ [Ingrédient $current_ingredient/$total_ingredients] $(get_label ingredient) original (EN): $ingredient"
             if [ "$TEST_LANG" != "en" ]; then
                 if [ "$is_translated" = "true" ]; then
                     echo "   │  Traduction attendue ($TEST_LANG): $expected_translation"
@@ -178,6 +191,7 @@ test_recipe() {
                 fi
             fi
             echo "   │  $(get_label measure): $measure"
+            echo "   │  📊 Progression: Recette $recipe_num/$total_recipes | Ingrédient $current_ingredient/$total_ingredients"
             echo ""
             
             # Demander si la traduction est correcte (si ce n'est pas l'anglais)
