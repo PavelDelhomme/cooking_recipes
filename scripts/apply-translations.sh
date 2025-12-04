@@ -3,7 +3,8 @@
 # Script pour appliquer les traductions apprises au code source
 # Usage: make apply-translations
 
-set -e
+# Ne pas utiliser set -e car cela peut causer des problèmes avec les opérations conditionnelles
+# set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TRANSLATION_DATA_DIR="$SCRIPT_DIR/../frontend/lib/services/translation_data"

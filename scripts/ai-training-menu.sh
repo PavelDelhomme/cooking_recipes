@@ -34,8 +34,11 @@ show_stats() {
     echo ""
     
     if [ -f "$RESULTS_FILE" ]; then
-        TOTAL_LINES=$(wc -l < "$RESULTS_FILE" 2>/dev/null || echo "0")
-        TITLE_COUNT=$(grep -c "^RECIPE_TITLE|" "$RESULTS_FILE" 2>/dev/null || echo "0")
+        TOTAL_LINES=$(wc -l < "$RESULTS_FILE" 2>/dev/null | tr -d ' ' || echo "0")
+        TITLE_COUNT=$(grep -c "^RECIPE_TITLE|" "$RESULTS_FILE" 2>/dev/null | tr -d ' ' || echo "0")
+        # S'assurer que les valeurs sont numériques
+        TOTAL_LINES=${TOTAL_LINES:-0}
+        TITLE_COUNT=${TITLE_COUNT:-0}
         INGREDIENT_COUNT=$((TOTAL_LINES - TITLE_COUNT))
         
         echo -e "   ${GREEN}•${NC} Fichier de résultats: ${BOLD}$RESULTS_FILE${NC}"
@@ -49,7 +52,8 @@ show_stats() {
     echo ""
     
     if [ -d "$TRANSLATION_DATA_DIR" ]; then
-        CORRECTIONS_COUNT=$(find "$TRANSLATION_DATA_DIR" -name "*.jsonl" 2>/dev/null | wc -l)
+        CORRECTIONS_COUNT=$(find "$TRANSLATION_DATA_DIR" -name "*.jsonl" 2>/dev/null | wc -l | tr -d ' ')
+        CORRECTIONS_COUNT=${CORRECTIONS_COUNT:-0}
         if [ "$CORRECTIONS_COUNT" -gt 0 ]; then
             echo -e "   ${GREEN}•${NC} Fichiers de corrections: ${BOLD}$CORRECTIONS_COUNT${NC}"
             if [ -f "$TRANSLATION_DATA_DIR/training_stats.json" ]; then

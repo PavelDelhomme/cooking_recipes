@@ -3,7 +3,8 @@
 # Script pour entraîner le modèle de traduction à partir des résultats de test
 # Usage: make train-translation
 
-set -e
+# Ne pas utiliser set -e car cela peut causer des problèmes avec les opérations conditionnelles
+# set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RESULTS_FILE="/tmp/recipe_test_results.txt"
@@ -31,8 +32,11 @@ TITLE_CORRECTIONS=$(grep "^RECIPE_TITLE|" "$RESULTS_FILE" 2>/dev/null || echo ""
 INGREDIENT_CORRECTIONS=$(grep -v "^RECIPE_TITLE|" "$RESULTS_FILE" 2>/dev/null || echo "")
 
 # Compter les corrections
-TITLE_COUNT=$(echo "$TITLE_CORRECTIONS" | grep -c "|false|" || echo "0")
-INGREDIENT_COUNT=$(echo "$INGREDIENT_CORRECTIONS" | grep -c "|false|" || echo "0")
+TITLE_COUNT=$(echo "$TITLE_CORRECTIONS" | grep -c "|false|" 2>/dev/null | tr -d ' ' || echo "0")
+INGREDIENT_COUNT=$(echo "$INGREDIENT_CORRECTIONS" | grep -c "|false|" 2>/dev/null | tr -d ' ' || echo "0")
+# S'assurer que les valeurs sont numériques
+TITLE_COUNT=${TITLE_COUNT:-0}
+INGREDIENT_COUNT=${INGREDIENT_COUNT:-0}
 
 echo "   • Corrections de titres: $TITLE_COUNT"
 echo "   • Corrections d'ingrédients: $INGREDIENT_COUNT"
