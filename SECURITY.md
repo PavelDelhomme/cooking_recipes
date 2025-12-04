@@ -10,14 +10,16 @@ Ce document décrit l'architecture de sécurité complète de l'application Cook
 
 #### Middleware WAF Express
 - **Fichier**: `backend/src/middleware/waf.js`
+- **Stack technique protégée**:
+  - **Base de données**: SQLite
+  - **Backend**: Node.js/Express
+  - **Frontend**: Flutter Web
 - **Protection contre**:
-  - SQL Injection
-  - XSS (Cross-Site Scripting)
-  - Path Traversal
-  - Command Injection
-  - LDAP Injection
-  - NoSQL Injection
-  - Upload de fichiers malveillants
+  - **SQL Injection** (SQLite spécifique) - Détection des commandes SQL dangereuses, patterns d'injection, commentaires SQL
+  - **XSS (Cross-Site Scripting)** - Scripts inline, iframes, event handlers, JavaScript dans URLs, expressions CSS
+  - **Path Traversal** - Navigation de répertoires, accès aux fichiers système sensibles
+  - **Command Injection** - Exécution de commandes système, shells, outils réseau
+  - **File Upload malveillants** - Extensions de scripts serveur, archives dangereuses
 
 #### Nginx WAF
 - **Fichier**: `nginx/waf.conf`

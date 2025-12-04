@@ -61,14 +61,21 @@ const ATTACK_PATTERNS = {
 };
 
 // Patterns suspects mais moins critiques (warning seulement)
+// Adaptés à notre stack : Node.js/Express + SQLite + Flutter Web
 const SUSPICIOUS_PATTERNS = {
   suspiciousHeaders: [
+    // User-agents de bots/scrapers
     /user-agent.*(bot|crawler|spider|scraper)/i,
-    /user-agent.*(curl|wget|python|java|go-http)/i,
+    // Outils de ligne de commande
+    /user-agent.*(curl|wget|python|java|go-http|postman|insomnia)/i,
   ],
   suspiciousPaths: [
+    // Chemins d'administration sensibles
     /(admin|wp-admin|phpmyadmin|mysql|sql|database|config|\.env|\.git)/i,
-    /(\.php|\.asp|\.jsp|\.sh|\.bat|\.exe)/i,
+    // Tentatives d'accès à des fichiers système
+    /(\.php|\.asp|\.jsp|\.sh|\.bat|\.exe|\.sql|\.db)/i,
+    // Chemins Node.js sensibles
+    /(node_modules|package\.json|package-lock\.json|\.npm)/i,
   ],
 };
 
