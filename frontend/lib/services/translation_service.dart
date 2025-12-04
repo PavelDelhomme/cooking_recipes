@@ -1112,6 +1112,7 @@ class TranslationService extends ChangeNotifier {
     }
     
     // Ajouter des traductions spéciales pour les cas courants (avec et sans normalisation)
+    // IMPORTANT: Vérifier d'abord la version originale, puis la version normalisée
     final specialTranslations = {
       'bœuf': 'beef',
       'boeuf': 'beef',
@@ -1202,11 +1203,16 @@ class TranslationService extends ChangeNotifier {
     };
     
     // Vérifier d'abord les traductions spéciales (version originale et normalisée)
-    if (specialTranslations.containsKey(frenchName.toLowerCase().trim())) {
-      return specialTranslations[frenchName.toLowerCase().trim()]!;
+    final lowerFrench = frenchName.toLowerCase().trim();
+    if (specialTranslations.containsKey(lowerFrench)) {
+      final result = specialTranslations[lowerFrench]!;
+      print('✅ Traduction spéciale trouvée: "$frenchName" -> "$result"');
+      return result;
     }
     if (specialTranslations.containsKey(normalized)) {
-      return specialTranslations[normalized]!;
+      final result = specialTranslations[normalized]!;
+      print('✅ Traduction spéciale normalisée trouvée: "$frenchName" -> "$result"');
+      return result;
     }
     
     // Vérifier ensuite la correspondance exacte dans le dictionnaire inverse (version originale et normalisée)
