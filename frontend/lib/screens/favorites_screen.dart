@@ -31,7 +31,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     });
 
     try {
-      final token = await AuthService.getToken();
+      final authService = AuthService();
+      final token = await authService.getToken();
       if (token == null) {
         setState(() {
           _error = 'Vous devez être connecté pour voir vos favoris';
@@ -40,7 +41,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         return;
       }
 
-      final apiUrl = ApiConfig.getApiUrl();
+      final apiUrl = ApiConfig.baseUrl;
       final response = await http.get(
         Uri.parse('$apiUrl/api/favorites'),
         headers: {
@@ -84,10 +85,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   Future<void> _removeFavorite(String recipeId) async {
     try {
-      final token = await AuthService.getToken();
+      final authService = AuthService();
+      final token = await authService.getToken();
       if (token == null) return;
 
-      final apiUrl = ApiConfig.getApiUrl();
+      final apiUrl = ApiConfig.baseUrl;
       final response = await http.delete(
         Uri.parse('$apiUrl/api/favorites/$recipeId'),
         headers: {
