@@ -79,14 +79,14 @@ dev: _get-ip ## [DEV] Lance tout en mode développement (local)
 dev-web: _get-ip ## [DEV] Lance uniquement le frontend web (PC) sans détecter les appareils Android
 	@FORCE_WEB_ONLY=true bash scripts/dev.sh
 
-dev-stacktrace: _get-ip ## Lance en mode développement avec stacktrace détaillée
+dev-stacktrace: _get-ip ## [DEV] Lance en mode développement avec stacktrace détaillée
 	@STACKTRACE=true bash scripts/dev.sh
 
-up: dev ## Alias pour dev
+up: dev ## [DEV] Alias pour dev
 
-start: dev ## Alias pour dev
+start: dev ## [DEV] Alias pour dev
 
-down: ## Arrête tous les conteneurs et processus
+down: ## [DEV] Arrête tous les conteneurs et processus
 	@echo -e "$(GREEN)Arrêt des services...$(NC)"
 	@echo -e "$(YELLOW)Arrêt des processus Node.js...$(NC)"
 	@if [ -f /tmp/backend_pid.txt ]; then \
@@ -128,9 +128,9 @@ down: ## Arrête tous les conteneurs et processus
 	@rm -f /tmp/backend_pid.txt /tmp/frontend_pid.txt 2>/dev/null || true
 	@echo -e "$(GREEN)✓ Tous les services ont été arrêtés$(NC)"
 
-stop: down ## Alias pour down
+stop: down ## [DEV] Alias pour down
 
-restart: _get-ip ## Redémarre tous les services (down puis dev)
+restart: _get-ip ## [DEV] Redémarre tous les services (down puis dev)
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
 	@echo -e "$(GREEN)Redémarrage de l'application$(NC)"
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
@@ -143,7 +143,7 @@ restart: _get-ip ## Redémarre tous les services (down puis dev)
 	@echo -e "$(GREEN)Redémarrage des services...$(NC)"
 	@bash scripts/dev.sh
 
-logs: ## Affiche les logs en temps réel
+logs: ## [DEV] Affiche les logs en temps réel
 	@bash -c ' \
 	echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"; \
 	echo -e "$(GREEN)Logs des services (Ctrl+C pour quitter)$(NC)"; \
@@ -182,7 +182,7 @@ logs: ## Affiche les logs en temps réel
 	trap "kill $$BACKEND_TAIL_PID $$FRONTEND_TAIL_PID $$FRONTEND_WEB_TAIL_PID $$FRONTEND_ANDROID_TAIL_PID 2>/dev/null || true" EXIT INT TERM; \
 	wait'
 
-status: ## Affiche l'état des conteneurs
+status: ## [DEV] Affiche l'état des conteneurs
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
 	@echo -e "$(GREEN)État des conteneurs Cooking Recipes$(NC)"
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
@@ -200,29 +200,29 @@ status: ## Affiche l'état des conteneurs
 	@echo ""
 
 # Backend
-backend-install: ## Installe les dépendances du backend
+backend-install: ## [SERVICE] Installe les dépendances du backend
 	@cd backend && npm install
 
-backend-dev: ## Lance le backend en mode développement (local)
+backend-dev: ## [SERVICE] Lance le backend en mode développement (local)
 	@echo -e "$(GREEN)Démarrage du backend sur le port $(BACKEND_PORT)...$(NC)"
 	@cd backend && PORT=$(BACKEND_PORT) HOST=0.0.0.0 npm run dev
 
-backend-logs: ## Affiche les logs du backend
+backend-logs: ## [SERVICE] Affiche les logs du backend
 	@$(DOCKER_COMPOSE) logs -f backend
 
 # Frontend
-frontend-install: ## Installe les dépendances du frontend
+frontend-install: ## [SERVICE] Installe les dépendances du frontend
 	@cd frontend && $(FLUTTER) pub get
 
-frontend-dev: _get-ip ## Lance le frontend en mode développement (local)
+frontend-dev: _get-ip ## [SERVICE] Lance le frontend en mode développement (local)
 	@MACHINE_IP=$$(cat /tmp/machine_ip.txt 2>/dev/null || echo "localhost"); \
 	echo -e "$(GREEN)Frontend accessible sur: http://$$MACHINE_IP:$(FRONTEND_PORT)$(NC)"; \
 	cd frontend && $(FLUTTER) run -d web-server --web-port=$(FRONTEND_PORT) --web-hostname=0.0.0.0
 
-frontend-build: ## Build le frontend pour le web
+frontend-build: ## [SERVICE] Build le frontend pour le web
 	@cd frontend && $(FLUTTER) build web
 
-frontend-logs: ## Affiche les logs du frontend
+frontend-logs: ## [SERVICE] Affiche les logs du frontend
 	@$(DOCKER_COMPOSE) logs -f frontend
 
 # Détecter l'IP de la machine
@@ -243,7 +243,7 @@ _get-ip:
 	echo -e "$(GREEN)✓ IP détectée: $$MACHINE_IP$(NC)"
 
 # Configurer l'URL de l'API pour mobile
-configure-mobile-api: _get-ip ## Configure l'URL de l'API avec l'IP de la machine
+configure-mobile-api: _get-ip ## [MOBILE] Configure l'URL de l'API avec l'IP de la machine
 	@echo -e "$(GREEN)Configuration de l'URL API pour mobile...$(NC)"
 	@MACHINE_IP=$$(cat /tmp/machine_ip.txt 2>/dev/null || echo "localhost"); \
 	if [ -f "frontend/lib/services/auth_service.dart" ]; then \
@@ -254,7 +254,7 @@ configure-mobile-api: _get-ip ## Configure l'URL de l'API avec l'IP de la machin
 	fi
 
 # Restaurer l'URL de l'API pour développement local
-restore-api-url: ## Restaure l'URL de l'API à localhost
+restore-api-url: ## [MOBILE] Restaure l'URL de l'API à localhost
 	@echo -e "$(GREEN)Restauration de l'URL API...$(NC)"
 	@if [ -f "frontend/lib/services/auth_service.dart" ]; then \
 		sed -i "s|static const String _baseUrl = 'http://[^']*';|static const String _baseUrl = 'http://localhost:$(BACKEND_PORT)/api';|g" frontend/lib/services/auth_service.dart; \
@@ -262,18 +262,18 @@ restore-api-url: ## Restaure l'URL de l'API à localhost
 	fi
 
 # Build mobile
-build-android: configure-mobile-api ## Build l'application Android (APK) avec IP configurée
+build-android: configure-mobile-api ## [MOBILE] Build l'application Android (APK) avec IP configurée
 	@echo -e "$(GREEN)Build de l'application Android...$(NC)"
 	@cd frontend && $(FLUTTER) build apk --release
 	@echo -e "$(GREEN)✓ APK créé dans frontend/build/app/outputs/flutter-apk/app-release.apk$(NC)"
 	@echo -e "$(YELLOW)Pour installer: adb install frontend/build/app/outputs/flutter-apk/app-release.apk$(NC)"
 
-build-ios: configure-mobile-api ## Build l'application iOS (nécessite macOS) avec IP configurée
+build-ios: configure-mobile-api ## [MOBILE] Build l'application iOS (nécessite macOS) avec IP configurée
 	@cd frontend && $(FLUTTER) build ios --release
 	@echo -e "$(GREEN)✓ Build iOS terminé$(NC)"
 
 # Run mobile
-run-android: configure-mobile-api ## Lance l'application sur Android (détecte automatiquement l'appareil)
+run-android: configure-mobile-api ## [MOBILE] Lance l'application sur Android (détecte automatiquement l'appareil)
 	@echo -e "$(GREEN)Recherche d'appareils Android...$(NC)"
 	@cd frontend && \
 	DEVICE_ID=$$($(FLUTTER) devices | grep -E "android|chrome" | head -1 | awk '{print $$5}' || echo ""); \
@@ -286,7 +286,7 @@ run-android: configure-mobile-api ## Lance l'application sur Android (détecte a
 	echo -e "$(GREEN)Lancement sur Android ($$DEVICE_ID)...$(NC)"; \
 	$(FLUTTER) run -d android
 
-run-ios: configure-mobile-api ## Lance l'application sur iOS (détecte automatiquement l'appareil)
+run-ios: configure-mobile-api ## [MOBILE] Lance l'application sur iOS (détecte automatiquement l'appareil)
 	@echo -e "$(GREEN)Recherche d'appareils iOS...$(NC)"
 	@cd frontend && \
 	DEVICE_ID=$$($(FLUTTER) devices | grep -E "ios|iPhone|iPad" | head -1 | awk '{print $$5}' || echo ""); \
@@ -308,26 +308,26 @@ clean: ## [UTIL] Nettoie les builds et dépendances
 	@$(DOCKER_COMPOSE) down -v
 	@echo -e "$(GREEN)✓ Nettoyage terminé$(NC)"
 
-test: ## Lance les tests
+test: ## [TEST] Lance les tests
 	@cd frontend && $(FLUTTER) test
 	@cd backend && npm test || echo "Pas de tests configurés"
 
-test-api: ## Teste l'API et la récupération de recettes
+test-api: ## [TEST] Teste l'API et la récupération de recettes
 	@bash scripts/test_api.sh
 
-test-recipes: ## Test interactif des recettes pour entraîner le modèle de traduction
+test-recipes: ## [AI] Test interactif des recettes pour entraîner le modèle de traduction
 	@bash scripts/test-recipes.sh $(NUM_RECIPES)
 
-train-translation: ## Entraîner le modèle de traduction à partir des résultats de test
+train-translation: ## [AI] Entraîner le modèle de traduction à partir des résultats de test
 	@bash scripts/train-translation-model.sh
 
-apply-translations: ## Appliquer les traductions apprises au code source
+apply-translations: ## [AI] Appliquer les traductions apprises au code source
 	@bash scripts/apply-translations.sh
 
-train-ai: ## Menu interactif complet pour le système d'entraînement IA
+train-ai: ## [AI] Menu interactif complet pour le système d'entraînement IA
 	@bash scripts/ai-training-menu.sh
 
-test-data: ## Ajoute des données de test (ingrédients dans le placard) - nécessite d'être connecté
+test-data: ## [DB] Ajoute des données de test (ingrédients dans le placard) - nécessite d'être connecté
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
 	@echo -e "$(GREEN)Ajout de données de test dans le placard$(NC)"
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
@@ -368,7 +368,7 @@ test-data: ## Ajoute des données de test (ingrédients dans le placard) - néce
 	fi
 
 # Gestion de la base de données
-db-reset: ## Réinitialise complètement la base de données (supprime et recrée les tables)
+db-reset: ## [DB] Réinitialise complètement la base de données (supprime et recrée les tables)
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
 	@echo -e "$(GREEN)Réinitialisation de la base de données$(NC)"
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
@@ -395,7 +395,7 @@ db-reset: ## Réinitialise complètement la base de données (supprime et recré
 		exit 1; \
 	fi
 
-db-clear: ## Vide tous les comptes utilisateurs (garde les tables)
+db-clear: ## [DB] Vide tous les comptes utilisateurs (garde les tables)
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
 	@echo -e "$(GREEN)Vidage de tous les comptes utilisateurs$(NC)"
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
@@ -423,12 +423,12 @@ db-clear: ## Vide tous les comptes utilisateurs (garde les tables)
 	fi
 
 # Production avec Docker
-prod-build: ## Build les images Docker pour la production
+prod-build: ## [PROD] Build les images Docker pour la production
 	@echo -e "$(GREEN)Construction des images Docker pour la production...$(NC)"
 	@docker-compose -f docker-compose.prod.yml build
 	@echo -e "$(GREEN)✓ Images construites$(NC)"
 
-prod-up: ## Démarre les conteneurs en production
+prod-up: ## [PROD] Démarre les conteneurs en production
 	@echo -e "$(GREEN)Démarrage des conteneurs en production...$(NC)"
 	@if [ ! -f .env.prod ]; then \
 		echo -e "$(YELLOW)⚠ Fichier .env.prod non trouvé$(NC)"; \
@@ -446,20 +446,20 @@ prod-up: ## Démarre les conteneurs en production
 	@echo -e "$(YELLOW)Backend: http://localhost:7272/api$(NC)"
 	@echo -e "$(YELLOW)Frontend: http://localhost:7070$(NC)"
 
-prod-down: ## Arrête les conteneurs en production
+prod-down: ## [PROD] Arrête les conteneurs en production
 	@echo -e "$(GREEN)Arrêt des conteneurs en production...$(NC)"
 	@docker-compose -f docker-compose.prod.yml down
 	@echo -e "$(GREEN)✓ Conteneurs arrêtés$(NC)"
 
-prod-restart: ## Redémarre les conteneurs en production
+prod-restart: ## [PROD] Redémarre les conteneurs en production
 	@echo -e "$(GREEN)Redémarrage des conteneurs en production...$(NC)"
 	@docker-compose -f docker-compose.prod.yml restart
 	@echo -e "$(GREEN)✓ Conteneurs redémarrés$(NC)"
 
-prod-logs: ## Affiche les logs en production
+prod-logs: ## [PROD] Affiche les logs en production
 	@docker-compose -f docker-compose.prod.yml logs -f
 
-prod-status: ## Affiche l'état des conteneurs en production
+prod-status: ## [PROD] Affiche l'état des conteneurs en production
 	@echo -e "$(GREEN)État des conteneurs en production:$(NC)"
 	@docker-compose -f docker-compose.prod.yml ps
 
@@ -468,7 +468,7 @@ DOCKER_HUB_USER=paveldelhomme
 API_IMAGE=$(DOCKER_HUB_USER)/cookingrecipes-api:latest
 FRONTEND_IMAGE=$(DOCKER_HUB_USER)/cookingrecipes-frontend:latest
 
-docker-build-prod: ## Build les images pour production (PRODUCTION_API_URL optionnel)
+docker-build-prod: ## [PROD] Build les images pour production (PRODUCTION_API_URL optionnel)
 	@echo -e "$(GREEN)Construction des images Docker pour production...$(NC)"
 	@echo -e "$(YELLOW)Build de l'image backend...$(NC)"
 	@docker buildx build --load -f backend/Dockerfile.prod -t $(API_IMAGE) ./backend
@@ -482,10 +482,10 @@ docker-build-prod: ## Build les images pour production (PRODUCTION_API_URL optio
 	fi
 	@echo -e "$(GREEN)✓ Images construites$(NC)"
 
-docker-tag: docker-build-prod ## Tag les images pour Docker Hub (déjà taguées lors du build)
+docker-tag: docker-build-prod ## [PROD] Tag les images pour Docker Hub (déjà taguées lors du build)
 	@echo -e "$(GREEN)✓ Images déjà taguées pour Docker Hub$(NC)"
 
-docker-push: docker-tag ## Push les images sur Docker Hub
+docker-push: docker-tag ## [PROD] Push les images sur Docker Hub
 	@echo -e "$(GREEN)Push des images sur Docker Hub...$(NC)"
 	@echo -e "$(YELLOW)Assurez-vous d'être connecté: docker login$(NC)"
 	@docker push $(API_IMAGE)
@@ -495,10 +495,10 @@ docker-push: docker-tag ## Push les images sur Docker Hub
 	@echo -e "  - $(API_IMAGE)"
 	@echo -e "  - $(FRONTEND_IMAGE)"
 
-docker-build-push: docker-build-prod docker-push ## Build et push les images sur Docker Hub
+docker-build-push: docker-build-prod docker-push ## [PROD] Build et push les images sur Docker Hub
 
 # Déploiement Portainer
-deploy-portainer: ## Déploie automatiquement sur Portainer
+deploy-portainer: ## [PROD] Déploie automatiquement sur Portainer
 	@echo -e "$(GREEN)Déploiement sur Portainer...$(NC)"
 	@if [ ! -f scripts/deploy-portainer.sh ]; then \
 		echo -e "$(RED)❌ Script deploy-portainer.sh non trouvé$(NC)"; \
@@ -507,7 +507,7 @@ deploy-portainer: ## Déploie automatiquement sur Portainer
 	@chmod +x scripts/deploy-portainer.sh
 	@./scripts/deploy-portainer.sh
 
-deploy-full: docker-build-push deploy-portainer ## Build, push et déploie sur Portainer
+deploy-full: docker-build-push deploy-portainer ## [PROD] Build, push et déploie sur Portainer
 
 .DEFAULT_GOAL := help
 
