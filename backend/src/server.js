@@ -18,6 +18,11 @@ const { wafMiddleware } = require('./middleware/waf');
 const { generateCSRFMiddleware, verifyCSRFMiddleware } = require('./middleware/csrf');
 const { securityLoggerMiddleware } = require('./middleware/securityLogger');
 const { inputSanitizerMiddleware } = require('./middleware/inputSanitizer');
+const { requestValidatorMiddleware } = require('./middleware/requestValidator');
+const { replayProtectionMiddleware } = require('./middleware/replayProtection');
+const { massAssignmentProtectionMiddleware } = require('./middleware/massAssignmentProtection');
+const { globalDosLimiter, heavyRequestLimiter, dosProtectionMiddleware } = require('./middleware/dosProtection');
+const { sessionSecurityMiddleware } = require('./middleware/sessionSecurity');
 const { 
   notFoundHandler, 
   internalErrorHandler 
@@ -101,11 +106,28 @@ app.use(helmet({
 // Logging de sécurité (en premier pour capturer toutes les requêtes)
 app.use(securityLoggerMiddleware);
 
+// Protection DoS globale (avant tout)
+app.use('/api', globalDosLimiter);
+app.use('/api', heavyRequestLimiter);
+app.use('/api', dosProtectionMiddleware);
+
+// Validation des requêtes (headers, méthodes, tailles)
+app.use('/api', requestValidatorMiddleware);
+
 // WAF - Web Application Firewall (avant les autres middlewares)
 app.use('/api', wafMiddleware);
 
 // Vérification de la blacklist pour toutes les routes API
 app.use('/api', checkBlacklist);
+
+// Protection contre les attaques de rejeu
+app.use('/api', replayProtectionMiddleware);
+
+// Protection contre Mass Assignment
+app.use('/api', massAssignmentProtectionMiddleware);
+
+// Sécurité des sessions (vérification tokens révoqués)
+app.use('/api', sessionSecurityMiddleware);
 
 // CSRF Protection (génération pour GET, vérification pour POST/PUT/DELETE)
 app.use('/api', generateCSRFMiddleware);

@@ -168,6 +168,23 @@ function initDatabase() {
       }
     });
 
+    // Table Revoked Tokens (pour session security)
+    database.run(`
+      CREATE TABLE IF NOT EXISTS revoked_tokens (
+        token_id TEXT PRIMARY KEY,
+        user_id TEXT,
+        revoked_at TEXT NOT NULL,
+        expires_at TEXT,
+        reason TEXT,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `, (err) => {
+      if (err) {
+        console.error('Erreur création table revoked_tokens:', err);
+        // Ne pas rejeter, ce n'est pas critique
+      }
+    });
+
     // Index pour recherche rapide
     database.run(`
       CREATE INDEX IF NOT EXISTS idx_security_logs_timestamp ON security_logs(timestamp)

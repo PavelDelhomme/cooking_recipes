@@ -4,6 +4,47 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 
 ## [Non versionné] - 2024-12-XX
 
+### 🔒 Sécurité - Protection Avancée Complète
+
+#### Ajouté
+- **Protection contre les attaques de rejeu (Replay Attacks)**
+  - Nonces uniques par requête
+  - Validation des timestamps
+  - Détection des requêtes rejouées
+  - Middleware: `replayProtection.js`
+
+- **Protection contre Mass Assignment**
+  - Whitelist de champs autorisés par route
+  - Blocage des champs interdits (__proto__, constructor, password, etc.)
+  - Validation stricte des champs de requête
+  - Middleware: `massAssignmentProtection.js`
+
+- **Protection DoS avancée**
+  - Limite globale: 60 requêtes/minute par IP
+  - Limite requêtes lourdes: 20/minute par IP
+  - Détection de patterns d'attaque (URLs longues, headers suspects)
+  - Middleware: `dosProtection.js`
+
+- **Validation stricte des requêtes**
+  - Validation des méthodes HTTP
+  - Validation des headers (interdits, suspects)
+  - Validation de la taille des requêtes (max 10MB)
+  - Validation des Content-Type
+  - Détection de paramètres suspects
+  - Middleware: `requestValidator.js`
+
+- **Gestion sécurisée des sessions**
+  - JWT ID (jti) unique pour chaque token
+  - Révocation de tokens (blacklist)
+  - Table `revoked_tokens` en base de données
+  - Endpoint `/api/auth/signout` pour déconnexion sécurisée
+  - Middleware: `sessionSecurity.js`
+
+#### Modifié
+- **Tokens JWT améliorés**: Ajout de `jti` (JWT ID) pour permettre la révocation
+- **Ordre des middlewares optimisé**: Protection DoS en premier, puis validation, puis WAF
+- **Logging de sécurité étendu**: Nouveaux événements (REPLAY_ATTACK, MASS_ASSIGNMENT, DOS_ATTACK, etc.)
+
 ### 🔒 Sécurité - WAF Adapté au Stack Réel
 - **Refactorisation du WAF** : Adaptation aux technologies réellement utilisées
   - ❌ **Retiré** : Protections LDAP (non utilisé dans le projet)

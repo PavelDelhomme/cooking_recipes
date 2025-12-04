@@ -84,13 +84,52 @@ Ce document décrit l'architecture de sécurité complète de l'application Cook
   - Referrer-Policy
   - Permissions-Policy
 
-### 7. Authentification JWT
+### 7. Authentification JWT et Gestion de Session
 
 - **Sécurité**:
-  - Tokens signés avec secret fort
+  - Tokens signés avec secret fort (HS256 uniquement)
+  - JWT ID (jti) unique pour chaque token
   - Expiration: 30 jours
+  - Révocation de tokens (blacklist)
   - Vérification sur chaque requête protégée
   - Protection contre les attaques de timing
+
+### 8. Protection contre les Attaques de Rejeu (Replay Attacks)
+
+- **Fichier**: `backend/src/middleware/replayProtection.js`
+- **Fonctionnement**:
+  - Utilisation de nonces uniques par requête
+  - Validation des timestamps (tolérance 5 minutes)
+  - Détection des requêtes rejouées
+  - Protection pour toutes les requêtes modifiantes (POST, PUT, DELETE, PATCH)
+
+### 9. Protection contre Mass Assignment
+
+- **Fichier**: `backend/src/middleware/massAssignmentProtection.js`
+- **Fonctionnement**:
+  - Whitelist de champs autorisés par route
+  - Blocage des champs interdits (__proto__, constructor, password, etc.)
+  - Validation stricte des champs de requête
+  - Protection contre l'injection de propriétés prototypiques
+
+### 10. Protection DoS (Denial of Service)
+
+- **Fichier**: `backend/src/middleware/dosProtection.js`
+- **Fonctionnalités**:
+  - Limite globale: 60 requêtes/minute par IP
+  - Limite requêtes lourdes: 20/minute par IP
+  - Détection de patterns d'attaque (URLs longues, headers suspects)
+  - Blocage automatique des requêtes suspectes
+
+### 11. Validation des Requêtes
+
+- **Fichier**: `backend/src/middleware/requestValidator.js`
+- **Validations**:
+  - Méthodes HTTP autorisées uniquement
+  - Validation des headers HTTP (interdits, suspects)
+  - Validation de la taille des requêtes (max 10MB)
+  - Validation des Content-Type
+  - Détection de paramètres de requête suspects
 
 ## 🏗️ Architecture DMZ (Demilitarized Zone)
 

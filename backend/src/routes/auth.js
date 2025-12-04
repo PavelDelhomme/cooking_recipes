@@ -6,6 +6,7 @@ const { authenticateToken } = require('../middleware/auth');
 const { authLimiter, signupLimiter } = require('../middleware/rateLimiter');
 const { validateEmail, validatePassword, validateName } = require('../utils/validation');
 const { logSecurityEvent, SECURITY_EVENTS } = require('../middleware/securityLogger');
+const crypto = require('crypto');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -84,7 +85,13 @@ router.post('/signup', signupLimiter, async (req, res) => {
               return res.status(500).json({ message: 'Erreur serveur' });
             }
 
-            const token = jwt.sign({ userId, email: emailValidation.email }, JWT_SECRET, { expiresIn: '30d' });
+            // Générer un jti (JWT ID) unique pour pouvoir révoquer le token
+            const jti = crypto.randomBytes(16).toString('hex');
+            const token = jwt.sign(
+              { userId, email: emailValidation.email, jti },
+              JWT_SECRET,
+              { expiresIn: '30d', algorithm: 'HS256' }
+            );
 
             // Logger l'inscription réussie
             logSecurityEvent(SECURITY_EVENTS.AUTH_SUCCESS, {
