@@ -223,8 +223,26 @@ test_recipe() {
                     if [ -z "$correct_translation" ]; then
                         correct_translation="$expected_translation"
                     fi
-                    echo -n "   │  💬 Commentaire (optionnel): "
-                    read -r translation_comment
+                echo "   │  💬 Commentaire détaillé (optionnel, appuyez sur Entrée deux fois pour terminer):"
+                translation_comment=""
+                local first_line=true
+                while true; do
+                    echo -n "   │     "
+                    read -r line
+                    if [ -z "$line" ]; then
+                        if [ "$first_line" = "false" ]; then
+                            break
+                        fi
+                        first_line=false
+                        continue
+                    fi
+                    first_line=false
+                    if [ -n "$translation_comment" ]; then
+                        translation_comment="$translation_comment|$line"
+                    else
+                        translation_comment="$line"
+                    fi
+                done
                 fi
             fi
             
@@ -251,8 +269,27 @@ test_recipe() {
                 if [ -z "$correct_measure" ]; then
                     correct_measure="$measure"
                 fi
-                echo -n "   │  💬 Commentaire (optionnel): "
-                read -r measure_comment
+                echo "   │  💬 Commentaire détaillé (optionnel, appuyez sur Entrée deux fois pour terminer):"
+                echo "   │     Exemple: '1 cup ≈ 240-250 ml. Équivalent: tasse. 1/2 cup ≈ 120 ml, 1/3 cup ≈ 80 ml, 1/4 cup ≈ 60 ml.'"
+                measure_comment=""
+                local first_line=true
+                while true; do
+                    echo -n "   │     "
+                    read -r line
+                    if [ -z "$line" ]; then
+                        if [ "$first_line" = "false" ]; then
+                            break
+                        fi
+                        first_line=false
+                        continue
+                    fi
+                    first_line=false
+                    if [ -n "$measure_comment" ]; then
+                        measure_comment="$measure_comment|$line"
+                    else
+                        measure_comment="$line"
+                    fi
+                done
             else
                 measure_correct="true"
             fi
