@@ -27,31 +27,45 @@ help: ## Affiche cette aide
 	@echo -e "$(GREEN)🍳 Cooking Recipes - Aide des commandes Make$(NC)"
 	@echo -e "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
 	@echo ""
-	@echo -e "$(YELLOW)📋 Commandes principales:$(NC)"
+	@echo -e "$(YELLOW)📦 Installation et Configuration$(NC)"
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## \[INSTALL\].*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## \\[INSTALL\\] "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
-	@echo -e "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
-	@echo -e "$(YELLOW)🤖 Système d'entraînement de traduction IA:$(NC)"
+	@echo -e "$(YELLOW)🚀 Développement$(NC)"
 	@echo ""
-	@echo -e "   $(GREEN)1.$(NC) Lancez '$(YELLOW)make test-recipes [NUM_RECIPES=10]$(NC)' pour tester des recettes"
-	@echo -e "      • Validez/corrigez les traductions de titres et ingrédients"
-	@echo -e "      • Les corrections sont enregistrées dans /tmp/recipe_test_results.txt"
+	@grep -E '^[a-zA-Z_-]+:.*?## \[DEV\].*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## \\[DEV\\] "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
-	@echo -e "   $(GREEN)2.$(NC) Lancez '$(YELLOW)make train-translation$(NC)' pour analyser les corrections"
-	@echo -e "      • Extrait les nouvelles traductions des résultats de test"
-	@echo -e "      • Génère des fichiers JSON avec les corrections apprises"
+	@echo -e "$(YELLOW)🔧 Services Individuels$(NC)"
 	@echo ""
-	@echo -e "   $(GREEN)3.$(NC) Lancez '$(YELLOW)make apply-translations$(NC)' pour voir les traductions à ajouter"
-	@echo -e "      • Affiche les nouvelles traductions à intégrer au code"
+	@grep -E '^[a-zA-Z_-]+:.*?## \[SERVICE\].*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## \\[SERVICE\\] "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
-	@echo -e "   $(GREEN)🎯 OU$(NC) Utilisez '$(YELLOW)make train-ai$(NC)' pour le menu interactif complet"
-	@echo -e "      • Menu avec toutes les fonctionnalités en un seul endroit"
+	@echo -e "$(YELLOW)📱 Build et Déploiement Mobile$(NC)"
 	@echo ""
-	@echo -e "$(YELLOW)💡$(NC) Le système apprend de vos corrections pour améliorer les traductions futures"
+	@grep -E '^[a-zA-Z_-]+:.*?## \[MOBILE\].*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## \\[MOBILE\\] "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo -e "$(YELLOW)🐳 Production Docker$(NC)"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## \[PROD\].*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## \\[PROD\\] "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo -e "$(YELLOW)🗄️  Base de Données$(NC)"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## \[DB\].*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## \\[DB\\] "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo -e "$(YELLOW)🧪 Tests$(NC)"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## \[TEST\].*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## \\[TEST\\] "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo -e "$(YELLOW)🤖 Système d'Entraînement IA$(NC)"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## \[AI\].*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## \\[AI\\] "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
+	@echo -e "$(YELLOW)🧹 Utilitaires$(NC)"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## \[UTIL\].*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## \\[UTIL\\] "}; {printf "  $(YELLOW)%-25s$(NC) %s\n", $$1, $$2}'
+	@echo ""
 	@echo -e "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
 
-install: ## Installe les dépendances (backend + frontend)
+install: ## [INSTALL] Installe les dépendances (backend + frontend)
 	@echo -e "$(GREEN)Installation des dépendances...$(NC)"
 	@echo -e "$(YELLOW)Installation backend...$(NC)"
 	@cd backend && npm install --silent 2>&1 | grep -v "deprecated\|warn" || npm install
@@ -286,7 +300,7 @@ run-ios: configure-mobile-api ## Lance l'application sur iOS (détecte automatiq
 	$(FLUTTER) run -d ios
 
 # Utilitaires
-clean: ## Nettoie les builds et dépendances
+clean: ## [UTIL] Nettoie les builds et dépendances
 	@echo -e "$(GREEN)Nettoyage...$(NC)"
 	@cd frontend && $(FLUTTER) clean
 	@cd frontend/android && rm -rf .gradle build && cd ../..
