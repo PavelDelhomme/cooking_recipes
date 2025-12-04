@@ -154,6 +154,68 @@ test_recipe() {
     echo "   $instructions..."
     echo ""
     
+    # Validation du titre de la recette
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📝 Validation du titre de la recette"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "   📋 Titre original (EN): $recipe_name"
+    
+    if [ "$TEST_LANG" != "en" ]; then
+        # Obtenir une traduction approximative (on simule ce que le système ferait)
+        # Pour l'instant, on affiche juste le titre original et on demande la validation
+        echo -n "   ✅ Traduction correcte pour '$recipe_name' ($TEST_LANG)? (o/n/q): "
+        read -r title_response
+        
+        if [ "$title_response" = "q" ] || [ "$title_response" = "Q" ]; then
+            echo ""
+            echo "👋 $(get_label quit)."
+            exit 0
+        fi
+        
+        local title_correct="true"
+        local correct_title="$recipe_name"
+        local title_comment=""
+        
+        if [ "$title_response" != "o" ] && [ "$title_response" != "O" ] && [ -n "$title_response" ]; then
+            title_correct="false"
+            echo ""
+            echo -n "   │  📝 Quelle devrait être la traduction correcte ($TEST_LANG)? "
+            read -r correct_title
+            if [ -z "$correct_title" ]; then
+                correct_title="$recipe_name"
+            fi
+            echo "   │  💬 Commentaire détaillé (optionnel, appuyez sur Entrée deux fois pour terminer):"
+            title_comment=""
+            local first_line=true
+            while true; do
+                echo -n "   │     "
+                read -r line
+                if [ -z "$line" ]; then
+                    if [ "$first_line" = "false" ]; then
+                        break
+                    fi
+                    first_line=false
+                    continue
+                fi
+                first_line=false
+                if [ -n "$title_comment" ]; then
+                    title_comment="$title_comment|$line"
+                else
+                    title_comment="$line"
+                fi
+            done
+        fi
+        
+        # Stocker le résultat du titre
+        # Format: RECIPE_TITLE|recipe_id|recipe_name|lang|title_correct|correct_title|title_comment
+        echo "RECIPE_TITLE|$recipe_id|$recipe_name|$TEST_LANG|$title_correct|$correct_title|$title_comment" >> /tmp/recipe_test_results.txt
+    fi
+    
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    
     # Compter le nombre total d'ingrédients pour cette recette
     local total_ingredients=0
     for j in {1..20}; do
@@ -411,13 +473,32 @@ if [ $TOTAL -gt 0 ]; then
     echo "      • Taux de réussite mesure: ${MEASURE_PERCENTAGE}%"
 fi
 
-echo ""
-echo "📁 $(get_label saved): /tmp/recipe_test_results.txt"
-echo "   Langue testée: $LANG_NAME ($TEST_LANG)"
-echo ""
-echo "📋 Format des résultats:"
-echo "   recipe_id|ingredient|expected_translation|is_translated|translation_correct|correct_translation|translation_comment|measure|measure_correct|correct_measure|measure_comment|lang"
-echo ""
-echo "💡 Les traductions et mesures correctes suggérées sont stockées pour analyse future"
-echo ""
+    # Statistiques des titres
+    if [ -n "$TITLE_RESULTS" ] && [ "$TEST_LANG" != "en" ]; then
+        TITLE_TOTAL=$(echo "$TITLE_RESULTS" | wc -l)
+        TITLE_CORRECT=$(echo "$TITLE_RESULTS" | awk -F'|' '{if ($5 == "true") print}' | wc -l)
+        TITLE_INCORRECT=$(echo "$TITLE_RESULTS" | awk -F'|' '{if ($5 == "false") print}' | wc -l)
+        
+        echo ""
+        echo "📈 Statistiques des titres de recettes ($TEST_LANG):"
+        echo "   • Total de titres testés: $TITLE_TOTAL"
+        echo "   • Titres corrects: $TITLE_CORRECT"
+        echo "   • Titres incorrects: $TITLE_INCORRECT"
+        if [ "$TITLE_TOTAL" -gt 0 ]; then
+            TITLE_PERCENTAGE=$((TITLE_CORRECT * 100 / TITLE_TOTAL))
+            echo "   • Taux de réussite: ${TITLE_PERCENTAGE}%"
+        fi
+        echo ""
+    fi
+    
+    echo ""
+    echo "📁 $(get_label saved): /tmp/recipe_test_results.txt"
+    echo "   Langue testée: $LANG_NAME ($TEST_LANG)"
+    echo ""
+    echo "📋 Format des résultats:"
+    echo "   Titres: RECIPE_TITLE|recipe_id|recipe_name|lang|title_correct|correct_title|title_comment"
+    echo "   Ingrédients: recipe_id|ingredient|expected_translation|is_translated|translation_correct|correct_translation|translation_comment|measure|measure_correct|correct_measure|measure_comment|lang"
+    echo ""
+    echo "💡 Les traductions et mesures correctes suggérées sont stockées pour analyse future"
+    echo ""
 
