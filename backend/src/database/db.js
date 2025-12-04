@@ -126,6 +126,26 @@ function initDatabase() {
         console.error('Erreur création table ip_blacklist:', err);
         return reject(err);
       }
+    });
+
+    // Table Favorites
+    database.run(`
+      CREATE TABLE IF NOT EXISTS favorites (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        recipeId TEXT NOT NULL,
+        recipeTitle TEXT NOT NULL,
+        recipeImage TEXT,
+        recipeData TEXT NOT NULL,
+        createdAt TEXT NOT NULL,
+        FOREIGN KEY (userId) REFERENCES users(id),
+        UNIQUE(userId, recipeId)
+      )
+    `, (err) => {
+      if (err) {
+        console.error('Erreur création table favorites:', err);
+        return reject(err);
+      }
       console.log('✅ Base de données initialisée');
       resolve();
     });

@@ -8,6 +8,7 @@ const userRoutes = require('./routes/users');
 const pantryRoutes = require('./routes/pantry');
 const mealPlanRoutes = require('./routes/mealPlans');
 const shoppingListRoutes = require('./routes/shoppingList');
+const favoritesRoutes = require('./routes/favorites');
 const adminRoutes = require('./routes/admin');
 const { initDatabase, createDefaultUser } = require('./database/db');
 const { checkBlacklist } = require('./middleware/ipBlacklist');
@@ -118,6 +119,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/pantry', pantryRoutes);
 app.use('/api/meal-plans', mealPlanRoutes);
 app.use('/api/shopping-list', shoppingListRoutes);
+app.use('/api/favorites', favoritesRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Health check

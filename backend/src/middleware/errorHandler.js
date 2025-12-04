@@ -18,7 +18,7 @@ function serveErrorPage(res, statusCode, title, message, details = null) {
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -37,7 +37,7 @@ function serveErrorPage(res, statusCode, title, message, details = null) {
         .error-code {
             font-size: 120px;
             font-weight: bold;
-            color: #667eea;
+            color: #FF6B35;
             line-height: 1;
             margin-bottom: 20px;
         }
@@ -67,7 +67,7 @@ function serveErrorPage(res, statusCode, title, message, details = null) {
             display: inline-block;
             margin-top: 24px;
             padding: 12px 32px;
-            background: #667eea;
+            background: #FF6B35;
             color: white;
             text-decoration: none;
             border-radius: 8px;
@@ -75,7 +75,7 @@ function serveErrorPage(res, statusCode, title, message, details = null) {
             transition: background 0.3s;
         }
         .home-button:hover {
-            background: #5568d3;
+            background: #F7931E;
         }
         @media (max-width: 600px) {
             .error-code {

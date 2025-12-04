@@ -8,6 +8,7 @@ import '../services/meal_plan_service.dart';
 import '../services/theme_service.dart';
 import '../services/app_localizations.dart';
 import '../services/translation_service.dart';
+import '../services/favorite_service.dart';
 import '../widgets/locale_notifier.dart';
 import '../widgets/translation_builder.dart';
 import '../models/pantry_item.dart';
@@ -30,9 +31,12 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   final ShoppingListService _shoppingListService = ShoppingListService();
   final ProfileService _profileService = ProfileService();
   final ThemeService _themeService = ThemeService();
+  final FavoriteService _favoriteService = FavoriteService();
   List<PantryItem> _pantryItems = [];
   UserProfile? _currentProfile;
   bool _isDarkMode = false;
+  bool _isFavorite = false;
+  bool _isLoadingFavorite = false;
 
   @override
   void initState() {
@@ -40,6 +44,52 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     _loadPantryItems();
     _loadProfile();
     _loadTheme();
+    _checkFavorite();
+  }
+
+  Future<void> _checkFavorite() async {
+    try {
+      final isFav = await _favoriteService.isFavorite(widget.recipe.id);
+      if (mounted) {
+        setState(() => _isFavorite = isFav);
+      }
+    } catch (e) {
+      print('Erreur vérification favori: $e');
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_isLoadingFavorite) return;
+    
+    setState(() => _isLoadingFavorite = true);
+    
+    try {
+      final success = await _favoriteService.toggleFavorite(widget.recipe);
+      if (success && mounted) {
+        setState(() {
+          _isFavorite = !_isFavorite;
+          _isLoadingFavorite = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_isFavorite ? 'Recette ajoutée aux favoris' : 'Recette retirée des favoris'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } else {
+        setState(() => _isLoadingFavorite = false);
+      }
+    } catch (e) {
+      setState(() => _isLoadingFavorite = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _loadTheme() async {
@@ -273,13 +323,78 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
+            leading: Container(
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.pop(context),
+                tooltip: 'Retour',
+              ),
+            ),
             actions: [
-              IconButton(
-                icon: Icon(
-                  _isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                tooltip: _isDarkMode ? 'Mode clair' : 'Mode sombre',
-                onPressed: _toggleTheme,
+                child: IconButton(
+                  icon: _isLoadingFavorite
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Icon(
+                          _isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: Colors.white,
+                        ),
+                  tooltip: _isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris',
+                  onPressed: _toggleFavorite,
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    _isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                    color: Colors.white,
+                  ),
+                  tooltip: _isDarkMode ? 'Mode clair' : 'Mode sombre',
+                  onPressed: _toggleTheme,
+                ),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(

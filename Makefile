@@ -276,6 +276,9 @@ test: ## Lance les tests
 test-api: ## Teste l'API et la récupération de recettes
 	@bash scripts/test_api.sh
 
+test-recipes: ## Test interactif des recettes (portions et unités de mesure)
+	@bash scripts/test-recipes.sh
+
 test-data: ## Ajoute des données de test (ingrédients dans le placard) - nécessite d'être connecté
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
 	@echo -e "$(GREEN)Ajout de données de test dans le placard$(NC)"
