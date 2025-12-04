@@ -41,7 +41,7 @@ function createCSRFToken(req) {
  */
 function verifyCSRFToken(req) {
   const sessionId = req.headers['x-session-id'] || req.ip || 'anonymous';
-  const token = req.headers['x-csrf-token'] || req.body._csrf || req.query._csrf;
+  const token = req.headers['x-csrf-token'] || (req.body && req.body._csrf) || req.query._csrf;
 
   if (!token) {
     return { valid: false, error: 'Token CSRF manquant' };
