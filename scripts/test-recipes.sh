@@ -3,7 +3,8 @@
 # Script interactif pour tester les portions et unités de mesure des recettes
 # Usage: make test-recipes
 
-set -e
+# Ne pas utiliser set -e car cela peut causer des problèmes avec l'arithmétique et les commandes interactives
+# set -e
 
 # Charger les traductions d'ingrédients
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -155,10 +156,10 @@ test_recipe() {
     
     # Compter le nombre total d'ingrédients pour cette recette
     local total_ingredients=0
-    for i in {1..20}; do
-        local ingredient=$(echo "$recipe_json" | jq -r ".strIngredient$i // empty")
-        if [ -n "$ingredient" ] && [ "$ingredient" != "null" ] && [ "$ingredient" != "" ]; then
-            ((total_ingredients++))
+    for j in {1..20}; do
+        local ing=$(echo "$recipe_json" | jq -r ".strIngredient$j // empty")
+        if [ -n "$ing" ] && [ "$ing" != "null" ] && [ "$ing" != "" ]; then
+            total_ingredients=$((total_ingredients + 1))
         fi
     done
     
@@ -172,7 +173,7 @@ test_recipe() {
         local measure=$(echo "$recipe_json" | jq -r ".strMeasure$i // empty")
         
         if [ -n "$ingredient" ] && [ "$ingredient" != "null" ] && [ "$ingredient" != "" ]; then
-            ((current_ingredient++))
+            current_ingredient=$((current_ingredient + 1))
             # Obtenir la traduction attendue
             local expected_translation=$(get_ingredient_translation "$ingredient" "$TEST_LANG")
             local is_translated="true"
