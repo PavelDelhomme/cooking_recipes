@@ -44,7 +44,16 @@ const heavyRequestLimiter = rateLimit({
   keyGenerator: (req) => getClientIP(req),
   skip: (req) => {
     // Ne pas limiter les requêtes GET et HEAD
-    return ['GET', 'HEAD', 'OPTIONS'].includes(req.method);
+    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return true;
+    // En développement local, augmenter la limite pour les traductions
+    const clientIP = getClientIP(req);
+    if (clientIP === '127.0.0.1' || clientIP === '::1' || clientIP.startsWith('192.168.')) {
+      // Pour localhost/local network, permettre plus de requêtes de traduction
+      if (req.url.includes('/translation/')) {
+        return false; // On applique quand même le limiter mais avec une limite plus élevée
+      }
+    }
+    return false;
   },
   handler: (req, res) => {
     const clientIP = getClientIP(req);

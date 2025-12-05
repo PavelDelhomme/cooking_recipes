@@ -386,28 +386,11 @@ class TranslationService extends ChangeNotifier {
   }
 
   /// Traduit un ingrédient (méthode statique pour compatibilité)
+  /// OPTIMISÉ: Utilise d'abord les dictionnaires synchrones pour éviter le rate limiting
   static Future<String> translateIngredient(String ingredient) async {
     if (ingredient.isEmpty) return ingredient;
     
-    // 1. Essayer LibreTranslate d'abord (si disponible)
-    if (_instance._currentLanguage != 'en') {
-      try {
-        final libreTranslate = LibreTranslateService();
-        final translated = await libreTranslate.translateIngredient(
-          ingredient,
-          target: _instance._currentLanguage,
-        );
-        if (translated != null && translated.isNotEmpty) {
-          return translated;
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('⚠️ LibreTranslate erreur, fallback sur dictionnaires: $e');
-        }
-      }
-    }
-    
-    // 2. Fallback sur AutoTranslator (dictionnaires JSON)
+    // 1. PRIORITÉ: Utiliser d'abord les dictionnaires synchrones (évite les appels API)
     if (_instance._currentLanguage == 'fr') {
       final autoTranslated = AutoTranslator.translateWord(ingredient);
       if (autoTranslated != ingredient && autoTranslated.toLowerCase() != ingredient.toLowerCase()) {
@@ -415,8 +398,31 @@ class TranslationService extends ChangeNotifier {
       }
     }
     
-    // 3. Fallback sur l'ancien système
-    return _instance.translateIngredientInstance(ingredient);
+    // 2. Fallback sur l'ancien système (dictionnaires en mémoire)
+    final instanceTranslated = _instance.translateIngredientInstance(ingredient);
+    if (instanceTranslated != ingredient && instanceTranslated.toLowerCase() != ingredient.toLowerCase()) {
+      return instanceTranslated;
+    }
+    
+    // 3. DERNIER RECOURS: Essayer LibreTranslate seulement si les dictionnaires n'ont rien trouvé
+    // (évite le rate limiting en utilisant les dictionnaires en priorité)
+    if (_instance._currentLanguage != 'en') {
+      try {
+        final libreTranslate = LibreTranslateService();
+        // Vérifier rapidement si disponible (sans timeout long)
+        final translated = await libreTranslate.translateIngredient(
+          ingredient,
+          target: _instance._currentLanguage,
+        ).timeout(const Duration(seconds: 2), onTimeout: () => null);
+        if (translated != null && translated.isNotEmpty && translated != ingredient) {
+          return translated;
+        }
+      } catch (e) {
+        // Ignorer silencieusement pour éviter les logs inutiles
+      }
+    }
+    
+    return instanceTranslated;
   }
   
   // Version synchrone pour compatibilité (utilise le fallback uniquement)
@@ -504,31 +510,14 @@ class TranslationService extends ChangeNotifier {
   }
 
   /// Traduit le nom d'une recette
+  /// OPTIMISÉ: Utilise d'abord les dictionnaires synchrones pour éviter le rate limiting
   static Future<String> translateRecipeName(String recipeName) async {
     if (recipeName.isEmpty) return recipeName;
     
     // Nettoyer l'encodage d'abord
     String cleaned = fixEncoding(recipeName);
     
-    // 1. Essayer LibreTranslate d'abord (si disponible)
-    if (_instance._currentLanguage != 'en') {
-      try {
-        final libreTranslate = LibreTranslateService();
-        final translated = await libreTranslate.translateRecipeName(
-          cleaned,
-          target: _instance._currentLanguage,
-        );
-        if (translated != null && translated.isNotEmpty) {
-          return translated;
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('⚠️ LibreTranslate erreur, fallback sur dictionnaires: $e');
-        }
-      }
-    }
-    
-    // 2. Fallback sur AutoTranslator (dictionnaires JSON)
+    // 1. PRIORITÉ: Utiliser d'abord les dictionnaires synchrones (évite les appels API)
     if (_instance._currentLanguage == 'fr') {
       final autoTranslated = AutoTranslator.translateRecipeName(cleaned);
       if (autoTranslated != cleaned && autoTranslated.toLowerCase() != cleaned.toLowerCase()) {
@@ -536,8 +525,31 @@ class TranslationService extends ChangeNotifier {
       }
     }
     
-    // 3. Fallback sur l'ancien système
-    return translateRecipeNameSync(recipeName);
+    // 2. Fallback sur l'ancien système (dictionnaires en mémoire)
+    final syncTranslated = translateRecipeNameSync(recipeName);
+    if (syncTranslated != cleaned && syncTranslated.toLowerCase() != cleaned.toLowerCase()) {
+      return syncTranslated;
+    }
+    
+    // 3. DERNIER RECOURS: Essayer LibreTranslate seulement si les dictionnaires n'ont rien trouvé
+    // (évite le rate limiting en utilisant les dictionnaires en priorité)
+    if (_instance._currentLanguage != 'en') {
+      try {
+        final libreTranslate = LibreTranslateService();
+        // Vérifier rapidement si disponible (sans timeout long)
+        final translated = await libreTranslate.translateRecipeName(
+          cleaned,
+          target: _instance._currentLanguage,
+        ).timeout(const Duration(seconds: 2), onTimeout: () => null);
+        if (translated != null && translated.isNotEmpty && translated != cleaned) {
+          return translated;
+        }
+      } catch (e) {
+        // Ignorer silencieusement pour éviter les logs inutiles
+      }
+    }
+    
+    return syncTranslated;
   }
   
   // Version synchrone pour compatibilité (utilise uniquement les dictionnaires)
