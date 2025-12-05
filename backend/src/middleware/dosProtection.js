@@ -36,33 +36,38 @@ const globalDosLimiter = rateLimit({
 });
 
 // Limite pour les requêtes lourdes (POST, PUT, DELETE)
+// En développement local, limite plus élevée pour les traductions
 const heavyRequestLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 20, // 20 requêtes lourdes par minute
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => getClientIP(req),
-  skip: (req) => {
-    // Ne pas limiter les requêtes GET et HEAD
-    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return true;
+  max: (req) => {
     // En développement local, augmenter la limite pour les traductions
     const clientIP = getClientIP(req);
     if (clientIP === '127.0.0.1' || clientIP === '::1' || clientIP.startsWith('192.168.')) {
       // Pour localhost/local network, permettre plus de requêtes de traduction
       if (req.url.includes('/translation/')) {
-        return false; // On applique quand même le limiter mais avec une limite plus élevée
+        return 200; // 200 requêtes par minute pour les traductions en local
       }
     }
-    return false;
+    return 20; // 20 requêtes lourdes par minute par défaut
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => getClientIP(req),
+  skip: (req) => {
+    // Ne pas limiter les requêtes GET et HEAD
+    return ['GET', 'HEAD', 'OPTIONS'].includes(req.method);
   },
   handler: (req, res) => {
     const clientIP = getClientIP(req);
+    const limit = typeof heavyRequestLimiter.max === 'function' 
+      ? heavyRequestLimiter.max(req) 
+      : heavyRequestLimiter.max;
     
     logSecurityEvent(SECURITY_EVENTS.RATE_LIMIT, {
       ip: clientIP,
       endpoint: req.url,
       method: req.method,
-      limit: 20,
+      limit: limit,
       window: '1 minute',
       severity: 'HIGH',
       type: 'Heavy request DoS protection',

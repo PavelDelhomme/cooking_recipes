@@ -719,8 +719,39 @@ restart_app() {
   exec "$PROJECT_ROOT/scripts/dev.sh" "$@"
 }
 
-# Gérer Ctrl+C : redémarrer au lieu d'arrêter
-trap restart_app INT
+# Fonction pour arrêter définitivement l'application
+stop_app() {
+  echo ""
+  echo -e "${RED}═══════════════════════════════════════════════════════════${NC}"
+  echo -e "${RED}🛑 Arrêt définitif de l'application...${NC}"
+  echo -e "${RED}═══════════════════════════════════════════════════════════${NC}"
+  echo ""
+  cleanup
+  exit 0
+}
+
+# Variable pour détecter double Ctrl+C
+_LAST_CTRL_C_TIME=0
+
+# Gérer Ctrl+C : redémarrer si simple, arrêter si double
+handle_ctrl_c() {
+  local current_time=$(date +%s)
+  local time_diff=$((current_time - _LAST_CTRL_C_TIME))
+  
+  if [ $time_diff -lt 2 ] && [ $_LAST_CTRL_C_TIME -gt 0 ]; then
+    # Double Ctrl+C détecté (moins de 2 secondes entre les deux)
+    stop_app
+  else
+    # Simple Ctrl+C - redémarrer
+    _LAST_CTRL_C_TIME=$current_time
+    restart_app
+  fi
+}
+
+# Gérer Ctrl+C : utiliser la fonction de détection double
+trap handle_ctrl_c INT
+# Gérer Ctrl+\ (SIGQUIT) : arrêter définitivement (alternative à Ctrl+A)
+trap stop_app QUIT
 trap cleanup TERM
 
 # Vérifier que les dépendances sont installées
@@ -1054,7 +1085,7 @@ elif [ "$DEVICE_CHOICE" = "3" ]; then
 else
     echo -e "${YELLOW}Application lancée sur: http://$MACHINE_IP:7070${NC}"
 fi
-echo -e "${YELLOW}Appuyez sur Ctrl+C pour redémarrer (Shift+C pour arrêter définitivement)${NC}"
+echo -e "${YELLOW}Appuyez sur Ctrl+C pour redémarrer (Double Ctrl+C ou Ctrl+\\ pour arrêter définitivement)${NC}"
 echo ""
 
 # Attendre que les processus se terminent
