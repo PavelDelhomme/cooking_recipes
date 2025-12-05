@@ -51,9 +51,14 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   void _onScroll() {
+    // Vérifier si on peut scroller (éviter les erreurs si pas encore initialisé)
+    if (!_scrollController.hasClients) return;
+    
     // Charger plus de recettes quand on approche de la fin (200px avant la fin)
-    if (_scrollController.position.pixels >= 
-        _scrollController.position.maxScrollExtent - 200) {
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    
+    if (currentScroll >= maxScroll - 200) {
       if (!_isLoadingMore && _hasMoreRecipes && _searchQuery.isNotEmpty && !_isLoading) {
         _loadMoreRecipes();
       }
@@ -230,36 +235,46 @@ class _RecipesScreenState extends State<RecipesScreen> {
     if (!mounted || _searchQuery.isEmpty) return;
 
     try {
-      // Charger les recettes avec Stream pour affichage progressif
-      int loadedCount = 0;
+      // Calculer l'offset et la limite pour cette page
       int startIndex = page * _recipesPerPage;
-      int endIndex = startIndex + _recipesPerPage;
+      int limit = _recipesPerPage;
       
-      await for (var recipe in _recipeService.searchRecipesStream(_searchQuery)) {
+      // Charger uniquement les recettes de cette page avec limite
+      int loadedCount = 0;
+      int skippedCount = 0;
+      
+      await for (var recipe in _recipeService.searchRecipesStream(_searchQuery, limit: (page + 1) * _recipesPerPage)) {
         if (!mounted || _searchQuery != _searchController.text.trim()) {
           break; // Arrêter si la requête a changé
         }
 
-        // Pour la première page, charger progressivement
-        if (page == 0 && loadedCount < _recipesPerPage) {
-          setState(() {
-            _recipes.add(recipe);
-            _isLoading = false; // Arrêter le loading dès la première recette
-          });
-          loadedCount++;
-          // Petit délai pour l'effet visuel progressif
-          await Future.delayed(const Duration(milliseconds: 50));
-        } else if (page > 0 && loadedCount < _recipesPerPage) {
-          // Pages suivantes : charger plus rapidement
-          setState(() {
-            _recipes.add(recipe);
-            _isLoadingMore = false;
-          });
-          loadedCount++;
+        // Ignorer les recettes des pages précédentes
+        if (skippedCount < startIndex) {
+          skippedCount++;
+          continue;
         }
-        
-        // Si on a atteint la limite de la page, arrêter
-        if (loadedCount >= _recipesPerPage) {
+
+        // Charger uniquement les recettes de cette page
+        if (loadedCount < limit) {
+          if (page == 0) {
+            // Première page : affichage progressif
+            setState(() {
+              _recipes.add(recipe);
+              _isLoading = false; // Arrêter le loading dès la première recette
+            });
+            loadedCount++;
+            // Petit délai pour l'effet visuel progressif
+            await Future.delayed(const Duration(milliseconds: 50));
+          } else {
+            // Pages suivantes : chargement plus rapide
+            setState(() {
+              _recipes.add(recipe);
+              _isLoadingMore = false;
+            });
+            loadedCount++;
+          }
+        } else {
+          // On a chargé toutes les recettes de cette page
           break;
         }
       }
