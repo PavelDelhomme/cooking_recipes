@@ -56,17 +56,59 @@ class RecipeCardVariants {
                   spacing: 4,
                   runSpacing: 4,
                   children: [
+                    if (recipe.readyInMinutes != null)
+                      Chip(
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.timer_outlined, size: 12, color: Theme.of(context).colorScheme.onSurface),
+                            const SizedBox(width: 4),
+                            Text('${recipe.readyInMinutes} min', style: TextStyle(fontSize: 10)),
+                          ],
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ),
                     if (recipe.prepTimeMinutes != null)
                       Chip(
-                        label: Text('${recipe.prepTimeMinutes}m', style: TextStyle(fontSize: 10)),
-                        padding: EdgeInsets.zero,
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.restaurant_outlined, size: 12, color: Theme.of(context).colorScheme.onSurface),
+                            const SizedBox(width: 4),
+                            Text('Prép: ${recipe.prepTimeMinutes}m', style: TextStyle(fontSize: 10)),
+                          ],
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         visualDensity: VisualDensity.compact,
                       ),
                     if (recipe.cookTimeMinutes != null)
                       Chip(
-                        label: Text('${recipe.cookTimeMinutes}m', style: TextStyle(fontSize: 10)),
-                        padding: EdgeInsets.zero,
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.local_fire_department_outlined, size: 12, color: Theme.of(context).colorScheme.onSurface),
+                            const SizedBox(width: 4),
+                            Text('Cuisson: ${recipe.cookTimeMinutes}m', style: TextStyle(fontSize: 10)),
+                          ],
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    if (recipe.servings != null)
+                      Chip(
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.people_outline, size: 12, color: Theme.of(context).colorScheme.onSurface),
+                            const SizedBox(width: 4),
+                            Text('${recipe.servings} pers.', style: TextStyle(fontSize: 10)),
+                          ],
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         visualDensity: VisualDensity.compact,
                       ),
@@ -125,20 +167,46 @@ class RecipeCardVariants {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Row(
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
                     children: [
+                      if (recipe.readyInMinutes != null)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.timer_outlined, size: 14, color: Theme.of(context).colorScheme.primary),
+                            const SizedBox(width: 4),
+                            Text('${recipe.readyInMinutes} min', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
                       if (recipe.prepTimeMinutes != null)
-                        Icon(Icons.timer, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      if (recipe.prepTimeMinutes != null) ...[
-                        const SizedBox(width: 4),
-                        Text('${recipe.prepTimeMinutes}m', style: TextStyle(fontSize: 11)),
-                      ],
-                      if (recipe.cookTimeMinutes != null) ...[
-                        const SizedBox(width: 12),
-                        Icon(Icons.local_fire_department, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        const SizedBox(width: 4),
-                        Text('${recipe.cookTimeMinutes}m', style: TextStyle(fontSize: 11)),
-                      ],
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.restaurant_outlined, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            const SizedBox(width: 4),
+                            Text('Prép: ${recipe.prepTimeMinutes}m', style: TextStyle(fontSize: 11)),
+                          ],
+                        ),
+                      if (recipe.cookTimeMinutes != null)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.local_fire_department_outlined, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            const SizedBox(width: 4),
+                            Text('Cuisson: ${recipe.cookTimeMinutes}m', style: TextStyle(fontSize: 11)),
+                          ],
+                        ),
+                      if (recipe.servings != null)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.people_outline, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            const SizedBox(width: 4),
+                            Text('${recipe.servings} pers.', style: TextStyle(fontSize: 11)),
+                          ],
+                        ),
                     ],
                   ),
                 ],
@@ -204,10 +272,49 @@ class RecipeCardVariants {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  if (recipe.readyInMinutes != null) ...[
-                    const SizedBox(height: 4),
-                    Text('${recipe.readyInMinutes} min', style: const TextStyle(fontSize: 11, color: Colors.white70)),
-                  ],
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      if (recipe.readyInMinutes != null)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.timer_outlined, size: 14, color: Colors.white),
+                            const SizedBox(width: 4),
+                            Text('${recipe.readyInMinutes} min', style: const TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      if (recipe.prepTimeMinutes != null)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.restaurant_outlined, size: 14, color: Colors.white70),
+                            const SizedBox(width: 4),
+                            Text('Prép: ${recipe.prepTimeMinutes}m', style: const TextStyle(fontSize: 11, color: Colors.white70)),
+                          ],
+                        ),
+                      if (recipe.cookTimeMinutes != null)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.local_fire_department_outlined, size: 14, color: Colors.white70),
+                            const SizedBox(width: 4),
+                            Text('Cuisson: ${recipe.cookTimeMinutes}m', style: const TextStyle(fontSize: 11, color: Colors.white70)),
+                          ],
+                        ),
+                      if (recipe.servings != null)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.people_outline, size: 14, color: Colors.white70),
+                            const SizedBox(width: 4),
+                            Text('${recipe.servings} pers.', style: const TextStyle(fontSize: 11, color: Colors.white70)),
+                          ],
+                        ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -252,6 +359,22 @@ class RecipeCardVariants {
                   spacing: 4,
                   direction: Axis.vertical,
                   children: [
+                    if (recipe.readyInMinutes != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.timer_outlined, size: 12, color: Colors.white),
+                            const SizedBox(width: 4),
+                            Text('${recipe.readyInMinutes} min', style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ),
                     if (recipe.prepTimeMinutes != null)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
@@ -259,7 +382,14 @@ class RecipeCardVariants {
                           color: Colors.black.withOpacity(0.6),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text('${recipe.prepTimeMinutes}m', style: const TextStyle(fontSize: 10, color: Colors.white)),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.restaurant_outlined, size: 10, color: Colors.white),
+                            const SizedBox(width: 4),
+                            Text('Prép: ${recipe.prepTimeMinutes}m', style: const TextStyle(fontSize: 10, color: Colors.white)),
+                          ],
+                        ),
                       ),
                     if (recipe.cookTimeMinutes != null)
                       Container(
@@ -268,7 +398,30 @@ class RecipeCardVariants {
                           color: Colors.black.withOpacity(0.6),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text('${recipe.cookTimeMinutes}m', style: const TextStyle(fontSize: 10, color: Colors.white)),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.local_fire_department_outlined, size: 10, color: Colors.white),
+                            const SizedBox(width: 4),
+                            Text('Cuisson: ${recipe.cookTimeMinutes}m', style: const TextStyle(fontSize: 10, color: Colors.white)),
+                          ],
+                        ),
+                      ),
+                    if (recipe.servings != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.people_outline, size: 10, color: Colors.white),
+                            const SizedBox(width: 4),
+                            Text('${recipe.servings} pers.', style: const TextStyle(fontSize: 10, color: Colors.white)),
+                          ],
+                        ),
                       ),
                   ],
                 ),
@@ -338,17 +491,36 @@ class RecipeCardVariants {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
                   children: [
+                    if (recipe.readyInMinutes != null)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.timer_outlined, size: 12, color: Theme.of(context).colorScheme.primary),
+                          const SizedBox(width: 4),
+                          Text('${recipe.readyInMinutes} min', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
+                        ],
+                      ),
                     if (recipe.prepTimeMinutes != null)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.timer_outlined, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          Icon(Icons.restaurant_outlined, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           const SizedBox(width: 4),
-                          Text('${recipe.prepTimeMinutes}m', style: TextStyle(fontSize: 10)),
+                          Text('Prép: ${recipe.prepTimeMinutes}m', style: TextStyle(fontSize: 10)),
+                        ],
+                      ),
+                    if (recipe.cookTimeMinutes != null)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.local_fire_department_outlined, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          const SizedBox(width: 4),
+                          Text('Cuisson: ${recipe.cookTimeMinutes}m', style: TextStyle(fontSize: 10)),
                         ],
                       ),
                     if (recipe.servings != null)
@@ -357,7 +529,7 @@ class RecipeCardVariants {
                         children: [
                           Icon(Icons.people_outline, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           const SizedBox(width: 4),
-                          Text('${recipe.servings}', style: TextStyle(fontSize: 10)),
+                          Text('${recipe.servings} pers.', style: TextStyle(fontSize: 10)),
                         ],
                       ),
                   ],
@@ -367,6 +539,350 @@ class RecipeCardVariants {
               ),
             ),
           ],
+          );
+        },
+      ),
+    );
+  }
+
+  // Variante 6: Carte détaillée avec liste d'ingrédients et début d'instructions
+  static Widget variant6(Recipe recipe, BuildContext context) {
+    // Extraire les premiers ingrédients (max 5)
+    final firstIngredients = recipe.ingredients.take(5).toList();
+    // Extraire le début des instructions (première phrase ou 100 caractères)
+    String? instructionsPreview;
+    if (recipe.instructions.isNotEmpty) {
+      final firstInstruction = recipe.instructions[0];
+      if (firstInstruction.length > 100) {
+        instructionsPreview = '${firstInstruction.substring(0, 100)}...';
+      } else {
+        instructionsPreview = firstInstruction;
+      }
+    }
+    // Extraire le début du résumé si disponible
+    String? summaryPreview;
+    if (recipe.summary != null && recipe.summary!.isNotEmpty) {
+      final cleanSummary = recipe.summary!.replaceAll(RegExp(r'<[^>]*>'), ''); // Enlever les balises HTML
+      if (cleanSummary.length > 120) {
+        summaryPreview = '${cleanSummary.substring(0, 120)}...';
+      } else {
+        summaryPreview = cleanSummary;
+      }
+    }
+
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      clipBehavior: Clip.antiAlias,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Image
+              if (recipe.image != null)
+                Image.network(
+                  recipe.image!,
+                  width: double.infinity,
+                  height: constraints.maxHeight * 0.4,
+                  fit: BoxFit.cover,
+                  cacheWidth: 400,
+                )
+              else
+                Container(
+                  width: double.infinity,
+                  height: constraints.maxHeight * 0.4,
+                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  child: Icon(Icons.restaurant, size: 50, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+              // Contenu détaillé
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Titre
+                        TranslationBuilder(
+                          builder: (context) => Text(
+                            TranslationService.translateRecipeNameSync(recipe.title),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, height: 1.2),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        // Informations rapides (temps et portions)
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
+                          children: [
+                            if (recipe.readyInMinutes != null)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primaryContainer,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.timer_outlined, size: 14, color: Theme.of(context).colorScheme.onPrimaryContainer),
+                                    const SizedBox(width: 4),
+                                    Text('${recipe.readyInMinutes} min', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onPrimaryContainer)),
+                                  ],
+                                ),
+                              ),
+                            if (recipe.prepTimeMinutes != null)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.restaurant_outlined, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  const SizedBox(width: 4),
+                                  Text('Prép: ${recipe.prepTimeMinutes}m', style: TextStyle(fontSize: 11)),
+                                ],
+                              ),
+                            if (recipe.cookTimeMinutes != null)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.local_fire_department_outlined, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  const SizedBox(width: 4),
+                                  Text('Cuisson: ${recipe.cookTimeMinutes}m', style: TextStyle(fontSize: 11)),
+                                ],
+                              ),
+                            if (recipe.servings != null)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.people_outline, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  const SizedBox(width: 4),
+                                  Text('${recipe.servings} pers.', style: TextStyle(fontSize: 11)),
+                                ],
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        // Résumé si disponible
+                        if (summaryPreview != null) ...[
+                          Text(
+                            summaryPreview,
+                            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        // Liste des ingrédients principaux
+                        if (firstIngredients.isNotEmpty) ...[
+                          Text(
+                            'Ingrédients principaux:',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
+                          ),
+                          const SizedBox(height: 6),
+                          ...firstIngredients.map((ingredient) => Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.circle, size: 4, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    ingredient.name,
+                                    style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
+                          if (recipe.ingredients.length > 5)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                '+ ${recipe.ingredients.length - 5} autres ingrédients...',
+                                style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              ),
+                            ),
+                          const SizedBox(height: 12),
+                        ],
+                        // Début des instructions
+                        if (instructionsPreview != null) ...[
+                          Text(
+                            'Instructions:',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            instructionsPreview,
+                            style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // Variante 7: Carte compacte avec aperçu des ingrédients en badges
+  static Widget variant7(Recipe recipe, BuildContext context) {
+    // Extraire les 3 premiers ingrédients pour les badges
+    final topIngredients = recipe.ingredients.take(3).toList();
+
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      clipBehavior: Clip.antiAlias,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Image avec overlay d'informations
+              Stack(
+                children: [
+                  if (recipe.image != null)
+                    Image.network(
+                      recipe.image!,
+                      width: double.infinity,
+                      height: constraints.maxHeight * 0.55,
+                      fit: BoxFit.cover,
+                      cacheWidth: 350,
+                    )
+                  else
+                    Container(
+                      width: double.infinity,
+                      height: constraints.maxHeight * 0.55,
+                      color: Theme.of(context).colorScheme.surfaceVariant,
+                      child: Icon(Icons.restaurant, size: 45, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
+                  // Overlay avec temps total
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.timer_outlined, size: 14, color: Colors.white),
+                          const SizedBox(width: 4),
+                          if (recipe.readyInMinutes != null)
+                            Text('${recipe.readyInMinutes} min', style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              // Contenu
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Titre
+                      TranslationBuilder(
+                        builder: (context) => Text(
+                          TranslationService.translateRecipeNameSync(recipe.title),
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, height: 1.2),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Informations rapides
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          if (recipe.prepTimeMinutes != null)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.restaurant_outlined, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                const SizedBox(width: 4),
+                                Text('${recipe.prepTimeMinutes}m', style: TextStyle(fontSize: 10)),
+                              ],
+                            ),
+                          if (recipe.cookTimeMinutes != null)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.local_fire_department_outlined, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                const SizedBox(width: 4),
+                                Text('${recipe.cookTimeMinutes}m', style: TextStyle(fontSize: 10)),
+                              ],
+                            ),
+                          if (recipe.servings != null)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.people_outline, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                const SizedBox(width: 4),
+                                Text('${recipe.servings}', style: TextStyle(fontSize: 10)),
+                              ],
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // Badges d'ingrédients principaux
+                      if (topIngredients.isNotEmpty) ...[
+                        Text(
+                          'Ingrédients:',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
+                        ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: topIngredients.map((ingredient) => Chip(
+                            label: Text(
+                              ingredient.name,
+                              style: TextStyle(fontSize: 10),
+                            ),
+                            padding: EdgeInsets.zero,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                          )).toList(),
+                        ),
+                        if (recipe.ingredients.length > 3)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              '+ ${recipe.ingredients.length - 3} autres',
+                              style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            ),
+                          ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),

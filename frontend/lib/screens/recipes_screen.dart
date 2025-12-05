@@ -33,7 +33,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   List<String> _searchSuggestions = [];
   bool _isLoadingSearchSuggestions = false;
   bool _suggestionsLoaded = false; // Flag pour savoir si les suggestions ont été chargées
-  int _cardVariant = 1; // Variante de carte actuelle (1-5)
+  int _cardVariant = 1; // Variante de carte actuelle (1-7)
   static const String _cardVariantKey = 'recipe_card_variant';
   final ScrollController _scrollController = ScrollController();
   int _currentPage = 0;
@@ -403,6 +403,26 @@ class _RecipesScreenState extends State<RecipesScreen> {
                           if (_cardVariant == 5) const Icon(Icons.check, size: 20),
                           if (_cardVariant == 5) const SizedBox(width: 8),
                           const Text('Style 5: Minimaliste'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 6,
+                      child: Row(
+                        children: [
+                          if (_cardVariant == 6) const Icon(Icons.check, size: 20),
+                          if (_cardVariant == 6) const SizedBox(width: 8),
+                          const Text('Style 6: Détaillée'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 7,
+                      child: Row(
+                        children: [
+                          if (_cardVariant == 7) const Icon(Icons.check, size: 20),
+                          if (_cardVariant == 7) const SizedBox(width: 8),
+                          const Text('Style 7: Avec ingrédients'),
                         ],
                       ),
                     ),
@@ -1158,6 +1178,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
         return RecipeCardVariants.variant4(recipe, context);
       case 5:
         return RecipeCardVariants.variant5(recipe, context);
+      case 6:
+        return RecipeCardVariants.variant6(recipe, context);
+      case 7:
+        return RecipeCardVariants.variant7(recipe, context);
       default:
         return RecipeCardVariants.variant1(recipe, context);
     }
@@ -1172,6 +1196,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
       3: {'mobile': 0.8, 'tablet': 0.7, 'desktop': 0.65},    // Overlay
       4: {'mobile': 0.85, 'tablet': 0.75, 'desktop': 0.7},  // Badges
       5: {'mobile': 0.9, 'tablet': 0.8, 'desktop': 0.75},   // Minimaliste
+      6: {'mobile': 1.1, 'tablet': 1.0, 'desktop': 0.95},   // Détaillée (plus haute)
+      7: {'mobile': 1.0, 'tablet': 0.9, 'desktop': 0.85},   // Avec ingrédients
     };
 
     final heights = variantHeights[_cardVariant] ?? variantHeights[1]!;

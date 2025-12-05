@@ -65,6 +65,10 @@ class _RecipeCardTestScreenState extends State<RecipeCardTestScreen> {
         return RecipeCardVariants.variant4(recipe, context);
       case 5:
         return RecipeCardVariants.variant5(recipe, context);
+      case 6:
+        return RecipeCardVariants.variant6(recipe, context);
+      case 7:
+        return RecipeCardVariants.variant7(recipe, context);
       default:
         return RecipeCardVariants.variant1(recipe, context);
     }
@@ -124,10 +128,19 @@ class _RecipeCardTestScreenState extends State<RecipeCardTestScreen> {
                               Wrap(
                                 spacing: 8,
                                 runSpacing: 8,
-                                children: List.generate(5, (index) {
+                                children: List.generate(7, (index) {
                                   final variant = index + 1;
+                                  final labels = [
+                                    'Compacte',
+                                    'Horizontale',
+                                    'Overlay',
+                                    'Badges',
+                                    'Minimaliste',
+                                    'Détaillée',
+                                    'Avec ingrédients',
+                                  ];
                                   return ChoiceChip(
-                                    label: Text('Variante $variant'),
+                                    label: Text('V$variant: ${labels[index]}'),
                                     selected: _selectedVariant == variant,
                                     onSelected: (selected) {
                                       if (selected) {
@@ -169,7 +182,7 @@ class _RecipeCardTestScreenState extends State<RecipeCardTestScreen> {
                                 return isWide
                                     ? Row(
                                         crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: List.generate(5, (index) {
+                                        children: List.generate(7, (index) {
                                           final variant = index + 1;
                                           return Expanded(
                                             child: Padding(
@@ -213,7 +226,7 @@ class _RecipeCardTestScreenState extends State<RecipeCardTestScreen> {
                                         }),
                                       )
                                     : Column(
-                                        children: List.generate(5, (index) {
+                                        children: List.generate(7, (index) {
                                           final variant = index + 1;
                                           return Padding(
                                             padding: const EdgeInsets.only(bottom: 24),
