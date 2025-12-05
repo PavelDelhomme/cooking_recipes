@@ -33,7 +33,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   List<String> _searchSuggestions = [];
   bool _isLoadingSearchSuggestions = false;
   bool _suggestionsLoaded = false; // Flag pour savoir si les suggestions ont été chargées
-  int _cardVariant = 1; // Variante de carte actuelle (1-7)
+  int _cardVariant = 6; // Variante de carte actuelle (fixée à 6 - Détaillée)
   static const String _cardVariantKey = 'recipe_card_variant';
   final ScrollController _scrollController = ScrollController();
   int _currentPage = 0;
@@ -42,8 +42,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
   @override
   void initState() {
     super.initState();
-    // Charger la variante sauvegardée
-    _loadCardVariant();
+    // Variante fixée à 6 (Détaillée) - plus de chargement nécessaire
+    // _loadCardVariant(); // Désactivé
     // Écouter les changements dans le champ de recherche pour l'autocomplétion
     _searchController.addListener(_onSearchChanged);
     // Écouter le scroll pour le chargement infini
@@ -66,15 +66,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
   }
 
   Future<void> _loadCardVariant() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final savedVariant = prefs.getInt(_cardVariantKey);
-      if (savedVariant != null && savedVariant >= 1 && savedVariant <= 5) {
-        setState(() => _cardVariant = savedVariant);
-      }
-    } catch (e) {
-      // Utiliser la variante par défaut en cas d'erreur
-    }
+    // Variante fixée à 6 (Détaillée) - plus de chargement nécessaire
+    // Gardé pour compatibilité mais toujours 6
   }
 
   Future<void> _saveCardVariant(int variant) async {
@@ -342,92 +335,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                PopupMenuButton<int>(
-                  icon: const Icon(Icons.view_module),
-                  tooltip: 'Changer le style de carte',
-                  onSelected: (value) async {
-                    setState(() => _cardVariant = value);
-                    await _saveCardVariant(value);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Style de carte ${value} sélectionné'),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 1,
-                      child: Row(
-                        children: [
-                          if (_cardVariant == 1) const Icon(Icons.check, size: 20),
-                          if (_cardVariant == 1) const SizedBox(width: 8),
-                          const Text('Style 1: Compacte'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 2,
-                      child: Row(
-                        children: [
-                          if (_cardVariant == 2) const Icon(Icons.check, size: 20),
-                          if (_cardVariant == 2) const SizedBox(width: 8),
-                          const Text('Style 2: Horizontale'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 3,
-                      child: Row(
-                        children: [
-                          if (_cardVariant == 3) const Icon(Icons.check, size: 20),
-                          if (_cardVariant == 3) const SizedBox(width: 8),
-                          const Text('Style 3: Overlay'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 4,
-                      child: Row(
-                        children: [
-                          if (_cardVariant == 4) const Icon(Icons.check, size: 20),
-                          if (_cardVariant == 4) const SizedBox(width: 8),
-                          const Text('Style 4: Badges'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 5,
-                      child: Row(
-                        children: [
-                          if (_cardVariant == 5) const Icon(Icons.check, size: 20),
-                          if (_cardVariant == 5) const SizedBox(width: 8),
-                          const Text('Style 5: Minimaliste'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 6,
-                      child: Row(
-                        children: [
-                          if (_cardVariant == 6) const Icon(Icons.check, size: 20),
-                          if (_cardVariant == 6) const SizedBox(width: 8),
-                          const Text('Style 6: Détaillée'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 7,
-                      child: Row(
-                        children: [
-                          if (_cardVariant == 7) const Icon(Icons.check, size: 20),
-                          if (_cardVariant == 7) const SizedBox(width: 8),
-                          const Text('Style 7: Avec ingrédients'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                // Menu de sélection des variantes désactivé - Variante 6 (Détaillée) fixée
               ],
             ),
           ),
@@ -692,7 +600,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Utilisez le menu (icône view_module) pour changer le style des cartes',
+              'Cartes de recettes détaillées avec ingrédients et instructions',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,

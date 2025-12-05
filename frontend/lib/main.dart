@@ -7,7 +7,7 @@ import 'screens/recipes_screen.dart';
 import 'screens/meal_plan_screen.dart';
 import 'screens/shopping_list_screen.dart' show ShoppingListScreen, ShoppingListScreenState;
 import 'screens/profile_screen.dart';
-import 'screens/recipe_card_test_screen.dart';
+// import 'screens/recipe_card_test_screen.dart'; // Désactivé - variante 6 fixée
 import 'screens/auth_screen.dart';
 import 'screens/favorites_screen.dart';
 import 'screens/recipe_history_screen.dart';
@@ -558,19 +558,20 @@ class _MainScreenState extends State<MainScreen> {
               _loadProfile();
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.view_module),
-            title: const Text('Test Variantes Cartes'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const RecipeCardTestScreen(),
-                ),
-              );
-            },
-          ),
+          // Écran de test des variantes désactivé - Variante 6 (Détaillée) fixée
+          // ListTile(
+          //   leading: const Icon(Icons.view_module),
+          //   title: const Text('Test Variantes Cartes'),
+          //   onTap: () {
+          //     Navigator.pop(context);
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) => const RecipeCardTestScreen(),
+          //       ),
+          //     );
+          //   },
+          // ),
           ListTile(
             leading: Icon(
               Icons.kitchen,
