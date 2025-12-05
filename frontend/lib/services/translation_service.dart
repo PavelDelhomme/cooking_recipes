@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'locale_service.dart';
 import 'auto_translator.dart';
 import 'culinary_dictionary_loader.dart';
-import 'auto_translator.dart';
+import 'libretranslate_service.dart';
 
 /// Service de traduction pour convertir les éléments de recettes
 class TranslationService extends ChangeNotifier {
@@ -386,15 +386,47 @@ class TranslationService extends ChangeNotifier {
   }
 
   /// Traduit un ingrédient (méthode statique pour compatibilité)
-  static String translateIngredient(String ingredient) {
-    // Si la langue est française, utiliser le traducteur automatique
+  static Future<String> translateIngredient(String ingredient) async {
+    if (ingredient.isEmpty) return ingredient;
+    
+    // 1. Essayer LibreTranslate d'abord (si disponible)
+    if (_instance._currentLanguage != 'en') {
+      try {
+        final libreTranslate = LibreTranslateService();
+        final translated = await libreTranslate.translateIngredient(
+          ingredient,
+          target: _instance._currentLanguage,
+        );
+        if (translated != null && translated.isNotEmpty) {
+          return translated;
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('⚠️ LibreTranslate erreur, fallback sur dictionnaires: $e');
+        }
+      }
+    }
+    
+    // 2. Fallback sur AutoTranslator (dictionnaires JSON)
     if (_instance._currentLanguage == 'fr') {
       final autoTranslated = AutoTranslator.translateWord(ingredient);
       if (autoTranslated != ingredient && autoTranslated.toLowerCase() != ingredient.toLowerCase()) {
         return autoTranslated;
       }
     }
-    // Fallback sur l'ancien système
+    
+    // 3. Fallback sur l'ancien système
+    return _instance.translateIngredientInstance(ingredient);
+  }
+  
+  // Version synchrone pour compatibilité (utilise le fallback uniquement)
+  static String translateIngredientSync(String ingredient) {
+    if (_instance._currentLanguage == 'fr') {
+      final autoTranslated = AutoTranslator.translateWord(ingredient);
+      if (autoTranslated != ingredient && autoTranslated.toLowerCase() != ingredient.toLowerCase()) {
+        return autoTranslated;
+      }
+    }
     return _instance.translateIngredientInstance(ingredient);
   }
 
@@ -472,7 +504,44 @@ class TranslationService extends ChangeNotifier {
   }
 
   /// Traduit le nom d'une recette
-  static String translateRecipeName(String recipeName) {
+  static Future<String> translateRecipeName(String recipeName) async {
+    if (recipeName.isEmpty) return recipeName;
+    
+    // Nettoyer l'encodage d'abord
+    String cleaned = fixEncoding(recipeName);
+    
+    // 1. Essayer LibreTranslate d'abord (si disponible)
+    if (_instance._currentLanguage != 'en') {
+      try {
+        final libreTranslate = LibreTranslateService();
+        final translated = await libreTranslate.translateRecipeName(
+          cleaned,
+          target: _instance._currentLanguage,
+        );
+        if (translated != null && translated.isNotEmpty) {
+          return translated;
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('⚠️ LibreTranslate erreur, fallback sur dictionnaires: $e');
+        }
+      }
+    }
+    
+    // 2. Fallback sur AutoTranslator (dictionnaires JSON)
+    if (_instance._currentLanguage == 'fr') {
+      final autoTranslated = AutoTranslator.translateRecipeName(cleaned);
+      if (autoTranslated != cleaned && autoTranslated.toLowerCase() != cleaned.toLowerCase()) {
+        return autoTranslated;
+      }
+    }
+    
+    // 3. Fallback sur l'ancien système
+    return translateRecipeNameSync(recipeName);
+  }
+  
+  // Version synchrone pour compatibilité (utilise uniquement les dictionnaires)
+  static String translateRecipeNameSync(String recipeName) {
     if (recipeName.isEmpty) return recipeName;
     
     // Nettoyer l'encodage d'abord

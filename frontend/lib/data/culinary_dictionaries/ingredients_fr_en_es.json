@@ -7,34 +7,29 @@
       "fr",
       "es"
     ],
-    "total_terms": 375,
+    "total_terms": 450,
     "last_updated": "2025-12-04"
   },
   "ingredients": {
-    "all purpose flour": {
-      "en": "All purpose flour",
-      "fr": "Farine tout usage",
-      "es": "All purpose flour"
-    },
     "almond essence": {
       "en": "Almond Essence",
       "fr": "Arôme d'amande",
-      "es": "Almond Essence"
+      "es": "Esencia de almendra"
     },
     "almonds": {
       "en": "Almonds",
       "fr": "Amandes",
-      "es": "Almonds"
+      "es": "Almendras"
     },
     "aubergine": {
       "en": "Aubergine",
       "fr": "Aubergine",
-      "es": "Aubergine"
+      "es": "Berenjena"
     },
     "bacon": {
       "en": "Bacon",
       "fr": "Bacon",
-      "es": "Bacon"
+      "es": "Tocino"
     },
     "baguette": {
       "en": "Baguette",
@@ -44,37 +39,37 @@
     "baking powder": {
       "en": "Baking Powder",
       "fr": "Poudre à pâte",
-      "es": "Baking Powder"
+      "es": "Polvo de hornear"
     },
     "balsamic vinegar": {
       "en": "Balsamic Vinegar",
       "fr": "Vinaigre balsamique",
-      "es": "Balsamic Vinegar"
+      "es": "Vinagre"
     },
     "banana": {
       "en": "Banana",
-      "fr": "Banana",
-      "es": "Banana"
+      "fr": "Banane",
+      "es": "Plátano"
     },
     "basil leaves": {
       "en": "Basil Leaves",
       "fr": "Feuilles de basilic",
-      "es": "Basil Leaves"
+      "es": "Hojas de albahaca"
     },
     "bay leaf": {
       "en": "Bay Leaf",
       "fr": "Feuille de laurier",
-      "es": "Bay Leaf"
+      "es": "Hoja de laurel"
     },
     "bay leaves": {
       "en": "bay leaves",
       "fr": "Feuilles de laurier",
-      "es": "bay leaves"
+      "es": "Hojas de laurel"
     },
     "bean sprouts": {
       "en": "Bean Sprouts",
       "fr": "Haricots verts",
-      "es": "Bean Sprouts"
+      "es": "Brotes de soja"
     },
     "beef": {
       "en": "Beef",
@@ -84,22 +79,22 @@
     "beef brisket": {
       "en": "Beef Brisket",
       "fr": "Brisket de bœuf",
-      "es": "Beef Brisket"
+      "es": "Pecho de res"
     },
     "beef cutlet": {
       "en": "Beef Cutlet",
       "fr": "Filet de bœuf",
-      "es": "Beef Cutlet"
+      "es": "Chuleta de res"
     },
     "beef stock": {
       "en": "Beef Stock",
       "fr": "Bouillon de bœuf",
-      "es": "Beef Stock"
+      "es": "Caldo de res"
     },
     "beetroot": {
       "en": "Beetroot",
       "fr": "Betterave",
-      "es": "Beetroot"
+      "es": "Remolacha"
     },
     "bicarbonate of soda": {
       "en": "Bicarbonate Of Soda",
@@ -128,7 +123,7 @@
     },
     "brandy": {
       "en": "Brandy",
-      "fr": "Brandy",
+      "fr": "Cognac",
       "es": "Brandy"
     },
     "bread": {
@@ -138,33 +133,38 @@
     },
     "breadcrumbs": {
       "en": "Breadcrumbs",
-      "fr": "Pulpe de pain",
-      "es": "Breadcrumbs"
+      "fr": "Chapelure",
+      "es": "Pan rallado"
+    },
+    "panko breadcrumbs": {
+      "en": "Panko breadcrumbs",
+      "fr": "Chapelure panko",
+      "es": "Pan rallado panko"
     },
     "broccoli": {
       "en": "Broccoli",
       "fr": "Brocoli",
-      "es": "Broccoli"
+      "es": "Brócoli"
     },
     "brown lentils": {
       "en": "Brown Lentils",
       "fr": "Lentilles brunes",
-      "es": "Brown Lentils"
+      "es": "Lentejas marrones"
     },
     "brown rice noodle": {
       "en": "Brown Rice Noodle",
       "fr": "Nouilles de riz brun",
-      "es": "Brown Rice Noodle"
+      "es": "Fideo de arroz integral"
     },
     "brown sugar": {
       "en": "Brown Sugar",
       "fr": "Sucre brun",
-      "es": "Brown Sugar"
+      "es": "Azúcar moreno"
     },
     "buns": {
       "en": "Buns",
       "fr": "Buns de pain",
-      "es": "Buns"
+      "es": "Bollos"
     },
     "butter": {
       "en": "butter",
@@ -174,67 +174,67 @@
     "butternut squash": {
       "en": "Butternut Squash",
       "fr": "Courge butternut",
-      "es": "Butternut Squash"
+      "es": "Calabaza butternut"
     },
     "cabbage": {
       "en": "Cabbage",
       "fr": "Chou",
-      "es": "Cabbage"
+      "es": "Repollo"
     },
     "can of chickpeas": {
       "en": "Can of chickpeas",
       "fr": "Conteneur de pois chiche",
-      "es": "Can of chickpeas"
+      "es": "Lata de garbanzos"
     },
     "canned tomatoes": {
       "en": "Canned tomatoes",
       "fr": "Tomates en conserve",
-      "es": "Canned tomatoes"
+      "es": "Canned tomates"
     },
     "cannellini beans": {
       "en": "Cannellini Beans",
       "fr": "Haricots cannellini",
-      "es": "Cannellini Beans"
+      "es": "Judías cannellini"
     },
     "canola oil": {
       "en": "Canola Oil",
       "fr": "Huile de canola",
-      "es": "Canola Oil"
+      "es": "Aceite de canola"
     },
     "cardamom": {
       "en": "Cardamom",
-      "fr": "Cardamom",
-      "es": "Cardamom"
+      "fr": "Cardamome",
+      "es": "Cardamomo"
     },
     "carrots": {
       "en": "Carrots",
       "fr": "Carottes",
-      "es": "Carrots"
+      "es": "Zanahorias"
     },
     "cashew nuts": {
       "en": "Cashew Nuts",
       "fr": "Noix de cajou",
-      "es": "Cashew Nuts"
+      "es": "Anacardos"
     },
     "caster sugar": {
       "en": "caster sugar",
       "fr": "Sucre en poudre",
-      "es": "caster sugar"
+      "es": "Azúcar"
     },
     "cayenne pepper": {
       "en": "Cayenne Pepper",
       "fr": "Piment de Cayenne",
-      "es": "Cayenne Pepper"
+      "es": "Cayenne pimienta"
     },
     "celery": {
       "en": "Celery",
       "fr": "Céleri",
-      "es": "Celery"
+      "es": "Apio"
     },
     "challots": {
       "en": "Challots",
       "fr": "Échalotes",
-      "es": "Challots"
+      "es": "Chalotas"
     },
     "cheese": {
       "en": "Cheese",
@@ -244,62 +244,62 @@
     "cherry tomatoes": {
       "en": "Cherry Tomatoes",
       "fr": "Tomates cerises",
-      "es": "Cherry Tomatoes"
+      "es": "Cherry tomates"
     },
     "chicken breast": {
       "en": "chicken breast",
       "fr": "Poulet fermier",
-      "es": "chicken breast"
+      "es": "Pechuga de pollo"
     },
     "chicken breasts": {
       "en": "chicken breasts",
       "fr": "Poulets fermiers",
-      "es": "chicken breasts"
+      "es": "Pechugas de pollo"
     },
     "chicken legs": {
       "en": "Chicken Legs",
       "fr": "Jambes de poulet",
-      "es": "Chicken Legs"
+      "es": "Muslos de pollo"
     },
     "chicken stock": {
       "en": "chicken stock",
       "fr": "Bouillon de poulet",
-      "es": "chicken stock"
+      "es": "Caldo de pollo"
     },
     "chicken thighs": {
       "en": "chicken thighs",
       "fr": "Cuisses de poulet",
-      "es": "chicken thighs"
+      "es": "Muslos de pollo"
     },
     "chickpea flour": {
       "en": "Chickpea Flour",
       "fr": "Farine de pois chiche",
-      "es": "Chickpea Flour"
+      "es": "Harina"
     },
     "chickpeas": {
       "en": "Chickpeas",
       "fr": "Pois chiche",
-      "es": "Chickpeas"
+      "es": "Garbanzos"
     },
     "chilli flakes": {
       "en": "Chilli Flakes",
       "fr": "Piments en poudre",
-      "es": "Chilli Flakes"
+      "es": "Copos de chile"
     },
     "chilli sauce": {
       "en": "Chilli Sauce",
       "fr": "Sauce de piment",
-      "es": "Chilli Sauce"
+      "es": "Salsa"
     },
     "chives": {
       "en": "Chives",
-      "fr": "Chives",
-      "es": "Chives"
+      "fr": "Ciboulette",
+      "es": "Cebollino"
     },
     "chopped tomatoes": {
       "en": "chopped tomatoes",
       "fr": "Tomates coupées",
-      "es": "chopped tomatoes"
+      "es": "Chopped tomates"
     },
     "chorizo": {
       "en": "Chorizo",
@@ -319,7 +319,7 @@
     "cinnamon": {
       "en": "cinnamon",
       "fr": "Cannelle",
-      "es": "cinnamon"
+      "es": "Canela"
     },
     "clams": {
       "en": "Clams",
@@ -329,12 +329,12 @@
     "clear honey": {
       "en": "Clear Honey",
       "fr": "Miel clair",
-      "es": "Clear Honey"
+      "es": "Clear honey"
     },
     "coconut milk": {
       "en": "Coconut Milk",
       "fr": "Lait de coco",
-      "es": "Coconut Milk"
+      "es": "Coconut leche"
     },
     "cod": {
       "en": "Cod",
@@ -344,22 +344,22 @@
     "coriander": {
       "en": "coriander",
       "fr": "Coriandre",
-      "es": "coriander"
+      "es": "Cilantro"
     },
     "coriander leaves": {
       "en": "Coriander Leaves",
       "fr": "Feuilles de coriandre",
-      "es": "Coriander Leaves"
+      "es": "Hojas de cilantro"
     },
     "corn flour": {
       "en": "Corn Flour",
       "fr": "Farine de maïs",
-      "es": "Corn Flour"
+      "es": "Harina"
     },
     "cornstarch": {
       "en": "Cornstarch",
       "fr": "Farine de maïs",
-      "es": "Cornstarch"
+      "es": "Maicena"
     },
     "courgettes": {
       "en": "Courgettes",
@@ -374,12 +374,12 @@
     "cream of tartar": {
       "en": "Cream Of Tartar",
       "fr": "Crème de tartare",
-      "es": "Cream Of Tartar"
+      "es": "Crema de tártaro"
     },
     "creme fraiche": {
       "en": "Creme Fraiche",
-      "fr": "Creme Fraiche",
-      "es": "Creme Fraiche"
+      "fr": "Crème fraîche",
+      "es": "Crema fresca"
     },
     "cucumber": {
       "en": "Cucumber",
@@ -389,7 +389,7 @@
     "cumin": {
       "en": "Cumin",
       "fr": "Cumin (cumin)",
-      "es": "Cumin"
+      "es": "Comino"
     },
     "cumin seeds": {
       "en": "Cumin seeds",
@@ -399,32 +399,27 @@
     "curry powder": {
       "en": "Curry Powder",
       "fr": "Poudre de curry",
-      "es": "Curry Powder"
+      "es": "Curry powder"
     },
     "custard": {
       "en": "Custard",
       "fr": "Crème pâtissière",
       "es": "Custard"
     },
-    "dark brown soft sugar": {
-      "en": "Dark Brown Soft Sugar",
-      "fr": "Sucre brun tendre",
-      "es": "Dark Brown Soft Sugar"
-    },
     "dark chocolate": {
       "en": "Dark Chocolate",
       "fr": "Chocolat noir",
-      "es": "Dark Chocolate"
+      "es": "Dark chocolate"
     },
     "demerara sugar": {
       "en": "Demerara Sugar",
       "fr": "Sucre de sucre de canne",
-      "es": "Demerara Sugar"
+      "es": "Azúcar"
     },
     "desiccated coconut": {
       "en": "Desiccated Coconut",
       "fr": "Cocos déshydratés",
-      "es": "Desiccated Coconut"
+      "es": "Desiccated coconut"
     },
     "dill": {
       "en": "Dill",
@@ -434,32 +429,27 @@
     "dill pickles": {
       "en": "Dill Pickles",
       "fr": "Cornichons d'aneth",
-      "es": "Dill Pickles"
+      "es": "Dill pickles"
     },
     "double cream": {
       "en": "double cream",
       "fr": "Crème double",
-      "es": "double cream"
+      "es": "Double crema"
     },
     "dried apricots": {
       "en": "Dried Apricots",
       "fr": "Abricots secs",
-      "es": "Dried Apricots"
-    },
-    "dried leaves of summer savoury": {
-      "en": "Dried Leaves Of Summer Savoury",
-      "fr": "Feuilles sèches de summer savoury",
-      "es": "Dried Leaves Of Summer Savoury"
+      "es": "Dried apricots"
     },
     "dried white beans": {
       "en": "Dried white beans",
       "fr": "Haricots blancs secs",
-      "es": "Dried white beans"
+      "es": "Dried White beans"
     },
     "dry white wine": {
       "en": "Dry White Wine",
       "fr": "Vin blanc sec",
-      "es": "Dry White Wine"
+      "es": "Dry White vino"
     },
     "dry sherry": {
       "en": "Dry sherry",
@@ -474,17 +464,17 @@
     "egg plants": {
       "en": "Egg Plants",
       "fr": "Oeufs de poulet",
-      "es": "Egg Plants"
+      "es": "Egg plants"
     },
     "egg white": {
       "en": "Egg White",
       "fr": "Blanc d'œuf",
-      "es": "Egg White"
+      "es": "Egg white"
     },
     "egg yolks": {
       "en": "Egg Yolks",
       "fr": "Jaunes d'œuf",
-      "es": "Egg Yolks"
+      "es": "Egg yolks"
     },
     "eggs": {
       "en": "Eggs",
@@ -494,12 +484,7 @@
     "enchilada sauce": {
       "en": "Enchilada sauce",
       "fr": "Sauce enchilada",
-      "es": "Enchilada sauce"
-    },
-    "extra virgin olive oil": {
-      "en": "Extra Virgin Olive Oil",
-      "fr": "Huile d'olive extra vierge",
-      "es": "Extra Virgin Olive Oil"
+      "es": "Salsa"
     },
     "falafel": {
       "en": "Falafel",
@@ -514,7 +499,7 @@
     "fennel seeds": {
       "en": "Fennel Seeds",
       "fr": "Graines d'aneth",
-      "es": "Fennel Seeds"
+      "es": "Fennel seeds"
     },
     "feta": {
       "en": "Feta",
@@ -529,32 +514,32 @@
     "filo pastry": {
       "en": "Filo Pastry",
       "fr": "Pâte filo",
-      "es": "Filo Pastry"
+      "es": "Filo pastry"
     },
     "fish sauce": {
       "en": "Fish Sauce",
       "fr": "Sauce de poisson",
-      "es": "Fish Sauce"
+      "es": "Salsa de pescado"
     },
     "flaked almonds": {
       "en": "Flaked Almonds",
       "fr": "Amandes en poudre",
-      "es": "Flaked Almonds"
+      "es": "Flaked almendras"
     },
     "flour": {
       "en": "Flour",
       "fr": "Farine",
-      "es": "Flour"
+      "es": "Harina"
     },
     "frozen mixed berries": {
       "en": "Frozen Mixed Berries",
       "fr": "Fruits congelés mélangés",
-      "es": "Frozen Mixed Berries"
+      "es": "Frozen Mixed berries"
     },
     "garam masala": {
       "en": "garam masala",
       "fr": "Garam masala (épices)",
-      "es": "garam masala"
+      "es": "Garam masala"
     },
     "garlic": {
       "en": "garlic",
@@ -564,22 +549,22 @@
     "garlic clove": {
       "en": "garlic clove",
       "fr": "Gousse d'ail",
-      "es": "garlic clove"
+      "es": "Garlic clavo"
     },
     "garlic granules": {
       "en": "Garlic Granules",
       "fr": "Ail en grains",
-      "es": "Garlic Granules"
+      "es": "Garlic granules"
     },
     "garlic powder": {
       "en": "Garlic Powder",
       "fr": "Ail en poudre",
-      "es": "Garlic Powder"
+      "es": "Garlic powder"
     },
     "gelatine leafs": {
       "en": "Gelatine Leafs",
       "fr": "Feuilles de gélatine",
-      "es": "Gelatine Leafs"
+      "es": "Hojas de gelatines"
     },
     "ghee": {
       "en": "Ghee",
@@ -589,42 +574,42 @@
     "ginger": {
       "en": "ginger",
       "fr": "Gingembre",
-      "es": "ginger"
+      "es": "Jengibre"
     },
     "ginger paste": {
       "en": "Ginger Paste",
       "fr": "Pâte de gingembre",
-      "es": "Ginger Paste"
+      "es": "Ginger paste"
     },
     "goats cheese": {
       "en": "Goats Cheese",
       "fr": "Fromage de chèvre",
-      "es": "Goats Cheese"
+      "es": "Goats queso"
     },
     "golden syrup": {
       "en": "golden syrup",
       "fr": "Sirop d'or",
-      "es": "golden syrup"
+      "es": "Golden syrup"
     },
     "goose fat": {
       "en": "Goose Fat",
       "fr": "Graisse de canard",
-      "es": "Goose Fat"
+      "es": "Goose fat"
     },
     "graham cracker crumbs": {
       "en": "Graham Cracker Crumbs",
       "fr": "Pulpe de biscuits Graham",
-      "es": "Graham Cracker Crumbs"
+      "es": "Graham Cracker crumbs"
     },
     "grand marnier": {
       "en": "Grand Marnier",
       "fr": "Grand Marnier (liqueur)",
-      "es": "Grand Marnier"
+      "es": "Grand marnier"
     },
     "granulated sugar": {
       "en": "Granulated Sugar",
       "fr": "Sucre en poudre",
-      "es": "Granulated Sugar"
+      "es": "Azúcar"
     },
     "greek yogurt": {
       "en": "Greek yogurt",
@@ -634,57 +619,57 @@
     "green chilli": {
       "en": "Green Chilli",
       "fr": "Piment vert",
-      "es": "Green Chilli"
+      "es": "Green chilli"
     },
     "ground almonds": {
       "en": "Ground Almonds",
       "fr": "Amandes en poudre",
-      "es": "Ground Almonds"
+      "es": "Ground almendras"
     },
     "ground beef": {
       "en": "Ground Beef",
       "fr": "Viande hachée de bœuf",
-      "es": "Ground Beef"
+      "es": "Ground carne de res"
     },
     "ground cinnamon": {
       "en": "Ground Cinnamon",
       "fr": "Cannelle en poudre",
-      "es": "Ground Cinnamon"
+      "es": "Ground canela"
     },
     "ground clove": {
       "en": "Ground Clove",
       "fr": "Gousse de cannelle en poudre",
-      "es": "Ground Clove"
+      "es": "Ground clavo"
     },
     "ground coriander": {
       "en": "Ground Coriander",
       "fr": "Coriandre en poudre",
-      "es": "Ground Coriander"
+      "es": "Ground cilantro"
     },
     "ground cumin": {
       "en": "ground cumin",
       "fr": "Cumin en poudre",
-      "es": "ground cumin"
+      "es": "Ground comino"
     },
     "ground ginger": {
       "en": "Ground Ginger",
       "fr": "Gingembre en poudre",
-      "es": "Ground Ginger"
+      "es": "Ground jengibre"
     },
     "ground nut oil": {
       "en": "Ground Nut Oil",
       "fr": "Huile de noix",
-      "es": "Ground Nut Oil"
+      "es": "Aceite"
     },
     "ground nutmeg": {
       "en": "Ground Nutmeg",
       "fr": "Muscade en poudre",
-      "es": "Ground Nutmeg"
+      "es": "Ground nuez moscada"
     },
     "ground pork": {
       "en": "Ground Pork",
       "fr": "Viande hachée de porc",
-      "es": "Ground Pork"
+      "es": "Cerdo picado"
     },
     "gruyère": {
       "en": "Gruyère",
@@ -815,11 +800,6 @@
       "en": "Lettuce",
       "fr": "Laitue",
       "es": "Lechuga"
-    },
-    "light brown soft sugar": {
-      "en": "Light Brown Soft Sugar",
-      "fr": "Sucre roux clair",
-      "es": "Azúcar moreno claro"
     },
     "lime": {
       "en": "Lime",
@@ -1276,11 +1256,6 @@
       "fr": "Graine de sésame",
       "es": "Semilla de sésamo"
     },
-    "sesame seed burger buns": {
-      "en": "Sesame Seed Burger Buns",
-      "fr": "Pains à hamburger aux graines de sésame",
-      "es": "Bollos de hamburguesa con semillas de sésamo"
-    },
     "sesame seed oil": {
       "en": "Sesame Seed Oil",
       "fr": "Huile de sésame",
@@ -1371,11 +1346,6 @@
       "fr": "Stout",
       "es": "Stout"
     },
-    "strong white bread flour": {
-      "en": "Strong white bread flour",
-      "fr": "Farine de blé forte",
-      "es": "Harina de trigo fuerte"
-    },
     "suet": {
       "en": "Suet",
       "fr": "Suif",
@@ -1403,8 +1373,8 @@
     },
     "sweet peppadew peppers": {
       "en": "Sweet Peppadew Peppers",
-      "fr": "Sweet Peppadew Peppers",
-      "es": "Sweet Peppadew Peppers"
+      "fr": "Poivrons Peppadew doux",
+      "es": "Pimientos Peppadew dulces"
     },
     "sweet potatoes": {
       "en": "Sweet Potatoes",
@@ -1425,11 +1395,6 @@
       "en": "Tamarind Paste",
       "fr": "Pâte de tamarin",
       "es": "Pasta de tamarindo"
-    },
-    "thai red curry paste": {
-      "en": "Thai Red Curry Paste",
-      "fr": "Pâte de curry rouge thaï",
-      "es": "Pasta de curry rojo tailandés"
     },
     "thyme": {
       "en": "thyme",
@@ -1606,11 +1571,6 @@
       "fr": "Tortillas de maïs",
       "es": "Tortillas de maíz"
     },
-    "dark soft brown sugar": {
-      "en": "dark soft brown sugar",
-      "fr": "Sucre roux foncé",
-      "es": "Azúcar moreno oscuro"
-    },
     "fajita seasoning": {
       "en": "fajita seasoning",
       "fr": "Assaisonnement pour fajitas",
@@ -1651,11 +1611,6 @@
       "fr": "Flocons d'avoine",
       "es": "Copos de avena"
     },
-    "shredded monterey jack cheese": {
-      "en": "shredded Monterey Jack cheese",
-      "fr": "Fromage Monterey Jack râpé",
-      "es": "Queso Monterey Jack rallado"
-    },
     "strawberries": {
       "en": "strawberries",
       "fr": "Fraises",
@@ -1670,6 +1625,641 @@
       "en": "vine leaves",
       "fr": "Feuilles de vigne",
       "es": "Hojas de parra"
+    },
+    "add enough": {
+      "en": "Add Enough",
+      "fr": "Add enough",
+      "es": "Add enough"
+    },
+    "crumble in the": {
+      "en": "Crumble In The",
+      "fr": "Crumble In the",
+      "es": "Crumble In the"
+    },
+    "pinch of": {
+      "en": "Pinch Of",
+      "fr": "Pinch of",
+      "es": "Pinch of"
+    },
+    "burning the": {
+      "en": "Burning The",
+      "fr": "Burning the",
+      "es": "Burning the"
+    },
+    "sauce with": {
+      "en": "Sauce With",
+      "fr": "Sauce",
+      "es": "Salsa"
+    },
+    "sprinkle with": {
+      "en": "Sprinkle With",
+      "fr": "Sprinkle with",
+      "es": "Sprinkle with"
+    },
+    "sweet and sour": {
+      "en": "Sweet And Sour",
+      "fr": "Sweet And sour",
+      "es": "Sweet And sour"
+    },
+    "seasoned with": {
+      "en": "Seasoned With",
+      "fr": "Seasoned with",
+      "es": "Seasoned with"
+    },
+    "cup": {
+      "en": "Cup",
+      "fr": "Cup",
+      "es": "Cup"
+    },
+    "bring the": {
+      "en": "Bring The",
+      "fr": "Bring the",
+      "es": "Bring the"
+    },
+    "leave some": {
+      "en": "Leave Some",
+      "fr": "Leave some",
+      "es": "Leave some"
+    },
+    "tender and the": {
+      "en": "Tender And The",
+      "fr": "Tender And the",
+      "es": "Tender And the"
+    },
+    "loaf tin with": {
+      "en": "Loaf Tin With",
+      "fr": "Loaf Tin with",
+      "es": "Loaf Tin with"
+    },
+    "sake and": {
+      "en": "Sake And",
+      "fr": "Sake and",
+      "es": "Sake and"
+    },
+    "melt the": {
+      "en": "Melt The",
+      "fr": "Melt the",
+      "es": "Melt the"
+    },
+    "drain": {
+      "en": "Drain",
+      "fr": "Drain",
+      "es": "Drain"
+    },
+    "together the": {
+      "en": "Together The",
+      "fr": "Together the",
+      "es": "Together the"
+    },
+    "sieve": {
+      "en": "Sieve",
+      "fr": "Sieve",
+      "es": "Sieve"
+    },
+    "oregano and black": {
+      "en": "Oregano And Black",
+      "fr": "Oregano And black",
+      "es": "Oregano And black"
+    },
+    "sauce and": {
+      "en": "Sauce And",
+      "fr": "Sauce",
+      "es": "Salsa"
+    },
+    "it with": {
+      "en": "It With",
+      "fr": "It with",
+      "es": "It with"
+    },
+    "as the remaining": {
+      "en": "As The Remaining",
+      "fr": "As The remaining",
+      "es": "As The remaining"
+    },
+    "mixture looks like": {
+      "en": "Mixture Looks Like",
+      "fr": "Mixture Looks like",
+      "es": "Mixture Looks like"
+    },
+    "mash with the": {
+      "en": "Mash With The",
+      "fr": "Mash With the",
+      "es": "Mash With the"
+    },
+    "drizzled with the": {
+      "en": "Drizzled With The",
+      "fr": "Drizzled With the",
+      "es": "Drizzled With the"
+    },
+    "tablespoon of": {
+      "en": "Tablespoon Of",
+      "fr": "Tablespoon of",
+      "es": "Tablespoon of"
+    },
+    "inch of vegetable": {
+      "en": "Inch Of Vegetable",
+      "fr": "Inch Of vegetable",
+      "es": "Inch Of vegetable"
+    },
+    "tablespoon of olive": {
+      "en": "Tablespoon Of Olive",
+      "fr": "Tablespoon Of olive",
+      "es": "Tablespoon Of olive"
+    },
+    "once the": {
+      "en": "Once The",
+      "fr": "Once the",
+      "es": "Once the"
+    },
+    "add oyster": {
+      "en": "Add Oyster",
+      "fr": "Add oyster",
+      "es": "Add oyster"
+    },
+    "measure the": {
+      "en": "Measure The",
+      "fr": "Measure the",
+      "es": "Measure the"
+    },
+    "than white": {
+      "en": "Than White",
+      "fr": "Than white",
+      "es": "Than white"
+    },
+    "tin with": {
+      "en": "Tin With",
+      "fr": "Tin with",
+      "es": "Tin with"
+    },
+    "add any": {
+      "en": "Add Any",
+      "fr": "Add any",
+      "es": "Add any"
+    },
+    "your surface with": {
+      "en": "Your Surface With",
+      "fr": "Your Surface with",
+      "es": "Your Surface with"
+    },
+    "grind of black": {
+      "en": "Grind Of Black",
+      "fr": "Grind Of black",
+      "es": "Grind Of black"
+    },
+    "absorb excess": {
+      "en": "Absorb Excess",
+      "fr": "Absorb excess",
+      "es": "Absorb excess"
+    },
+    "skillet heat": {
+      "en": "Skillet Heat",
+      "fr": "Skillet heat",
+      "es": "Skillet heat"
+    },
+    "brown in": {
+      "en": "Brown In",
+      "fr": "Brown in",
+      "es": "Brown in"
+    },
+    "remaining olive": {
+      "en": "Remaining Olive",
+      "fr": "Remaining olive",
+      "es": "Remaining olive"
+    },
+    "teaspoon of soy": {
+      "en": "Teaspoon Of Soy",
+      "fr": "Teaspoon Of soy",
+      "es": "Teaspoon Of soy"
+    },
+    "tablespoons of cooking": {
+      "en": "Tablespoons Of Cooking",
+      "fr": "Tablespoons Of cooking",
+      "es": "Tablespoons Of cooking"
+    },
+    "leaves and": {
+      "en": "Leaves And",
+      "fr": "Feuilles de  and",
+      "es": "Hojas de  and"
+    },
+    "loaf with rye": {
+      "en": "Loaf With Rye",
+      "fr": "Loaf With rye",
+      "es": "Loaf With rye"
+    },
+    "without burning the": {
+      "en": "Without Burning The",
+      "fr": "Without Burning the",
+      "es": "Without Burning the"
+    },
+    "ground black": {
+      "en": "Ground Black",
+      "fr": "Ground black",
+      "es": "Ground black"
+    },
+    "tbsp olive": {
+      "en": "Tbsp Olive",
+      "fr": "Tbsp olive",
+      "es": "Tbsp olive"
+    },
+    "surface with": {
+      "en": "Surface With",
+      "fr": "Surface with",
+      "es": "Surface with"
+    },
+    "tsp": {
+      "en": "Tsp",
+      "fr": "Tsp",
+      "es": "Tsp"
+    },
+    "steak with": {
+      "en": "Steak With",
+      "fr": "Steak with",
+      "es": "Steak with"
+    },
+    "lightly": {
+      "en": "Lightly",
+      "fr": "Lightly",
+      "es": "Lightly"
+    },
+    "use the palm": {
+      "en": "Use The Palm",
+      "fr": "Use The palm",
+      "es": "Use The palm"
+    },
+    "followed by the": {
+      "en": "Followed By The",
+      "fr": "Followed By the",
+      "es": "Followed By the"
+    },
+    "wedges and": {
+      "en": "Wedges And",
+      "fr": "Wedges and",
+      "es": "Wedges and"
+    },
+    "just a few": {
+      "en": "Just A Few",
+      "fr": "Just A few",
+      "es": "Just A few"
+    },
+    "add chicken": {
+      "en": "Add Chicken",
+      "fr": "Add poulet",
+      "es": "Add pollo"
+    },
+    "next add": {
+      "en": "Next Add",
+      "fr": "Next add",
+      "es": "Next add"
+    },
+    "remaining herbs and": {
+      "en": "Remaining Herbs And",
+      "fr": "Remaining Herbs and",
+      "es": "Remaining Herbs and"
+    },
+    "gluten than white": {
+      "en": "Gluten Than White",
+      "fr": "Gluten Than white",
+      "es": "Gluten Than white"
+    },
+    "beat the": {
+      "en": "Beat The",
+      "fr": "Beat the",
+      "es": "Beat the"
+    },
+    "t need": {
+      "en": "T Need",
+      "fr": "T need",
+      "es": "T need"
+    },
+    "rye": {
+      "en": "Rye",
+      "fr": "Rye",
+      "es": "Rye"
+    },
+    "except the": {
+      "en": "Except The",
+      "fr": "Except the",
+      "es": "Except the"
+    },
+    "most of the": {
+      "en": "Most Of The",
+      "fr": "Most Of the",
+      "es": "Most Of the"
+    },
+    "add more": {
+      "en": "Add More",
+      "fr": "Add more",
+      "es": "Add more"
+    },
+    "pour curry": {
+      "en": "Pour Curry",
+      "fr": "Pour curry",
+      "es": "Pour curry"
+    },
+    "breasts in": {
+      "en": "Breasts In",
+      "fr": "Breasts in",
+      "es": "Breasts in"
+    },
+    "rub with": {
+      "en": "Rub With",
+      "fr": "Rub with",
+      "es": "Rub with"
+    },
+    "first in the": {
+      "en": "First In The",
+      "fr": "First In the",
+      "es": "First In the"
+    },
+    "warm with dipping": {
+      "en": "Warm With Dipping",
+      "fr": "Warm With dipping",
+      "es": "Warm With dipping"
+    },
+    "sift the": {
+      "en": "Sift The",
+      "fr": "Sift the",
+      "es": "Sift the"
+    },
+    "tbsp": {
+      "en": "Tbsp",
+      "fr": "Tbsp",
+      "es": "Tbsp"
+    },
+    "nuts in hot": {
+      "en": "Nuts In Hot",
+      "fr": "Nuts In hot",
+      "es": "Nuts In hot"
+    },
+    "little olive": {
+      "en": "Little Olive",
+      "fr": "Little olive",
+      "es": "Little olive"
+    },
+    "breasts with": {
+      "en": "Breasts With",
+      "fr": "Breasts with",
+      "es": "Breasts with"
+    },
+    "mixture and olive": {
+      "en": "Mixture And Olive",
+      "fr": "Mixture And olive",
+      "es": "Mixture And olive"
+    },
+    "pinch white": {
+      "en": "Pinch White",
+      "fr": "Pinch white",
+      "es": "Pinch white"
+    },
+    "stir chicken": {
+      "en": "Stir Chicken",
+      "fr": "Stir poulet",
+      "es": "Stir pollo"
+    },
+    "heat olive": {
+      "en": "Heat Olive",
+      "fr": "Heat olive",
+      "es": "Heat olive"
+    },
+    "tablespoons of": {
+      "en": "Tablespoons Of",
+      "fr": "Tablespoons of",
+      "es": "Tablespoons of"
+    },
+    "make the": {
+      "en": "Make The",
+      "fr": "Make the",
+      "es": "Make the"
+    },
+    "pinch of white": {
+      "en": "Pinch Of White",
+      "fr": "Pinch Of white",
+      "es": "Pinch Of white"
+    },
+    "dissolve the": {
+      "en": "Dissolve The",
+      "fr": "Dissolve the",
+      "es": "Dissolve the"
+    },
+    "panko": {
+      "en": "panko",
+      "fr": "Chapelure panko",
+      "es": "Pan rallado panko"
+    },
+    "tablespoons": {
+      "en": "Tablespoons",
+      "fr": "Tablespoons",
+      "es": "Tablespoons"
+    },
+    "powder and red": {
+      "en": "Powder And Red",
+      "fr": "Powder And red",
+      "es": "Powder And red"
+    },
+    "chicken broth": {
+      "en": "Chicken Broth",
+      "fr": "Bouillon de poulet",
+      "es": "Caldo de pollo"
+    },
+    "cream on the": {
+      "en": "Cream On The",
+      "fr": "Cream On the",
+      "es": "Cream On the"
+    },
+    "sauce coats the": {
+      "en": "Sauce Coats The",
+      "fr": "Sauce",
+      "es": "Salsa"
+    },
+    "stock as well": {
+      "en": "Stock As Well",
+      "fr": "Bouillon",
+      "es": "Caldo"
+    },
+    "zest and juice": {
+      "en": "Zest And Juice",
+      "fr": "Zest And jus",
+      "es": "Zest And zumo"
+    },
+    "stock to the": {
+      "en": "Stock To The",
+      "fr": "Bouillon",
+      "es": "Caldo"
+    },
+    "stock and whichever": {
+      "en": "Stock And Whichever",
+      "fr": "Bouillon",
+      "es": "Caldo"
+    },
+    "cream and give": {
+      "en": "Cream And Give",
+      "fr": "Cream And give",
+      "es": "Cream And give"
+    },
+    "sauce reduces to": {
+      "en": "Sauce Reduces To",
+      "fr": "Sauce",
+      "es": "Salsa"
+    },
+    "herb you": {
+      "en": "Herb You",
+      "fr": "Herb you",
+      "es": "Herb you"
+    },
+    "cream sauce": {
+      "en": "Cream Sauce",
+      "fr": "Sauce",
+      "es": "Salsa"
+    },
+    "underneath the stock": {
+      "en": "Underneath The Stock",
+      "fr": "Bouillon",
+      "es": "Caldo"
+    },
+    "corn starch": {
+      "en": "Corn Starch",
+      "fr": "Fécule de maïs",
+      "es": "Maicena"
+    },
+    "combine spice": {
+      "en": "Combine Spice",
+      "fr": "Combine spice",
+      "es": "Combine spice"
+    },
+    "sauce by mixing": {
+      "en": "Sauce By Mixing",
+      "fr": "Sauce",
+      "es": "Salsa"
+    },
+    "spice grinder or": {
+      "en": "Spice Grinder Or",
+      "fr": "Spice Grinder or",
+      "es": "Spice Grinder or"
+    },
+    "oyster sauce": {
+      "en": "Oyster Sauce",
+      "fr": "Sauce aux huîtres",
+      "es": "Salsa de ostras"
+    },
+    "sauce from the": {
+      "en": "Sauce From The",
+      "fr": "Sauce",
+      "es": "Salsa"
+    },
+    "sauce has thickened": {
+      "en": "Sauce Has Thickened",
+      "fr": "Sauce",
+      "es": "Salsa"
+    },
+    "yogurt doesn": {
+      "en": "Yogurt Doesn",
+      "fr": "Yogurt doesn",
+      "es": "Yogurt doesn"
+    },
+    "stock along with": {
+      "en": "Stock Along With",
+      "fr": "Bouillon",
+      "es": "Caldo"
+    },
+    "stock absorbed": {
+      "en": "Stock Absorbed",
+      "fr": "Bouillon",
+      "es": "Caldo"
+    },
+    "sauce by whisking": {
+      "en": "Sauce By Whisking",
+      "fr": "Sauce",
+      "es": "Salsa"
+    },
+    "juice and the": {
+      "en": "Juice And The",
+      "fr": "Juice And the",
+      "es": "Juice And the"
+    },
+    "stock and use": {
+      "en": "Stock And Use",
+      "fr": "Bouillon",
+      "es": "Caldo"
+    },
+    "juice and then": {
+      "en": "Juice And Then",
+      "fr": "Juice And then",
+      "es": "Juice And then"
+    },
+    "wine mixture": {
+      "en": "Wine Mixture",
+      "fr": "Wine mixture",
+      "es": "Wine mixture"
+    },
+    "broth and wait": {
+      "en": "Broth And Wait",
+      "fr": "Bouillon",
+      "es": "Caldo"
+    },
+    "cream sauce by": {
+      "en": "Cream Sauce By",
+      "fr": "Sauce",
+      "es": "Salsa"
+    },
+    "paste and": {
+      "en": "Paste And",
+      "fr": "Paste and",
+      "es": "Paste and"
+    },
+    "stock come to": {
+      "en": "Stock Come To",
+      "fr": "Bouillon",
+      "es": "Caldo"
+    },
+    "yogurt keeping the": {
+      "en": "Yogurt Keeping The",
+      "fr": "Yogurt Keeping the",
+      "es": "Yogurt Keeping the"
+    },
+    "wine and whisk": {
+      "en": "Wine And Whisk",
+      "fr": "Wine And whisk",
+      "es": "Wine And whisk"
+    },
+    "paste and the": {
+      "en": "Paste And The",
+      "fr": "Paste And the",
+      "es": "Paste And the"
+    },
+    "powder in a": {
+      "en": "Powder In A",
+      "fr": "Powder In a",
+      "es": "Powder In a"
+    },
+    "juice with a": {
+      "en": "Juice With A",
+      "fr": "Juice With a",
+      "es": "Juice With a"
+    },
+    "baking soda": {
+      "en": "Baking soda",
+      "fr": "Bicarbonate de soude",
+      "es": "Bicarbonato de sodio"
+    },
+    "cooking spray": {
+      "en": "Cooking spray",
+      "fr": "Vaporisateur de cuisson",
+      "es": "Spray de cocción"
+    },
+    "nonstick spray": {
+      "en": "Nonstick spray",
+      "fr": "Vaporisateur antiadhésif",
+      "es": "Spray antiadherente"
+    },
+    "beef broth": {
+      "en": "Beef broth",
+      "fr": "Bouillon de bœuf",
+      "es": "Caldo de res"
+    },
+    "vegetable broth": {
+      "en": "Vegetable broth",
+      "fr": "Bouillon de légumes",
+      "es": "Caldo de verduras"
     }
   }
 }

@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    container_name: libretranslate
+    ports:
+      - "7071:5000"
+    environment:
+      - LT_HOST=0.0.0.0
+      - LT_PORT=5000
+      # Langues supportées (en, fr, es, de, it, pt, ru, zh, ja)
+      - LT_LOAD_ONLY=en,fr,es
+      # Limite de caractères par requête (optionnel)
+      - LT_CHAR_LIMIT=5000
+      # Rate limiting (optionnel)
+      - LT_REQ_LIMIT=100
+      - LT_REQ_LIMIT_STORAGE=memory
+    volumes:
+      # Persister les modèles téléchargés
+      - libretranslate_models:/home/libretranslate/.local/share
+    restart: unless-stopped
+    user: "1000:1000"  # Utiliser l'UID/GID de l'utilisateur pour éviter les problèmes de permissions
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/languages"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  libretranslate_models:
+

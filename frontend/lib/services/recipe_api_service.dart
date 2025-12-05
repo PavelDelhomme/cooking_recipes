@@ -252,8 +252,8 @@ class RecipeApiService {
       if (ingredient != null && ingredient.toString().trim().isNotEmpty) {
         // Nettoyer l'ingrédient (garder le nom anglais original)
         String originalIngredientName = TranslationService.fixEncoding(ingredient.toString().trim());
-        // Traduire l'ingrédient pour l'affichage
-        String ingredientName = TranslationService.translateIngredient(originalIngredientName);
+        // Traduire l'ingrédient pour l'affichage (avec LibreTranslate en priorité)
+        String ingredientName = await TranslationService.translateIngredient(originalIngredientName);
         
         // Parser la quantité, l'unité et la préparation
         final measureStr = measure?.toString().trim() ?? '';

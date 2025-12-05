@@ -13,6 +13,7 @@ services:
       - PORT=7272
       - HOST=0.0.0.0
       - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
+      - LIBRETRANSLATE_URL=http://libretranslate:5000
     restart: unless-stopped
     networks:
       - cooking_recipes_network
@@ -33,11 +34,42 @@ services:
       - API_URL=http://backend:7272
     depends_on:
       - backend
+      - libretranslate
     restart: unless-stopped
     networks:
       - cooking_recipes_network
     labels:
       - "com.docker.compose.project=cooking_recipes"
+
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    container_name: cooking_recipes_libretranslate
+    ports:
+      - "7071:5000"
+    environment:
+      - LT_HOST=0.0.0.0
+      - LT_PORT=5000
+      - LT_LOAD_ONLY=en,fr,es
+      - LT_CHAR_LIMIT=5000
+      - LT_REQ_LIMIT=100
+      - LT_REQ_LIMIT_STORAGE=memory
+    volumes:
+      - libretranslate_models:/home/libretranslate/.local/share
+    restart: unless-stopped
+    networks:
+      - cooking_recipes_network
+    labels:
+      - "com.docker.compose.project=cooking_recipes"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/languages"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  libretranslate_models:
+    driver: local
 
 networks:
   cooking_recipes_network:

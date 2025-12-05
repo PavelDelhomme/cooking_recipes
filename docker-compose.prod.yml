@@ -14,6 +14,7 @@ services:
       - NODE_ENV=production
       - JWT_SECRET=${JWT_SECRET:-change-this-secret-in-production}
       - ALLOWED_ORIGINS=https://cookingrecipes.delhomme.ovh,https://cookingrecipe.delhomme.ovh
+      - LIBRETRANSLATE_URL=http://cookingrecipes-libretranslate:5000
     networks:
       - cookingrecipes_network
       - web
@@ -45,6 +46,7 @@ services:
       - FLUTTER_WEB_USE_SKIA=true
     depends_on:
       - cookingrecipes-api
+      - cookingrecipes-libretranslate
     networks:
       - cookingrecipes_network
       - web
@@ -63,6 +65,38 @@ services:
       - /tmp
       - /var/tmp
 
+  cookingrecipes-libretranslate:
+    image: libretranslate/libretranslate:latest
+    container_name: cookingrecipes-libretranslate
+    restart: unless-stopped
+    expose:
+      - "5000"
+    environment:
+      - LT_HOST=0.0.0.0
+      - LT_PORT=5000
+      - LT_LOAD_ONLY=en,fr,es
+      - LT_CHAR_LIMIT=5000
+      - LT_REQ_LIMIT=100
+      - LT_REQ_LIMIT_STORAGE=memory
+    volumes:
+      - cookingrecipes_libretranslate_models:/home/libretranslate/.local/share
+    networks:
+      - cookingrecipes_network
+    labels:
+      - "com.docker.compose.project=cookingrecipes"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/languages"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp
+      - /var/tmp
+
 volumes:
   cookingrecipes_backend_data:
     driver: local
@@ -73,6 +107,9 @@ volumes:
   cookingrecipes_security_logs:
     driver: local
     name: cookingrecipes_security_logs
+  cookingrecipes_libretranslate_models:
+    driver: local
+    name: cookingrecipes_libretranslate_models
 
 networks:
   cookingrecipes_network:

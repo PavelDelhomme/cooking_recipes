@@ -628,7 +628,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 TranslationBuilder(
                   builder: (context) {
                     return Text(
-                      TranslationService.translateRecipeName(recipe.title),
+                      TranslationService.translateRecipeNameSync(recipe.title),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -761,7 +761,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
               TranslationBuilder(
                 builder: (context) {
                   return Text(
-                    TranslationService.translateRecipeName(recipe.title),
+                    TranslationService.translateRecipeNameSync(recipe.title),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
