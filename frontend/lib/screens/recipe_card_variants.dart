@@ -13,34 +13,36 @@ class RecipeCardVariants {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.antiAlias,
-      child: SizedBox.expand(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-          // Image
-          if (recipe.image != null)
-            Image.network(
-              recipe.image!,
-              width: double.infinity,
-              height: 120,
-              fit: BoxFit.cover,
-              cacheWidth: 300,
-            )
-          else
-            Container(
-              width: double.infinity,
-              height: 120,
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              child: Icon(Icons.restaurant, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-          // Contenu
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+            // Image
+            if (recipe.image != null)
+              Image.network(
+                recipe.image!,
+                width: double.infinity,
+                height: constraints.maxHeight * 0.6,
+                fit: BoxFit.cover,
+                cacheWidth: 300,
+              )
+            else
+              Container(
+                width: double.infinity,
+                height: constraints.maxHeight * 0.6,
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                child: Icon(Icons.restaurant, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+            // Contenu
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                 TranslationBuilder(
                   builder: (context) => Text(
                     TranslationService.translateRecipeNameSync(recipe.title),
@@ -72,9 +74,11 @@ class RecipeCardVariants {
                 ),
               ],
             ),
-          ),
-        ],
-        ),
+              ),
+            ),
+          ],
+          );
+        },
       ),
     );
   }
@@ -86,25 +90,26 @@ class RecipeCardVariants {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.antiAlias,
-      child: SizedBox.expand(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-          // Image à gauche
-          if (recipe.image != null)
-            ClipRRect(
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
-              child: Image.network(recipe.image!, width: 100, height: 100, fit: BoxFit.cover, cacheWidth: 200),
-            )
-          else
-            Container(
-              width: 100,
-              height: 100,
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              child: Icon(Icons.restaurant, size: 30, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-          // Contenu à droite
-          Expanded(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+            // Image à gauche
+            if (recipe.image != null)
+              ClipRRect(
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
+                child: Image.network(recipe.image!, width: constraints.maxHeight, height: constraints.maxHeight, fit: BoxFit.cover, cacheWidth: 200),
+              )
+            else
+              Container(
+                width: constraints.maxHeight,
+                height: constraints.maxHeight,
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                child: Icon(Icons.restaurant, size: 30, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+            // Contenu à droite
+            Expanded(
             child: Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
@@ -140,8 +145,9 @@ class RecipeCardVariants {
               ),
             ),
           ),
-        ],
-        ),
+          ],
+          );
+        },
       ),
     );
   }
@@ -153,23 +159,24 @@ class RecipeCardVariants {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.antiAlias,
-      child: SizedBox.expand(
-        child: Stack(
-          children: [
-          // Image en arrière-plan
-          if (recipe.image != null)
-            Image.network(recipe.image!, width: double.infinity, height: 140, fit: BoxFit.cover, cacheWidth: 300)
-          else
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+            // Image en arrière-plan
+            if (recipe.image != null)
+              Image.network(recipe.image!, width: double.infinity, height: constraints.maxHeight, fit: BoxFit.cover, cacheWidth: 300)
+            else
+              Container(
+                width: double.infinity,
+                height: constraints.maxHeight,
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                child: Icon(Icons.restaurant, size: 50, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+            // Overlay sombre
             Container(
               width: double.infinity,
-              height: 140,
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              child: Icon(Icons.restaurant, size: 50, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-          // Overlay sombre
-          Container(
-            width: double.infinity,
-            height: 140,
+              height: constraints.maxHeight,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -205,8 +212,9 @@ class RecipeCardVariants {
               ),
             ),
           ),
-        ],
-        ),
+          ],
+          );
+        },
       ),
     );
   }
@@ -218,23 +226,24 @@ class RecipeCardVariants {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.antiAlias,
-      child: SizedBox.expand(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-          // Image avec badges
-          Stack(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              if (recipe.image != null)
-                Image.network(recipe.image!, width: double.infinity, height: 110, fit: BoxFit.cover, cacheWidth: 300)
-              else
-                Container(
-                  width: double.infinity,
-                  height: 110,
-                  color: Theme.of(context).colorScheme.surfaceVariant,
-                  child: Icon(Icons.restaurant, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
+            // Image avec badges
+            Stack(
+              children: [
+                if (recipe.image != null)
+                  Image.network(recipe.image!, width: double.infinity, height: constraints.maxHeight * 0.65, fit: BoxFit.cover, cacheWidth: 300)
+                else
+                  Container(
+                    width: double.infinity,
+                    height: constraints.maxHeight * 0.65,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    child: Icon(Icons.restaurant, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
               // Badges en haut à droite
               Positioned(
                 top: 8,
@@ -267,19 +276,22 @@ class RecipeCardVariants {
             ],
           ),
           // Titre
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: TranslationBuilder(
-              builder: (context) => Text(
-                TranslationService.translateRecipeNameSync(recipe.title),
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, height: 1.2),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: TranslationBuilder(
+                builder: (context) => Text(
+                  TranslationService.translateRecipeNameSync(recipe.title),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, height: 1.2),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
           ),
-        ],
-        ),
+          ],
+          );
+        },
       ),
     );
   }
@@ -294,28 +306,30 @@ class RecipeCardVariants {
         side: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.3), width: 2),
       ),
       clipBehavior: Clip.antiAlias,
-      child: SizedBox.expand(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-          // Image
-          if (recipe.image != null)
-            Image.network(recipe.image!, width: double.infinity, height: 100, fit: BoxFit.cover, cacheWidth: 300)
-          else
-            Container(
-              width: double.infinity,
-              height: 100,
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              child: Icon(Icons.restaurant, size: 35, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-          // Contenu compact
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+            // Image
+            if (recipe.image != null)
+              Image.network(recipe.image!, width: double.infinity, height: constraints.maxHeight * 0.6, fit: BoxFit.cover, cacheWidth: 300)
+            else
+              Container(
+                width: double.infinity,
+                height: constraints.maxHeight * 0.6,
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                child: Icon(Icons.restaurant, size: 35, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+            // Contenu compact
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                 TranslationBuilder(
                   builder: (context) => Text(
                     TranslationService.translateRecipeNameSync(recipe.title),
@@ -350,9 +364,11 @@ class RecipeCardVariants {
                 ),
               ],
             ),
-          ),
-        ],
-        ),
+              ),
+            ),
+          ],
+          );
+        },
       ),
     );
   }

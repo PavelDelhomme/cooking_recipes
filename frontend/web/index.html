@@ -43,7 +43,7 @@
       window.location.replace('https://cookingrecipes.delhomme.ovh' + window.location.pathname + window.location.search + window.location.hash);
     }
     
-    // Désactiver complètement le service worker AVANT le chargement de Flutter
+    // Nettoyage complet du cache et des service workers AVANT le chargement de Flutter
     (function() {
       'use strict';
       
@@ -51,11 +51,20 @@
       const originalError = console.error;
       const originalWarn = console.warn;
       
+      // Forcer la suppression de tous les caches et service workers
       if ('serviceWorker' in navigator) {
-        // Désenregistrer tous les service workers existants silencieusement
+        // Désenregistrer tous les service workers existants immédiatement
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
           for(let registration of registrations) {
             registration.unregister().catch(function() {});
+          }
+          // Supprimer tous les caches
+          if ('caches' in window) {
+            caches.keys().then(function(names) {
+              for (let name of names) {
+                caches.delete(name).catch(function() {});
+              }
+            });
           }
         }).catch(function() {});
         
@@ -69,7 +78,9 @@
         // Intercepter les erreurs de service worker dans la console
         console.error = function(...args) {
           if (args[0] && typeof args[0] === 'string' && 
-              (args[0].includes('service worker') || args[0].includes('Service worker'))) {
+              (args[0].includes('service worker') || args[0].includes('Service worker') ||
+               args[0].includes('web_entrypoint') || args[0].includes('requirejs') ||
+               args[0].includes('main_module'))) {
             return; // Ignorer silencieusement
           }
           // Ignorer aussi l'avertissement registerExtension() qui est normal en dev
@@ -82,7 +93,9 @@
         
         console.warn = function(...args) {
           if (args[0] && typeof args[0] === 'string' && 
-              (args[0].includes('service worker') || args[0].includes('Service worker'))) {
+              (args[0].includes('service worker') || args[0].includes('Service worker') ||
+               args[0].includes('web_entrypoint') || args[0].includes('requirejs') ||
+               args[0].includes('main_module'))) {
             return; // Ignorer silencieusement
           }
           // Ignorer aussi l'avertissement registerExtension() qui est normal en dev
@@ -100,6 +113,22 @@
               registration.unregister().catch(function() {});
             }
           });
+        });
+      }
+      
+      // Supprimer les références obsolètes à web_entrypoint.dart.js
+      if (window.requirejs) {
+        try {
+          // Désactiver requirejs si présent
+          window.requirejs = undefined;
+        } catch(e) {}
+      }
+      
+      // Vérifier que nous chargeons bien le bon fichier
+      if (document.querySelector('script[src*="web_entrypoint"]')) {
+        console.warn('Ancien script web_entrypoint détecté, suppression...');
+        document.querySelectorAll('script[src*="web_entrypoint"]').forEach(function(script) {
+          script.remove();
         });
       }
     })();

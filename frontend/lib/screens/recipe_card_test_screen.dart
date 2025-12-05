@@ -198,11 +198,11 @@ class _RecipeCardTestScreenState extends State<RecipeCardTestScreen> {
                                                     ),
                                                   ),
                                                   const SizedBox(height: 8),
-                                                  InkWell(
-                                                    onTap: () => _navigateToRecipeDetail(recipe),
-                                                    borderRadius: BorderRadius.circular(12),
-                                                    child: SizedBox(
-                                                      height: 200,
+                                                  AspectRatio(
+                                                    aspectRatio: 0.75,
+                                                    child: InkWell(
+                                                      onTap: () => _navigateToRecipeDetail(recipe),
+                                                      borderRadius: BorderRadius.circular(12),
                                                       child: _buildCardVariant(recipe, variant),
                                                     ),
                                                   ),
@@ -239,10 +239,13 @@ class _RecipeCardTestScreenState extends State<RecipeCardTestScreen> {
                                                   ),
                                                 ),
                                                 const SizedBox(height: 8),
-                                                InkWell(
-                                                  onTap: () => _navigateToRecipeDetail(recipe),
-                                                  borderRadius: BorderRadius.circular(12),
-                                                  child: _buildCardVariant(recipe, variant),
+                                                AspectRatio(
+                                                  aspectRatio: 0.75,
+                                                  child: InkWell(
+                                                    onTap: () => _navigateToRecipeDetail(recipe),
+                                                    borderRadius: BorderRadius.circular(12),
+                                                    child: _buildCardVariant(recipe, variant),
+                                                  ),
                                                 ),
                                               ],
                                             ),
