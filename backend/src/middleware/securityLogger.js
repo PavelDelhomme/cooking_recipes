@@ -80,12 +80,30 @@ function logSecurityEvent(eventType, details) {
 
   // Afficher dans la console selon la sévérité
   const severity = details.severity || 'INFO';
+  // Formater la date complète pour l'affichage
+  const formattedDate = new Date().toLocaleString('fr-FR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'Europe/Paris'
+  });
+  
+  // Créer un objet avec la date complète pour l'affichage
+  const logOutput = {
+    date: formattedDate,
+    timestamp: logEntry.timestamp,
+    ...details
+  };
+  
   if (severity === 'CRITICAL' || severity === 'HIGH') {
-    console.error(`🚨 [${severity}] ${eventType}:`, details);
+    console.error(`🚨 [${severity}] ${eventType}:`, logOutput);
   } else if (severity === 'MEDIUM' || severity === 'WARNING') {
-    console.warn(`⚠️  [${severity}] ${eventType}:`, details);
+    console.warn(`⚠️  [${severity}] ${eventType}:`, logOutput);
   } else {
-    console.log(`ℹ️  [${severity}] ${eventType}:`, details);
+    console.log(`ℹ️  [${severity}] ${eventType}:`, logOutput);
   }
 }
 
@@ -95,22 +113,28 @@ function logSecurityEvent(eventType, details) {
 function securityLoggerMiddleware(req, res, next) {
   const startTime = Date.now();
   const clientIP = req.ip || req.connection.remoteAddress;
-  const userId = req.user?.userId || null;
 
-  // Logger la requête
-  logSecurityEvent(SECURITY_EVENTS.DATA_ACCESS, {
-    ip: clientIP,
-    userId,
-    method: req.method,
-    url: req.url,
-    userAgent: req.headers['user-agent'],
-    severity: 'INFO',
-  });
-
-  // Logger la réponse
+  // Logger la réponse (après que tous les middlewares aient été exécutés)
+  // Cela permet de capturer le userId si l'utilisateur est authentifié
   res.on('finish', () => {
     const duration = Date.now() - startTime;
     const statusCode = res.statusCode;
+    
+    // Récupérer le userId après l'authentification (si disponible)
+    // Le middleware authenticateToken définit req.user.userId ou req.user.id
+    const userId = req.user?.userId || req.user?.id || null;
+
+    // Logger l'accès aux données avec le userId correct
+    logSecurityEvent(SECURITY_EVENTS.DATA_ACCESS, {
+      ip: clientIP,
+      userId,
+      method: req.method,
+      url: req.url,
+      userAgent: req.headers['user-agent'],
+      statusCode,
+      duration,
+      severity: 'INFO',
+    });
 
     // Logger les erreurs
     if (statusCode >= 400) {

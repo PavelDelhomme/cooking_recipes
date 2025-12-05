@@ -427,13 +427,34 @@ class TranslationService extends ChangeNotifier {
   
   // Version synchrone pour compatibilité (utilise le fallback uniquement)
   static String translateIngredientSync(String ingredient) {
-    if (_instance._currentLanguage == 'fr') {
-      final autoTranslated = AutoTranslator.translateWord(ingredient);
-      if (autoTranslated != ingredient && autoTranslated.toLowerCase() != ingredient.toLowerCase()) {
-        return autoTranslated;
+    final targetLanguage = _instance._currentLanguage;
+    
+    // Si la langue cible est l'anglais, retourner tel quel
+    if (targetLanguage == 'en') {
+      return ingredient;
+    }
+    
+    // 1. PRIORITÉ: Utiliser les dictionnaires JSON chargés
+    if (CulinaryDictionaryLoader.isLoaded) {
+      final culinaryTranslation = CulinaryDictionaryLoader.translateIngredient(ingredient, targetLanguage);
+      if (culinaryTranslation != null && culinaryTranslation.toLowerCase() != ingredient.toLowerCase()) {
+        return culinaryTranslation;
       }
     }
-    return _instance.translateIngredientInstance(ingredient);
+    
+    // 2. Utiliser AutoTranslator avec la langue cible
+    final autoTranslated = AutoTranslator.translateWord(ingredient, targetLanguage: targetLanguage);
+    if (autoTranslated != ingredient && autoTranslated.toLowerCase() != ingredient.toLowerCase()) {
+      return autoTranslated;
+    }
+    
+    // 3. Fallback sur l'ancien système (seulement pour français)
+    if (targetLanguage == 'fr') {
+      return _instance.translateIngredientInstance(ingredient);
+    }
+    
+    // Si aucune traduction trouvée, retourner l'original
+    return ingredient;
   }
 
   /// Traduit une liste d'ingrédients
@@ -518,14 +539,28 @@ class TranslationService extends ChangeNotifier {
     String cleaned = fixEncoding(recipeName);
     
     // 1. PRIORITÉ: Utiliser d'abord les dictionnaires synchrones (évite les appels API)
-    if (_instance._currentLanguage == 'fr') {
-      final autoTranslated = AutoTranslator.translateRecipeName(cleaned);
-      if (autoTranslated != cleaned && autoTranslated.toLowerCase() != cleaned.toLowerCase()) {
-        return autoTranslated;
+    final targetLanguage = _instance._currentLanguage;
+    
+    // Si la langue cible est l'anglais, retourner tel quel
+    if (targetLanguage == 'en') {
+      return cleaned;
+    }
+    
+    // Utiliser les dictionnaires JSON chargés
+    if (CulinaryDictionaryLoader.isLoaded) {
+      final culinaryTranslation = CulinaryDictionaryLoader.translateRecipeName(cleaned, targetLanguage);
+      if (culinaryTranslation != null && culinaryTranslation.toLowerCase() != cleaned.toLowerCase()) {
+        return culinaryTranslation;
       }
     }
     
-    // 2. Fallback sur l'ancien système (dictionnaires en mémoire)
+    // Utiliser AutoTranslator avec la langue cible
+    final autoTranslated = AutoTranslator.translateRecipeName(cleaned, targetLanguage: targetLanguage);
+    if (autoTranslated != cleaned && autoTranslated.toLowerCase() != cleaned.toLowerCase()) {
+      return autoTranslated;
+    }
+    
+    // 2. Fallback sur l'ancien système (dictionnaires en mémoire) - seulement pour français
     final syncTranslated = translateRecipeNameSync(recipeName);
     if (syncTranslated != cleaned && syncTranslated.toLowerCase() != cleaned.toLowerCase()) {
       return syncTranslated;
@@ -558,14 +593,29 @@ class TranslationService extends ChangeNotifier {
     
     // Nettoyer l'encodage d'abord
     String cleaned = fixEncoding(recipeName);
+    final targetLanguage = _instance._currentLanguage;
     
-    // Si la langue est française, utiliser le traducteur automatique
-    if (_instance._currentLanguage == 'fr') {
-      // Utiliser le traducteur automatique en premier
-      final autoTranslated = AutoTranslator.translateRecipeName(cleaned);
-      if (autoTranslated != cleaned && autoTranslated.toLowerCase() != cleaned.toLowerCase()) {
-        return autoTranslated;
+    // Si la langue cible est l'anglais, retourner tel quel
+    if (targetLanguage == 'en') {
+      return cleaned;
+    }
+    
+    // 1. PRIORITÉ: Utiliser les dictionnaires JSON chargés
+    if (CulinaryDictionaryLoader.isLoaded) {
+      final culinaryTranslation = CulinaryDictionaryLoader.translateRecipeName(cleaned, targetLanguage);
+      if (culinaryTranslation != null && culinaryTranslation.toLowerCase() != cleaned.toLowerCase()) {
+        return culinaryTranslation;
       }
+    }
+    
+    // 2. Utiliser AutoTranslator avec la langue cible
+    final autoTranslated = AutoTranslator.translateRecipeName(cleaned, targetLanguage: targetLanguage);
+    if (autoTranslated != cleaned && autoTranslated.toLowerCase() != cleaned.toLowerCase()) {
+      return autoTranslated;
+    }
+    
+    // 3. Si la langue est française, utiliser l'ancien système
+    if (targetLanguage == 'fr') {
       
       // Fallback sur l'ancien système si le traducteur automatique ne trouve rien
       // Dictionnaire de traductions anglais -> français pour les termes courants dans les noms de recettes

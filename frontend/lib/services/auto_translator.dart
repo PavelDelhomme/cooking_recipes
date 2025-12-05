@@ -221,13 +221,26 @@ class AutoTranslator {
   }
 
   /// Traduit un nom de recette automatiquement
-  static String translateRecipeName(String recipeName) {
+  static String translateRecipeName(String recipeName, {String targetLanguage = 'fr'}) {
     if (recipeName.isEmpty) return recipeName;
     
     // Nettoyer l'encodage
     String cleaned = recipeName.trim();
     
-    // Essayer d'abord les patterns de traduction
+    // Si la langue cible est l'anglais, retourner tel quel
+    if (targetLanguage == 'en') {
+      return cleaned;
+    }
+    
+    // Essayer d'abord les dictionnaires JSON chargés
+    if (CulinaryDictionaryLoader.isLoaded) {
+      final culinaryTranslation = CulinaryDictionaryLoader.translateRecipeName(cleaned, targetLanguage);
+      if (culinaryTranslation != null && culinaryTranslation.toLowerCase() != cleaned.toLowerCase()) {
+        return culinaryTranslation;
+      }
+    }
+    
+    // Essayer ensuite les patterns de traduction
     for (var pattern in _translationPatterns) {
       final match = pattern.pattern.firstMatch(cleaned);
       if (match != null) {
@@ -239,7 +252,7 @@ class AutoTranslator {
     }
     
     // Si aucun pattern ne correspond, traduire mot par mot
-    return translatePhrase(cleaned);
+    return translatePhrase(cleaned, targetLanguage: targetLanguage);
   }
 }
 

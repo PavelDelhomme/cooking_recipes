@@ -418,10 +418,18 @@ class _RecipesScreenState extends State<RecipesScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Déterminer le nombre de colonnes selon la largeur de l'écran
-        // 2 colonnes si largeur >= 600px (tablettes et grands écrans)
-        // 1 colonne sinon (mobiles)
-        final crossAxisCount = constraints.maxWidth >= 600 ? 2 : 1;
-        final isWideScreen = crossAxisCount == 2;
+        // Adapté pour les grands écrans
+        int crossAxisCount;
+        if (constraints.maxWidth >= 1200) {
+          crossAxisCount = 4; // Très grands écrans : 4 colonnes
+        } else if (constraints.maxWidth >= 900) {
+          crossAxisCount = 3; // Grands écrans : 3 colonnes
+        } else if (constraints.maxWidth >= 600) {
+          crossAxisCount = 2; // Tablettes : 2 colonnes
+        } else {
+          crossAxisCount = 1; // Mobiles : 1 colonne
+        }
+        final isWideScreen = crossAxisCount >= 2;
 
         return CustomScrollView(
           slivers: [
@@ -536,9 +544,16 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 sliver: SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: isWideScreen ? 0.85 : 1.1, // Optimisé pour réduire l'espace vertical
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    // Ratio adapté selon la taille de l'écran pour éviter l'espace inutile
+                    childAspectRatio: crossAxisCount >= 4 
+                        ? 0.7  // Très grands écrans : cartes plus compactes
+                        : crossAxisCount >= 3 
+                            ? 0.72  // Grands écrans : cartes compactes
+                            : isWideScreen 
+                                ? 0.75  // Tablettes : cartes moyennes
+                                : 0.95, // Mobiles : cartes plus hautes
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
@@ -699,7 +714,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   Widget _buildWideScreenCard(Recipe recipe) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min, // Important : éviter l'espace inutile en bas
       children: [
         if (recipe.image != null)
           ClipRRect(
@@ -710,13 +725,13 @@ class _RecipesScreenState extends State<RecipesScreen> {
             child: Image.network(
               recipe.image!,
               width: double.infinity,
-              height: 120,
+              height: 100, // Réduit la hauteur de l'image pour les grands écrans
               fit: BoxFit.cover,
               cacheWidth: 300, // Optimisation mémoire
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) return child;
                 return Container(
-                  height: 120,
+                  height: 100, // Correspond à la nouvelle hauteur
                   color: Theme.of(context).colorScheme.surfaceVariant,
                   child: Center(
                     child: CircularProgressIndicator(
@@ -731,11 +746,11 @@ class _RecipesScreenState extends State<RecipesScreen> {
               errorBuilder: (context, error, stackTrace) {
                 return Container(
                   width: double.infinity,
-                  height: 120,
+                  height: 100, // Correspond à la nouvelle hauteur
                   color: Theme.of(context).colorScheme.surfaceVariant,
                   child: Icon(
                     Icons.restaurant,
-                    size: 40,
+                    size: 35, // Icône légèrement plus petite
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 );
@@ -745,19 +760,19 @@ class _RecipesScreenState extends State<RecipesScreen> {
         else
           Container(
             width: double.infinity,
-            height: 120,
+            height: 100, // Réduit la hauteur pour correspondre à l'image
             color: Theme.of(context).colorScheme.surfaceVariant,
             child: Icon(
               Icons.restaurant,
-              size: 40,
+              size: 35, // Icône légèrement plus petite
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          padding: const EdgeInsets.fromLTRB(10, 8, 10, 6), // Réduit le padding du bas
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min, // Important : éviter l'espace inutile
             children: [
               TranslationBuilder(
                 builder: (context) {
@@ -774,10 +789,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 3), // Réduit l'espace entre titre et badges
               Wrap(
-                spacing: 4,
-                runSpacing: 3,
+                spacing: 3, // Réduit l'espacement horizontal
+                runSpacing: 2, // Réduit l'espacement vertical entre lignes
                 children: [
                   if (recipe.prepTimeMinutes != null)
                     _buildInfoChip(
@@ -830,20 +845,20 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   Widget _buildInfoChip(IconData icon, String label, BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // Réduit le padding
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(5), // Légèrement plus petit
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 4),
+          Icon(icon, size: 14, color: Theme.of(context).colorScheme.primary), // Icône plus petite
+          const SizedBox(width: 3), // Espacement réduit
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11, // Texte plus petit
               color: Theme.of(context).colorScheme.onPrimaryContainer,
             ),
           ),

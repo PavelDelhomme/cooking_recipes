@@ -1085,6 +1085,10 @@ elif [ "$DEVICE_CHOICE" = "3" ]; then
 else
     echo -e "${YELLOW}Application lancée sur: http://$MACHINE_IP:7070${NC}"
 fi
+echo ""
+echo -e "${GREEN}🎉 Application chargée et prête !${NC}"
+echo -e "${GREEN}   Vous pouvez maintenant utiliser l'application dans votre navigateur${NC}"
+echo ""
 echo -e "${YELLOW}Appuyez sur Ctrl+C pour redémarrer (Double Ctrl+C ou Ctrl+\\ pour arrêter définitivement)${NC}"
 echo ""
 

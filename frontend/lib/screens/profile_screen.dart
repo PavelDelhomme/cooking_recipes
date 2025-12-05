@@ -304,43 +304,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
           ),
-          // Bouton de déconnexion
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              color: Theme.of(context).colorScheme.errorContainer,
-              child: ListTile(
-                leading: Icon(
-                  Icons.logout,
-                  color: Theme.of(context).colorScheme.onErrorContainer,
-                ),
-                title: Text(
-                  'Déconnexion',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onErrorContainer,
-                  ),
-                ),
-                subtitle: Text(
-                  'Se déconnecter de votre compte',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onErrorContainer.withOpacity(0.7),
-                  ),
-                ),
-                trailing: Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: Theme.of(context).colorScheme.onErrorContainer,
-                ),
-                onTap: () => _handleLogout(),
-              ),
-            ),
-          ),
         ],
       ),
     );

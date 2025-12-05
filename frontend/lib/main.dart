@@ -647,15 +647,56 @@ class _MainScreenState extends State<MainScreen> {
                 ? (AppLocalizations.of(context)?.lightMode ?? 'Mode clair')
                 : (AppLocalizations.of(context)?.darkMode ?? 'Mode sombre'),
             ),
-            trailing: Switch(
-              value: widget.isDarkMode,
-              onChanged: (_) => widget.onThemeToggle?.call(),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Switch(
+                  value: widget.isDarkMode,
+                  onChanged: (_) => widget.onThemeToggle?.call(),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: Icon(
+                    Icons.logout,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  onPressed: () => _handleLogout(context),
+                  tooltip: 'Déconnexion',
+                ),
+              ],
             ),
             onTap: () => widget.onThemeToggle?.call(),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _handleLogout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Déconnexion'),
+        content: const Text('Voulez-vous vous déconnecter ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Déconnexion'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && widget.onLogout != null) {
+      widget.onLogout!();
+    }
   }
 
   void _showLanguageDialog(BuildContext context) {
