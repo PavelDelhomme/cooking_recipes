@@ -6,6 +6,9 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# Fichier de configuration pour sauvegarder les choix lors des redémarrages
+DEV_CONFIG_FILE="/tmp/flutter_cooking_recipe_dev_config.txt"
+
 # Couleurs
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -500,9 +503,23 @@ if [ "$FORCE_WEB_ONLY" != "true" ] && [ "$FORCE_WEB_ONLY" != "1" ] && [ "$HAS_AN
   
   # Proposer de connecter via WiFi si un device USB est détecté mais pas de WiFi
   if [ ${#ANDROID_USB_DEVICES[@]} -gt 0 ] && [ ${#ANDROID_WIFI_DEVICES[@]} -eq 0 ]; then
-    echo ""
-    echo -e "${YELLOW}💡 Astuce: Vous pouvez connecter votre téléphone via WiFi${NC}"
-    read -p "Voulez-vous activer la connexion ADB via WiFi? (o/N): " enable_wifi
+    # Charger le choix sauvegardé si disponible (lors d'un redémarrage)
+    if [ -f "$DEV_CONFIG_FILE" ]; then
+      source "$DEV_CONFIG_FILE" 2>/dev/null || true
+    fi
+    
+    # Si le choix n'est pas sauvegardé, demander à l'utilisateur
+    if [ -z "$SAVED_ENABLE_WIFI" ]; then
+      echo ""
+      echo -e "${YELLOW}💡 Astuce: Vous pouvez connecter votre téléphone via WiFi${NC}"
+      read -p "Voulez-vous activer la connexion ADB via WiFi? (o/N): " enable_wifi
+      # Sauvegarder le choix (créer le fichier s'il n'existe pas)
+      echo "SAVED_ENABLE_WIFI=\"$enable_wifi\"" > "$DEV_CONFIG_FILE"
+    else
+      enable_wifi="$SAVED_ENABLE_WIFI"
+      echo -e "${GREEN}→ Réutilisation du choix précédent: ADB WiFi = ${enable_wifi}${NC}"
+    fi
+    
     if [[ "$enable_wifi" =~ ^[oO]$ ]]; then
       USB_DEVICE="${ANDROID_USB_DEVICES[0]}"
       echo -e "${GREEN}Activation du mode TCP/IP sur le device USB...${NC}"
@@ -590,37 +607,71 @@ if [ "$FORCE_WEB_ONLY" != "true" ] && [ "$FORCE_WEB_ONLY" != "1" ] && [ "$HAS_AN
   echo -e "  ${GREEN}✓ Web (navigateur)${NC}"
   echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
   echo ""
-  echo -e "${YELLOW}Choisissez où lancer l'application:${NC}"
-  echo -e "  ${GREEN}1)${NC} Téléphone Android uniquement ${YELLOW}(recommandé si device connecté)${NC}"
-  echo -e "  ${GREEN}2)${NC} Navigateur Web uniquement"
-  echo -e "  ${GREEN}3)${NC} Les deux (Android + Web)"
-  echo ""
-  read -p "Votre choix [1-3] (défaut: 1 pour Android, 2 sinon): " DEVICE_CHOICE
+  # Charger le choix sauvegardé si disponible (lors d'un redémarrage)
+  if [ -f "$DEV_CONFIG_FILE" ]; then
+    source "$DEV_CONFIG_FILE" 2>/dev/null || true
+  fi
   
-  # Si un device Android est détecté, proposer Android par défaut
-  if [ -z "$DEVICE_CHOICE" ]; then
-    if [ ! -z "$ANDROID_DEVICE_ID" ]; then
-      DEVICE_CHOICE="1"
-      AUTO_SELECT_ANDROID=true
-      echo -e "${GREEN}→ Sélection automatique: Android (device détecté)${NC}"
-    else
-      DEVICE_CHOICE="2"
+  # Si le choix n'est pas sauvegardé, demander à l'utilisateur
+  if [ -z "$SAVED_DEVICE_CHOICE" ]; then
+    echo -e "${YELLOW}Choisissez où lancer l'application:${NC}"
+    echo -e "  ${GREEN}1)${NC} Téléphone Android uniquement ${YELLOW}(recommandé si device connecté)${NC}"
+    echo -e "  ${GREEN}2)${NC} Navigateur Web uniquement"
+    echo -e "  ${GREEN}3)${NC} Les deux (Android + Web)"
+    echo ""
+    read -p "Votre choix [1-3] (défaut: 1 pour Android, 2 sinon): " DEVICE_CHOICE
+    
+    # Si un device Android est détecté, proposer Android par défaut
+    if [ -z "$DEVICE_CHOICE" ]; then
+      if [ ! -z "$ANDROID_DEVICE_ID" ]; then
+        DEVICE_CHOICE="1"
+        AUTO_SELECT_ANDROID=true
+        echo -e "${GREEN}→ Sélection automatique: Android (device détecté)${NC}"
+      else
+        DEVICE_CHOICE="2"
+      fi
     fi
+    # Sauvegarder le choix (ajouter au fichier existant ou créer)
+    if [ -f "$DEV_CONFIG_FILE" ]; then
+      echo "SAVED_DEVICE_CHOICE=\"$DEVICE_CHOICE\"" >> "$DEV_CONFIG_FILE"
+    else
+      echo "SAVED_DEVICE_CHOICE=\"$DEVICE_CHOICE\"" > "$DEV_CONFIG_FILE"
+    fi
+  else
+    DEVICE_CHOICE="$SAVED_DEVICE_CHOICE"
+    echo -e "${GREEN}→ Réutilisation du choix précédent: Mode = $DEVICE_CHOICE${NC}"
   fi
 elif [ "$FORCE_WEB_ONLY" != "true" ] && [ "$FORCE_WEB_ONLY" != "1" ]; then
-  echo -e "${YELLOW}⚠ Aucun appareil Android détecté${NC}"
-  echo -e "${YELLOW}   Connectez votre téléphone via USB et activez le débogage USB${NC}"
-  echo -e "${YELLOW}   Ou choisissez l'option Web uniquement${NC}"
-  echo ""
-  echo -e "${YELLOW}Choisissez où lancer l'application:${NC}"
-  echo -e "  ${GREEN}1)${NC} Téléphone Android uniquement ${YELLOW}(nécessite un device connecté)${NC}"
-  echo -e "  ${GREEN}2)${NC} Navigateur Web uniquement ${YELLOW}(PC - localhost)${NC}"
-  echo -e "  ${GREEN}3)${NC} Les deux (Android + Web)"
-  echo ""
-  read -p "Votre choix [1-3] (défaut: 2 pour Web): " DEVICE_CHOICE
-  if [ -z "$DEVICE_CHOICE" ]; then
-    DEVICE_CHOICE="2"
-    echo -e "${GREEN}→ Sélection automatique: Web (aucun device Android détecté)${NC}"
+  # Charger le choix sauvegardé si disponible (lors d'un redémarrage)
+  if [ -f "$DEV_CONFIG_FILE" ]; then
+    source "$DEV_CONFIG_FILE" 2>/dev/null || true
+  fi
+  
+  # Si le choix n'est pas sauvegardé, demander à l'utilisateur
+  if [ -z "$SAVED_DEVICE_CHOICE" ]; then
+    echo -e "${YELLOW}⚠ Aucun appareil Android détecté${NC}"
+    echo -e "${YELLOW}   Connectez votre téléphone via USB et activez le débogage USB${NC}"
+    echo -e "${YELLOW}   Ou choisissez l'option Web uniquement${NC}"
+    echo ""
+    echo -e "${YELLOW}Choisissez où lancer l'application:${NC}"
+    echo -e "  ${GREEN}1)${NC} Téléphone Android uniquement ${YELLOW}(nécessite un device connecté)${NC}"
+    echo -e "  ${GREEN}2)${NC} Navigateur Web uniquement ${YELLOW}(PC - localhost)${NC}"
+    echo -e "  ${GREEN}3)${NC} Les deux (Android + Web)"
+    echo ""
+    read -p "Votre choix [1-3] (défaut: 2 pour Web): " DEVICE_CHOICE
+    if [ -z "$DEVICE_CHOICE" ]; then
+      DEVICE_CHOICE="2"
+      echo -e "${GREEN}→ Sélection automatique: Web (aucun device Android détecté)${NC}"
+    fi
+    # Sauvegarder le choix (ajouter au fichier existant ou créer)
+    if [ -f "$DEV_CONFIG_FILE" ]; then
+      echo "SAVED_DEVICE_CHOICE=\"$DEVICE_CHOICE\"" >> "$DEV_CONFIG_FILE"
+    else
+      echo "SAVED_DEVICE_CHOICE=\"$DEVICE_CHOICE\"" > "$DEV_CONFIG_FILE"
+    fi
+  else
+    DEVICE_CHOICE="$SAVED_DEVICE_CHOICE"
+    echo -e "${GREEN}→ Réutilisation du choix précédent: Mode = $DEVICE_CHOICE${NC}"
   fi
 fi
 
@@ -690,6 +741,7 @@ restart_app() {
   pkill -f "node.*server.js" 2>/dev/null || true
   pkill -f "flutter.*web-server" 2>/dev/null || true
   pkill -f "flutter.*android" 2>/dev/null || true
+  pkill -f "python.*http.server" 2>/dev/null || true
   
   # Attendre un peu pour que les processus se terminent
   sleep 2
@@ -707,6 +759,7 @@ restart_app() {
   fi
   
   # Redémarrer en appelant le script à nouveau
+  # Les choix sauvegardés seront automatiquement réutilisés
   echo -e "${YELLOW}Redémarrage dans 2 secondes...${NC}"
   sleep 2
   # Préserver les variables d'environnement importantes
@@ -726,6 +779,10 @@ stop_app() {
   echo -e "${RED}🛑 Arrêt définitif de l'application...${NC}"
   echo -e "${RED}═══════════════════════════════════════════════════════════${NC}"
   echo ""
+  
+  # Supprimer le fichier de configuration pour que les choix soient redemandés au prochain démarrage
+  rm -f "$DEV_CONFIG_FILE" 2>/dev/null || true
+  
   cleanup
   exit 0
 }
@@ -973,42 +1030,57 @@ case "$DEVICE_CHOICE" in
       echo -e "${RED}❌ Flutter n'est pas correctement configuré${NC}"
       exit 1
     fi
-    # Compiler d'abord pour éviter les problèmes MIME type
+    # Compiler d'abord pour éviter les problèmes MIME type et assets
     echo -e "${YELLOW}Compilation initiale du frontend web...${NC}"
     $FLUTTER_CMD pub get > /dev/null 2>&1 || true
-    echo -e "${GREEN}Lancement du serveur web Flutter...${NC}"
-    $FLUTTER_CMD run -d web-server --web-port=7070 --web-hostname=0.0.0.0 > /tmp/frontend.log 2>&1 &
-    FRONTEND_PID=$!
-    echo "$FRONTEND_PID" > /tmp/frontend_pid.txt 2>/dev/null || true
-    # Attendre que le serveur compile et démarre complètement
-    echo -e "${YELLOW}Attente de la compilation et du démarrage du serveur web...${NC}"
-    MAX_WAIT=30
-    WAIT_COUNT=0
-    while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
-      sleep 1
-      WAIT_COUNT=$((WAIT_COUNT + 1))
-      # Vérifier que le processus est toujours en vie
-      if ! kill -0 $FRONTEND_PID 2>/dev/null; then
-        echo -e "${RED}❌ Le frontend n'a pas démarré correctement${NC}"
-        echo -e "${YELLOW}Logs:${NC}"
-        cat /tmp/frontend.log
-        exit 1
-      fi
-      # Vérifier que le serveur répond et que les fichiers JS sont disponibles
-      if curl -s -o /dev/null -w "%{http_code}" http://localhost:7070/flutter_bootstrap.js 2>/dev/null | grep -q "200"; then
-        echo -e "${GREEN}✓ Serveur web prêt!${NC}"
-        break
-      fi
-      if [ $((WAIT_COUNT % 5)) -eq 0 ]; then
-        echo -e "${YELLOW}   En attente... ($WAIT_COUNT/$MAX_WAIT secondes)${NC}"
-      fi
-    done
-    if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
-      echo -e "${YELLOW}⚠ Le serveur prend plus de temps que prévu${NC}"
-      echo -e "${YELLOW}   Vérifiez les logs avec: tail -f /tmp/frontend.log${NC}"
+    echo -e "${YELLOW}Build web en cours...${NC}"
+    if ! $FLUTTER_CMD build web --release > /tmp/flutter_build.log 2>&1; then
+      echo -e "${RED}❌ Échec du build web${NC}"
+      echo -e "${YELLOW}Logs:${NC}"
+      tail -50 /tmp/flutter_build.log
+      exit 1
     fi
+    echo -e "${GREEN}✓ Build web terminé${NC}"
+    
+    # Vérifier que build/web existe
+    if [ ! -d "build/web" ]; then
+      echo -e "${RED}❌ Le répertoire build/web n'existe pas${NC}"
+      exit 1
+    fi
+    
+    # Lancer un serveur HTTP simple pour servir build/web
+    echo -e "${GREEN}Lancement du serveur web HTTP...${NC}"
+    cd build/web || exit 1
+    
+    # Utiliser Python pour servir les fichiers
+    if command -v python3 &> /dev/null; then
+      # Python 3
+      python3 -m http.server 7070 --bind 0.0.0.0 > /tmp/frontend.log 2>&1 &
+      FRONTEND_PID=$!
+    elif command -v python &> /dev/null; then
+      # Python 2
+      python -m SimpleHTTPServer 7070 > /tmp/frontend.log 2>&1 &
+      FRONTEND_PID=$!
+    else
+      echo -e "${RED}❌ Python n'est pas installé. Impossible de servir les fichiers web.${NC}"
+      exit 1
+    fi
+    
+    echo "$FRONTEND_PID" > /tmp/frontend_pid.txt 2>/dev/null || true
+    
+    # Attendre que le serveur démarre
+    sleep 2
+    
+    # Vérifier que le serveur répond
+    if curl -s -o /dev/null -w "%{http_code}" http://localhost:7070/index.html 2>/dev/null | grep -q "200"; then
+      echo -e "${GREEN}✓ Serveur web prêt!${NC}"
+    else
+      echo -e "${YELLOW}⚠ Le serveur peut prendre quelques secondes pour démarrer${NC}"
+    fi
+    
     echo -e "${GREEN}✓ Frontend démarré sur http://localhost:7070${NC}"
     echo -e "${GREEN}✓ Frontend accessible depuis le réseau: http://$MACHINE_IP:7070${NC}"
+    echo -e "${YELLOW}Note: Pour recharger après modification, faites 'flutter build web' puis rechargez la page${NC}"
     ;;
   3)
     # Les deux
