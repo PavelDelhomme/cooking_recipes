@@ -430,7 +430,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               title: TranslationBuilder(
                 builder: (context) {
                   return Text(
-                    TranslationService.translateRecipeName(widget.recipe.title),
+                    TranslationService.translateRecipeNameSync(widget.recipe.title),
                     style: const TextStyle(
                       color: Colors.white,
                       shadows: [
@@ -625,7 +625,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             // Écouter les changements de locale
                             LocaleNotifier.of(context);
                             return Text(
-                              TranslationService.translateIngredient(ingredient.name),
+                              TranslationService.translateIngredientSync(ingredient.name),
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,

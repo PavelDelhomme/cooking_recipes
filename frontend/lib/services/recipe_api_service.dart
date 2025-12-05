@@ -353,7 +353,7 @@ class RecipeApiService {
     // Nettoyer et traduire le titre
     String title = meal['strMeal']?.toString() ?? 'Recette sans nom';
     title = TranslationService.fixEncoding(title);
-    title = TranslationService.translateRecipeName(title);
+    title = TranslationService.translateRecipeNameSync(title);
     
     // La description est un résumé des instructions (première phrase ou 200 premiers caractères)
     // STOCKER LE TEXTE ORIGINAL

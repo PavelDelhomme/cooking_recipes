@@ -709,7 +709,14 @@ restart_app() {
   # Redémarrer en appelant le script à nouveau
   echo -e "${YELLOW}Redémarrage dans 2 secondes...${NC}"
   sleep 2
-  exec "$0" "$@"
+  # Préserver les variables d'environnement importantes
+  if [ ! -z "$FORCE_WEB_ONLY" ]; then
+    export FORCE_WEB_ONLY="$FORCE_WEB_ONLY"
+  fi
+  if [ ! -z "$STACKTRACE" ]; then
+    export STACKTRACE="$STACKTRACE"
+  fi
+  exec "$PROJECT_ROOT/scripts/dev.sh" "$@"
 }
 
 # Gérer Ctrl+C : redémarrer au lieu d'arrêter

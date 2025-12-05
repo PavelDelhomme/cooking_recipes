@@ -1,4 +1,17 @@
 services:
+  libretranslate-init:
+    image: alpine:latest
+    container_name: libretranslate-init
+    volumes:
+      - libretranslate_models:/data
+    command: >
+      sh -c
+      "mkdir -p /data/argos-translate/packages &&
+      chown -R 1000:1000 /data &&
+      chmod -R 777 /data &&
+      echo 'Volume initialisé avec succès'"
+    user: root
+
   libretranslate:
     image: libretranslate/libretranslate:latest
     container_name: libretranslate
@@ -7,19 +20,16 @@ services:
     environment:
       - LT_HOST=0.0.0.0
       - LT_PORT=5000
-      # Langues supportées (en, fr, es, de, it, pt, ru, zh, ja)
       - LT_LOAD_ONLY=en,fr,es
-      # Limite de caractères par requête (optionnel)
       - LT_CHAR_LIMIT=5000
-      # Rate limiting (optionnel)
-      - LT_REQ_LIMIT=100
-      - LT_REQ_LIMIT_STORAGE=memory
-      # Définir HOME pour que argostranslate utilise le bon répertoire
+      # Rate limiting désactivé pour éviter les erreurs de configuration
+      # Le rate limiting peut être géré par Nginx ou le backend si nécessaire
       - HOME=/home/libretranslate
     volumes:
-      # Persister les modèles téléchargés - monter directement dans argos-translate
-      - libretranslate_models:/home/libretranslate/.local/share/argos-translate
+      - libretranslate_models:/home/libretranslate/.local/share
     restart: unless-stopped
+    depends_on:
+      - libretranslate-init
     read_only: false
     tmpfs:
       - /tmp
@@ -33,3 +43,6 @@ services:
 
 volumes:
   libretranslate_models:
+    driver: local
+  libretranslate_data:
+    driver: local

@@ -163,7 +163,7 @@ class _RecipeHistoryScreenState extends State<RecipeHistoryScreen> {
                           title: TranslationBuilder(
                             builder: (context) {
                               return Text(
-                                TranslationService.translateRecipeName(recipe.title),
+                                TranslationService.translateRecipeNameSync(recipe.title),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                 ),

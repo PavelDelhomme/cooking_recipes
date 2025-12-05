@@ -76,10 +76,14 @@ services:
       - LT_PORT=5000
       - LT_LOAD_ONLY=en,fr,es
       - LT_CHAR_LIMIT=5000
-      - LT_REQ_LIMIT=100
-      - LT_REQ_LIMIT_STORAGE=memory
+      # Désactiver le rate limiting pour éviter les erreurs (optionnel)
+      # - LT_REQ_LIMIT=100
+      # Définir le répertoire de données pour éviter les problèmes de permissions
+      - ARGOS_TRANSLATE_PACKAGES_DIR=/app/models
+      - ARGOS_TRANSLATE_DATA_DIR=/app/data
     volumes:
-      - cookingrecipes_libretranslate_models:/home/libretranslate/.local/share
+      - cookingrecipes_libretranslate_models:/app/models
+      - cookingrecipes_libretranslate_data:/app/data
     networks:
       - cookingrecipes_network
     labels:
@@ -89,7 +93,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 120s  # Plus long au premier démarrage (téléchargement des modèles)
     security_opt:
       - no-new-privileges:true
     read_only: false
@@ -110,6 +114,9 @@ volumes:
   cookingrecipes_libretranslate_models:
     driver: local
     name: cookingrecipes_libretranslate_models
+  cookingrecipes_libretranslate_data:
+    driver: local
+    name: cookingrecipes_libretranslate_data
 
 networks:
   cookingrecipes_network:

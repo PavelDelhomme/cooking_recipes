@@ -438,7 +438,7 @@ class PantryScreenState extends State<PantryScreen> {
                             // Écouter les changements de locale
                             LocaleNotifier.of(context);
                             return Text(
-                              TranslationService.translateIngredient(item.name),
+                              TranslationService.translateIngredientSync(item.name),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,

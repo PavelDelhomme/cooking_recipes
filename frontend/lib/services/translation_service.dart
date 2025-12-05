@@ -432,7 +432,7 @@ class TranslationService extends ChangeNotifier {
 
   /// Traduit une liste d'ingrédients
   static List<String> translateIngredients(List<String> ingredients) {
-    return ingredients.map((ingredient) => translateIngredient(ingredient)).toList();
+    return ingredients.map((ingredient) => translateIngredientSync(ingredient)).toList();
   }
 
   /// Nettoie et traduit un texte de recette (instructions, etc.)

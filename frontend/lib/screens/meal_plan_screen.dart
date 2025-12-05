@@ -331,7 +331,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                       title: TranslationBuilder(
                                         builder: (context) {
                                           return Text(
-                                            TranslationService.translateRecipeName(recipe.title),
+                                            TranslationService.translateRecipeNameSync(recipe.title),
                                           );
                                         },
                                       ),
@@ -707,7 +707,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
         content: TranslationBuilder(
           builder: (context) {
             return Text(
-              'Voulez-vous remplacer "${TranslationService.translateRecipeName(mealPlan.recipe.title)}" par une alternative basée sur votre placard?',
+              'Voulez-vous remplacer "${TranslationService.translateRecipeNameSync(mealPlan.recipe.title)}" par une alternative basée sur votre placard?',
             );
           },
         ),
@@ -795,7 +795,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
         content: TranslationBuilder(
           builder: (context) {
             return Text(
-              'Voulez-vous supprimer ${TranslationService.translateRecipeName(mealPlan.recipe.title)} du planning ?',
+              'Voulez-vous supprimer ${TranslationService.translateRecipeNameSync(mealPlan.recipe.title)} du planning ?',
             );
           },
         ),
@@ -1235,7 +1235,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
             title: TranslationBuilder(
               builder: (context) {
                 return Text(
-                  TranslationService.translateRecipeName(mealPlan.recipe.title),
+                  TranslationService.translateRecipeNameSync(mealPlan.recipe.title),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -1514,7 +1514,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                           title: TranslationBuilder(
                             builder: (context) {
                               return Text(
-                                TranslationService.translateRecipeName(mealPlan.recipe.title),
+                                TranslationService.translateRecipeNameSync(mealPlan.recipe.title),
                                 style: const TextStyle(fontSize: 14),
                               );
                             },

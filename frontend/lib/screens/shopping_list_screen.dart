@@ -505,7 +505,7 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
                             // Écouter les changements de locale
                             LocaleNotifier.of(context);
                             return Text(
-                              TranslationService.translateIngredient(item.name),
+                              TranslationService.translateIngredientSync(item.name),
                               style: TextStyle(
                                 decoration: item.isChecked
                                     ? TextDecoration.lineThrough
