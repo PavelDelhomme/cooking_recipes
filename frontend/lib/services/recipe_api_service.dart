@@ -31,9 +31,10 @@ class RecipeApiService {
         final data = json.decode(utf8Body);
         if (data['meals'] != null) {
           final recipes = <Recipe>[];
-          for (var meal in data['meals'] as List) {
-            recipes.add(await _convertMealToRecipe(meal));
-          }
+          final meals = data['meals'] as List;
+          // Convertir en parallèle pour accélérer
+          final recipeFutures = meals.map((meal) => _convertMealToRecipe(meal));
+          recipes.addAll(await Future.wait(recipeFutures));
           return recipes;
         }
       }
@@ -41,6 +42,38 @@ class RecipeApiService {
     } catch (e) {
       print('Erreur lors de la recherche de recettes: $e');
       return [];
+    }
+  }
+
+  // Version avec Stream pour chargement progressif avec limite
+  Stream<Recipe> searchRecipesStream(String query, {int? limit}) async* {
+    try {
+      final url = '$baseUrl/search.php?s=$query';
+      final response = await ApiLogger.interceptRequest(
+        () => http.get(Uri.parse(url)),
+        'GET',
+        url,
+      );
+
+      if (response.statusCode == 200) {
+        final utf8Body = utf8.decode(response.bodyBytes);
+        final data = json.decode(utf8Body);
+        if (data['meals'] != null) {
+          final meals = data['meals'] as List;
+          int count = 0;
+          for (var meal in meals) {
+            // Limiter le nombre de recettes si une limite est spécifiée
+            if (limit != null && count >= limit) {
+              break;
+            }
+            final recipe = await _convertMealToRecipe(meal);
+            yield recipe;
+            count++;
+          }
+        }
+      }
+    } catch (e) {
+      print('Erreur lors de la recherche de recettes: $e');
     }
   }
 

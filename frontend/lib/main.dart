@@ -7,6 +7,7 @@ import 'screens/recipes_screen.dart';
 import 'screens/meal_plan_screen.dart';
 import 'screens/shopping_list_screen.dart' show ShoppingListScreen, ShoppingListScreenState;
 import 'screens/profile_screen.dart';
+import 'screens/recipe_card_test_screen.dart';
 import 'screens/auth_screen.dart';
 import 'screens/favorites_screen.dart';
 import 'screens/recipe_history_screen.dart';
@@ -452,6 +453,24 @@ class _MainScreenState extends State<MainScreen> {
             onPressed: () => widget.onThemeToggle?.call(),
           ),
           const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.person, size: 28),
+            tooltip: 'Profil',
+            onPressed: () {
+              setState(() => _selectedIndex = 4);
+            },
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: Icon(
+              Icons.logout,
+              size: 28,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            tooltip: 'Déconnexion',
+            onPressed: () => _handleLogout(context),
+          ),
+          const SizedBox(width: 8),
         ],
       ),
     );
@@ -536,6 +555,19 @@ class _MainScreenState extends State<MainScreen> {
               setState(() => _selectedIndex = 0);
               Navigator.pop(context);
               _loadProfile();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.view_module),
+            title: const Text('Test Variantes Cartes'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const RecipeCardTestScreen(),
+                ),
+              );
             },
           ),
           ListTile(
@@ -655,6 +687,15 @@ class _MainScreenState extends State<MainScreen> {
                   onChanged: (_) => widget.onThemeToggle?.call(),
                 ),
                 const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.person),
+                  onPressed: () {
+                    setState(() => _selectedIndex = 4);
+                    Navigator.pop(context);
+                  },
+                  tooltip: 'Profil',
+                ),
+                const SizedBox(width: 4),
                 IconButton(
                   icon: Icon(
                     Icons.logout,

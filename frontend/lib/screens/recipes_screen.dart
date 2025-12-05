@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/recipe.dart';
 import '../services/recipe_api_service.dart';
 import '../services/pantry_service.dart';
@@ -7,6 +8,7 @@ import '../services/translation_service.dart';
 import '../widgets/locale_notifier.dart';
 import '../widgets/translation_builder.dart';
 import 'recipe_detail_screen.dart';
+import 'recipe_card_variants.dart';
 
 class RecipesScreen extends StatefulWidget {
   const RecipesScreen({super.key});
@@ -23,29 +25,68 @@ class _RecipesScreenState extends State<RecipesScreen> {
   List<Recipe> _recipes = [];
   List<Recipe> _suggestedRecipes = [];
   bool _isLoading = false;
+  bool _isLoadingMore = false; // Pour le scroll infini
+  bool _hasMoreRecipes = true; // Indique s'il y a plus de recettes à charger
   bool _isLoadingSuggestions = false;
   String _searchQuery = '';
   Timer? _debounceTimer;
   List<String> _searchSuggestions = [];
   bool _isLoadingSearchSuggestions = false;
   bool _suggestionsLoaded = false; // Flag pour savoir si les suggestions ont été chargées
+  int _cardVariant = 1; // Variante de carte actuelle (1-5)
+  static const String _cardVariantKey = 'recipe_card_variant';
+  final ScrollController _scrollController = ScrollController();
+  int _currentPage = 0;
+  static const int _recipesPerPage = 10; // Nombre de recettes par page
 
   @override
   void initState() {
     super.initState();
-    // Charger les suggestions seulement au premier démarrage
-    if (!_suggestionsLoaded) {
-      _loadSuggestedRecipes();
-      _suggestionsLoaded = true;
-    }
+    // Charger la variante sauvegardée
+    _loadCardVariant();
     // Écouter les changements dans le champ de recherche pour l'autocomplétion
     _searchController.addListener(_onSearchChanged);
+    // Écouter le scroll pour le chargement infini
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    // Charger plus de recettes quand on approche de la fin (200px avant la fin)
+    if (_scrollController.position.pixels >= 
+        _scrollController.position.maxScrollExtent - 200) {
+      if (!_isLoadingMore && _hasMoreRecipes && _searchQuery.isNotEmpty && !_isLoading) {
+        _loadMoreRecipes();
+      }
+    }
+  }
+
+  Future<void> _loadCardVariant() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedVariant = prefs.getInt(_cardVariantKey);
+      if (savedVariant != null && savedVariant >= 1 && savedVariant <= 5) {
+        setState(() => _cardVariant = savedVariant);
+      }
+    } catch (e) {
+      // Utiliser la variante par défaut en cas d'erreur
+    }
+  }
+
+  Future<void> _saveCardVariant(int variant) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_cardVariantKey, variant);
+    } catch (e) {
+      // Ignorer les erreurs de sauvegarde
+    }
   }
 
   @override
   void dispose() {
     _debounceTimer?.cancel();
     _searchController.removeListener(_onSearchChanged);
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -166,21 +207,96 @@ class _RecipesScreenState extends State<RecipesScreen> {
       setState(() {
         _recipes = [];
         _searchQuery = '';
+        _currentPage = 0;
+        _hasMoreRecipes = true;
       });
       return;
     }
 
+    final query = _searchController.text.trim();
     setState(() {
       _isLoading = true;
-      _searchQuery = _searchController.text.trim();
+      _searchQuery = query;
+      _recipes = []; // Réinitialiser la liste
+      _currentPage = 0;
+      _hasMoreRecipes = true;
     });
 
-    final recipes = await _recipeService.searchRecipes(_searchQuery);
-    
+    // Charger la première page de recettes progressivement
+    await _loadRecipesPage(0);
+  }
+
+  Future<void> _loadRecipesPage(int page) async {
+    if (!mounted || _searchQuery.isEmpty) return;
+
+    try {
+      // Charger les recettes avec Stream pour affichage progressif
+      int loadedCount = 0;
+      int startIndex = page * _recipesPerPage;
+      int endIndex = startIndex + _recipesPerPage;
+      
+      await for (var recipe in _recipeService.searchRecipesStream(_searchQuery)) {
+        if (!mounted || _searchQuery != _searchController.text.trim()) {
+          break; // Arrêter si la requête a changé
+        }
+
+        // Pour la première page, charger progressivement
+        if (page == 0 && loadedCount < _recipesPerPage) {
+          setState(() {
+            _recipes.add(recipe);
+            _isLoading = false; // Arrêter le loading dès la première recette
+          });
+          loadedCount++;
+          // Petit délai pour l'effet visuel progressif
+          await Future.delayed(const Duration(milliseconds: 50));
+        } else if (page > 0 && loadedCount < _recipesPerPage) {
+          // Pages suivantes : charger plus rapidement
+          setState(() {
+            _recipes.add(recipe);
+            _isLoadingMore = false;
+          });
+          loadedCount++;
+        }
+        
+        // Si on a atteint la limite de la page, arrêter
+        if (loadedCount >= _recipesPerPage) {
+          break;
+        }
+      }
+
+      // Vérifier s'il y a plus de recettes à charger
+      if (mounted) {
+        setState(() {
+          if (page == 0) {
+            _isLoading = false;
+          } else {
+            _isLoadingMore = false;
+          }
+          // Si on a chargé moins que _recipesPerPage, c'est qu'il n'y a plus de recettes
+          if (loadedCount < _recipesPerPage) {
+            _hasMoreRecipes = false;
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isLoadingMore = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loadMoreRecipes() async {
+    if (_isLoadingMore || !_hasMoreRecipes || _isLoading) return;
+
     setState(() {
-      _recipes = recipes;
-      _isLoading = false;
+      _isLoadingMore = true;
+      _currentPage++;
     });
+
+    await _loadRecipesPage(_currentPage);
   }
 
   void _navigateToRecipeDetail(Recipe recipe) {
@@ -211,10 +327,71 @@ class _RecipesScreenState extends State<RecipesScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: () => _loadSuggestedRecipes(force: true),
-                  tooltip: 'Actualiser les suggestions',
+                PopupMenuButton<int>(
+                  icon: const Icon(Icons.view_module),
+                  tooltip: 'Changer le style de carte',
+                  onSelected: (value) async {
+                    setState(() => _cardVariant = value);
+                    await _saveCardVariant(value);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Style de carte ${value} sélectionné'),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 1,
+                      child: Row(
+                        children: [
+                          if (_cardVariant == 1) const Icon(Icons.check, size: 20),
+                          if (_cardVariant == 1) const SizedBox(width: 8),
+                          const Text('Style 1: Compacte'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 2,
+                      child: Row(
+                        children: [
+                          if (_cardVariant == 2) const Icon(Icons.check, size: 20),
+                          if (_cardVariant == 2) const SizedBox(width: 8),
+                          const Text('Style 2: Horizontale'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 3,
+                      child: Row(
+                        children: [
+                          if (_cardVariant == 3) const Icon(Icons.check, size: 20),
+                          if (_cardVariant == 3) const SizedBox(width: 8),
+                          const Text('Style 3: Overlay'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 4,
+                      child: Row(
+                        children: [
+                          if (_cardVariant == 4) const Icon(Icons.check, size: 20),
+                          if (_cardVariant == 4) const SizedBox(width: 8),
+                          const Text('Style 4: Badges'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 5,
+                      child: Row(
+                        children: [
+                          if (_cardVariant == 5) const Icon(Icons.check, size: 20),
+                          if (_cardVariant == 5) const SizedBox(width: 8),
+                          const Text('Style 5: Minimaliste'),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -338,7 +515,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 Expanded(
                   child: _searchQuery.isNotEmpty
                       ? _buildSearchResults()
-                      : _buildSuggestedRecipes(),
+                      : _buildEmptyState(), // Afficher un état vide au lieu des suggestions
                 ),
               ],
             ),
@@ -400,13 +577,97 @@ class _RecipesScreenState extends State<RecipesScreen> {
       );
     }
 
-    return ListView.builder(
-      itemCount: _recipes.length,
-      padding: const EdgeInsets.all(8),
-      itemBuilder: (context, index) {
-        final recipe = _recipes[index];
-        return _buildRecipeCard(recipe);
+    // Utiliser les variantes de cartes pour les résultats de recherche avec scroll infini
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWideScreen = constraints.maxWidth >= 600;
+        final crossAxisCount = constraints.maxWidth >= 1200
+            ? 4
+            : constraints.maxWidth >= 900
+                ? 3
+                : constraints.maxWidth >= 600
+                    ? 2
+                    : 1;
+        
+        return GridView.builder(
+          controller: _scrollController, // Ajouter le controller pour le scroll infini
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: _getAspectRatioForVariant(crossAxisCount, isWideScreen),
+          ),
+          padding: const EdgeInsets.all(8),
+          itemCount: _recipes.length + (_isLoadingMore ? 1 : 0), // +1 pour l'indicateur de chargement
+          itemBuilder: (context, index) {
+            // Afficher l'indicateur de chargement à la fin
+            if (index == _recipes.length) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            
+            return _buildSuggestedRecipeCard(_recipes[index], isWideScreen: isWideScreen);
+          },
+        );
       },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.search,
+                size: 64,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Recherchez une recette',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Tapez le nom d\'une recette dans la barre de recherche ci-dessus',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Utilisez le menu (icône view_module) pour changer le style des cartes',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -546,18 +807,12 @@ class _RecipesScreenState extends State<RecipesScreen> {
                     crossAxisCount: crossAxisCount,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
-                    // Ratio adapté selon la taille de l'écran pour éviter l'espace inutile
-                    childAspectRatio: crossAxisCount >= 4 
-                        ? 0.7  // Très grands écrans : cartes plus compactes
-                        : crossAxisCount >= 3 
-                            ? 0.72  // Grands écrans : cartes compactes
-                            : isWideScreen 
-                                ? 0.75  // Tablettes : cartes moyennes
-                                : 0.95, // Mobiles : cartes plus hautes
+                    // Ratio adapté selon la variante et la taille de l'écran
+                    childAspectRatio: _getAspectRatioForVariant(crossAxisCount, isWideScreen),
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      return _buildRecipeCard(_suggestedRecipes[index], isWideScreen: isWideScreen);
+                      return _buildSuggestedRecipeCard(_suggestedRecipes[index], isWideScreen: isWideScreen);
                     },
                     childCount: _suggestedRecipes.length,
                   ),
@@ -865,6 +1120,56 @@ class _RecipesScreenState extends State<RecipesScreen> {
         ],
       ),
     );
+  }
+
+  // Nouvelle méthode pour les cartes de suggestions avec variantes
+  Widget _buildSuggestedRecipeCard(Recipe recipe, {bool isWideScreen = false}) {
+    return InkWell(
+      onTap: () => _navigateToRecipeDetail(recipe),
+      borderRadius: BorderRadius.circular(12),
+      child: _getCardVariant(recipe),
+    );
+  }
+
+  Widget _getCardVariant(Recipe recipe) {
+    switch (_cardVariant) {
+      case 1:
+        return RecipeCardVariants.variant1(recipe, context);
+      case 2:
+        return RecipeCardVariants.variant2(recipe, context);
+      case 3:
+        return RecipeCardVariants.variant3(recipe, context);
+      case 4:
+        return RecipeCardVariants.variant4(recipe, context);
+      case 5:
+        return RecipeCardVariants.variant5(recipe, context);
+      default:
+        return RecipeCardVariants.variant1(recipe, context);
+    }
+  }
+
+  // Calcule le ratio d'aspect selon la variante et la taille de l'écran
+  double _getAspectRatioForVariant(int crossAxisCount, bool isWideScreen) {
+    // Hauteurs approximatives des variantes (en tenant compte du contenu)
+    final Map<int, Map<String, double>> variantHeights = {
+      1: {'mobile': 0.85, 'tablet': 0.75, 'desktop': 0.7},   // Compacte
+      2: {'mobile': 0.9, 'tablet': 0.8, 'desktop': 0.75},    // Horizontale
+      3: {'mobile': 0.8, 'tablet': 0.7, 'desktop': 0.65},    // Overlay
+      4: {'mobile': 0.85, 'tablet': 0.75, 'desktop': 0.7},  // Badges
+      5: {'mobile': 0.9, 'tablet': 0.8, 'desktop': 0.75},   // Minimaliste
+    };
+
+    final heights = variantHeights[_cardVariant] ?? variantHeights[1]!;
+    
+    if (crossAxisCount >= 4) {
+      return heights['desktop']!;
+    } else if (crossAxisCount >= 3) {
+      return heights['tablet']!;
+    } else if (isWideScreen) {
+      return heights['tablet']!;
+    } else {
+      return heights['mobile']!;
+    }
   }
 }
 
