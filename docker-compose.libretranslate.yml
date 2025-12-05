@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   libretranslate:
     image: libretranslate/libretranslate:latest
@@ -16,18 +14,22 @@ services:
       # Rate limiting (optionnel)
       - LT_REQ_LIMIT=100
       - LT_REQ_LIMIT_STORAGE=memory
+      # Définir HOME pour que argostranslate utilise le bon répertoire
+      - HOME=/home/libretranslate
     volumes:
-      # Persister les modèles téléchargés
-      - libretranslate_models:/home/libretranslate/.local/share
+      # Persister les modèles téléchargés - monter directement dans argos-translate
+      - libretranslate_models:/home/libretranslate/.local/share/argos-translate
     restart: unless-stopped
-    user: "1000:1000"  # Utiliser l'UID/GID de l'utilisateur pour éviter les problèmes de permissions
+    read_only: false
+    tmpfs:
+      - /tmp
+      - /var/tmp
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/languages"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 120s  # Plus long au premier démarrage (téléchargement des modèles)
 
 volumes:
   libretranslate_models:
-
