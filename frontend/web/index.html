@@ -14,7 +14,7 @@
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
-  <base href="$FLUTTER_BASE_HREF">
+  <base href="/">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -22,10 +22,21 @@
 
   <!-- Mobile web app tags -->
   <meta name="mobile-web-app-capable" content="yes">
-  <!-- iOS meta tags & icons (deprecated but kept for compatibility) -->
+  <meta name="application-name" content="Cooking Recipes">
+  
+  <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Cooking Recipes">
+  <meta name="apple-touch-fullscreen" content="yes">
+  
+  <!-- Android/Chrome meta tags -->
+  <meta name="theme-color" content="#0175C2">
+  <meta name="msapplication-TileColor" content="#0175C2">
+  <meta name="msapplication-navbutton-color" content="#0175C2">
+  
+  <!-- Viewport optimisé pour mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
 
   <!-- Favicons - Toutes les tailles pour compatibilité maximale -->
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -38,9 +49,12 @@
   <link rel="manifest" href="manifest.json">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script>
-    // Redirection automatique de l'ancien domaine vers le nouveau
+    // Redirection automatique de l'ancien domaine vers le nouveau (fallback côté client)
+    // La redirection principale devrait être configurée dans Nginx Proxy Manager (OVH)
     if (window.location.hostname === 'cookingrecipe.delhomme.ovh') {
-      window.location.replace('https://cookingrecipes.delhomme.ovh' + window.location.pathname + window.location.search + window.location.hash);
+      const newUrl = 'https://cookingrecipes.delhomme.ovh' + window.location.pathname + window.location.search + window.location.hash;
+      // Utiliser replace pour éviter d'ajouter une entrée dans l'historique
+      window.location.replace(newUrl);
     }
     
     // Nettoyage complet du cache et des service workers AVANT le chargement de Flutter

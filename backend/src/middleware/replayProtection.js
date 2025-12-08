@@ -10,7 +10,8 @@ const { logSecurityEvent, SECURITY_EVENTS } = require('./securityLogger');
 // Stockage des nonces utilisés (en production, utiliser Redis)
 const usedNonces = new Map();
 const NONCE_EXPIRY = 5 * 60 * 1000; // 5 minutes
-const MAX_TIMESTAMP_DIFF = 5 * 60 * 1000; // 5 minutes de tolérance
+const MAX_TIMESTAMP_DIFF = 10 * 60 * 1000; // 10 minutes de tolérance (augmenté pour mobile)
+const MAX_TIMESTAMP_FUTURE_DIFF = 2 * 60 * 1000; // 2 minutes de tolérance pour le futur (désynchronisation horloge)
 
 /**
  * Nettoie les nonces expirés
@@ -50,10 +51,16 @@ function verifyNonceAndTimestamp(nonce, timestamp) {
   // Vérifier le timestamp
   const now = Date.now();
   const requestTime = parseInt(timestamp, 10);
-  const diff = Math.abs(now - requestTime);
-
+  
+  // Vérifier si le timestamp est dans le futur (désynchronisation horloge)
+  if (requestTime > now + MAX_TIMESTAMP_FUTURE_DIFF) {
+    return { valid: false, reason: 'Timestamp dans le futur (désynchronisation horloge)' };
+  }
+  
+  // Vérifier si le timestamp est trop ancien
+  const diff = now - requestTime;
   if (diff > MAX_TIMESTAMP_DIFF) {
-    return { valid: false, reason: 'Timestamp trop ancien ou dans le futur' };
+    return { valid: false, reason: 'Timestamp trop ancien' };
   }
 
   // Marquer le nonce comme utilisé

@@ -1,9 +1,8 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../config/api_config.dart';
-import 'api_logger.dart'; // Logger pour les requêtes API
+import 'http_client.dart'; // Client HTTP avec protection anti-replay
 
 class AuthService {
   static const String _tokenKey = 'auth_token';
@@ -29,20 +28,16 @@ class AuthService {
       }
       
       final bodyJson = json.encode(bodyData);
-      final url = '$_baseUrl/auth/signup';
+      final url = Uri.parse('$_baseUrl/auth/signup');
       
-      // Utiliser le logger pour intercepter la requête
-      final response = await ApiLogger.interceptRequest(
-        () => http.post(
-          Uri.parse(url),
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Accept': 'application/json',
-          },
-          body: bodyJson,
-        ),
-        'POST',
+      // Utiliser HttpClient qui ajoute automatiquement les headers anti-replay
+      final response = await HttpClient.post(
         url,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json',
+        },
+        body: bodyJson,
       );
       
       if (response.statusCode == 201) {
@@ -76,23 +71,19 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final url = '$_baseUrl/auth/signin';
+      final url = Uri.parse('$_baseUrl/auth/signin');
       
-      // Utiliser le logger pour intercepter la requête
-      final response = await ApiLogger.interceptRequest(
-        () => http.post(
-          Uri.parse(url),
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Accept': 'application/json',
-          },
-          body: json.encode({
-            'email': email.trim(),
-            'password': password,
-          }),
-        ),
-        'POST',
+      // Utiliser HttpClient qui ajoute automatiquement les headers anti-replay
+      final response = await HttpClient.post(
         url,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json',
+        },
+        body: json.encode({
+          'email': email.trim(),
+          'password': password,
+        }),
       );
 
       if (response.statusCode == 200) {

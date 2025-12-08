@@ -1,9 +1,8 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 import '../models/recipe.dart';
 import 'auth_service.dart';
-import 'api_logger.dart';
+import 'http_client.dart';
 
 class FavoriteService {
   final AuthService _authService = AuthService();
@@ -20,16 +19,12 @@ class FavoriteService {
   Future<List<Recipe>> getFavorites() async {
     try {
       final token = await _getToken();
-      final response = await ApiLogger.interceptRequest(
-        () => http.get(
-          Uri.parse('${ApiConfig.baseUrl}/favorites'),
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-        'GET',
-        '${ApiConfig.baseUrl}/favorites',
+      final response = await HttpClient.get(
+        Uri.parse('${ApiConfig.baseUrl}/favorites'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       );
 
       if (response.statusCode == 200) {
@@ -51,16 +46,12 @@ class FavoriteService {
   Future<bool> isFavorite(String recipeId) async {
     try {
       final token = await _getToken();
-      final response = await ApiLogger.interceptRequest(
-        () => http.get(
-          Uri.parse('${ApiConfig.baseUrl}/favorites/check/$recipeId'),
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-        'GET',
-        '${ApiConfig.baseUrl}/favorites/check/$recipeId',
+      final response = await HttpClient.get(
+        Uri.parse('${ApiConfig.baseUrl}/favorites/check/$recipeId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       );
 
       if (response.statusCode == 200) {
@@ -78,22 +69,18 @@ class FavoriteService {
   Future<bool> addFavorite(Recipe recipe) async {
     try {
       final token = await _getToken();
-      final response = await ApiLogger.interceptRequest(
-        () => http.post(
-          Uri.parse('${ApiConfig.baseUrl}/favorites'),
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode({
-            'recipeId': recipe.id,
-            'recipeTitle': recipe.title,
-            'recipeImage': recipe.image,
-            'recipeData': recipe.toJson(),
-          }),
-        ),
-        'POST',
-        '${ApiConfig.baseUrl}/favorites',
+      final response = await HttpClient.post(
+        Uri.parse('${ApiConfig.baseUrl}/favorites'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'recipeId': recipe.id,
+          'recipeTitle': recipe.title,
+          'recipeImage': recipe.image,
+          'recipeData': recipe.toJson(),
+        }),
       );
 
       return response.statusCode == 201;
@@ -107,16 +94,12 @@ class FavoriteService {
   Future<bool> removeFavorite(String recipeId) async {
     try {
       final token = await _getToken();
-      final response = await ApiLogger.interceptRequest(
-        () => http.delete(
-          Uri.parse('${ApiConfig.baseUrl}/favorites/$recipeId'),
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-        'DELETE',
-        '${ApiConfig.baseUrl}/favorites/$recipeId',
+      final response = await HttpClient.delete(
+        Uri.parse('${ApiConfig.baseUrl}/favorites/$recipeId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       );
 
       return response.statusCode == 200;

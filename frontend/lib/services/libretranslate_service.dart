@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import '../config/api_config.dart';
+import 'http_client.dart';
 
 /// Service pour utiliser LibreTranslate via l'API backend
 /// Fallback sur les dictionnaires JSON si LibreTranslate n'est pas disponible
@@ -17,7 +17,7 @@ class LibreTranslateService {
   Future<bool> checkAvailability() async {
     try {
       final url = Uri.parse('${ApiConfig.baseUrl}/translation/status');
-      final response = await http.get(url).timeout(
+      final response = await HttpClient.get(url).timeout(
         const Duration(seconds: 2),
         onTimeout: () {
           throw Exception('Timeout');
@@ -60,7 +60,7 @@ class LibreTranslateService {
 
     try {
       final url = Uri.parse('${ApiConfig.baseUrl}/translation/translate');
-      final response = await http.post(
+      final response = await HttpClient.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
