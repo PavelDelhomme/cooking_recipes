@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 // Import conditionnel pour le web
-import 'api_config_web.dart' if (dart.library.io) 'dart:io';
+// Sur le web, utiliser api_config_web.dart (avec dart:html)
+// Sur mobile, utiliser api_config_mobile.dart (stub)
+import 'api_config_web.dart' if (dart.library.io) 'api_config_mobile.dart';
 
 class ApiConfig {
   // Port du backend
@@ -75,8 +77,10 @@ class ApiConfig {
         }
         return productionApiUrl;
       } else {
-        // Mode debug : utiliser localhost (pour développement local)
-        return 'http://localhost:$backendPort/api';
+        // Mode debug : utiliser l'IP de la machine si définie, sinon localhost
+        // L'IP peut être définie via --dart-define=DEV_API_IP=192.168.1.134
+        const String devApiIp = String.fromEnvironment('DEV_API_IP', defaultValue: 'localhost');
+        return 'http://$devApiIp:$backendPort/api';
       }
     }
   }

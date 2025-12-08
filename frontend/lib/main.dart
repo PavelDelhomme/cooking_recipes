@@ -298,7 +298,9 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   final ProfileService _profileService = ProfileService();
+  final AuthService _authService = AuthService();
   UserProfile? _currentProfile;
+  User? _currentUser; // Utilisateur connecté (avec email)
   
   // GlobalKeys pour pouvoir recharger les écrans
   final GlobalKey<PantryScreenState> _pantryScreenKey = GlobalKey<PantryScreenState>();
@@ -310,6 +312,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _loadProfile();
+    _loadCurrentUser();
     // Initialiser les écrans avec les keys
     _screens = [
       const RecipesScreen(),
@@ -324,6 +327,13 @@ class _MainScreenState extends State<MainScreen> {
     final profile = await _profileService.getCurrentProfile();
     if (mounted) {
       setState(() => _currentProfile = profile);
+    }
+  }
+
+  Future<void> _loadCurrentUser() async {
+    final user = await _authService.getCurrentUser();
+    if (mounted) {
+      setState(() => _currentUser = user);
     }
   }
 
@@ -521,6 +531,30 @@ class _MainScreenState extends State<MainScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                if (_currentUser != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.email_outlined,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.7),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          _currentUser!.email,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.9),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 if (_currentProfile != null) ...[
                   const SizedBox(height: 8),
                   Container(

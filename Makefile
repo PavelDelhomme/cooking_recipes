@@ -306,6 +306,12 @@ run-android: configure-mobile-api ## [MOBILE] Lance l'application sur Android (d
 	echo -e "$(GREEN)Lancement sur Android ($$DEVICE_ID)...$(NC)"; \
 	$(FLUTTER) run -d android
 
+install-android: configure-mobile-api ## [MOBILE] Installe et lance l'APK sur Android (nécessite APK déjà buildé)
+	@bash scripts/install_android.sh
+
+logs-android: ## [MOBILE] Affiche les logs de l'application Android (filtre les erreurs système)
+	@bash scripts/logs_android.sh $(ARGS)
+
 run-ios: configure-mobile-api ## [MOBILE] Lance l'application sur iOS (détecte automatiquement l'appareil)
 	@echo -e "$(GREEN)Recherche d'appareils iOS...$(NC)"
 	@cd frontend && \

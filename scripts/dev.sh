@@ -875,7 +875,8 @@ case "$DEVICE_CHOICE" in
       if [ "$FLUTTER_SEES_ANDROID" = true ]; then
         # Flutter voit Android, utiliser flutter run normalement
         echo -e "${GREEN}Lancement avec Flutter...${NC}"
-        $FLUTTER_CMD run -d "$ANDROID_FLUTTER_ID" > /tmp/frontend.log 2>&1 &
+        # Passer l'IP de la machine pour que le mobile puisse accéder au backend
+        $FLUTTER_CMD run -d "$ANDROID_FLUTTER_ID" --dart-define=DEV_API_IP=$MACHINE_IP > /tmp/frontend.log 2>&1 &
         FRONTEND_PID=$!
       else
         # Flutter ne voit pas Android, utiliser la méthode de build + install
@@ -929,10 +930,11 @@ case "$DEVICE_CHOICE" in
         fi
         
         echo -e "${YELLOW}Build de l'APK...${NC}"
+        # Passer l'IP de la machine pour que le mobile puisse accéder au backend
         if [ ! -z "$FLUTTER_VERBOSE" ]; then
-          $FLUTTER_CMD build apk --debug --target-platform android-arm64 $FLUTTER_VERBOSE > /tmp/flutter_build.log 2>&1 &
+          $FLUTTER_CMD build apk --debug --target-platform android-arm64 --dart-define=DEV_API_IP=$MACHINE_IP $FLUTTER_VERBOSE > /tmp/flutter_build.log 2>&1 &
         else
-          $FLUTTER_CMD build apk --debug --target-platform android-arm64 > /tmp/flutter_build.log 2>&1 &
+          $FLUTTER_CMD build apk --debug --target-platform android-arm64 --dart-define=DEV_API_IP=$MACHINE_IP > /tmp/flutter_build.log 2>&1 &
         fi
         BUILD_PID=$!
         
@@ -1016,7 +1018,8 @@ case "$DEVICE_CHOICE" in
       # Pas d'ID ADB, utiliser android normalement
       cd "$PROJECT_ROOT/frontend" || exit 1
       echo -e "${GREEN}Lancement sur Android (device par défaut)...${NC}"
-      $FLUTTER_CMD run -d android > /tmp/frontend.log 2>&1 &
+      # Passer l'IP de la machine pour que le mobile puisse accéder au backend
+      $FLUTTER_CMD run -d android --dart-define=DEV_API_IP=$MACHINE_IP > /tmp/frontend.log 2>&1 &
       FRONTEND_PID=$!
     fi
     ;;
@@ -1117,7 +1120,8 @@ case "$DEVICE_CHOICE" in
         if [ "$FLUTTER_SEES_ANDROID" = true ]; then
           # Flutter voit Android, utiliser flutter run normalement
           echo -e "${GREEN}Lancement Android avec Flutter...${NC}"
-          $FLUTTER_CMD run -d "$ANDROID_FLUTTER_ID" > /tmp/frontend_android.log 2>&1 &
+          # Passer l'IP de la machine pour que le mobile puisse accéder au backend
+          $FLUTTER_CMD run -d "$ANDROID_FLUTTER_ID" --dart-define=DEV_API_IP=$MACHINE_IP > /tmp/frontend_android.log 2>&1 &
           FRONTEND_ANDROID_PID=$!
         else
           # Flutter ne voit pas Android, utiliser la méthode de build + install
@@ -1132,7 +1136,8 @@ case "$DEVICE_CHOICE" in
           
           # Build APK
           echo -e "${YELLOW}Build de l'APK...${NC}"
-          $FLUTTER_CMD build apk --debug --target-platform android-arm64 > /tmp/flutter_build_android.log 2>&1 &
+          # Passer l'IP de la machine pour que le mobile puisse accéder au backend
+          $FLUTTER_CMD build apk --debug --target-platform android-arm64 --dart-define=DEV_API_IP=$MACHINE_IP > /tmp/flutter_build_android.log 2>&1 &
           BUILD_PID=$!
           wait $BUILD_PID
           BUILD_RESULT=$?
