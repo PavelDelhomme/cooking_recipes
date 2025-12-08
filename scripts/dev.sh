@@ -1085,19 +1085,128 @@ case "$DEVICE_CHOICE" in
   3)
     # Les deux
     echo -e "${GREEN}Démarrage sur Android et Web...${NC}"
+    
+    # Lancer Android d'abord
     if [ ! -z "$ANDROID_DEVICE_ID" ]; then
+      # Configurer ANDROID_SERIAL pour forcer Flutter à utiliser ce device
       export ANDROID_SERIAL="$ANDROID_DEVICE_ID"
-      $FLUTTER_CMD run -d android > /tmp/frontend_android.log 2>&1 &
+      echo -e "${YELLOW}Device Android sélectionné: $ANDROID_DEVICE_ID${NC}"
+      
+      # Vérifier que le device répond
+      if ! adb -s "$ANDROID_DEVICE_ID" shell echo "test" > /dev/null 2>&1; then
+        echo -e "${RED}❌ Le device $ANDROID_DEVICE_ID ne répond pas${NC}"
+        echo -e "${YELLOW}Vérifiez la connexion USB/WiFi et le débogage USB${NC}"
+        echo -e "${YELLOW}Lancement uniquement sur Web...${NC}"
+      else
+        cd "$PROJECT_ROOT/frontend" || exit 1
+        
+        # Vérifier si Flutter détecte le device
+        FLUTTER_DEVICES=$($FLUTTER_CMD devices 2>/dev/null)
+        FLUTTER_SEES_ANDROID=false
+        
+        # Essayer de trouver l'ID du device dans la sortie Flutter
+        if echo "$FLUTTER_DEVICES" | grep -qi "android"; then
+          FLUTTER_SEES_ANDROID=true
+          ANDROID_FLUTTER_ID=$(echo "$FLUTTER_DEVICES" | grep -i "android" | head -1 | awk '{print $5}' || echo "android")
+          echo -e "${GREEN}✓ Flutter détecte Android: $ANDROID_FLUTTER_ID${NC}"
+        else
+          echo -e "${YELLOW}⚠ Flutter ne détecte pas le device Android${NC}"
+          echo -e "${YELLOW}   Utilisation de la méthode ADB directe...${NC}"
+        fi
+        
+        if [ "$FLUTTER_SEES_ANDROID" = true ]; then
+          # Flutter voit Android, utiliser flutter run normalement
+          echo -e "${GREEN}Lancement Android avec Flutter...${NC}"
+          $FLUTTER_CMD run -d "$ANDROID_FLUTTER_ID" > /tmp/frontend_android.log 2>&1 &
+          FRONTEND_ANDROID_PID=$!
+        else
+          # Flutter ne voit pas Android, utiliser la méthode de build + install
+          echo -e "${GREEN}Build et installation de l'application Android...${NC}"
+          echo -e "${YELLOW}Cette méthode peut prendre quelques minutes la première fois...${NC}"
+          
+          # S'assurer que Java 21 est utilisé pour Gradle
+          if [ -d "/usr/lib/jvm/java-21-openjdk" ] && [ -f "/usr/lib/jvm/java-21-openjdk/bin/java" ]; then
+            export JAVA_HOME="/usr/lib/jvm/java-21-openjdk"
+            export PATH="/usr/lib/jvm/java-21-openjdk/bin:$PATH"
+          fi
+          
+          # Build APK
+          echo -e "${YELLOW}Build de l'APK...${NC}"
+          $FLUTTER_CMD build apk --debug --target-platform android-arm64 > /tmp/flutter_build_android.log 2>&1 &
+          BUILD_PID=$!
+          wait $BUILD_PID
+          BUILD_RESULT=$?
+          
+          if [ $BUILD_RESULT -eq 0 ]; then
+            APK_PATH="$PROJECT_ROOT/frontend/build/app/outputs/flutter-apk/app-debug.apk"
+            if [ -f "$APK_PATH" ]; then
+              echo -e "${GREEN}✓ APK créé avec succès${NC}"
+              echo -e "${YELLOW}Installation sur le device...${NC}"
+              
+              PACKAGE_NAME="com.delhomme.cooking_recipe.cookingrecipe"
+              adb -s "$ANDROID_DEVICE_ID" uninstall "$PACKAGE_NAME" 2>/dev/null || true
+              
+              if adb -s "$ANDROID_DEVICE_ID" install -r "$APK_PATH" > /tmp/adb_install.log 2>&1; then
+                echo -e "${GREEN}✓ Application installée${NC}"
+                adb -s "$ANDROID_DEVICE_ID" shell am start -n "$PACKAGE_NAME/.MainActivity" > /tmp/adb_launch.log 2>&1
+                echo -e "${GREEN}✓ Application lancée sur votre téléphone!${NC}"
+                FRONTEND_ANDROID_PID=$$
+              else
+                echo -e "${YELLOW}⚠ Échec de l'installation, lancement uniquement sur Web${NC}"
+                FRONTEND_ANDROID_PID=""
+              fi
+            else
+              echo -e "${YELLOW}⚠ APK non trouvé, lancement uniquement sur Web${NC}"
+              FRONTEND_ANDROID_PID=""
+            fi
+          else
+            echo -e "${YELLOW}⚠ Échec du build Android, lancement uniquement sur Web${NC}"
+            FRONTEND_ANDROID_PID=""
+          fi
+        fi
+      fi
     else
+      # Pas d'ID ADB, essayer quand même avec android par défaut
+      cd "$PROJECT_ROOT/frontend" || exit 1
+      echo -e "${YELLOW}Lancement Android (device par défaut)...${NC}"
       $FLUTTER_CMD run -d android > /tmp/frontend_android.log 2>&1 &
+      FRONTEND_ANDROID_PID=$!
     fi
-    FRONTEND_ANDROID_PID=$!
+    
+    # Lancer Web
     sleep 2
     cd "$PROJECT_ROOT/frontend" || exit 1
-    $FLUTTER_CMD run -d web-server --web-port=7070 --web-hostname=0.0.0.0 > /tmp/frontend_web.log 2>&1 &
-    FRONTEND_WEB_PID=$!
+    echo -e "${GREEN}Lancement Web...${NC}"
+    # Compiler d'abord pour éviter les problèmes MIME type
+    $FLUTTER_CMD pub get > /dev/null 2>&1 || true
+    $FLUTTER_CMD build web --release > /tmp/flutter_build_web.log 2>&1 || {
+      echo -e "${YELLOW}⚠ Échec du build web, utilisation du serveur Flutter...${NC}"
+      $FLUTTER_CMD run -d web-server --web-port=7070 --web-hostname=0.0.0.0 > /tmp/frontend_web.log 2>&1 &
+      FRONTEND_WEB_PID=$!
+    }
+    
+    if [ -z "$FRONTEND_WEB_PID" ]; then
+      # Si build réussi, servir avec Python
+      if [ -d "build/web" ]; then
+        cd build/web || exit 1
+        if command -v python3 &> /dev/null; then
+          python3 -m http.server 7070 --bind 0.0.0.0 > /tmp/frontend_web.log 2>&1 &
+          FRONTEND_WEB_PID=$!
+        elif command -v python &> /dev/null; then
+          python -m SimpleHTTPServer 7070 > /tmp/frontend_web.log 2>&1 &
+          FRONTEND_WEB_PID=$!
+        fi
+      fi
+    fi
+    
     echo "$FRONTEND_WEB_PID" > /tmp/frontend_pid.txt 2>/dev/null || true
     FRONTEND_PID=$FRONTEND_WEB_PID
+    
+    if [ ! -z "$FRONTEND_ANDROID_PID" ]; then
+      echo -e "${GREEN}✓ Android et Web démarrés${NC}"
+    else
+      echo -e "${GREEN}✓ Web démarré (Android non disponible)${NC}"
+    fi
     ;;
   *)
     # Par défaut: Web
