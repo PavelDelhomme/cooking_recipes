@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/user_profile.dart';
+import '../models/user.dart';
 import '../services/profile_service.dart';
 import '../services/auth_service.dart';
 

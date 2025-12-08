@@ -17,6 +17,7 @@ import 'services/locale_service.dart';
 import 'services/app_localizations.dart';
 import 'services/translation_service.dart';
 import 'models/user_profile.dart';
+import 'models/user.dart';
 import 'theme/app_theme.dart';
 import 'services/theme_service.dart';
 import 'widgets/locale_notifier.dart';
