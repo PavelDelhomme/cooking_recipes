@@ -246,35 +246,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     )
                                   : BorderSide.none,
                             ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              leading: Container(
-                                width: 56,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  color: isCurrent
-                                      ? Theme.of(context).colorScheme.primaryContainer
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .secondaryContainer
-                                          .withOpacity(0.5),
-                                  borderRadius: BorderRadius.circular(12),
+                            child: InkWell(
+                              onTap: () {
+                                // Si ce n'est pas le profil actuel, le sélectionner
+                                if (!isCurrent) {
+                                  _setCurrentProfile(profile);
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(16),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
                                 ),
-                                child: Icon(
-                                  Icons.people,
-                                  color: isCurrent
-                                      ? Theme.of(context).colorScheme.onPrimaryContainer
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .onSecondaryContainer,
-                                  size: 28,
+                                leading: Container(
+                                  width: 56,
+                                  height: 56,
+                                  decoration: BoxDecoration(
+                                    color: isCurrent
+                                        ? Theme.of(context).colorScheme.primaryContainer
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .secondaryContainer
+                                            .withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.people,
+                                    color: isCurrent
+                                        ? Theme.of(context).colorScheme.onPrimaryContainer
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSecondaryContainer,
+                                    size: 28,
+                                  ),
                                 ),
-                              ),
-                              title: Row(
-                                children: [
+                                title: Row(
+                                  children: [
                                   Expanded(
                                     child: Text(
                                       profile.name,

@@ -163,44 +163,8 @@ memory-leak-extended: ## [MEMORY] Détection de fuites mémoire étendue (durée
 	@echo -e "$(YELLOW)Durée: 15 minutes (900 secondes)$(NC)"
 	@bash scripts/memory_monitor.sh leak 900 15
 
-logs: ## [DEV] Affiche les logs en temps réel
-	@bash -c ' \
-	echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"; \
-	echo -e "$(GREEN)Logs des services (Ctrl+C pour quitter)$(NC)"; \
-	echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"; \
-	echo ""; \
-	HAS_LOGS=false; \
-	if [ -f /tmp/backend.log ]; then \
-		echo -e "$(YELLOW)=== Backend Logs ===$(NC)"; \
-		tail -f /tmp/backend.log & \
-		BACKEND_TAIL_PID=$$!; \
-		HAS_LOGS=true; \
-	fi; \
-	if [ -f /tmp/frontend.log ]; then \
-		echo -e "$(YELLOW)=== Frontend Logs ===$(NC)"; \
-		tail -f /tmp/frontend.log & \
-		FRONTEND_TAIL_PID=$$!; \
-		HAS_LOGS=true; \
-	fi; \
-	if [ -f /tmp/frontend_web.log ]; then \
-		echo -e "$(YELLOW)=== Frontend Web Logs ===$(NC)"; \
-		tail -f /tmp/frontend_web.log & \
-		FRONTEND_WEB_TAIL_PID=$$!; \
-		HAS_LOGS=true; \
-	fi; \
-	if [ -f /tmp/frontend_android.log ]; then \
-		echo -e "$(YELLOW)=== Frontend Android Logs ===$(NC)"; \
-		tail -f /tmp/frontend_android.log & \
-		FRONTEND_ANDROID_TAIL_PID=$$!; \
-		HAS_LOGS=true; \
-	fi; \
-	if [ "$$HAS_LOGS" = "false" ]; then \
-		echo -e "$(YELLOW)⚠ Aucun log disponible$(NC)"; \
-		echo -e "$(YELLOW)Les services ne sont peut-être pas démarrés. Utilisez \"make dev\" ou \"make dev-web\"$(NC)"; \
-		exit 1; \
-	fi; \
-	trap "kill $$BACKEND_TAIL_PID $$FRONTEND_TAIL_PID $$FRONTEND_WEB_TAIL_PID $$FRONTEND_ANDROID_TAIL_PID 2>/dev/null || true" EXIT INT TERM; \
-	wait'
+logs: ## [DEV] Affiche les logs en temps réel (filtrés et optimisés)
+	@bash scripts/monitor_logs.sh
 
 status: ## [DEV] Affiche l'état des conteneurs
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
