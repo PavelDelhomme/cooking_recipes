@@ -280,13 +280,13 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     }
   }
 
-  void _showTranslationFeedback(
+  Future<void> _showTranslationFeedback(
     FeedbackType type,
     String originalText,
     String currentTranslation, {
     String? contextInfo,
-  }) {
-    showDialog(
+  }) async {
+    final result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => TranslationFeedbackWidget(
         recipeId: widget.recipe.id,
@@ -297,6 +297,14 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         context: contextInfo,
       ),
     );
+    
+    // Si une traduction a été enregistrée, rafraîchir l'écran
+    if (result == true && mounted) {
+      setState(() {
+        // Forcer le rafraîchissement de l'écran pour afficher les nouvelles traductions
+        // Les widgets TranslationBuilder vont se reconstruire avec les nouvelles traductions du cache
+      });
+    }
   }
 
   Future<void> _addMissingIngredientsToShoppingList() async {
@@ -659,10 +667,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                         title: Row(
                           children: [
                             Expanded(
-                              child: Builder(
+                              child: TranslationBuilder(
                                 builder: (context) {
-                                  // Écouter les changements de locale
-                                  LocaleNotifier.of(context);
                                   return Text(
                                     TranslationService.translateIngredientSync(ingredient.name),
                                     style: TextStyle(

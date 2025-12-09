@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/translation_feedback.dart';
+import 'translation_service.dart';
 
 /// Service pour gérer les retours utilisateur sur les traductions
 class TranslationFeedbackService {
@@ -82,8 +83,15 @@ class TranslationFeedbackService {
       final jsonString = json.encode(learned);
       await prefs.setString(_learnedTranslationsKey, jsonString);
       
-      // Mettre à jour le cache immédiatement
+      // Mettre à jour le cache immédiatement pour utilisation synchrone
       _cachedLearnedTranslations = Map<String, Map<String, dynamic>>.from(learned);
+      
+      // Notifier TranslationService pour rafraîchir les widgets qui utilisent les traductions
+      try {
+        TranslationService().notifyListeners();
+      } catch (e) {
+        // Ignorer si TranslationService n'est pas encore initialisé
+      }
     } catch (e) {
       print('Erreur lors de l\'ajout de la traduction apprise: $e');
     }

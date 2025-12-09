@@ -123,15 +123,19 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
         setState(() => _isLoading = false);
         
         if (success) {
-          Navigator.pop(context);
+          // Recharger le cache des traductions apprises pour utilisation immédiate
+          await TranslationFeedbackService.loadCache();
+          
+          Navigator.pop(context, true); // Retourner true pour indiquer qu'une traduction a été enregistrée
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('✅ Merci ! Votre correction a été enregistrée et améliorera les traductions futures.'),
+              content: Text('✅ Merci ! Votre correction a été enregistrée et la traduction a été mise à jour.'),
               backgroundColor: Colors.green,
               duration: Duration(seconds: 3),
             ),
           );
         } else {
+          Navigator.pop(context, false);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('❌ Erreur lors de l\'enregistrement'),
