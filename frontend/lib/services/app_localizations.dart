@@ -16,7 +16,7 @@ class AppLocalizations {
   String get appTitle => _localizedValues[locale.languageCode]?['appTitle'] ?? 'Cooking Recipes';
   String get recipes => _localizedValues[locale.languageCode]?['recipes'] ?? 'Recettes';
   String get pantry => _localizedValues[locale.languageCode]?['pantry'] ?? 'Placard';
-  String get shoppingList => _localizedValues[locale.languageCode]?['shoppingList'] ?? 'Liste de courses';
+  String get shoppingList => _localizedValues[locale.languageCode]?['shoppingList'] ?? 'Courses';
   String get mealPlan => _localizedValues[locale.languageCode]?['mealPlan'] ?? 'Planning';
   String get profile => _localizedValues[locale.languageCode]?['profile'] ?? 'Profil';
   String get ingredients => _localizedValues[locale.languageCode]?['ingredients'] ?? 'Ingrédients';
@@ -44,7 +44,7 @@ class AppLocalizations {
       'appTitle': 'Cooking Recipes',
       'recipes': 'Recettes',
       'pantry': 'Placard',
-      'shoppingList': 'Liste de courses',
+      'shoppingList': 'Courses',
       'mealPlan': 'Planning',
       'profile': 'Profil',
       'ingredients': 'Ingrédients',

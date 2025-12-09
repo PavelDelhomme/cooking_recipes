@@ -487,12 +487,72 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  // Méthode helper pour créer des ListTile stylisés avec effets futuristes
+  Widget _buildStyledDrawerTile({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    bool isSelected = false,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: isSelected
+            ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
+            : Colors.transparent,
+        border: isSelected
+            ? Border.all(
+                color: Theme.of(context).colorScheme.primary,
+                width: 2,
+              )
+            : null,
+      ),
+      child: ListTile(
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            icon,
+            color: isSelected
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.primary,
+            size: 20,
+          ),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            fontSize: 15,
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        selected: isSelected,
+        onTap: onTap,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      ),
+    );
+  }
+
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          // En-tête du drawer - Version complètement réorganisée sans chevauchement
+          // En-tête du drawer - Style futuriste amélioré
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -500,46 +560,68 @@ class _MainScreenState extends State<MainScreen> {
                 end: Alignment.bottomRight,
                 colors: [
                   Theme.of(context).colorScheme.primaryContainer,
-                  Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+                  Theme.of(context).colorScheme.primaryContainer.withOpacity(0.6),
                 ],
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            padding: const EdgeInsets.fromLTRB(16, 40, 16, 20),
+            padding: const EdgeInsets.fromLTRB(20, 50, 20, 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Logo et titre - Ligne 1
+                // Logo et titre - Ligne 1 - Style futuriste
                 Row(
                   children: [
                     Container(
-                      width: 50,
-                      height: 50,
+                      width: 56,
+                      height: 56,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(10),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Theme.of(context).colorScheme.primary,
+                            Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(16), // Plus arrondi
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: Image.asset(
                         'assets/images/app_logo.png',
-                        width: 50,
-                        height: 50,
+                        width: 56,
+                        height: 56,
                         errorBuilder: (context, error, stackTrace) {
                           return Icon(
                             Icons.restaurant_menu,
-                            size: 28,
+                            size: 32,
                             color: Theme.of(context).colorScheme.onPrimary,
                           );
                         },
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Text(
                         'Cooking Recipes',
                         style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.5,
                           color: Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                         maxLines: 1,
@@ -548,31 +630,54 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ],
                 ),
-                // Profil actif - Ligne 2 (séparé clairement)
+                // Profil actif - Ligne 2 - Style futuriste amélioré
                 if (_currentProfile != null) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.circular(8),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16), // Plus arrondi
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.people,
-                          size: 16,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            Icons.people,
+                            size: 18,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             '${_currentProfile!.name} • ${_currentProfile!.numberOfPeople} ${_currentProfile!.numberOfPeople > 1 ? 'personnes' : 'personne'}',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 14,
                               color: Theme.of(context).colorScheme.onPrimary,
                               fontWeight: FontWeight.w600,
+                              letterSpacing: 0.2,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -582,35 +687,51 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                 ],
-                // Email - Ligne 3 (séparé clairement)
+                // Email - Ligne 3 - Style futuriste amélioré
                 if (_currentUser != null) ...[
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(8),
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(16), // Plus arrondi
                       border: Border.all(
-                        color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
-                        width: 1,
+                        color: Theme.of(context).colorScheme.outline.withOpacity(0.4),
+                        width: 2,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.email_outlined,
-                          size: 16,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            Icons.email_outlined,
+                            size: 18,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             _currentUser!.email,
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 13,
                               color: Theme.of(context).colorScheme.onPrimaryContainer,
                               fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -623,16 +744,12 @@ class _MainScreenState extends State<MainScreen> {
               ],
             ),
           ),
-          // Navigation
-          ListTile(
-            leading: Icon(
-              Icons.restaurant_menu,
-              color: _selectedIndex == 0
-                  ? Theme.of(context).colorScheme.primary
-                  : null,
-            ),
-            title: Text(AppLocalizations.of(context)?.recipes ?? 'Recettes'),
-            selected: _selectedIndex == 0,
+          // Navigation - Style amélioré avec effets futuristes
+          _buildStyledDrawerTile(
+            context: context,
+            icon: Icons.restaurant_menu,
+            title: AppLocalizations.of(context)?.recipes ?? 'Recettes',
+            isSelected: _selectedIndex == 0,
             onTap: () {
               setState(() => _selectedIndex = 0);
               Navigator.pop(context);
@@ -653,15 +770,11 @@ class _MainScreenState extends State<MainScreen> {
           //     );
           //   },
           // ),
-          ListTile(
-            leading: Icon(
-              Icons.kitchen,
-              color: _selectedIndex == 1
-                  ? Theme.of(context).colorScheme.primary
-                  : null,
-            ),
-            title: Text(AppLocalizations.of(context)?.pantry ?? 'Placard'),
-            selected: _selectedIndex == 1,
+          _buildStyledDrawerTile(
+            context: context,
+            icon: Icons.kitchen,
+            title: AppLocalizations.of(context)?.pantry ?? 'Placard',
+            isSelected: _selectedIndex == 1,
             onTap: () {
               setState(() => _selectedIndex = 1);
               Navigator.pop(context);
@@ -672,55 +785,45 @@ class _MainScreenState extends State<MainScreen> {
               }
             },
           ),
-          ListTile(
-            leading: Icon(
-              Icons.shopping_cart,
-              color: _selectedIndex == 2
-                  ? Theme.of(context).colorScheme.primary
-                  : null,
-            ),
-            title: Text(AppLocalizations.of(context)?.shoppingList ?? 'Courses'),
-            selected: _selectedIndex == 2,
+          _buildStyledDrawerTile(
+            context: context,
+            icon: Icons.shopping_cart,
+            title: AppLocalizations.of(context)?.shoppingList ?? 'Courses',
+            isSelected: _selectedIndex == 2,
             onTap: () {
               setState(() => _selectedIndex = 2);
               Navigator.pop(context);
               _loadProfile();
             },
           ),
-          ListTile(
-            leading: Icon(
-              Icons.calendar_today,
-              color: _selectedIndex == 3
-                  ? Theme.of(context).colorScheme.primary
-                  : null,
-            ),
-            title: Text(AppLocalizations.of(context)?.mealPlan ?? 'Planning'),
-            selected: _selectedIndex == 3,
+          _buildStyledDrawerTile(
+            context: context,
+            icon: Icons.calendar_today,
+            title: AppLocalizations.of(context)?.mealPlan ?? 'Planning',
+            isSelected: _selectedIndex == 3,
             onTap: () {
               setState(() => _selectedIndex = 3);
               Navigator.pop(context);
               _loadProfile();
             },
           ),
-          const Divider(),
-          ListTile(
-            leading: Icon(
-              Icons.person,
-              color: _selectedIndex == 4
-                  ? Theme.of(context).colorScheme.primary
-                  : null,
-            ),
-            title: Text(AppLocalizations.of(context)?.profile ?? 'Profil'),
-            selected: _selectedIndex == 4,
+          const Divider(height: 32),
+          _buildStyledDrawerTile(
+            context: context,
+            icon: Icons.person,
+            title: AppLocalizations.of(context)?.profile ?? 'Profil',
+            isSelected: _selectedIndex == 4,
             onTap: () {
               setState(() => _selectedIndex = 4);
               Navigator.pop(context);
               _loadProfile();
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.favorite),
-            title: const Text('Mes Favoris'),
+          _buildStyledDrawerTile(
+            context: context,
+            icon: Icons.favorite,
+            title: 'Mes Favoris',
+            isSelected: false,
             onTap: () async {
               Navigator.pop(context);
               await Navigator.push(
@@ -729,9 +832,11 @@ class _MainScreenState extends State<MainScreen> {
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.history),
-            title: const Text('Historique'),
+          _buildStyledDrawerTile(
+            context: context,
+            icon: Icons.history,
+            title: 'Historique',
+            isSelected: false,
             onTap: () async {
               Navigator.pop(context);
               await Navigator.push(
@@ -740,56 +845,108 @@ class _MainScreenState extends State<MainScreen> {
               );
             },
           ),
-          const Divider(),
-          // Sélection de la langue
-          ListTile(
-            leading: const Icon(Icons.language),
-            title: Text(AppLocalizations.of(context)?.language ?? 'Langue'),
-            subtitle: Text(
-              LocaleService.languageNames[widget.currentLocale?.languageCode ?? 'fr'] ?? 'Français',
+          const Divider(height: 32),
+          // Sélection de la langue - Style amélioré
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.transparent,
             ),
-            onTap: () {
-              _showLanguageDialog(context);
-            },
+            child: ListTile(
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.language,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+              ),
+              title: Text(
+                AppLocalizations.of(context)?.language ?? 'Langue',
+                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+              ),
+              subtitle: Text(
+                LocaleService.languageNames[widget.currentLocale?.languageCode ?? 'fr'] ?? 'Français',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              onTap: () {
+                _showLanguageDialog(context);
+              },
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
           ),
-          // Mode sombre/clair
-          ListTile(
-            leading: Icon(
-              widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+          // Mode sombre/clair - Style amélioré
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.transparent,
             ),
-            title: Text(
-              widget.isDarkMode 
-                ? (AppLocalizations.of(context)?.lightMode ?? 'Mode clair')
-                : (AppLocalizations.of(context)?.darkMode ?? 'Mode sombre'),
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Switch(
-                  value: widget.isDarkMode,
-                  onChanged: (_) => widget.onThemeToggle?.call(),
+            child: ListTile(
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.person),
-                  onPressed: () {
-                    setState(() => _selectedIndex = 4);
-                    Navigator.pop(context);
-                  },
-                  tooltip: 'Profil',
+                child: Icon(
+                  widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
                 ),
-                const SizedBox(width: 4),
-                IconButton(
-                  icon: Icon(
-                    Icons.logout,
-                    color: Theme.of(context).colorScheme.error,
+              ),
+              title: Text(
+                widget.isDarkMode 
+                  ? (AppLocalizations.of(context)?.lightMode ?? 'Mode clair')
+                  : (AppLocalizations.of(context)?.darkMode ?? 'Mode sombre'),
+                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Switch(
+                    value: widget.isDarkMode,
+                    onChanged: (_) => widget.onThemeToggle?.call(),
                   ),
-                  onPressed: () => _handleLogout(context),
-                  tooltip: 'Déconnexion',
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.person),
+                    onPressed: () {
+                      setState(() => _selectedIndex = 4);
+                      Navigator.pop(context);
+                    },
+                    tooltip: 'Profil',
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    icon: Icon(
+                      Icons.logout,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    onPressed: () => _handleLogout(context),
+                    tooltip: 'Déconnexion',
+                  ),
+                ],
+              ),
+              onTap: () => widget.onThemeToggle?.call(),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
-            onTap: () => widget.onThemeToggle?.call(),
           ),
         ],
       ),

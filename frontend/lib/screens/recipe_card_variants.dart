@@ -549,20 +549,23 @@ class RecipeCardVariants {
   static Widget variant6(Recipe recipe, BuildContext context) {
     // Extraire les premiers ingrédients (max 5)
     final firstIngredients = recipe.ingredients.take(5).toList();
-    // Extraire le début des instructions (première phrase ou 100 caractères)
+    // Extraire le début des instructions (première phrase ou 100 caractères) - traduit
     String? instructionsPreview;
     if (recipe.instructions.isNotEmpty) {
-      final firstInstruction = recipe.instructions[0];
-      if (firstInstruction.length > 100) {
-        instructionsPreview = '${firstInstruction.substring(0, 100)}...';
+      final instructionText = TranslationService.translateInstructionSync(recipe.instructions.first);
+      final sentences = instructionText.split('.');
+      if (sentences.isNotEmpty && sentences.first.trim().isNotEmpty) {
+        instructionsPreview = sentences.first.trim() + '.';
       } else {
-        instructionsPreview = firstInstruction;
+        instructionsPreview = instructionText.length > 100
+            ? instructionText.substring(0, 100) + '...'
+            : instructionText;
       }
     }
-    // Extraire le début du résumé si disponible
+    // Extraire le début du résumé si disponible - traduit
     String? summaryPreview;
     if (recipe.summary != null && recipe.summary!.isNotEmpty) {
-      final cleanSummary = recipe.summary!.replaceAll(RegExp(r'<[^>]*>'), ''); // Enlever les balises HTML
+      final cleanSummary = TranslationService.translateSummarySync(recipe.summary!);
       if (cleanSummary.length > 120) {
         summaryPreview = '${cleanSummary.substring(0, 120)}...';
       } else {
@@ -572,40 +575,53 @@ class RecipeCardVariants {
 
     return Card(
       margin: EdgeInsets.zero,
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0, // Pas d'élévation par défaut
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20), // Plus arrondi
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          width: 2,
+        ),
+      ),
       clipBehavior: Clip.antiAlias,
       child: LayoutBuilder(
         builder: (context, constraints) {
+          // Gérer les contraintes infinies dans GridView
+          final cardHeight = constraints.maxHeight.isFinite && constraints.maxHeight > 0
+              ? constraints.maxHeight
+              : 400.0; // Hauteur par défaut si non définie
+          final imageHeight = cardHeight * 0.4;
+          final contentHeight = cardHeight - imageHeight; // Hauteur restante pour le contenu
+          
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Image
+              // Image (40% de la hauteur)
               if (recipe.image != null)
                 Image.network(
                   recipe.image!,
                   width: double.infinity,
-                  height: constraints.maxHeight * 0.4,
+                  height: imageHeight,
                   fit: BoxFit.cover,
-                  cacheWidth: 400,
+                  cacheWidth: 300,
                 )
               else
                 Container(
                   width: double.infinity,
-                  height: constraints.maxHeight * 0.4,
+                  height: imageHeight,
                   color: Theme.of(context).colorScheme.surfaceVariant,
-                  child: Icon(Icons.restaurant, size: 50, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  child: Icon(Icons.restaurant, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
-              // Contenu détaillé
-              Expanded(
-                child: Padding(
+              // Contenu scrollable (60% de la hauteur restante)
+              SizedBox(
+                height: contentHeight,
+                child: SingleChildScrollView(
                   padding: const EdgeInsets.all(12),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                         // Titre
                         TranslationBuilder(
                           builder: (context) => Text(
@@ -679,9 +695,11 @@ class RecipeCardVariants {
                         ],
                         // Liste des ingrédients principaux
                         if (firstIngredients.isNotEmpty) ...[
-                          Text(
-                            'Ingrédients principaux:',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
+                          TranslationBuilder(
+                            builder: (context) => Text(
+                              'Ingrédients principaux:',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
+                            ),
                           ),
                           const SizedBox(height: 6),
                           ...firstIngredients.map((ingredient) => Padding(
@@ -692,11 +710,13 @@ class RecipeCardVariants {
                                 Icon(Icons.circle, size: 4, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 const SizedBox(width: 8),
                                 Expanded(
-                                  child: Text(
-                                    ingredient.name,
-                                    style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                  child: TranslationBuilder(
+                                    builder: (context) => Text(
+                                      TranslationService.translateIngredientNameSync(ingredient.name),
+                                      style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -705,25 +725,39 @@ class RecipeCardVariants {
                           if (recipe.ingredients.length > 5)
                             Padding(
                               padding: const EdgeInsets.only(top: 4),
-                              child: Text(
-                                '+ ${recipe.ingredients.length - 5} autres ingrédients...',
-                                style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              child: TranslationBuilder(
+                                builder: (context) {
+                                  final remaining = recipe.ingredients.length - 5;
+                                  final text = TranslationService.currentLanguageStatic == 'fr'
+                                      ? 'et $remaining autres...'
+                                      : TranslationService.currentLanguageStatic == 'es'
+                                          ? 'y $remaining más...'
+                                          : 'and $remaining more...';
+                                  return Text(
+                                    text,
+                                    style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  );
+                                },
                               ),
                             ),
                           const SizedBox(height: 12),
                         ],
                         // Début des instructions
                         if (instructionsPreview != null) ...[
-                          Text(
-                            'Instructions:',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
+                          TranslationBuilder(
+                            builder: (context) => Text(
+                              'Instructions:',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
+                            ),
                           ),
                           const SizedBox(height: 6),
-                          Text(
-                            instructionsPreview,
-                            style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
+                          TranslationBuilder(
+                            builder: (context) => Text(
+                              instructionsPreview!,
+                              style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ],
