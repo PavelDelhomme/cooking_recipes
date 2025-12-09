@@ -721,7 +721,7 @@ class RecipeCardVariants {
                                 ),
                               ],
                             ),
-                          )),
+                          )).toList(),
                           if (recipe.ingredients.length > 5)
                             Padding(
                               padding: const EdgeInsets.only(top: 4),

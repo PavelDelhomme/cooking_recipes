@@ -48,6 +48,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
     _searchController.addListener(_onSearchChanged);
     // Écouter le scroll pour le chargement infini
     _scrollController.addListener(_onScroll);
+    // Charger les recettes suggérées au démarrage
+    _loadSuggestedRecipes();
   }
 
   void _onScroll() {
@@ -458,7 +460,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 Expanded(
                   child: _searchQuery.isNotEmpty
                       ? _buildSearchResults()
-                      : _buildEmptyState(), // Afficher un état vide au lieu des suggestions
+                      : _buildSuggestedRecipes(), // Afficher les recettes suggérées
                 ),
               ],
             ),
