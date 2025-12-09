@@ -684,7 +684,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                 FeedbackType.ingredient,
                                 ingredient.name,
                                 TranslationService.translateIngredientSync(ingredient.name),
-                                context: 'Ingrédient ${widget.recipe.ingredients.indexOf(ingredient) + 1}',
+                                contextInfo: 'Ingrédient ${widget.recipe.ingredients.indexOf(ingredient) + 1}',
                               ),
                             ),
                           ],
@@ -941,7 +941,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                           FeedbackType.instruction,
                                           originalInstruction,
                                           instructionText,
-                                          context: 'Instruction ${entry.key + 1}',
+                                          contextInfo: 'Instruction ${entry.key + 1}',
                                         );
                                       },
                                     ),
