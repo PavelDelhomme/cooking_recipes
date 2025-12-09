@@ -21,6 +21,8 @@ class TranslationService extends ChangeNotifier {
     _currentLanguage = await LocaleService.getLanguageCode();
     // Charger les dictionnaires culinaires
     await CulinaryDictionaryLoader.loadDictionaries();
+    // Charger le cache des traductions apprises
+    await TranslationFeedbackService.loadCache();
     notifyListeners();
   }
   
@@ -448,7 +450,7 @@ class TranslationService extends ChangeNotifier {
       return autoTranslated;
     }
     
-    // 3. Fallback sur l'ancien système (seulement pour français)
+    // 4. Fallback sur l'ancien système (seulement pour français)
     if (targetLanguage == 'fr') {
       return _instance.translateIngredientInstance(ingredient);
     }
@@ -460,6 +462,44 @@ class TranslationService extends ChangeNotifier {
   /// Traduit une liste d'ingrédients
   static List<String> translateIngredients(List<String> ingredients) {
     return ingredients.map((ingredient) => translateIngredientSync(ingredient)).toList();
+  }
+
+  /// Traduit une instruction de recette de manière synchrone
+  static String translateInstructionSync(String instruction) {
+    if (instruction.isEmpty) return instruction;
+    
+    final targetLanguage = _instance._currentLanguage;
+    
+    // Si la langue cible est l'anglais, retourner tel quel
+    if (targetLanguage == 'en') {
+      return instruction;
+    }
+    
+    // 1. PRIORITÉ ABSOLUE: Utiliser les traductions apprises (feedback utilisateur)
+    final learnedTranslation = TranslationFeedbackService.getLearnedTranslationSync(
+      instruction,
+      targetLanguage,
+      FeedbackType.instruction,
+    );
+    if (learnedTranslation != null && learnedTranslation.isNotEmpty) {
+      return learnedTranslation;
+    }
+    
+    // 2. PRIORITÉ: Utiliser les dictionnaires JSON chargés
+    if (CulinaryDictionaryLoader.isLoaded) {
+      final culinaryTranslation = CulinaryDictionaryLoader.translateInstruction(instruction, targetLanguage);
+      if (culinaryTranslation != null && culinaryTranslation.toLowerCase() != instruction.toLowerCase()) {
+        return culinaryTranslation;
+      }
+    }
+    
+    // 3. Fallback sur cleanAndTranslate pour les instructions non trouvées
+    return cleanAndTranslate(instruction);
+  }
+  
+  /// Traduit un résumé de recette de manière synchrone
+  static String translateSummarySync(String summary) {
+    return cleanAndTranslate(summary);
   }
 
   /// Nettoie et traduit un texte de recette (instructions, etc.)
@@ -600,7 +640,17 @@ class TranslationService extends ChangeNotifier {
       return cleaned;
     }
     
-    // 1. PRIORITÉ: Utiliser les dictionnaires JSON chargés
+    // 1. PRIORITÉ ABSOLUE: Utiliser les traductions apprises (feedback utilisateur)
+    final learnedTranslation = TranslationFeedbackService.getLearnedTranslationSync(
+      cleaned,
+      targetLanguage,
+      FeedbackType.recipeName,
+    );
+    if (learnedTranslation != null && learnedTranslation.isNotEmpty) {
+      return learnedTranslation;
+    }
+    
+    // 2. PRIORITÉ: Utiliser les dictionnaires JSON chargés
     if (CulinaryDictionaryLoader.isLoaded) {
       final culinaryTranslation = CulinaryDictionaryLoader.translateRecipeName(cleaned, targetLanguage);
       if (culinaryTranslation != null && culinaryTranslation.toLowerCase() != cleaned.toLowerCase()) {

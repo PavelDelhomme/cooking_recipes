@@ -590,8 +590,8 @@ class RecipeCardVariants {
           // Gérer les contraintes infinies dans GridView
           final cardHeight = constraints.maxHeight.isFinite && constraints.maxHeight > 0
               ? constraints.maxHeight
-              : 400.0; // Hauteur par défaut si non définie
-          final imageHeight = cardHeight * 0.4;
+              : 500.0; // Hauteur par défaut augmentée pour contenir plus de contenu
+          final imageHeight = cardHeight * 0.35; // Réduire la hauteur de l'image pour laisser plus de place au contenu
           final contentHeight = cardHeight - imageHeight; // Hauteur restante pour le contenu
           
           return Column(
@@ -614,10 +614,11 @@ class RecipeCardVariants {
                   color: Theme.of(context).colorScheme.surfaceVariant,
                   child: Icon(Icons.restaurant, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
-              // Contenu scrollable (60% de la hauteur restante)
+              // Contenu scrollable (65% de la hauteur restante)
               SizedBox(
                 height: contentHeight,
                 child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(), // Empêcher le scroll de se propager à la page
                   padding: const EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

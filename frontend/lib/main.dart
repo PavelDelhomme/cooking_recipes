@@ -409,27 +409,31 @@ class _MainScreenState extends State<MainScreen> {
         ),
         title: Row(
           children: [
-            // Image de l'application
-            Image.asset(
-              'assets/images/app_logo.png',
-              width: 32,
-              height: 32,
-              errorBuilder: (context, error, stackTrace) {
-                // Fallback vers l'icône si l'image n'existe pas
-                return Container(
+            // Image de l'application - Style amélioré avec bords arrondis
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Image.asset(
+                  'assets/images/app_logo.png',
                   width: 32,
                   height: 32,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.restaurant_menu,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                );
-              },
+                  fit: BoxFit.cover, // Ajuster l'image pour remplir le container
+                  errorBuilder: (context, error, stackTrace) {
+                    // Fallback vers l'icône si l'image n'existe pas
+                    return Icon(
+                      Icons.restaurant_menu,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    );
+                  },
+                ),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -580,38 +584,41 @@ class _MainScreenState extends State<MainScreen> {
                 // Logo et titre - Ligne 1 - Style futuriste
                 Row(
                   children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Theme.of(context).colorScheme.primary,
-                            Theme.of(context).colorScheme.primary.withOpacity(0.8),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(16), // Plus arrondi
-                        boxShadow: [
-                          BoxShadow(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Image.asset(
-                        'assets/images/app_logo.png',
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16), // Bords arrondis pour le logo
+                      child: Container(
                         width: 56,
                         height: 56,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.restaurant_menu,
-                            size: 32,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          );
-                        },
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Theme.of(context).colorScheme.primary,
+                              Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Image.asset(
+                          'assets/images/app_logo.png',
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.cover, // Ajuster l'image pour remplir le container
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.restaurant_menu,
+                              size: 32,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            );
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),

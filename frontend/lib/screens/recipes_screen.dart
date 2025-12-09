@@ -7,6 +7,7 @@ import '../services/pantry_service.dart';
 import '../services/translation_service.dart';
 import '../widgets/locale_notifier.dart';
 import '../widgets/translation_builder.dart';
+import '../widgets/recipe_filters.dart';
 import 'recipe_detail_screen.dart';
 import 'recipe_card_variants.dart';
 
@@ -23,6 +24,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   final TextEditingController _searchController = TextEditingController();
   
   List<Recipe> _recipes = [];
+  List<Recipe> _filteredRecipes = []; // Recettes filtrées
   List<Recipe> _suggestedRecipes = [];
   bool _isLoading = false;
   bool _isLoadingMore = false; // Pour le scroll infini
@@ -99,6 +101,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
     if (_searchController.text.trim().isEmpty) {
       setState(() {
         _recipes = [];
+        _filteredRecipes = []; // Réinitialiser les filtres
         _searchQuery = '';
         _searchSuggestions = [];
       });
@@ -218,12 +221,45 @@ class _RecipesScreenState extends State<RecipesScreen> {
       _isLoading = true;
       _searchQuery = query;
       _recipes = []; // Réinitialiser la liste
+      _filteredRecipes = []; // Réinitialiser les recettes filtrées (réinitialiser les filtres)
       _currentPage = 0;
       _hasMoreRecipes = true;
     });
 
     // Charger la première page de recettes progressivement
     await _loadRecipesPage(0);
+  }
+
+  void _onFiltersChanged(List<Recipe> filteredRecipes) {
+    setState(() {
+      _filteredRecipes = filteredRecipes;
+    });
+  }
+
+  void _showFilters() {
+    // Extraire tous les ingrédients uniques des recettes
+    final allIngredients = <String>{};
+    for (var recipe in _recipes) {
+      for (var ingredient in recipe.ingredients) {
+        allIngredients.add(ingredient.name);
+      }
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) => RecipeFilters(
+          allRecipes: _recipes,
+          onFiltersChanged: _onFiltersChanged,
+          availableIngredients: allIngredients.toList(),
+        ),
+      ),
+    );
   }
 
   Future<void> _loadRecipesPage(int page) async {
@@ -234,45 +270,47 @@ class _RecipesScreenState extends State<RecipesScreen> {
       int startIndex = page * _recipesPerPage;
       int limit = _recipesPerPage;
       
-      // Charger uniquement les recettes de cette page avec limite
-      int loadedCount = 0;
-      int skippedCount = 0;
-      
-      await for (var recipe in _recipeService.searchRecipesStream(_searchQuery, limit: (page + 1) * _recipesPerPage)) {
-        if (!mounted || _searchQuery != _searchController.text.trim()) {
-          break; // Arrêter si la requête a changé
-        }
-
-        // Ignorer les recettes des pages précédentes
-        if (skippedCount < startIndex) {
-          skippedCount++;
-          continue;
-        }
-
-        // Charger uniquement les recettes de cette page
-        if (loadedCount < limit) {
-          if (page == 0) {
-            // Première page : affichage progressif
-            setState(() {
-              _recipes.add(recipe);
-              _isLoading = false; // Arrêter le loading dès la première recette
-            });
-            loadedCount++;
-            // Petit délai pour l'effet visuel progressif
-            await Future.delayed(const Duration(milliseconds: 50));
-          } else {
-            // Pages suivantes : chargement plus rapide
-            setState(() {
-              _recipes.add(recipe);
-              _isLoadingMore = false;
-            });
-            loadedCount++;
+        // Charger uniquement les recettes de cette page avec limite
+        int loadedCount = 0;
+        int skippedCount = 0;
+        
+        await for (var recipe in _recipeService.searchRecipesStream(_searchQuery, limit: (page + 1) * _recipesPerPage)) {
+          if (!mounted || _searchQuery != _searchController.text.trim()) {
+            break; // Arrêter si la requête a changé
           }
-        } else {
-          // On a chargé toutes les recettes de cette page
-          break;
+
+          // Ignorer les recettes des pages précédentes
+          if (skippedCount < startIndex) {
+            skippedCount++;
+            continue;
+          }
+
+          // Charger uniquement les recettes de cette page
+          if (loadedCount < limit) {
+            if (page == 0) {
+              // Première page : affichage progressif
+              setState(() {
+                _recipes.add(recipe);
+                _filteredRecipes = List.from(_recipes); // Initialiser les recettes filtrées
+                _isLoading = false; // Arrêter le loading dès la première recette
+              });
+              loadedCount++;
+              // Petit délai pour l'effet visuel progressif
+              await Future.delayed(const Duration(milliseconds: 50));
+            } else {
+              // Pages suivantes : chargement plus rapide
+              setState(() {
+                _recipes.add(recipe);
+                _filteredRecipes = List.from(_recipes); // Mettre à jour les recettes filtrées
+                _isLoadingMore = false;
+              });
+              loadedCount++;
+            }
+          } else {
+            // On a chargé toutes les recettes de cette page
+            break;
+          }
         }
-      }
 
       // Vérifier s'il y a plus de recettes à charger
       if (mounted) {
@@ -326,7 +364,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
         children: [
           // Barre d'actions personnalisée
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -337,7 +375,59 @@ class _RecipesScreenState extends State<RecipesScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                // Menu de sélection des variantes désactivé - Variante 6 (Détaillée) fixée
+                // Bouton de filtres (seulement si on a des recettes)
+                if (_recipes.isNotEmpty)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: Stack(
+                        children: [
+                          Icon(
+                            Icons.tune,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                            size: 24,
+                          ),
+                          if (_filteredRecipes.isNotEmpty && _filteredRecipes.length != _recipes.length)
+                            Positioned(
+                              right: 0,
+                              top: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 16,
+                                  minHeight: 16,
+                                ),
+                                child: Text(
+                                  '${_filteredRecipes.length}',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onPrimary,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      onPressed: _showFilters,
+                      tooltip: 'Filtrer les recettes',
+                    ),
+                  ),
               ],
             ),
           ),
@@ -475,7 +565,14 @@ class _RecipesScreenState extends State<RecipesScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-      if (_recipes.isEmpty) {
+    // Utiliser les recettes filtrées si des filtres sont actifs, sinon les recettes normales
+    final recipesToDisplay = _filteredRecipes.isNotEmpty && _filteredRecipes.length != _recipes.length
+        ? _filteredRecipes
+        : _recipes;
+
+    if (recipesToDisplay.isEmpty) {
+      final hasActiveFilters = _filteredRecipes.isNotEmpty && _filteredRecipes.length != _recipes.length;
+      
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -493,29 +590,45 @@ class _RecipesScreenState extends State<RecipesScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  Icons.search_off,
+                  hasActiveFilters ? Icons.filter_alt_off_outlined : Icons.search_off,
                   size: 64,
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const SizedBox(height: 24),
               Text(
-                'Aucune recette trouvée',
+                hasActiveFilters ? 'Aucune recette ne correspond aux filtres' : 'Aucune recette trouvée',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
               Text(
-                'Essayez avec d\'autres mots-clés',
+                hasActiveFilters
+                    ? 'Essayez de modifier vos filtres ou de réinitialiser'
+                    : 'Essayez avec d\'autres mots-clés',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
+              if (hasActiveFilters) ...[
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.clear_all),
+                  label: const Text('Réinitialiser les filtres'),
+                  onPressed: () {
+                    setState(() {
+                      _filteredRecipes = [];
+                    });
+                    Navigator.pop(context); // Fermer le bottom sheet si ouvert
+                  },
+                ),
+              ],
             ],
           ),
         ),
@@ -536,17 +649,18 @@ class _RecipesScreenState extends State<RecipesScreen> {
         
         return GridView.builder(
           controller: _scrollController, // Ajouter le controller pour le scroll infini
+          physics: const ClampingScrollPhysics(), // Améliorer le comportement du scroll
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
             childAspectRatio: _getAspectRatioForVariant(crossAxisCount, isWideScreen),
           ),
-          padding: const EdgeInsets.all(8),
-          itemCount: _recipes.length + (_isLoadingMore ? 1 : 0), // +1 pour l'indicateur de chargement
+          padding: const EdgeInsets.all(12),
+          itemCount: recipesToDisplay.length + (_isLoadingMore ? 1 : 0), // +1 pour l'indicateur de chargement
           itemBuilder: (context, index) {
             // Afficher l'indicateur de chargement à la fin
-            if (index == _recipes.length) {
+            if (index == recipesToDisplay.length) {
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
@@ -555,7 +669,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
               );
             }
             
-            return _buildSuggestedRecipeCard(_recipes[index], isWideScreen: isWideScreen);
+            return _buildSuggestedRecipeCard(recipesToDisplay[index], isWideScreen: isWideScreen);
           },
         );
       },
@@ -746,12 +860,12 @@ class _RecipesScreenState extends State<RecipesScreen> {
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(12),
                 sliver: SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
                     // Ratio adapté selon la variante et la taille de l'écran
                     childAspectRatio: _getAspectRatioForVariant(crossAxisCount, isWideScreen),
                   ),
@@ -1106,7 +1220,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
       3: {'mobile': 0.8, 'tablet': 0.7, 'desktop': 0.65},    // Overlay
       4: {'mobile': 0.85, 'tablet': 0.75, 'desktop': 0.7},  // Badges
       5: {'mobile': 0.9, 'tablet': 0.8, 'desktop': 0.75},   // Minimaliste
-      6: {'mobile': 1.1, 'tablet': 1.0, 'desktop': 0.95},   // Détaillée (plus haute)
+      6: {'mobile': 1.4, 'tablet': 1.3, 'desktop': 1.2},   // Détaillée (plus haute pour contenir tous les ingrédients)
       7: {'mobile': 1.0, 'tablet': 0.9, 'desktop': 0.85},   // Avec ingrédients
     };
 

@@ -22,6 +22,12 @@ GREEN = \033[0;32m
 YELLOW = \033[1;33m
 NC = \033[0m
 
+improve-translations: ## [DEV] Améliore les traductions des recettes (instructions, ingrédients)
+	@python3 scripts/improve_translations.py
+
+export-translation-data: ## [DEV] Exporte les données de feedback pour l'entraînement du modèle
+	@python3 scripts/export_translation_training_data.py
+
 help: ## Affiche cette aide
 	@echo -e "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
 	@echo -e "$(GREEN)🍳 Cooking Recipes - Aide des commandes Make$(NC)"

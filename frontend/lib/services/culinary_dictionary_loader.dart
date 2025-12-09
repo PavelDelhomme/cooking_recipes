@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 class CulinaryDictionaryLoader {
   static Map<String, Map<String, String>>? _ingredientsDictionary;
   static Map<String, Map<String, String>>? _recipeNamesDictionary;
+  static Map<String, Map<String, String>>? _instructionsDictionary;
   static bool _isLoading = false;
   static bool _isLoaded = false;
 
@@ -20,14 +21,17 @@ class CulinaryDictionaryLoader {
       final futures = await Future.wait([
         rootBundle.loadString('lib/data/culinary_dictionaries/ingredients_fr_en_es.json'),
         rootBundle.loadString('lib/data/culinary_dictionaries/recipe_names_fr_en_es.json'),
+        rootBundle.loadString('lib/data/culinary_dictionaries/instructions_fr_en_es.json').catchError((_) => '{}'), // Optionnel
       ]);
       
       // Parser en parallèle
       final ingredientsData = json.decode(futures[0]) as Map<String, dynamic>;
       final recipeNamesData = json.decode(futures[1]) as Map<String, dynamic>;
+      final instructionsData = json.decode(futures[2]) as Map<String, dynamic>;
       
       _ingredientsDictionary = {};
       _recipeNamesDictionary = {};
+      _instructionsDictionary = {};
       
       // Construire les dictionnaires de manière optimisée
       if (ingredientsData['ingredients'] != null) {
@@ -64,9 +68,26 @@ class CulinaryDictionaryLoader {
         );
       }
       
+      if (instructionsData['instructions'] != null) {
+        final instructions = instructionsData['instructions'] as Map<String, dynamic>;
+        _instructionsDictionary = Map.fromEntries(
+          instructions.entries.map((entry) {
+            final translations = entry.value as Map<String, dynamic>;
+            return MapEntry(
+              entry.key.toLowerCase(),
+              {
+                'en': translations['en'] as String? ?? entry.key,
+                'fr': translations['fr'] as String? ?? entry.key,
+                'es': translations['es'] as String? ?? entry.key,
+              },
+            );
+          }),
+        );
+      }
+      
       _isLoaded = true;
       if (kDebugMode) {
-        print('✅ Dictionnaires culinaires chargés: ${_ingredientsDictionary?.length} ingrédients, ${_recipeNamesDictionary?.length} noms de recettes');
+        print('✅ Dictionnaires culinaires chargés: ${_ingredientsDictionary?.length} ingrédients, ${_recipeNamesDictionary?.length} noms de recettes, ${_instructionsDictionary?.length} instructions');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -75,6 +96,7 @@ class CulinaryDictionaryLoader {
       // Créer des dictionnaires vides en cas d'erreur
       _ingredientsDictionary = {};
       _recipeNamesDictionary = {};
+      _instructionsDictionary = {};
     } finally {
       _isLoading = false;
     }
@@ -144,6 +166,43 @@ class CulinaryDictionaryLoader {
 
   /// Obtient le nombre de noms de recettes dans le dictionnaire
   static int get recipeNamesCount => _recipeNamesDictionary?.length ?? 0;
+
+  /// Traduit une instruction
+  static String? translateInstruction(String instruction, String targetLanguage) {
+    if (!_isLoaded) return null;
+    
+    final key = instruction.toLowerCase().trim();
+    
+    // Chercher une correspondance exacte
+    if (_instructionsDictionary?.containsKey(key) == true) {
+      return _instructionsDictionary![key]![targetLanguage];
+    }
+    
+    // Chercher une correspondance partielle (pour les phrases similaires)
+    for (var entry in _instructionsDictionary!.entries) {
+      if (key.contains(entry.key) || entry.key.contains(key)) {
+        return entry.value[targetLanguage];
+      }
+    }
+    
+    return null;
+  }
+
+  /// Obtient toutes les traductions d'une instruction
+  static Map<String, String>? getInstructionTranslations(String instruction) {
+    if (!_isLoaded) return null;
+    
+    final key = instruction.toLowerCase().trim();
+    
+    if (_instructionsDictionary?.containsKey(key) == true) {
+      return Map<String, String>.from(_instructionsDictionary![key]!);
+    }
+    
+    return null;
+  }
+
+  /// Obtient le nombre d'instructions dans le dictionnaire
+  static int get instructionsCount => _instructionsDictionary?.length ?? 0;
 }
 
 

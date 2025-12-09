@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/recipe.dart';
 import '../models/meal_plan.dart';
+import '../models/recurring_meal_plan.dart';
 import '../models/shopping_list_item.dart';
 import '../models/pantry_item.dart';
 import '../services/meal_plan_service.dart';
@@ -12,6 +13,7 @@ import '../services/auto_meal_planner.dart';
 import '../services/translation_service.dart';
 import '../widgets/locale_notifier.dart';
 import '../widgets/translation_builder.dart';
+import '../widgets/add_meal_plan_dialog.dart';
 import 'recipe_detail_screen.dart';
 import 'recipes_screen.dart';
 import 'meal_plan_config_screen.dart';
@@ -68,11 +70,25 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
 
   Future<void> _loadMealPlans() async {
     setState(() => _isLoading = true);
-    final plans = await _mealPlanService.getMealPlans();
+    
+    List<MealPlan> plans;
+    if (_viewMode == 'week') {
+      final startOfWeek = _selectedDate.subtract(Duration(days: _selectedDate.weekday - 1));
+      final endOfWeek = startOfWeek.add(const Duration(days: 6));
+      plans = await _mealPlanService.getAllMealPlansForPeriod(startOfWeek, endOfWeek);
+    } else {
+      plans = await _mealPlanService.getAllMealPlansForDate(_selectedDate);
+    }
+    
     setState(() {
       _mealPlans = plans;
       _isLoading = false;
     });
+  }
+
+  String _getDayName(int dayOfWeek) {
+    const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    return days[dayOfWeek];
   }
 
   // Vérifier si un ingrédient est présent dans le placard
@@ -440,92 +456,46 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
       }
     }
 
-    final result = await showDialog<bool>(
+    // Dialog pour choisir entre repas unique ou récurrent
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Ajouter au planning'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  title: const Text('Date'),
-                  subtitle: Text(DateFormat('dd/MM/yyyy').format(selectedDate)),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.calendar_today),
-                    onPressed: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDate,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 365)),
-                      );
-                      if (picked != null) {
-                        setDialogState(() => selectedDate = picked);
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text('Type de repas:'),
-                RadioListTile<String>(
-                  title: const Text('Petit-déjeuner'),
-                  value: 'breakfast',
-                  groupValue: selectedMealType,
-                  onChanged: (value) {
-                    setDialogState(() => selectedMealType = value!);
-                  },
-                ),
-                RadioListTile<String>(
-                  title: const Text('Déjeuner'),
-                  value: 'lunch',
-                  groupValue: selectedMealType,
-                  onChanged: (value) {
-                    setDialogState(() => selectedMealType = value!);
-                  },
-                ),
-                RadioListTile<String>(
-                  title: const Text('Dîner'),
-                  value: 'dinner',
-                  groupValue: selectedMealType,
-                  onChanged: (value) {
-                    setDialogState(() => selectedMealType = value!);
-                  },
-                ),
-                RadioListTile<String>(
-                  title: const Text('Collation'),
-                  value: 'snack',
-                  groupValue: selectedMealType,
-                  onChanged: (value) {
-                    setDialogState(() => selectedMealType = value!);
-                  },
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Annuler'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Ajouter'),
-            ),
-          ],
-        ),
+      builder: (context) => AddMealPlanDialog(
+        recipe: selectedRecipe!,
+        initialDate: selectedDate,
+        initialMealType: selectedMealType,
       ),
     );
 
-    if (result == true && selectedRecipe != null) {
-      final mealPlan = MealPlan(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        date: selectedDate,
-        mealType: selectedMealType,
-        recipe: selectedRecipe,
-      );
-      await _mealPlanService.addMealPlan(mealPlan);
+    if (result != null && selectedRecipe != null) {
+      final resultDate = result['date'] as DateTime;
+      final resultMealType = result['mealType'] as String;
+      
+      if (result['isRecurring'] == true) {
+        // Créer un repas récurrent
+        final dayOfWeek = result['dayOfWeek'] as int;
+        final numberOfWeeks = result['numberOfWeeks'] as int?;
+        final endDate = result['endDate'] as DateTime?;
+        
+        final recurringPlan = RecurringMealPlan(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          recipe: selectedRecipe,
+          mealType: resultMealType,
+          dayOfWeek: dayOfWeek,
+          startDate: resultDate,
+          endDate: endDate,
+        );
+        
+        await _mealPlanService.addRecurringMealPlan(recurringPlan);
+      } else {
+        // Créer un repas unique
+        final mealPlan = MealPlan(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          date: resultDate,
+          mealType: resultMealType,
+          recipe: selectedRecipe,
+        );
+        await _mealPlanService.addMealPlan(mealPlan);
+      }
       _loadMealPlans();
       if (mounted) {
         // Fermer tous les dialogues ouverts de manière sécurisée

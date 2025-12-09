@@ -13,10 +13,12 @@ import '../services/ingredient_image_service.dart';
 import '../services/recipe_history_service.dart';
 import '../widgets/locale_notifier.dart';
 import '../widgets/translation_builder.dart';
+import '../widgets/translation_feedback_widget.dart';
 import '../models/pantry_item.dart';
 import '../models/shopping_list_item.dart';
 import '../models/user_profile.dart';
 import '../models/meal_plan.dart';
+import '../models/translation_feedback.dart';
 import '../main.dart' show ThemeNotifier;
 
 class RecipeDetailScreen extends StatefulWidget {
@@ -278,6 +280,25 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     }
   }
 
+  void _showTranslationFeedback(
+    FeedbackType type,
+    String originalText,
+    String currentTranslation, {
+    String? contextInfo,
+  }) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => TranslationFeedbackWidget(
+        recipeId: widget.recipe.id,
+        recipeTitle: widget.recipe.title,
+        type: type,
+        originalText: originalText,
+        currentTranslation: currentTranslation,
+        context: contextInfo,
+      ),
+    );
+  }
+
   Future<void> _addMissingIngredientsToShoppingList() async {
     final missingIngredients = widget.recipe.ingredients
         .where((ingredient) => !_hasIngredient(ingredient.name))
@@ -427,22 +448,37 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              title: TranslationBuilder(
-                builder: (context) {
-                  return Text(
-                    TranslationService.translateRecipeNameSync(widget.recipe.title),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          offset: Offset(1, 1),
-                          blurRadius: 3,
-                          color: Colors.black54,
-                        ),
-                      ],
+              title: Row(
+                children: [
+                  Expanded(
+                    child: TranslationBuilder(
+                      builder: (context) {
+                        return Text(
+                          TranslationService.translateRecipeNameSync(widget.recipe.title),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(1, 1),
+                                blurRadius: 3,
+                                color: Colors.black54,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.translate, color: Colors.white, size: 20),
+                    tooltip: 'Améliorer la traduction du nom',
+                    onPressed: () => _showTranslationFeedback(
+                      FeedbackType.recipeName,
+                      widget.recipe.title,
+                      TranslationService.translateRecipeNameSync(widget.recipe.title),
+                    ),
+                  ),
+                ],
               ),
               background: widget.recipe.image != null
                   ? Image.network(
@@ -620,18 +656,38 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             ),
                           ],
                         ),
-                        title: Builder(
-                          builder: (context) {
-                            // Écouter les changements de locale
-                            LocaleNotifier.of(context);
-                            return Text(
-                              TranslationService.translateIngredientSync(ingredient.name),
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
+                        title: Row(
+                          children: [
+                            Expanded(
+                              child: Builder(
+                                builder: (context) {
+                                  // Écouter les changements de locale
+                                  LocaleNotifier.of(context);
+                                  return Text(
+                                    TranslationService.translateIngredientSync(ingredient.name),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.translate,
+                                size: 18,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              tooltip: 'Améliorer la traduction',
+                              onPressed: () => _showTranslationFeedback(
+                                FeedbackType.ingredient,
+                                ingredient.name,
+                                TranslationService.translateIngredientSync(ingredient.name),
+                                context: 'Ingrédient ${widget.recipe.ingredients.indexOf(ingredient) + 1}',
+                              ),
+                            ),
+                          ],
                         ),
                         subtitle: ingredient.quantity != null || ingredient.preparation != null
                             ? Padding(
@@ -856,6 +912,38 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                           color: Theme.of(context).colorScheme.onSurface,
                                         ),
                                       ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.translate,
+                                        size: 18,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
+                                      tooltip: 'Améliorer la traduction',
+                                      onPressed: () {
+                                        // Récupérer le texte original de l'instruction
+                                        String originalInstruction = '';
+                                        if (widget.recipe.originalInstructionsText != null) {
+                                          final originalInstructions = widget.recipe.originalInstructionsText!
+                                              .split(RegExp(r'\n|\r\n|(?<=\d)\.\s+|(?<=[.!?])\s+(?=[A-Z])'))
+                                              .where((line) => line.trim().isNotEmpty)
+                                              .toList();
+                                          if (entry.key < originalInstructions.length) {
+                                            originalInstruction = originalInstructions[entry.key].trim();
+                                          }
+                                        }
+                                        // Fallback sur l'instruction traduite si pas d'original
+                                        if (originalInstruction.isEmpty) {
+                                          originalInstruction = instructionText;
+                                        }
+                                        
+                                        _showTranslationFeedback(
+                                          FeedbackType.instruction,
+                                          originalInstruction,
+                                          instructionText,
+                                          context: 'Instruction ${entry.key + 1}',
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),
