@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/recipe.dart';
 import '../services/translation_service.dart';
 import '../widgets/translation_builder.dart';
-import '../widgets/locale_notifier.dart';
 
 /// 5 variantes différentes de cartes pour les suggestions de recettes
 class RecipeCardVariants {
@@ -552,7 +551,7 @@ class RecipeCardVariants {
     // Extraire le début des instructions (première phrase ou 100 caractères) - traduit
     String? instructionsPreview;
     if (recipe.instructions.isNotEmpty) {
-      final instructionText = TranslationService.translateInstructionSync(recipe.instructions.first);
+      final instructionText = TranslationService.cleanAndTranslate(recipe.instructions.first);
       final sentences = instructionText.split('.');
       if (sentences.isNotEmpty && sentences.first.trim().isNotEmpty) {
         instructionsPreview = sentences.first.trim() + '.';
@@ -565,11 +564,13 @@ class RecipeCardVariants {
     // Extraire le début du résumé si disponible - traduit
     String? summaryPreview;
     if (recipe.summary != null && recipe.summary!.isNotEmpty) {
-      final cleanSummary = TranslationService.translateSummarySync(recipe.summary!);
-      if (cleanSummary.length > 120) {
-        summaryPreview = '${cleanSummary.substring(0, 120)}...';
+      // Nettoyer les balises HTML d'abord
+      final cleanSummary = recipe.summary!.replaceAll(RegExp(r'<[^>]*>'), '');
+      final translatedSummary = TranslationService.cleanAndTranslate(cleanSummary);
+      if (translatedSummary.length > 120) {
+        summaryPreview = '${translatedSummary.substring(0, 120)}...';
       } else {
-        summaryPreview = cleanSummary;
+        summaryPreview = translatedSummary;
       }
     }
 
@@ -712,7 +713,7 @@ class RecipeCardVariants {
                                 Expanded(
                                   child: TranslationBuilder(
                                     builder: (context) => Text(
-                                      TranslationService.translateIngredientNameSync(ingredient.name),
+                                      TranslationService.translateIngredientSync(ingredient.name),
                                       style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -721,7 +722,7 @@ class RecipeCardVariants {
                                 ),
                               ],
                             ),
-                          )).toList(),
+                          )),
                           if (recipe.ingredients.length > 5)
                             Padding(
                               padding: const EdgeInsets.only(top: 4),
@@ -764,7 +765,6 @@ class RecipeCardVariants {
                     ),
                   ),
                 ),
-              ),
             ],
           );
         },
