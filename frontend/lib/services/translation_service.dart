@@ -5,6 +5,8 @@ import 'locale_service.dart';
 import 'auto_translator.dart';
 import 'culinary_dictionary_loader.dart';
 import 'libretranslate_service.dart';
+import 'translation_feedback_service.dart';
+import '../models/translation_feedback.dart';
 
 /// Service de traduction pour convertir les éléments de recettes
 class TranslationService extends ChangeNotifier {
