@@ -1,11 +1,24 @@
 /**
  * Moteur d'IA de traduction basé sur des modèles probabilistes et des réseaux de neurones simples
  * Utilise les feedbacks utilisateur pour s'améliorer continuellement
+ * 
+ * Système hybride :
+ * - Modèles probabilistes (rapides, transparents)
+ * - Réseaux de neurones (TensorFlow.js) - optionnel
+ * - Apprentissage par renforcement
  */
 
 const fs = require('fs');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
+
+// Import optionnel du réseau de neurones (peut être désactivé si TensorFlow n'est pas installé)
+let neuralTranslationEngine = null;
+try {
+  neuralTranslationEngine = require('./neural_translation_engine');
+} catch (e) {
+  console.warn('⚠️  Réseau de neurones non disponible (TensorFlow.js non installé). Utilisation du système probabiliste uniquement.');
+}
 
 class MLTranslationEngine {
   constructor() {
@@ -215,7 +228,10 @@ class MLTranslationEngine {
   }
 
   /**
-   * Traduit un texte en utilisant le modèle ML
+   * Traduit un texte en utilisant le modèle ML (système hybride)
+   * 1. Essaie d'abord le système probabiliste (rapide)
+   * 2. Si échec, essaie le réseau de neurones (si disponible)
+   * 3. Si échec, retourne null pour fallback LibreTranslate
    */
   async translate(text, type = 'ingredient', targetLang = 'fr') {
     await this.loadModels();
@@ -234,7 +250,7 @@ class MLTranslationEngine {
       modelType = type + 's';
     }
 
-    // 1. Recherche exacte
+    // 1. Recherche exacte (système probabiliste)
     const exactMatch = this._getExactMatch(normalizedText, modelType, targetLang);
     if (exactMatch) {
       return exactMatch.translation;
@@ -252,30 +268,58 @@ class MLTranslationEngine {
       return ngramMatch.translation;
     }
 
-    // 4. Fallback : retourner null pour utiliser le système de fallback
+    // 4. Essayer le réseau de neurones (si disponible)
+    if (neuralTranslationEngine) {
+      try {
+        const neuralTranslation = await neuralTranslationEngine.translate(text, type, targetLang);
+        if (neuralTranslation) {
+          return neuralTranslation;
+        }
+      } catch (e) {
+        // Ignorer les erreurs du réseau de neurones
+      }
+    }
+
+    // 5. Fallback : retourner null pour utiliser le système de fallback (LibreTranslate)
     return null;
   }
 
   /**
    * Recherche une correspondance exacte
+   * Choisit TOUJOURS la traduction avec le plus de points (plus haute probabilité)
+   * Même si plusieurs traductions existent pour le même mot
    */
   _getExactMatch(text, modelType, targetLang) {
     const probs = this.probabilities[modelType][targetLang];
     const probMap = probs.get(text);
 
     if (probMap && probMap.size > 0) {
-      // Retourner la traduction avec la plus haute probabilité
+      // Retourner la traduction avec la plus haute probabilité (le plus de points)
       let bestTranslation = null;
       let bestProb = 0;
+      let allTranslations = []; // Pour le logging
 
       for (const [translation, prob] of probMap.entries()) {
+        allTranslations.push({ translation, prob });
         if (prob > bestProb) {
           bestProb = prob;
           bestTranslation = translation;
         }
       }
 
-      if (bestTranslation && bestProb > 0.5) {
+      // Trier pour le logging (meilleure en premier)
+      allTranslations.sort((a, b) => b.prob - a.prob);
+
+      // Si plusieurs traductions existent, log pour debug
+      if (allTranslations.length > 1) {
+        console.log(`🔍 Plusieurs traductions pour "${text}":`, 
+          allTranslations.map(t => `${t.translation} (${(t.prob * 100).toFixed(1)}%)`).join(', '),
+          `→ Choisi: "${bestTranslation}" (${(bestProb * 100).toFixed(1)}%)`);
+      }
+
+      // Choisir TOUJOURS la meilleure, même si prob < 0.5
+      // (car c'est quand même la meilleure option disponible)
+      if (bestTranslation) {
         return {
           translation: bestTranslation,
           confidence: bestProb,
@@ -288,6 +332,7 @@ class MLTranslationEngine {
 
   /**
    * Recherche une correspondance similaire (distance de Levenshtein)
+   * Choisit TOUJOURS la traduction avec le plus de points parmi les correspondances similaires
    */
   _getSimilarMatch(text, modelType, targetLang) {
     const probs = this.probabilities[modelType][targetLang];
@@ -298,7 +343,7 @@ class MLTranslationEngine {
       const similarity = this._calculateSimilarity(text, original);
       
       if (similarity > 0.8 && similarity > bestScore) {
-        // Trouver la meilleure traduction pour cette correspondance
+        // Trouver la meilleure traduction pour cette correspondance (celle avec le plus de points)
         let bestTranslation = null;
         let bestProb = 0;
 
@@ -310,6 +355,7 @@ class MLTranslationEngine {
         }
 
         if (bestTranslation) {
+          // Score combiné : similarité × probabilité (plus de points = meilleur)
           const combinedScore = similarity * bestProb;
           if (combinedScore > bestScore) {
             bestScore = combinedScore;
@@ -327,12 +373,13 @@ class MLTranslationEngine {
 
   /**
    * Recherche par N-grammes
+   * Choisit TOUJOURS la traduction avec le plus de points (score le plus élevé)
    */
   _getNgramMatch(text, modelType, targetLang) {
     const textNgrams = this._generateNgrams(text, 2);
     const probs = this.probabilities[modelType][targetLang];
     
-    const scores = new Map(); // translation -> score
+    const scores = new Map(); // translation -> score cumulé
 
     for (const [original, probMap] of probs.entries()) {
       const originalNgrams = this._generateNgrams(original, 2);
@@ -348,7 +395,8 @@ class MLTranslationEngine {
       if (matches > 0) {
         const ngramSimilarity = matches / Math.max(textNgrams.length, originalNgrams.length);
         
-        // Multiplier par les probabilités de traduction
+        // Accumuler les scores : similarité × probabilité (plus de points = meilleur)
+        // Si plusieurs traductions existent pour le même original, on additionne leurs scores
         for (const [translation, prob] of probMap.entries()) {
           const currentScore = scores.get(translation) || 0;
           scores.set(translation, currentScore + (ngramSimilarity * prob));
@@ -356,7 +404,7 @@ class MLTranslationEngine {
       }
     }
 
-    // Trouver la meilleure traduction
+    // Trouver la meilleure traduction (celle avec le score le plus élevé = le plus de points)
     let bestTranslation = null;
     let bestScore = 0;
 
@@ -367,6 +415,7 @@ class MLTranslationEngine {
       }
     }
 
+    // Choisir la meilleure si le score est raisonnable
     if (bestTranslation && bestScore > 0.7) {
       return {
         translation: bestTranslation,
@@ -418,7 +467,8 @@ class MLTranslationEngine {
   }
 
   /**
-   * Entraîne le modèle avec de nouvelles données
+   * Entraîne le modèle avec de nouvelles données (système hybride)
+   * Entraîne à la fois le système probabiliste ET le réseau de neurones
    */
   async train(feedback) {
     await this.loadModels();
@@ -440,7 +490,7 @@ class MLTranslationEngine {
     }
 
     if (targetLanguage === 'fr' || targetLanguage === 'es') {
-      // Ajouter au modèle
+      // 1. Entraîner le système probabiliste
       if (!this.models[modelType][targetLanguage][normalizedOriginal]) {
         this.models[modelType][targetLanguage][normalizedOriginal] = {};
       }
@@ -454,8 +504,17 @@ class MLTranslationEngine {
       // Recalculer les probabilités
       this._calculateProbabilities();
 
-      // Sauvegarder le modèle
+      // Sauvegarder le modèle probabiliste
       await this._saveModel(modelType, targetLanguage);
+
+      // 2. Entraîner le réseau de neurones (apprentissage par renforcement)
+      if (neuralTranslationEngine) {
+        try {
+          await neuralTranslationEngine.train(feedback);
+        } catch (e) {
+          console.warn('⚠️  Erreur entraînement réseau de neurones:', e.message);
+        }
+      }
 
       return true;
     }
@@ -478,10 +537,10 @@ class MLTranslationEngine {
   }
 
   /**
-   * Entraîne le modèle avec tous les feedbacks de la base de données
+   * Entraîne le modèle avec tous les feedbacks de la base de données (système hybride)
    */
   async retrain() {
-    console.log('🔄 Réentraînement du modèle ML...');
+    console.log('🔄 Réentraînement du modèle ML (système hybride)...');
     this.loaded = false;
     this.models = {
       ingredients: { fr: {}, es: {} },
@@ -499,8 +558,18 @@ class MLTranslationEngine {
     // Charger depuis les fichiers et la base de données
     await this.loadModels();
     
-    // Entraîner avec tous les feedbacks approuvés
+    // Entraîner le système probabiliste avec tous les feedbacks approuvés
     await this._trainFromApprovedFeedbacks();
+    
+    // Entraîner le réseau de neurones (si disponible)
+    if (neuralTranslationEngine) {
+      try {
+        console.log('🧠 Réentraînement du réseau de neurones...');
+        await neuralTranslationEngine.retrain();
+      } catch (e) {
+        console.warn('⚠️  Erreur réentraînement réseau de neurones:', e.message);
+      }
+    }
     
     console.log('✅ Réentraînement terminé');
   }

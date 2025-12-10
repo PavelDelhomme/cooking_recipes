@@ -353,6 +353,19 @@ view-ml-data: ## [AI] Affiche toutes les données d'entraînement de l'IA
 	@echo "📊 Affichage des données d'entraînement..."
 	@cd backend && node scripts/ml_view_training_data.js
 
+ml-metrics: ## [AI] Affiche les métriques de performance de l'IA (précision, couverture, etc.)
+	@echo "📊 Calcul des métriques de performance..."
+	@cd backend && node scripts/ml_metrics.js
+
+retrain-neural: ## [AI] Réentraîne le réseau de neurones avec tous les feedbacks
+	@echo -e "$(GREEN)🧠 Réentraînement du réseau de neurones...$(NC)"
+	@cd backend && node scripts/train_neural_network.js
+
+install-neural: ## [AI] Installe TensorFlow.js pour activer le réseau de neurones
+	@echo -e "$(GREEN)📦 Installation de TensorFlow.js...$(NC)"
+	@cd backend && npm install @tensorflow/tfjs-node
+	@echo -e "$(GREEN)✅ TensorFlow.js installé ! Le réseau de neurones est maintenant activé.$(NC)"
+
 test-data: ## [DB] Ajoute des données de test (ingrédients dans le placard) - nécessite d'être connecté
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
 	@echo -e "$(GREEN)Ajout de données de test dans le placard$(NC)"

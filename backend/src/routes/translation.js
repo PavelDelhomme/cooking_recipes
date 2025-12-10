@@ -215,5 +215,78 @@ router.post('/retrain', async (req, res) => {
   }
 });
 
+/**
+ * Route GET /api/translation/metrics
+ * Obtient les métriques de performance de l'IA
+ */
+router.get('/metrics', async (req, res) => {
+  try {
+    const { getDatabase } = require('../database/db');
+    const db = getDatabase();
+    
+    // Statistiques de base
+    const mlStats = mlTranslationEngine.getStats();
+    
+    // Statistiques des feedbacks
+    const feedbackStats = await new Promise((resolve, reject) => {
+      db.all(
+        `SELECT 
+          COUNT(*) as total,
+          COUNT(CASE WHEN approved = 1 THEN 1 END) as approved,
+          COUNT(CASE WHEN approved = 0 THEN 1 END) as pending,
+          COUNT(CASE WHEN approved = -1 THEN 1 END) as rejected,
+          COUNT(CASE WHEN type = 'ingredient' THEN 1 END) as ingredients,
+          COUNT(CASE WHEN type = 'instruction' THEN 1 END) as instructions,
+          COUNT(CASE WHEN type = 'recipeName' THEN 1 END) as recipeNames,
+          COUNT(CASE WHEN type = 'unit' THEN 1 END) as units,
+          COUNT(CASE WHEN type = 'summary' THEN 1 END) as summaries
+         FROM translation_feedbacks`,
+        [],
+        (err, rows) => {
+          if (err) return reject(err);
+          resolve(rows[0] || {});
+        }
+      );
+    });
+    
+    // Calculer les métriques de performance (si le test lab a été exécuté)
+    let performanceMetrics = null;
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const reportPath = path.join(__dirname, '../../data/training_results/latest_test_results.json');
+      if (fs.existsSync(reportPath)) {
+        const reportData = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+        performanceMetrics = {
+          accuracy: reportData.accuracy || 0,
+          coverage: reportData.coverage || 0,
+          totalTested: reportData.total || 0,
+          correct: reportData.correct || 0,
+          incorrect: reportData.incorrect || 0,
+          missing: reportData.missing || 0,
+          lastTestDate: reportData.testDate || null,
+        };
+      }
+    } catch (e) {
+      // Ignorer si le fichier n'existe pas
+    }
+    
+    return res.json({
+      success: true,
+      modelStats: mlStats,
+      feedbackStats: feedbackStats,
+      performanceMetrics: performanceMetrics,
+      modelLoaded: mlTranslationEngine.loaded,
+    });
+  } catch (error) {
+    console.error('Erreur récupération métriques:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la récupération des métriques',
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;
 

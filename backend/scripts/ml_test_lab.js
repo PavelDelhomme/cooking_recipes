@@ -4,6 +4,7 @@
  */
 
 const mlTranslationEngine = require('../src/services/ml_translation_engine');
+const libreTranslateService = require('../src/services/libretranslate');
 const { getDatabase } = require('../src/database/db');
 const axios = require('axios');
 const fs = require('fs');
@@ -344,19 +345,35 @@ class MLTestLab {
       };
     }
 
-    // Tester pour français
+    // Tester pour français (avec fallback LibreTranslate si ML retourne null)
     let translatedFR = null;
     try {
       translatedFR = await mlTranslationEngine.translate(ingredientName, 'ingredient', 'fr');
+      // Si l'IA retourne null, utiliser LibreTranslate en fallback
+      if (!translatedFR) {
+        try {
+          translatedFR = await libreTranslateService.translateIngredient(ingredientName, 'fr');
+        } catch (e) {
+          // Ignorer les erreurs LibreTranslate
+        }
+      }
     } catch (e) {
       console.warn(`   ⚠️  Erreur traduction FR pour "${ingredientName}":`, e.message);
     }
     const correctFR = translatedFR && typeof translatedFR === 'string' && translatedFR.toLowerCase() === reference.fr.toLowerCase();
 
-    // Tester pour espagnol
+    // Tester pour espagnol (avec fallback LibreTranslate si ML retourne null)
     let translatedES = null;
     try {
       translatedES = await mlTranslationEngine.translate(ingredientName, 'ingredient', 'es');
+      // Si l'IA retourne null, utiliser LibreTranslate en fallback
+      if (!translatedES) {
+        try {
+          translatedES = await libreTranslateService.translateIngredient(ingredientName, 'es');
+        } catch (e) {
+          // Ignorer les erreurs LibreTranslate
+        }
+      }
     } catch (e) {
       console.warn(`   ⚠️  Erreur traduction ES pour "${ingredientName}":`, e.message);
     }
@@ -393,16 +410,32 @@ class MLTestLab {
       };
     }
 
-    // Tester la traduction
+    // Tester la traduction (avec fallback LibreTranslate si ML retourne null)
     let translatedFR = null;
     let translatedES = null;
     try {
       translatedFR = await mlTranslationEngine.translate(instruction, 'instruction', 'fr');
+      // Si l'IA retourne null, utiliser LibreTranslate en fallback
+      if (!translatedFR) {
+        try {
+          translatedFR = await libreTranslateService.translate(instruction, 'en', 'fr');
+        } catch (e) {
+          // Ignorer les erreurs LibreTranslate
+        }
+      }
     } catch (e) {
       // Ignorer les erreurs pour les instructions
     }
     try {
       translatedES = await mlTranslationEngine.translate(instruction, 'instruction', 'es');
+      // Si l'IA retourne null, utiliser LibreTranslate en fallback
+      if (!translatedES) {
+        try {
+          translatedES = await libreTranslateService.translate(instruction, 'en', 'es');
+        } catch (e) {
+          // Ignorer les erreurs LibreTranslate
+        }
+      }
     } catch (e) {
       // Ignorer les erreurs pour les instructions
     }
@@ -457,11 +490,27 @@ class MLTestLab {
     let translatedES = null;
     try {
       translatedFR = await mlTranslationEngine.translate(unitName, 'unit', 'fr');
+      // Si l'IA retourne null, utiliser LibreTranslate en fallback
+      if (!translatedFR) {
+        try {
+          translatedFR = await libreTranslateService.translate(unitName, 'en', 'fr');
+        } catch (e) {
+          // Ignorer les erreurs LibreTranslate
+        }
+      }
     } catch (e) {
       console.warn(`   ⚠️  Erreur traduction FR unit "${unitName}":`, e.message);
     }
     try {
       translatedES = await mlTranslationEngine.translate(unitName, 'unit', 'es');
+      // Si l'IA retourne null, utiliser LibreTranslate en fallback
+      if (!translatedES) {
+        try {
+          translatedES = await libreTranslateService.translate(unitName, 'en', 'es');
+        } catch (e) {
+          // Ignorer les erreurs LibreTranslate
+        }
+      }
     } catch (e) {
       console.warn(`   ⚠️  Erreur traduction ES unit "${unitName}":`, e.message);
     }

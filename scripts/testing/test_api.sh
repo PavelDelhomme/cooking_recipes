@@ -10,7 +10,7 @@ NC='\033[0m'
 
 # Obtenir le répertoire racine du projet
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 BACKEND_PORT=${BACKEND_PORT:-7272}
 API_URL="http://localhost:${BACKEND_PORT}/api"

@@ -3,7 +3,7 @@
 # Script pour voir uniquement les logs de l'application Flutter
 # Ignore les erreurs système Android normales
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PACKAGE_NAME="com.delhomme.cooking_recipe.cookingrecipe"
 
 # Couleurs

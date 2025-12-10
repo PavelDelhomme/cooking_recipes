@@ -186,6 +186,138 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
     }
   }
 
+  /// Enregistre que la traduction actuelle est correcte
+  Future<void> _submitCurrentTranslationAsCorrect() async {
+    setState(() => _isLoading = true);
+
+    try {
+      // Enregistrer un feedback indiquant que la traduction actuelle est correcte
+      final feedback = TranslationFeedback(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        recipeId: widget.recipeId,
+        recipeTitle: widget.recipeTitle,
+        type: widget.type,
+        originalText: widget.originalText,
+        currentTranslation: widget.currentTranslation,
+        suggestedTranslation: widget.currentTranslation, // La même que l'actuelle = elle est correcte
+        targetLanguage: TranslationService.currentLanguageStatic,
+        timestamp: DateTime.now(),
+        context: widget.context != null 
+            ? '${widget.context} [Traduction actuelle confirmée comme correcte]'
+            : '[Traduction actuelle confirmée comme correcte]',
+      );
+
+      final success = await _feedbackService.submitFeedback(feedback);
+
+      if (mounted) {
+        setState(() => _isLoading = false);
+        
+        if (success) {
+          await TranslationFeedbackService.reloadCache();
+          TranslationService().notifyListeners();
+          
+          Navigator.pop(context, {
+            'success': true,
+            'type': widget.type,
+            'originalText': widget.originalText,
+            'suggestedTranslation': feedback.suggestedTranslation,
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Traduction actuelle confirmée comme correcte !'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        } else {
+          Navigator.pop(context, {'success': false});
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('❌ Erreur lors de l\'enregistrement'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Enregistre que le texte original doit être gardé (pas de traduction)
+  Future<void> _submitOriginalAsTranslation() async {
+    setState(() => _isLoading = true);
+
+    try {
+      // Enregistrer un feedback indiquant que le texte original doit être gardé
+      final feedback = TranslationFeedback(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        recipeId: widget.recipeId,
+        recipeTitle: widget.recipeTitle,
+        type: widget.type,
+        originalText: widget.originalText,
+        currentTranslation: widget.currentTranslation,
+        suggestedTranslation: widget.originalText, // Garder l'original = pas de traduction
+        targetLanguage: TranslationService.currentLanguageStatic,
+        timestamp: DateTime.now(),
+        context: widget.context != null 
+            ? '${widget.context} [Texte original conservé - pas de traduction nécessaire]'
+            : '[Texte original conservé - pas de traduction nécessaire]',
+      );
+
+      final success = await _feedbackService.submitFeedback(feedback);
+
+      if (mounted) {
+        setState(() => _isLoading = false);
+        
+        if (success) {
+          await TranslationFeedbackService.reloadCache();
+          TranslationService().notifyListeners();
+          
+          Navigator.pop(context, {
+            'success': true,
+            'type': widget.type,
+            'originalText': widget.originalText,
+            'suggestedTranslation': feedback.suggestedTranslation,
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Texte original conservé (pas de traduction nécessaire) !'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        } else {
+          Navigator.pop(context, {'success': false});
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('❌ Erreur lors de l\'enregistrement'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _submitFeedback() async {
     if (_suggestionController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -562,10 +694,34 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                      // Boutons sur deux lignes
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Bouton pour rejeter la suggestion IA
+                          // Ligne 1 : Utiliser la suggestion
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _suggestionController.text = _aiSuggestion!;
+                                _aiSuggestionRejected = false;
+                              });
+                            },
+                            icon: const Icon(Icons.check_circle_outline, size: 18),
+                            label: const Text('Utiliser cette suggestion'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              foregroundColor: Theme.of(context).colorScheme.primary,
+                              side: BorderSide(
+                                color: Theme.of(context).colorScheme.primary,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          // Ligne 2 : Rejeter la suggestion
                           OutlinedButton.icon(
                             onPressed: _aiSuggestionRejected ? null : () async {
                               setState(() {
@@ -579,11 +735,11 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
                               _aiSuggestionRejected ? Icons.close : Icons.thumb_down_outlined,
                               size: 18,
                             ),
-                            label: Text(_aiSuggestionRejected ? 'Suggestion rejetée' : 'Suggestion incorrecte'),
+                            label: Text(_aiSuggestionRejected ? 'Suggestion rejetée' : 'Rejeter cette suggestion'),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
-                                vertical: 10,
+                                vertical: 12,
                               ),
                               foregroundColor: _aiSuggestionRejected 
                                   ? Colors.grey 
@@ -596,35 +752,56 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          // Bouton pour utiliser la suggestion IA
-                          OutlinedButton.icon(
-                            onPressed: () {
-                              setState(() {
-                                _suggestionController.text = _aiSuggestion!;
-                                _aiSuggestionRejected = false;
-                              });
-                            },
-                            icon: const Icon(Icons.check_circle_outline, size: 18),
-                            label: const Text('Utiliser cette suggestion'),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 10,
-                              ),
-                              foregroundColor: Theme.of(context).colorScheme.primary,
-                              side: BorderSide(
-                                color: Theme.of(context).colorScheme.primary,
-                                width: 2,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
               ],
+              
+              const SizedBox(height: 24),
+              
+              // Options rapides : La traduction actuelle est correcte ou garder l'original
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Option 1 : La traduction actuelle est correcte
+                  OutlinedButton.icon(
+                    onPressed: _isLoading ? null : () => _submitCurrentTranslationAsCorrect(),
+                    icon: const Icon(Icons.check_circle, size: 18),
+                    label: const Text('La traduction actuelle est correcte'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      foregroundColor: Colors.green[700],
+                      side: BorderSide(
+                        color: Colors.green[700]!,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Option 2 : Garder le texte original (même si autre langue)
+                  OutlinedButton.icon(
+                    onPressed: _isLoading ? null : () => _submitOriginalAsTranslation(),
+                    icon: const Icon(Icons.language, size: 18),
+                    label: const Text('Garder le texte original (pas de traduction)'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      foregroundColor: Theme.of(context).colorScheme.secondary,
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               
               const SizedBox(height: 24),
               

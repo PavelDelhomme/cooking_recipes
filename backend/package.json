@@ -8,27 +8,31 @@
     "dev": "nodemon src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["api", "recipes", "cooking"],
+  "keywords": [
+    "api",
+    "recipes",
+    "cooking"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2",
+    "@tensorflow/tfjs-node": "^4.22.0",
+    "axios": "^1.6.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "jsonwebtoken": "^9.0.2",
-    "bcryptjs": "^2.4.3",
-    "sqlite3": "^5.1.6",
-    "body-parser": "^1.20.2",
-    "express-rate-limit": "^7.1.5",
-    "helmet": "^7.1.0",
-    "validator": "^13.11.0",
-    "express-validator": "^7.0.1",
+    "express": "^4.18.2",
     "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
     "hpp": "^0.2.3",
-    "axios": "^1.6.0"
+    "jsonwebtoken": "^9.0.2",
+    "sqlite3": "^5.1.6",
+    "validator": "^13.11.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   }
 }
-

@@ -3,7 +3,7 @@
 # Script pour surveiller les logs Android, Backend API et Frontend Web en temps réel
 # Ctrl+C arrête uniquement l'affichage des logs, pas l'application
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 # Couleurs
 GREEN='\033[0;32m'

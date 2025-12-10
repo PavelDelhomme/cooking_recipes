@@ -6,7 +6,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 DICT_DIR="$PROJECT_ROOT/frontend/lib/data/culinary_dictionaries"
 TEMP_DIR="/tmp/culinary_dict_$$"
 
