@@ -83,6 +83,11 @@ cleanup() {
 
 trap cleanup INT TERM
 
+# Fonction pour obtenir le timestamp actuel
+get_timestamp() {
+  date +"%Y-%m-%d %H:%M:%S"
+}
+
 # Vérifier qu'on a au moins une source de logs
 if [ "$HAS_ANDROID" = false ] && [ "$BACKEND_ACCESSIBLE" = false ] && [ -z "$FRONTEND_LOG_FILE" ]; then
   echo -e "${RED}❌ Aucun log disponible${NC}"
@@ -101,7 +106,8 @@ if [ "$HAS_ANDROID" = true ]; then
           if ! echo "$line" | grep -qiE "SimpleEventLog|PlayCommon|FlagRegistrar|GoogleApiManager|BluetoothPowerStatsCollector|ACDB-LOADER|libprotobuf|chromium|SurfaceFlinger|io_stats|BugleNetwork|CronetNetworkEngine|PdnController|MalformedInputException"; then
             CLEAN_LINE=$(echo "$line" | tr -d '\0' | sed 's/[[:cntrl:]]//g' | head -c 200)
             if [ ! -z "$CLEAN_LINE" ]; then
-              echo -e "${BLUE}[ANDROID]${NC} $CLEAN_LINE"
+              TIMESTAMP=$(get_timestamp)
+              echo -e "${BLUE}[ANDROID]${NC} ${TIMESTAMP} | $CLEAN_LINE"
             fi
           fi
         fi
@@ -120,7 +126,8 @@ if [ -f "/tmp/backend.log" ] && [ "$BACKEND_ACCESSIBLE" = true ]; then
           if ! echo "$line" | grep -qiE "^\s*$|^}$|^\{$|^\s*\}\s*$|^\s*,\s*$|^\s*\"[^\"]+\":\s*[^,}]+,?\s*$|BUILD FAILED|Gradle task|Running Gradle|Try:|Run with|Error:|Execution failed"; then
             CLEAN_LINE=$(echo "$line" | tr -d '\0' | sed 's/[[:cntrl:]]//g' | sed 's/^[[:space:]]*//' | head -c 300)
             if [ ! -z "$CLEAN_LINE" ]; then
-              echo -e "${GREEN}[API]${NC} $CLEAN_LINE"
+              TIMESTAMP=$(get_timestamp)
+              echo -e "${GREEN}[API]${NC} ${TIMESTAMP} | $CLEAN_LINE"
             fi
           fi
         fi
@@ -139,7 +146,8 @@ if [ ! -z "$FRONTEND_LOG_FILE" ]; then
           if ! echo "$line" | grep -qiE "^\s*$|^}$|^\{$|SimpleEventLog|PlayCommon|FlagRegistrar|GoogleApiManager|Waiting for connection from debug service"; then
             CLEAN_LINE=$(echo "$line" | tr -d '\0' | sed 's/[[:cntrl:]]//g' | head -c 300)
             if [ ! -z "$CLEAN_LINE" ]; then
-              echo -e "${MAGENTA}[WEB]${NC} $CLEAN_LINE"
+              TIMESTAMP=$(get_timestamp)
+              echo -e "${MAGENTA}[WEB]${NC} ${TIMESTAMP} | $CLEAN_LINE"
             fi
           fi
         fi
