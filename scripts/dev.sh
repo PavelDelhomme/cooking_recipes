@@ -1055,8 +1055,8 @@ case "$DEVICE_CHOICE" in
     BUILD_PID=$!
     
     # Afficher un indicateur de progression pendant le build
-    local dots=0
-    local last_log_size=0
+    dots=0
+    last_log_size=0
     while kill -0 $BUILD_PID 2>/dev/null; do
       sleep 3
       dots=$((dots + 1))
@@ -1071,10 +1071,17 @@ case "$DEVICE_CHOICE" in
       
       # Afficher les nouvelles lignes du log si le fichier a grandi
       if [ -f /tmp/flutter_build.log ]; then
-        local current_log_size=$(wc -c < /tmp/flutter_build.log 2>/dev/null || echo "0")
-        if [ "$current_log_size" -gt "$last_log_size" ]; then
+        current_log_size=$(wc -c < /tmp/flutter_build.log 2>/dev/null | tr -d ' ' || echo "0")
+        # S'assurer que c'est un nombre valide
+        if ! echo "$current_log_size" | grep -qE '^[0-9]+$'; then
+          current_log_size=0
+        fi
+        if ! echo "$last_log_size" | grep -qE '^[0-9]+$'; then
+          last_log_size=0
+        fi
+        if [ "$current_log_size" -gt "$last_log_size" ] 2>/dev/null; then
           # Afficher les dernières lignes importantes
-          local important_lines=$(tail -5 /tmp/flutter_build.log 2>/dev/null | grep -E "Building|Compiling|Generating|✓|Error|Failed" | tail -1)
+          important_lines=$(tail -5 /tmp/flutter_build.log 2>/dev/null | grep -E "Building|Compiling|Generating|✓|Error|Failed" | tail -1)
           if [ ! -z "$important_lines" ]; then
             echo -e "${YELLOW}   → ${important_lines:0:80}${NC}"
           fi
@@ -1265,7 +1272,7 @@ case "$DEVICE_CHOICE" in
     BUILD_WEB_PID=$!
     
     # Attendre le build avec un indicateur
-    local web_dots=0
+    web_dots=0
     while kill -0 $BUILD_WEB_PID 2>/dev/null; do
       sleep 2
       web_dots=$((web_dots + 1))
