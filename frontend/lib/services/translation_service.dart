@@ -505,7 +505,8 @@ class TranslationService extends ChangeNotifier {
   }
 
   /// Nettoie et traduit un texte de recette (instructions, etc.)
-  static String cleanAndTranslate(String text) {
+  /// Utilise uniquement les dictionnaires synchrones pour éviter les appels API
+  static String cleanAndTranslate(String text, {bool useApi = false}) {
     if (text.isEmpty) return text;
     
     // Décoder les entités HTML si présentes
@@ -521,6 +522,7 @@ class TranslationService extends ChangeNotifier {
     if (_instance._currentLanguage == 'fr') {
       // Utiliser le traducteur automatique pour traduire les phrases
       // Diviser en phrases et traduire chacune
+      // NOTE: AutoTranslator.translatePhrase utilise uniquement des dictionnaires locaux
       final sentences = cleaned.split(RegExp(r'[.!?]\s+'));
       final translatedSentences = sentences.map((sentence) {
         if (sentence.trim().isEmpty) return sentence;

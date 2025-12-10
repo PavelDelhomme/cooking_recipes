@@ -289,8 +289,9 @@ class RecipeApiService {
         // Nettoyer le nom original aussi
         originalIngredientName = IngredientCleaner.cleanIngredientName(originalIngredientName);
         
-        // Traduire l'ingrédient pour l'affichage (avec LibreTranslate en priorité)
-        String ingredientName = await TranslationService.translateIngredient(originalIngredientName);
+        // Traduire l'ingrédient pour l'affichage (utiliser la version synchrone pour éviter les appels API)
+        // La version synchrone utilise uniquement les dictionnaires locaux, évitant le rate limiting
+        String ingredientName = TranslationService.translateIngredientSync(originalIngredientName);
         
         // Nettoyer le nom traduit pour corriger les problèmes de formatage
         ingredientName = IngredientCleaner.cleanIngredientName(ingredientName);

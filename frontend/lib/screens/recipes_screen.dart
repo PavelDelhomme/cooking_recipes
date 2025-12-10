@@ -166,7 +166,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
       // Chercher des recettes basées sur les ingrédients disponibles
       final recipes = await _recipeService.searchRecipesByIngredients(ingredientNames);
       setState(() {
-        _suggestedRecipes = recipes.take(10).toList();
+        // Limiter à 5 recettes au démarrage pour éviter trop de traductions
+        _suggestedRecipes = recipes.take(5).toList();
         _isLoadingSuggestions = false;
         _suggestionsLoaded = true;
       });
@@ -175,12 +176,12 @@ class _RecipesScreenState extends State<RecipesScreen> {
       // Essayer plusieurs catégories pour avoir des suggestions intéressantes
       final List<Recipe> allRecipes = [];
       
-      // Recettes aléatoires
-      final randomRecipes = await _recipeService.getRandomRecipes(5);
+      // Recettes aléatoires (limiter à 3 pour réduire les appels)
+      final randomRecipes = await _recipeService.getRandomRecipes(3);
       allRecipes.addAll(randomRecipes);
       
-      // Recettes populaires (chercher des termes génériques)
-      final popularTerms = ['chicken', 'pasta', 'salad', 'soup', 'dessert'];
+      // Recettes populaires (chercher des termes génériques - limiter à 3 termes)
+      final popularTerms = ['chicken', 'pasta', 'salad'];
       for (var term in popularTerms) {
         try {
           final recipes = await _recipeService.searchRecipes(term);
@@ -199,7 +200,8 @@ class _RecipesScreenState extends State<RecipesScreen> {
       }
       
       setState(() {
-        _suggestedRecipes = uniqueRecipes.values.take(10).toList();
+        // Limiter à 5 recettes au démarrage pour éviter trop de traductions
+        _suggestedRecipes = uniqueRecipes.values.take(5).toList();
         _isLoadingSuggestions = false;
         _suggestionsLoaded = true;
       });
