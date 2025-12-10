@@ -134,7 +134,7 @@ class IngredientCleaner {
     cleaned = cleaned.replaceAll(RegExp(r'\b(Œufs|Oeufs)\s+(Œuf|Oeuf)\b', caseSensitive: false), 'Œufs');
     
     // Corriger "Poulet Poulet" -> "Poulet"
-    cleaned = cleaned.replaceAll(RegExp(r'\b(Poulet|Poulets)\s+\1\b', caseSensitive: false), (match) {
+    cleaned = cleaned.replaceAllMapped(RegExp(r'\b(Poulet|Poulets)\s+\1\b', caseSensitive: false), (match) {
       return match.group(1)!;
     });
     
@@ -146,7 +146,7 @@ class IngredientCleaner {
     String cleaned = text;
     
     // Supprimer les articles redondants
-    cleaned = cleaned.replaceAll(RegExp(r'\b(De|Du|Des|Le|La|Les)\s+(De|Du|Des|Le|La|Les)\b', caseSensitive: false), (match) {
+    cleaned = cleaned.replaceAllMapped(RegExp(r'\b(De|Du|Des|Le|La|Les)\s+(De|Du|Des|Le|La|Les)\b', caseSensitive: false), (match) {
       return match.group(1)!; // Garder seulement le premier
     });
     
