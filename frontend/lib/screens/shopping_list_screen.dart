@@ -612,6 +612,7 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
                     );
                   },
                 ),
+                ),
               ],
             ),
           ),
