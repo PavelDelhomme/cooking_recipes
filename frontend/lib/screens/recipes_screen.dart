@@ -947,7 +947,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
           child: CustomScrollView(
             controller: _suggestionsScrollController,
             physics: const AlwaysScrollableScrollPhysics(
-              parent: BouncingScrollPhysics(), // Permet le pull-to-refresh avec effet de rebond
+              parent: ClampingScrollPhysics(), // Permet le pull-to-refresh
             ),
             slivers: [
             SliverToBoxAdapter(
@@ -1009,7 +1009,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
             ),
             if (_suggestedRecipes.isEmpty)
               SliverFillRemaining(
-                hasScrollBody: false,
+                hasScrollBody: true, // Permet le scroll même si vide pour le pull-to-refresh
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32),
@@ -1088,7 +1088,6 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 ),
               // Pas de message de fin - scroll infini continu
             ],
-            ),
           ),
         );
       },
