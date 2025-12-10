@@ -8,6 +8,7 @@ import '../services/translation_service.dart';
 import '../widgets/locale_notifier.dart';
 import '../widgets/translation_builder.dart';
 import '../widgets/recipe_filters.dart';
+import '../widgets/styled_header.dart';
 import 'recipe_detail_screen.dart';
 import 'recipe_card_variants.dart';
 
@@ -236,6 +237,15 @@ class _RecipesScreenState extends State<RecipesScreen> {
     });
   }
 
+  int _getActiveFiltersCount() {
+    // Compter le nombre de filtres actifs en comparant les listes
+    if (_filteredRecipes.isEmpty && _recipes.isEmpty) return 0;
+    if (_filteredRecipes.length == _recipes.length) return 0;
+    // Si les listes sont différentes, il y a des filtres actifs
+    // On peut estimer le nombre en fonction de la différence
+    return _filteredRecipes.length < _recipes.length ? 1 : 0;
+  }
+
   void _showFilters() {
     // Extraire tous les ingrédients uniques des recettes
     final allIngredients = <String>{};
@@ -362,49 +372,40 @@ class _RecipesScreenState extends State<RecipesScreen> {
       // Pas d'AppBar ici car c'est géré par MainScreen
       body: Column(
         children: [
-          // Barre d'actions personnalisée
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Recettes',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                // Bouton de filtres (seulement si on a des recettes)
-                if (_recipes.isNotEmpty)
-                  Container(
+          // Header stylisé dans le style du drawer
+          StyledHeader(
+            title: 'Recettes',
+            icon: Icons.restaurant_menu,
+            trailing: _recipes.isNotEmpty
+                ? Container(
+                    margin: const EdgeInsets.only(left: 12),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(16),
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
                     child: IconButton(
                       icon: Stack(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.tune,
-                            color: Theme.of(context).colorScheme.onPrimaryContainer,
-                            size: 24,
+                            color: Colors.white,
+                            size: 22,
                           ),
-                          if (_filteredRecipes.isNotEmpty && _filteredRecipes.length != _recipes.length)
+                          if (_getActiveFiltersCount() > 0)
                             Positioned(
                               right: 0,
                               top: 0,
                               child: Container(
                                 padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primary,
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
                                   shape: BoxShape.circle,
                                 ),
                                 constraints: const BoxConstraints(
@@ -412,9 +413,9 @@ class _RecipesScreenState extends State<RecipesScreen> {
                                   minHeight: 16,
                                 ),
                                 child: Text(
-                                  '${_filteredRecipes.length}',
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onPrimary,
+                                  '${_getActiveFiltersCount()}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -425,12 +426,12 @@ class _RecipesScreenState extends State<RecipesScreen> {
                         ],
                       ),
                       onPressed: _showFilters,
-                      tooltip: 'Filtrer les recettes',
+                      tooltip: 'Filtres',
                     ),
-                  ),
-              ],
-            ),
+                  )
+                : null,
           ),
+          // Barre de recherche et contenu
           Expanded(
             child: Column(
               children: [

@@ -6,6 +6,7 @@ import '../services/pantry_service.dart';
 import '../services/ingredient_image_service.dart';
 import '../services/translation_service.dart';
 import '../widgets/locale_notifier.dart';
+import '../widgets/styled_header.dart';
 import '../widgets/unit_selector.dart';
 
 class ShoppingListScreen extends StatefulWidget {
@@ -281,14 +282,40 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
       // Pas d'AppBar ici car c'est géré par MainScreen
       body: Column(
         children: [
-          // Barre d'actions personnalisée
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Header stylisé dans le style du drawer
+          StyledHeader(
+            title: 'Liste de courses',
+            icon: Icons.shopping_cart,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: Row(
+                if (_items.isNotEmpty && _items.any((item) => item.isChecked))
+                  IconButton(
+                    icon: const Icon(Icons.delete_sweep, color: Colors.white),
+                    onPressed: _removeCheckedItems,
+                    tooltip: 'Supprimer les articles cochés',
+                  ),
+                IconButton(
+                  icon: const Icon(Icons.select_all, color: Colors.white),
+                  onPressed: _isSelectionMode ? _deselectAll : _toggleSelectionMode,
+                  tooltip: _isSelectionMode ? 'Désélectionner' : 'Sélectionner',
+                ),
+              ],
+            ),
+          ),
+          // Contenu
+          Expanded(
+            child: Column(
+              children: [
+                // Barre d'actions
+                if (_items.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Row(
                     children: [
                       if (_isSelectionMode) ...[
                         Text(

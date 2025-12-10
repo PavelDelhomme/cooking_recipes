@@ -280,13 +280,16 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     }
   }
 
+  // Clé pour forcer la reconstruction des widgets de traduction
+  int _translationKey = 0;
+
   Future<void> _showTranslationFeedback(
     FeedbackType type,
     String originalText,
     String currentTranslation, {
     String? contextInfo,
   }) async {
-    final result = await showDialog<bool>(
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (dialogContext) => TranslationFeedbackWidget(
         recipeId: widget.recipe.id,
@@ -298,12 +301,40 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       ),
     );
     
-    // Si une traduction a été enregistrée, rafraîchir l'écran
-    if (result == true && mounted) {
+    // Si une traduction a été enregistrée, rafraîchir l'écran intelligemment
+    if (result != null && result['success'] == true && mounted) {
+      // Attendre un peu pour que le cache soit bien mis à jour
+      await Future.delayed(const Duration(milliseconds: 150));
+      
+      // Recharger le cache pour être sûr
+      await TranslationFeedbackService.loadCache();
+      
+      // Notifier TranslationService pour que les widgets se reconstruisent
+      TranslationService().notifyListeners();
+      
+      // Forcer la reconstruction de l'écran avec une nouvelle clé
+      // Cela va forcer tous les TranslationBuilder à se reconstruire
       setState(() {
-        // Forcer le rafraîchissement de l'écran pour afficher les nouvelles traductions
-        // Les widgets TranslationBuilder vont se reconstruire avec les nouvelles traductions du cache
+        _translationKey++;
       });
+      
+      // Afficher un message de confirmation avec les détails
+      if (mounted) {
+        final typeLabel = type == FeedbackType.recipeName 
+            ? 'nom de la recette'
+            : type == FeedbackType.ingredient
+                ? 'ingrédient'
+                : 'instruction';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '✅ Traduction du $typeLabel mise à jour pour cette recette !',
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
@@ -668,6 +699,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           children: [
                             Expanded(
                               child: TranslationBuilder(
+                                key: ValueKey('ingredient_${ingredient.name}_${widget.recipe.id}_$_translationKey'),
                                 builder: (context) {
                                   return Text(
                                     TranslationService.translateIngredientSync(ingredient.name),
@@ -844,6 +876,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     )
                   else
                     TranslationBuilder(
+                      key: ValueKey('instructions_${widget.recipe.id}_$_translationKey'),
                       builder: (context) {
                         // Retraduire les instructions depuis le texte original si disponible
                         List<String> translatedInstructions;

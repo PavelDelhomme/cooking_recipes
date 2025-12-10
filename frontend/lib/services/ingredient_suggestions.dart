@@ -1,3 +1,5 @@
+import 'ingredient_cleaner.dart';
+
 class IngredientSuggestions {
   // Suggestions d'unités basées sur le nom de l'ingrédient
   static List<String> getSuggestedUnits(String ingredientName) {
@@ -102,9 +104,9 @@ class IngredientSuggestions {
     return ['unité', 'g', 'kg', 'ml', 'l', 'pièce', 'portion'];
   }
   
-  // Suggestions de noms d'ingrédients courants
+  // Suggestions de noms d'ingrédients courants (nettoyés automatiquement)
   static List<String> getCommonIngredients() {
-    return [
+    final rawIngredients = [
       'Steak haché',
       'Pâtes',
       'Riz',
@@ -126,6 +128,28 @@ class IngredientSuggestions {
       'Carottes',
       'Courgettes',
     ];
+    
+    // Nettoyer tous les ingrédients avant de les retourner
+    return IngredientCleaner.cleanIngredientList(rawIngredients);
+  }
+  
+  // Suggestions filtrées et nettoyées basées sur une requête
+  static List<String> getFilteredSuggestions(String query) {
+    final allIngredients = getCommonIngredients();
+    final lowerQuery = query.trim().toLowerCase();
+    
+    if (lowerQuery.isEmpty) {
+      return allIngredients;
+    }
+    
+    // Filtrer et nettoyer les suggestions
+    return allIngredients
+        .where((ingredient) => 
+            ingredient.toLowerCase().contains(lowerQuery))
+        .map((ingredient) => IngredientCleaner.cleanIngredientName(ingredient))
+        .where((ingredient) => ingredient.isNotEmpty)
+        .toSet() // Supprimer les doublons
+        .toList();
   }
 }
 

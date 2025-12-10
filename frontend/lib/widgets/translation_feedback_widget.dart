@@ -67,7 +67,8 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
       if (mounted && suggestion != null) {
         setState(() {
           _aiSuggestion = suggestion;
-          _suggestionController.text = suggestion;
+          // Ne pas remplir automatiquement le champ, laisser l'utilisateur choisir
+          // _suggestionController.text = suggestion;
           _isSuggesting = false;
         });
       } else {
@@ -126,7 +127,13 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
           // Recharger le cache des traductions apprises pour utilisation immédiate
           await TranslationFeedbackService.loadCache();
           
-          Navigator.pop(context, true); // Retourner true pour indiquer qu'une traduction a été enregistrée
+          // Retourner les informations de la traduction enregistrée pour rafraîchissement intelligent
+          Navigator.pop(context, {
+            'success': true,
+            'type': widget.type,
+            'originalText': widget.originalText,
+            'suggestedTranslation': feedback.suggestedTranslation,
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('✅ Merci ! Votre correction a été enregistrée et la traduction a été mise à jour.'),
@@ -135,7 +142,7 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
             ),
           );
         } else {
-          Navigator.pop(context, false);
+          Navigator.pop(context, {'success': false});
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('❌ Erreur lors de l\'enregistrement'),
@@ -223,7 +230,7 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop(context, {'success': false}),
                   ),
                 ],
               ),
@@ -375,37 +382,98 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
               if (_aiSuggestion != null) ...[
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                    gradient: LinearGradient(
+                      colors: [
+                        Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                        Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                      ],
                     ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Icons.auto_awesome,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Suggestion IA générée',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).colorScheme.primary,
-                            fontStyle: FontStyle.italic,
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.auto_awesome,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Suggestion IA générée',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _aiSuggestion!,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      TextButton(
-                        onPressed: () {
-                          _suggestionController.text = _aiSuggestion!;
-                        },
-                        child: const Text('Utiliser'),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _suggestionController.text = _aiSuggestion!;
+                              });
+                            },
+                            icon: const Icon(Icons.check_circle_outline, size: 18),
+                            label: const Text('Utiliser cette suggestion'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              foregroundColor: Theme.of(context).colorScheme.primary,
+                              side: BorderSide(
+                                color: Theme.of(context).colorScheme.primary,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -419,7 +487,7 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: _isLoading ? null : () => Navigator.pop(context),
+                    onPressed: _isLoading ? null : () => Navigator.pop(context, {'success': false}),
                     child: const Text('Annuler'),
                   ),
                   const SizedBox(width: 12),

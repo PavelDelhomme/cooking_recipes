@@ -546,8 +546,8 @@ class RecipeCardVariants {
 
   // Variante 6: Carte détaillée avec liste d'ingrédients et début d'instructions
   static Widget variant6(Recipe recipe, BuildContext context) {
-    // Extraire les premiers ingrédients (max 5)
-    final firstIngredients = recipe.ingredients.take(5).toList();
+    // Extraire SEULEMENT le premier ingrédient principal
+    final firstIngredient = recipe.ingredients.isNotEmpty ? recipe.ingredients.first : null;
     // Extraire le début des instructions (première phrase ou 100 caractères) - traduit
     String? instructionsPreview;
     if (recipe.instructions.isNotEmpty) {
@@ -556,8 +556,9 @@ class RecipeCardVariants {
       if (sentences.isNotEmpty && sentences.first.trim().isNotEmpty) {
         instructionsPreview = sentences.first.trim() + '.';
       } else {
-        instructionsPreview = instructionText.length > 100
-            ? instructionText.substring(0, 100) + '...'
+        // Limiter à 80 caractères max
+        instructionsPreview = instructionText.length > 80
+            ? instructionText.substring(0, 80) + '...'
             : instructionText;
       }
     }
@@ -567,8 +568,8 @@ class RecipeCardVariants {
       // Nettoyer les balises HTML d'abord
       final cleanSummary = recipe.summary!.replaceAll(RegExp(r'<[^>]*>'), '');
       final translatedSummary = TranslationService.cleanAndTranslate(cleanSummary);
-      if (translatedSummary.length > 120) {
-        summaryPreview = '${translatedSummary.substring(0, 120)}...';
+      if (translatedSummary.length > 100) {
+        summaryPreview = '${translatedSummary.substring(0, 100)}...';
       } else {
         summaryPreview = translatedSummary;
       }
@@ -614,11 +615,10 @@ class RecipeCardVariants {
                   color: Theme.of(context).colorScheme.surfaceVariant,
                   child: Icon(Icons.restaurant, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
-              // Contenu scrollable (65% de la hauteur restante)
+              // Contenu fixe (non scrollable) - 65% de la hauteur restante
               SizedBox(
                 height: contentHeight,
-                child: SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(), // Empêcher le scroll de se propager à la page
+                child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -695,41 +695,38 @@ class RecipeCardVariants {
                           ),
                           const SizedBox(height: 12),
                         ],
-                        // Liste des ingrédients principaux
-                        if (firstIngredients.isNotEmpty) ...[
+                        // Premier ingrédient principal seulement
+                        if (firstIngredient != null) ...[
                           TranslationBuilder(
                             builder: (context) => Text(
-                              'Ingrédients principaux:',
+                              'Ingrédient principal:',
                               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
                             ),
                           ),
                           const SizedBox(height: 6),
-                          ...firstIngredients.map((ingredient) => Padding(
-                            padding: const EdgeInsets.only(bottom: 4),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Icon(Icons.circle, size: 4, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: TranslationBuilder(
-                                    builder: (context) => Text(
-                                      TranslationService.translateIngredientSync(ingredient.name),
-                                      style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.circle, size: 4, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TranslationBuilder(
+                                  builder: (context) => Text(
+                                    TranslationService.translateIngredientSync(firstIngredient.name),
+                                    style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                              ],
-                            ),
-                          )),
-                          if (recipe.ingredients.length > 5)
+                              ),
+                            ],
+                          ),
+                          if (recipe.ingredients.length > 1)
                             Padding(
                               padding: const EdgeInsets.only(top: 4),
                               child: TranslationBuilder(
                                 builder: (context) {
-                                  final remaining = recipe.ingredients.length - 5;
+                                  final remaining = recipe.ingredients.length - 1;
                                   final text = TranslationService.currentLanguageStatic == 'fr'
                                       ? 'et $remaining autres...'
                                       : TranslationService.currentLanguageStatic == 'es'
@@ -744,7 +741,7 @@ class RecipeCardVariants {
                             ),
                           const SizedBox(height: 12),
                         ],
-                        // Début des instructions
+                        // Début des instructions (première phrase seulement)
                         if (instructionsPreview != null) ...[
                           TranslationBuilder(
                             builder: (context) => Text(
@@ -757,7 +754,7 @@ class RecipeCardVariants {
                             builder: (context) => Text(
                               instructionsPreview!,
                               style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
-                              maxLines: 3,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),

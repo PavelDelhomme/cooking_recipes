@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import '../models/translation_feedback.dart';
+import '../config/api_config.dart';
+import 'auth_service.dart';
+import 'http_client.dart';
 import 'translation_service.dart';
 
 /// Service pour gérer les retours utilisateur sur les traductions
@@ -8,9 +12,10 @@ class TranslationFeedbackService {
   static const String _feedbackKey = 'translation_feedbacks';
   static const String _learnedTranslationsKey = 'learned_translations';
 
-  /// Enregistre un retour utilisateur
+  /// Enregistre un retour utilisateur (localement ET sur le backend)
   Future<bool> submitFeedback(TranslationFeedback feedback) async {
     try {
+      // 1. Enregistrer localement (pour utilisation immédiate)
       final prefs = await SharedPreferences.getInstance();
       final feedbacks = await getAllFeedbacks();
       feedbacks.add(feedback);
@@ -21,7 +26,39 @@ class TranslationFeedbackService {
       
       await prefs.setString(_feedbackKey, jsonString);
       
-      // Si l'utilisateur a suggéré une traduction, l'ajouter aux traductions apprises
+      // 2. Envoyer au backend (pour tracking et entraînement)
+      try {
+        final token = await AuthService.getToken();
+        if (token != null) {
+          final response = await HttpClient.post(
+            Uri.parse('${ApiConfig.baseUrl}/translation-feedback'),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: json.encode({
+              'recipeId': feedback.recipeId,
+              'recipeTitle': feedback.recipeTitle,
+              'type': feedback.type.toString().split('.').last,
+              'originalText': feedback.originalText,
+              'currentTranslation': feedback.currentTranslation,
+              'suggestedTranslation': feedback.suggestedTranslation,
+              'targetLanguage': feedback.targetLanguage,
+              'context': feedback.context,
+            }),
+          );
+          
+          if (response.statusCode != 201) {
+            print('⚠️ Erreur envoi feedback au backend: ${response.statusCode}');
+            // Continuer quand même, le feedback local est enregistré
+          }
+        }
+      } catch (e) {
+        print('⚠️ Erreur envoi feedback au backend (continuons): $e');
+        // Continuer quand même, le feedback local est enregistré
+      }
+      
+      // 3. Si l'utilisateur a suggéré une traduction, l'ajouter aux traductions apprises
       if (feedback.suggestedTranslation != null && 
           feedback.suggestedTranslation!.isNotEmpty) {
         await _addLearnedTranslation(
@@ -39,9 +76,55 @@ class TranslationFeedbackService {
     }
   }
 
-  /// Récupère tous les retours utilisateur
+  /// Récupère tous les retours utilisateur (depuis le backend si possible, sinon local)
   Future<List<TranslationFeedback>> getAllFeedbacks() async {
     try {
+      // Essayer de récupérer depuis le backend d'abord
+      try {
+        final token = await AuthService.getToken();
+        if (token != null) {
+          final response = await HttpClient.get(
+            Uri.parse('${ApiConfig.baseUrl}/translation-feedback'),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+          );
+          
+          if (response.statusCode == 200) {
+            final data = json.decode(response.body);
+            if (data['success'] == true && data['feedbacks'] != null) {
+              final List<dynamic> feedbacksJson = data['feedbacks'];
+              final feedbacks = feedbacksJson
+                  .map((json) => TranslationFeedback.fromJson({
+                    'id': json['id'],
+                    'recipeId': json['recipe_id'],
+                    'recipeTitle': json['recipe_title'],
+                    'type': json['type'],
+                    'originalText': json['original_text'],
+                    'currentTranslation': json['current_translation'],
+                    'suggestedTranslation': json['suggested_translation'],
+                    'targetLanguage': json['target_language'],
+                    'timestamp': json['timestamp'],
+                    'context': json['context'],
+                  }))
+                  .toList();
+              
+              // Synchroniser avec le stockage local
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString(_feedbackKey, json.encode(
+                feedbacks.map((f) => f.toJson()).toList(),
+              ));
+              
+              return feedbacks;
+            }
+          }
+        }
+      } catch (e) {
+        print('⚠️ Erreur récupération feedbacks depuis backend (fallback local): $e');
+      }
+      
+      // Fallback : récupérer depuis le stockage local
       final prefs = await SharedPreferences.getInstance();
       final String? jsonString = prefs.getString(_feedbackKey);
       

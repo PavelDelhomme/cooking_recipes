@@ -13,6 +13,7 @@ const shoppingListRoutes = require('./routes/shoppingList');
 const favoritesRoutes = require('./routes/favorites');
 const adminRoutes = require('./routes/admin');
 const translationRoutes = require('./routes/translation');
+const translationFeedbackRoutes = require('./routes/translationFeedback');
 const { initDatabase, createDefaultUser } = require('./database/db');
 const { checkBlacklist } = require('./middleware/ipBlacklist');
 const { wafMiddleware } = require('./middleware/waf');
@@ -177,6 +178,7 @@ app.use('/api/shopping-list', shoppingListRoutes);
 app.use('/api/favorites', favoritesRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/translation', translationRoutes);
+app.use('/api/translation-feedback', translationFeedbackRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

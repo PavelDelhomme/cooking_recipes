@@ -11,6 +11,7 @@ import 'screens/profile_screen.dart';
 import 'screens/auth_screen.dart';
 import 'screens/favorites_screen.dart';
 import 'screens/recipe_history_screen.dart';
+import 'screens/translation_feedback_history_screen.dart';
 import 'services/profile_service.dart';
 import 'services/auth_service.dart';
 import 'services/locale_service.dart';
@@ -849,6 +850,19 @@ class _MainScreenState extends State<MainScreen> {
               await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const RecipeHistoryScreen()),
+              );
+            },
+          ),
+          _buildStyledDrawerTile(
+            context: context,
+            icon: Icons.translate,
+            title: 'Mes Traductions',
+            isSelected: false,
+            onTap: () async {
+              Navigator.pop(context);
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const TranslationFeedbackHistoryScreen()),
               );
             },
           ),

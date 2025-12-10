@@ -9,8 +9,10 @@ import '../models/pantry_history_item.dart';
 import '../widgets/unit_selector.dart';
 import '../widgets/quantity_unit_input.dart';
 import '../services/ingredient_suggestions.dart';
+import '../services/ingredient_cleaner.dart';
 import '../services/translation_service.dart';
 import '../widgets/locale_notifier.dart';
+import '../widgets/styled_header.dart';
 import 'pantry_history_screen.dart';
 import 'pantry_config_screen.dart';
 
@@ -243,85 +245,366 @@ class PantryScreenState extends State<PantryScreen> {
       // Pas d'AppBar ici car c'est géré par MainScreen
       body: Column(
         children: [
-          // Barre d'actions personnalisée
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Header stylisé dans le style du drawer
+          StyledHeader(
+            title: 'Placard',
+            icon: Icons.kitchen,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Mon Placard',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.history, color: Colors.white),
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PantryHistoryScreen(),
+                      ),
+                    );
+                    loadItems();
+                  },
+                  tooltip: 'Historique',
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.history),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const PantryHistoryScreen(),
-                          ),
-                        );
-                      },
-                      tooltip: 'Historique',
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.refresh),
-                      onPressed: loadItems,
-                      tooltip: 'Actualiser',
-                    ),
-                    PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert),
-                      onSelected: (value) {
-                        if (value == 'config') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PantryConfigScreen(),
-                            ),
-                          );
-                        } else if (value == 'refresh') {
-                          loadItems();
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'config',
-                          child: Row(
-                            children: [
-                              Icon(Icons.settings),
-                              SizedBox(width: 8),
-                              Text('Configuration'),
-                            ],
-                          ),
-                        ),
-                        const PopupMenuItem(
-                          value: 'refresh',
-                          child: Row(
-                            children: [
-                              Icon(Icons.refresh),
-                              SizedBox(width: 8),
-                              Text('Actualiser'),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                IconButton(
+                  icon: const Icon(Icons.settings, color: Colors.white),
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PantryConfigScreen(),
+                      ),
+                    );
+                    loadItems();
+                  },
+                  tooltip: 'Configuration',
                 ),
               ],
             ),
           ),
+          // Contenu
           Expanded(
-            child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _items.isEmpty
+            child: Column(
+              children: [
+                // Liste des ingrédients
+                Expanded(
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _items.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.kitchen_outlined,
+                                    size: 64,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Votre placard est vide',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Ajoutez des ingrédients pour commencer',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: _items.length,
+                              itemBuilder: (context, index) {
+                                final item = _items[index];
+                                return _buildPantryItemCard(item);
+                              },
+                            ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: "pantry_fab",
+        onPressed: _addItem,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildPantryItemCard(PantryItem item) {
+    final hasImage = _ingredientImages[item.name] != null;
+    final isExpired = item.expiryDate != null &&
+        item.expiryDate!.isBefore(DateTime.now());
+    final isExpiringSoon = item.expiryDate != null &&
+        !isExpired &&
+        item.expiryDate!.difference(DateTime.now()).inDays <= 3;
+    
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      color: isExpired
+          ? Theme.of(context).colorScheme.errorContainer.withOpacity(0.3)
+          : isExpiringSoon
+              ? Theme.of(context).colorScheme.tertiaryContainer.withOpacity(0.3)
+              : null,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: hasImage
+                ? Image.network(
+                    _ingredientImages[item.name]!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(
+                        Icons.shopping_basket,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      );
+                    },
+                  )
+                : Icon(
+                    Icons.shopping_basket,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+          ),
+        ),
+        title: TranslationBuilder(
+          builder: (context) => Text(
+            TranslationService.translateIngredientSync(item.name),
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${item.quantity.toStringAsFixed(item.quantity % 1 == 0 ? 0 : 2)} ${item.unit ?? 'unité'}',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              if (item.expiryDate != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  isExpired
+                      ? 'Expiré le ${DateFormat('dd/MM/yyyy').format(item.expiryDate!)}'
+                      : isExpiringSoon
+                          ? 'Expire le ${DateFormat('dd/MM/yyyy').format(item.expiryDate!)}'
+                          : 'Expire le ${DateFormat('dd/MM/yyyy').format(item.expiryDate!)}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isExpired
+                        ? Theme.of(context).colorScheme.error
+                        : isExpiringSoon
+                            ? Theme.of(context).colorScheme.tertiary
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontWeight: isExpired || isExpiringSoon ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (item.quantity > 0)
+              IconButton(
+                icon: Icon(
+                  Icons.remove_circle_outline,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                onPressed: () => _useIngredient(item),
+                tooltip: 'Utiliser',
+              ),
+            IconButton(
+              icon: Icon(
+                Icons.edit,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: () => _editItem(item),
+              tooltip: 'Modifier',
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.delete,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              onPressed: () => _deleteItem(item),
+              tooltip: 'Supprimer',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Classe pour ajouter/modifier un ingrédient
+class AddPantryItemScreen extends StatefulWidget {
+  final PantryItem? item;
+
+  const AddPantryItemScreen({super.key, this.item});
+
+  @override
+  State<AddPantryItemScreen> createState() => _AddPantryItemScreenState();
+}
+
+class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _quantityController = TextEditingController();
+  String? _selectedUnit;
+  final PantryService _pantryService = PantryService();
+  final IngredientSuggestions _suggestions = IngredientSuggestions();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.item != null) {
+      _nameController.text = widget.item!.name;
+      _quantityController.text = widget.item!.quantity.toString();
+      _selectedUnit = widget.item!.unit;
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _quantityController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveItem() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    // Nettoyer le nom avant de sauvegarder
+    final rawName = _nameController.text.trim();
+    if (rawName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Veuillez entrer un nom d\'ingrédient')),
+      );
+      return;
+    }
+    
+    // Nettoyer automatiquement le nom
+    final name = IngredientCleaner.cleanIngredientName(rawName);
+    
+    // Si le nom a été nettoyé, informer l'utilisateur
+    if (name != rawName && IngredientCleaner.isLikelyIncorrect(rawName)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Nom corrigé automatiquement : "$rawName" → "$name"'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          ),
+        );
+      }
+    }
+
+    final quantityText = _quantityController.text.trim();
+    double? quantity;
+    if (quantityText.isNotEmpty) {
+      final parsedQty = double.tryParse(quantityText);
+      if (parsedQty == null || parsedQty <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Veuillez entrer une quantité valide (supérieure à 0)')),
+        );
+        return;
+      }
+      // Vérifier les limites pour prévenir les buffer overflows
+      if (parsedQty > 999999.999) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('La quantité ne peut pas dépasser 999999.999')),
+        );
+        return;
+      }
+      if (parsedQty < 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('La quantité ne peut pas être négative')),
+        );
+        return;
+      }
+      quantity = parsedQty;
+    } else {
+      quantity = 1.0; // Valeur par défaut
+    }
+
+    try {
+      if (widget.item == null) {
+        // Ajouter un nouvel ingrédient
+        final newItem = PantryItem(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          name: name,
+          quantity: quantity,
+          unit: _selectedUnit,
+          addedAt: DateTime.now(),
+        );
+        await _pantryService.addPantryItem(newItem);
+      } else {
+        // Modifier un ingrédient existant
+        final updatedItem = PantryItem(
+          id: widget.item!.id,
+          name: name,
+          quantity: quantity,
+          unit: _selectedUnit,
+          addedAt: widget.item!.addedAt,
+        );
+        await _pantryService.updatePantryItem(updatedItem);
+      }
+
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.item == null ? 'Ajouter un ingrédient' : 'Modifier l\'ingrédient'),
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
               ? Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32),
@@ -710,22 +993,35 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
             children: [
             Autocomplete<String>(
               optionsBuilder: (TextEditingValue textEditingValue) {
-                // Retourner les suggestions de manière synchrone pour éviter les blocages
-                final query = textEditingValue.text.trim().toLowerCase();
-                final allIngredients = IngredientSuggestions.getCommonIngredients();
+                // Nettoyer la requête et obtenir des suggestions nettoyées
+                final query = textEditingValue.text.trim();
+                final cleanedQuery = IngredientCleaner.cleanIngredientName(query);
                 
-                if (query.isEmpty) {
-                  return allIngredients;
+                // Si la requête a été nettoyée, suggérer la correction
+                if (query.isNotEmpty && cleanedQuery != query && IngredientCleaner.isLikelyIncorrect(query)) {
+                  final suggestions = IngredientSuggestions.getFilteredSuggestions(cleanedQuery);
+                  return [cleanedQuery, ...suggestions];
                 }
                 
-                // Filtrer les ingrédients qui correspondent à la requête
-                return allIngredients
-                    .where((ingredient) => 
-                        ingredient.toLowerCase().contains(query))
-                    .toList();
+                // Sinon, suggestions normales
+                return IngredientSuggestions.getFilteredSuggestions(query);
               },
               onSelected: (String selection) {
-                _nameController.text = selection;
+                // Nettoyer automatiquement la sélection
+                final cleaned = IngredientCleaner.cleanIngredientName(selection);
+                _nameController.text = cleaned;
+                
+                // Si le nom était incorrect, afficher une notification
+                if (IngredientCleaner.isLikelyIncorrect(selection) && cleaned != selection) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Nom corrigé : "$selection" → "$cleaned"'),
+                      duration: const Duration(seconds: 2),
+                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    ),
+                  );
+                }
+                
                 // Mettre à jour les suggestions d'unités
                 setState(() {});
               },
@@ -753,8 +1049,23 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
                     hintText: 'Ex: Steak haché, Pâtes, Tomates, Lait...',
                   ),
                   onChanged: (value) {
+                    // Nettoyer automatiquement pendant la saisie
+                    final cleaned = IngredientCleaner.cleanIngredientName(value);
+                    if (cleaned != value && value.isNotEmpty) {
+                      // Si le nom a été nettoyé, mettre à jour le champ
+                      Future.microtask(() {
+                        if (mounted && textEditingController.text == value) {
+                          textEditingController.value = TextEditingValue(
+                            text: cleaned,
+                            selection: TextSelection.collapsed(offset: cleaned.length),
+                          );
+                        }
+                      });
+                    }
+                    
                     // Synchroniser avec _nameController pour les suggestions d'unités
-                    _nameController.text = value;
+                    _nameController.text = cleaned.isNotEmpty ? cleaned : value;
+                    
                     // Mettre à jour les suggestions d'unités seulement si nécessaire
                     if (mounted) {
                       setState(() {});
@@ -764,6 +1075,13 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return 'Veuillez entrer un nom';
                     }
+                    
+                    // Vérifier si le nom semble incorrect
+                    final cleaned = IngredientCleaner.cleanIngredientName(value);
+                    if (IngredientCleaner.isLikelyIncorrect(value) && cleaned != value) {
+                      return 'Nom suspect. Suggestion : "$cleaned"';
+                    }
+                    
                     return null;
                   },
                 );

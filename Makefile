@@ -28,6 +28,15 @@ improve-translations: ## [DEV] Améliore les traductions des recettes (instructi
 export-translation-data: ## [DEV] Exporte les données de feedback pour l'entraînement du modèle
 	@python3 scripts/export_translation_training_data.py
 
+train-translation-model: ## [BACKEND] Entraîne le modèle de traduction avec les feedbacks utilisateur
+	@cd backend && node scripts/train_translation_model.js --export-json
+
+translation-stats: ## [BACKEND] Affiche les statistiques des feedbacks de traduction
+	@cd backend && node scripts/train_translation_model.js --stats
+
+update-translation-dict: ## [BACKEND] Met à jour les dictionnaires JSON avec les traductions approuvées
+	@cd backend && node scripts/train_translation_model.js --update-dict
+
 help: ## Affiche cette aide
 	@echo -e "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
 	@echo -e "$(GREEN)🍳 Cooking Recipes - Aide des commandes Make$(NC)"

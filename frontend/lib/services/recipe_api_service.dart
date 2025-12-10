@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/recipe.dart';
 import '../models/ingredient.dart';
 import 'translation_service.dart';
+import 'ingredient_cleaner.dart';
 import 'locale_service.dart';
 import 'recipe_cache_service.dart';
 import 'api_logger.dart'; // Logger pour les requêtes API
@@ -283,10 +284,16 @@ class RecipeApiService {
       final ingredient = meal['strIngredient$i'];
       final measure = meal['strMeasure$i'];
       if (ingredient != null && ingredient.toString().trim().isNotEmpty) {
-        // Nettoyer l'ingrédient (garder le nom anglais original)
+        // Nettoyer l'ingrédient (garder le nom anglais original mais nettoyer)
         String originalIngredientName = TranslationService.fixEncoding(ingredient.toString().trim());
+        // Nettoyer le nom original aussi
+        originalIngredientName = IngredientCleaner.cleanIngredientName(originalIngredientName);
+        
         // Traduire l'ingrédient pour l'affichage (avec LibreTranslate en priorité)
         String ingredientName = await TranslationService.translateIngredient(originalIngredientName);
+        
+        // Nettoyer le nom traduit pour corriger les problèmes de formatage
+        ingredientName = IngredientCleaner.cleanIngredientName(ingredientName);
         
         // Parser la quantité, l'unité et la préparation
         final measureStr = measure?.toString().trim() ?? '';
