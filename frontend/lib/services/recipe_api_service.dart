@@ -135,9 +135,15 @@ class RecipeApiService {
 
       Map<String, int> recipeCounts = {};
       
-      // Récupérer les IDs pour chaque ingrédient
-      for (var ingredient in ingredients) {
-        final ids = await searchRecipeIdsByIngredient(ingredient);
+      // Paralléliser les appels API pour chaque ingrédient pour accélérer
+      final List<Future<List<String>>> idFutures = ingredients.map(
+        (ingredient) => searchRecipeIdsByIngredient(ingredient)
+      ).toList();
+      
+      final List<List<String>> allIds = await Future.wait(idFutures);
+      
+      // Compter les occurrences de chaque ID
+      for (var ids in allIds) {
         for (var id in ids) {
           recipeCounts[id] = (recipeCounts[id] ?? 0) + 1;
         }
@@ -201,30 +207,43 @@ class RecipeApiService {
   // Obtenir des recettes aléatoires
   Future<List<Recipe>> getRandomRecipes(int count) async {
     try {
-      final List<Recipe> recipes = [];
+      // Paralléliser les appels API pour accélérer le chargement
+      final List<Future<Recipe?>> recipeFutures = [];
       for (int i = 0; i < count; i++) {
-        final url = '$baseUrl/random.php';
-        final response = await ApiLogger.interceptRequest(
-          () => http.get(Uri.parse(url)),
-          'GET',
-          url,
-        );
-
-        if (response.statusCode == 200) {
-          // Définir l'encodage UTF-8 explicitement
-          final utf8Body = utf8.decode(response.bodyBytes);
-          final data = json.decode(utf8Body);
-          if (data['meals'] != null && data['meals'].isNotEmpty) {
-            recipes.add(await _convertMealToRecipe(data['meals'][0]));
-          }
-        }
-        // Petite pause pour éviter de surcharger l'API
-        await Future.delayed(const Duration(milliseconds: 200));
+        recipeFutures.add(_fetchRandomRecipe());
       }
-      return recipes;
+      
+      // Attendre tous les appels en parallèle
+      final results = await Future.wait(recipeFutures);
+      return results.whereType<Recipe>().toList();
     } catch (e) {
       print('Erreur lors de la récupération de recettes aléatoires: $e');
       return [];
+    }
+  }
+  
+  // Méthode helper pour récupérer une recette aléatoire
+  Future<Recipe?> _fetchRandomRecipe() async {
+    try {
+      final url = '$baseUrl/random.php';
+      final response = await ApiLogger.interceptRequest(
+        () => http.get(Uri.parse(url)),
+        'GET',
+        url,
+      );
+
+      if (response.statusCode == 200) {
+        // Définir l'encodage UTF-8 explicitement
+        final utf8Body = utf8.decode(response.bodyBytes);
+        final data = json.decode(utf8Body);
+        if (data['meals'] != null && data['meals'].isNotEmpty) {
+          return await _convertMealToRecipe(data['meals'][0]);
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Erreur lors de la récupération d\'une recette aléatoire: $e');
+      return null;
     }
   }
 
@@ -365,7 +384,8 @@ class RecipeApiService {
       instructionsText = instructionsText.replaceAll(RegExp(r'Step\s+\d+[:\s]*', caseSensitive: false), '');
       instructionsText = instructionsText.replaceAll(RegExp(r'STEP\s+\d+[:\s]*', caseSensitive: false), '');
       
-      // Traduire après le nettoyage
+      // Traduire après le nettoyage (version synchrone pour accélérer)
+      // On utilise cleanAndTranslate qui est optimisé, mais on pourrait différer cette traduction
       instructionsText = TranslationService.cleanAndTranslate(instructionsText);
       
       // Diviser par les retours à la ligne, les numéros, ou les points suivis d'un espace
@@ -409,7 +429,7 @@ class RecipeApiService {
       summary = summary.replaceAll(RegExp(r'step\s+\d+[:\s]*', caseSensitive: false), '');
       summary = summary.replaceAll(RegExp(r'Step\s+\d+[:\s]*', caseSensitive: false), '');
       
-      // Traduire
+      // Traduire (version optimisée, pourrait être différée pour accélérer le chargement initial)
       summary = TranslationService.cleanAndTranslate(summary);
       
       // Prendre la première phrase ou les 200 premiers caractères

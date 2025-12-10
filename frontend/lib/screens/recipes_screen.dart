@@ -45,10 +45,13 @@ class _RecipesScreenState extends State<RecipesScreen> {
   int _currentPage = 0;
   int _currentSuggestionsPage = 0; // Page actuelle pour les suggestions
   static const int _recipesPerPage = 10; // Nombre de recettes par page
-  static const int _suggestionsPerPage = 5; // Nombre de suggestions par page
+  static const int _suggestionsPerPage = 3; // Nombre de suggestions par page (réduit pour accélérer le chargement initial)
   Set<String> _suggestedRecipeIds = {}; // Cache des IDs de recettes déjà suggérées pour éviter les doublons
   DateTime? _lastSuggestionsLoadTime; // Pour throttling
-  static const Duration _suggestionsThrottleDuration = Duration(seconds: 2); // Délai minimum entre les chargements
+  static const Duration _suggestionsThrottleDuration = Duration(milliseconds: 800); // Délai minimum entre les chargements (réduit pour un scroll plus fluide)
+  List<String> _allSuggestedRecipeIds = []; // Tous les IDs de recettes disponibles (pour pagination)
+  int _suggestedRecipesOffset = 0; // Offset pour la pagination des suggestions
+  Timer? _scrollDebounceTimer; // Timer pour debounce le scroll
 
   @override
   void initState() {
@@ -84,11 +87,28 @@ class _RecipesScreenState extends State<RecipesScreen> {
     // Vérifier si on peut scroller (éviter les erreurs si pas encore initialisé)
     if (!_suggestionsScrollController.hasClients) return;
     
-    // Charger plus de suggestions quand on approche de la fin (300px avant la fin)
-    final maxScroll = _suggestionsScrollController.position.maxScrollExtent;
-    final currentScroll = _suggestionsScrollController.position.pixels;
+    // Ne pas charger si on est en train de rechercher
+    if (_searchQuery.isNotEmpty) return;
     
-    if (currentScroll >= maxScroll - 300) {
+    // Annuler le timer précédent si l'utilisateur scroll encore
+    _scrollDebounceTimer?.cancel();
+    
+    // Débouncer le scroll : attendre 300ms après le dernier mouvement de scroll
+    _scrollDebounceTimer = Timer(const Duration(milliseconds: 300), () {
+      _checkAndLoadMoreSuggestions();
+    });
+  }
+  
+  void _checkAndLoadMoreSuggestions() {
+    if (!_suggestionsScrollController.hasClients) return;
+    if (_searchQuery.isNotEmpty) return;
+    
+    final position = _suggestionsScrollController.position;
+    final maxScroll = position.maxScrollExtent;
+    final currentScroll = position.pixels;
+    
+    // Charger plus de suggestions quand on approche de la fin (600px avant la fin pour déclencher plus tôt)
+    if (maxScroll > 0 && currentScroll >= maxScroll - 600) {
       // Throttling : ne pas charger trop souvent
       final now = DateTime.now();
       if (_lastSuggestionsLoadTime != null && 
@@ -96,7 +116,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
         return;
       }
       
-      if (!_isLoadingMoreSuggestions && _hasMoreSuggestions && _searchQuery.isEmpty && !_isLoadingSuggestions) {
+      if (!_isLoadingMoreSuggestions && _hasMoreSuggestions && !_isLoadingSuggestions) {
         _loadMoreSuggestions();
       }
     }
@@ -119,6 +139,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   @override
   void dispose() {
     _debounceTimer?.cancel();
+    _scrollDebounceTimer?.cancel();
     _searchController.removeListener(_onSearchChanged);
     _scrollController.removeListener(_onScroll);
     _suggestionsScrollController.removeListener(_onSuggestionsScroll);
@@ -194,7 +215,9 @@ class _RecipesScreenState extends State<RecipesScreen> {
       _isLoadingSuggestions = true;
       _suggestedRecipes = [];
       _suggestedRecipeIds.clear();
+      _allSuggestedRecipeIds.clear();
       _currentSuggestionsPage = 0;
+      _suggestedRecipesOffset = 0;
       _hasMoreSuggestions = true;
     });
     
@@ -233,14 +256,59 @@ class _RecipesScreenState extends State<RecipesScreen> {
       List<Recipe> newRecipes = [];
       
       if (ingredientNames.isNotEmpty) {
-        // Chercher des recettes basées sur les ingrédients disponibles
-        final recipes = await _recipeService.searchRecipesByIngredients(ingredientNames);
-        
-        // Filtrer les recettes déjà affichées
-        newRecipes = recipes
-            .where((recipe) => !_suggestedRecipeIds.contains(recipe.id))
-            .take(_suggestionsPerPage)
-            .toList();
+        // Si c'est la première page, charger toutes les IDs disponibles
+        if (_currentSuggestionsPage == 0) {
+          // Charger plus d'IDs pour avoir de la pagination
+          Map<String, int> recipeCounts = {};
+          
+          // Paralléliser les appels pour chaque ingrédient pour accélérer le chargement
+          final List<Future<List<String>>> idFutures = ingredientNames.map(
+            (ingredient) => _recipeService.searchRecipeIdsByIngredient(ingredient)
+          ).toList();
+          
+          final List<List<String>> allIds = await Future.wait(idFutures);
+          
+          // Compter les occurrences de chaque ID
+          for (var ids in allIds) {
+            for (var id in ids) {
+              recipeCounts[id] = (recipeCounts[id] ?? 0) + 1;
+            }
+          }
+          
+          // Trier par nombre d'ingrédients correspondants
+          final sortedIds = recipeCounts.entries.toList()
+            ..sort((a, b) => b.value.compareTo(a.value));
+          
+          // Limiter à 100 IDs pour permettre plus de pagination, mais éviter trop d'appels API
+          _allSuggestedRecipeIds = sortedIds.take(100).map((e) => e.key).toList();
+          
+          // Charger les premières recettes
+          final firstIds = _allSuggestedRecipeIds.take(_suggestionsPerPage).toList();
+          final recipeFutures = firstIds.map((id) => _recipeService.getRecipeById(id));
+          final loadedRecipes = await Future.wait(recipeFutures);
+          newRecipes = loadedRecipes.whereType<Recipe>().toList();
+          _suggestedRecipesOffset = _suggestionsPerPage;
+        } else {
+          // Pages suivantes : utiliser la pagination sur les IDs déjà chargés
+          final startIndex = _suggestedRecipesOffset;
+          final endIndex = startIndex + _suggestionsPerPage;
+          
+          if (startIndex < _allSuggestedRecipeIds.length) {
+            final idsToLoad = _allSuggestedRecipeIds.sublist(
+              startIndex,
+              endIndex > _allSuggestedRecipeIds.length ? _allSuggestedRecipeIds.length : endIndex,
+            );
+            
+            // Charger les détails des recettes
+            final recipeFutures = idsToLoad.map((id) => _recipeService.getRecipeById(id));
+            final loadedRecipes = await Future.wait(recipeFutures);
+            newRecipes = loadedRecipes.whereType<Recipe>().toList();
+            _suggestedRecipesOffset = endIndex;
+          } else {
+            // Plus de recettes disponibles
+            _hasMoreSuggestions = false;
+          }
+        }
       } else {
         // Si le placard est vide, charger des recettes populaires et variées
         if (_currentSuggestionsPage == 0) {
@@ -250,8 +318,14 @@ class _RecipesScreenState extends State<RecipesScreen> {
               .where((recipe) => !_suggestedRecipeIds.contains(recipe.id))
               .toList();
         } else {
-          // Pages suivantes : recettes populaires variées
-          final popularTerms = ['chicken', 'pasta', 'salad', 'soup', 'dessert', 'beef', 'fish', 'rice', 'pizza', 'cake'];
+          // Pages suivantes : recettes populaires variées (liste étendue pour plus de variété)
+          final popularTerms = [
+            'chicken', 'pasta', 'salad', 'soup', 'dessert', 'beef', 'fish', 'rice', 'pizza', 'cake',
+            'bread', 'vegetarian', 'vegan', 'healthy', 'breakfast', 'lunch', 'dinner', 'snack',
+            'italian', 'french', 'asian', 'mexican', 'indian', 'thai', 'japanese', 'chinese',
+            'seafood', 'vegetables', 'fruit', 'cheese', 'chocolate', 'ice cream', 'smoothie',
+            'sandwich', 'burger', 'steak', 'grilled', 'baked', 'fried', 'roasted', 'steamed'
+          ];
           final termIndex = _currentSuggestionsPage % popularTerms.length;
           final term = popularTerms[termIndex];
           
@@ -261,6 +335,16 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 .where((recipe) => !_suggestedRecipeIds.contains(recipe.id))
                 .take(_suggestionsPerPage)
                 .toList();
+            
+            // Si on n'a pas assez de recettes avec ce terme, essayer des recettes aléatoires
+            if (newRecipes.length < _suggestionsPerPage) {
+              final randomRecipes = await _recipeService.getRandomRecipes(_suggestionsPerPage - newRecipes.length);
+              final additionalRecipes = randomRecipes
+                  .where((recipe) => !_suggestedRecipeIds.contains(recipe.id))
+                  .take(_suggestionsPerPage - newRecipes.length)
+                  .toList();
+              newRecipes.addAll(additionalRecipes);
+            }
           } catch (e) {
             // En cas d'erreur, essayer des recettes aléatoires
             final randomRecipes = await _recipeService.getRandomRecipes(_suggestionsPerPage);
@@ -281,9 +365,18 @@ class _RecipesScreenState extends State<RecipesScreen> {
             }
           }
           
-          // Si on a moins de recettes que demandé, on a probablement atteint la fin
-          if (newRecipes.length < _suggestionsPerPage) {
-            _hasMoreSuggestions = false;
+          // Pour le scroll infini, on continue toujours à charger
+          // Seulement arrêter si vraiment aucune recette n'est disponible
+          if (ingredientNames.isNotEmpty) {
+            // Si on a des ingrédients et qu'on a épuisé toutes les IDs, on peut continuer avec d'autres termes
+            if (_suggestedRecipesOffset >= _allSuggestedRecipeIds.length && newRecipes.isEmpty) {
+              // Essayer de charger plus d'IDs en cherchant avec d'autres combinaisons
+              // Pour l'instant, on continue avec des recettes aléatoires
+              _hasMoreSuggestions = true; // Toujours permettre de charger plus
+            }
+          } else {
+            // Pour le placard vide, on continue indéfiniment avec différents termes
+            _hasMoreSuggestions = true; // Toujours permettre de charger plus
           }
           
           _currentSuggestionsPage++;
@@ -294,7 +387,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
       if (mounted) {
         setState(() {
           _isLoadingMoreSuggestions = false;
-          _hasMoreSuggestions = false; // Arrêter de charger en cas d'erreur
+          // Ne pas mettre _hasMoreSuggestions à false en cas d'erreur, on peut réessayer
         });
       }
     }
@@ -846,9 +939,17 @@ class _RecipesScreenState extends State<RecipesScreen> {
         }
         final isWideScreen = crossAxisCount >= 2;
 
-        return CustomScrollView(
-          controller: _suggestionsScrollController,
-          slivers: [
+        return RefreshIndicator(
+          onRefresh: () async {
+            // Recharger les recettes suggérées
+            await _loadSuggestedRecipes(force: true);
+          },
+          child: CustomScrollView(
+            controller: _suggestionsScrollController,
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(), // Permet le pull-to-refresh avec effet de rebond
+            ),
+            slivers: [
             SliverToBoxAdapter(
               child: FutureBuilder<List<String>>(
                 future: _pantryService.getPantryItems().then((items) => items.map((item) => item.name).toList()),
@@ -967,18 +1068,13 @@ class _RecipesScreenState extends State<RecipesScreen> {
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      // Afficher un indicateur de chargement à la fin si on charge plus
-                      if (index == _suggestedRecipes.length - 1 && _isLoadingMoreSuggestions) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      
                       if (index >= _suggestedRecipes.length) {
                         return const SizedBox.shrink();
                       }
                       
                       return _buildSuggestedRecipeCard(_suggestedRecipes[index], isWideScreen: isWideScreen);
                     },
-                    childCount: _suggestedRecipes.length + (_isLoadingMoreSuggestions ? 1 : 0),
+                    childCount: _suggestedRecipes.length,
                   ),
                 ),
               ),
@@ -990,7 +1086,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
                     child: Center(child: CircularProgressIndicator()),
                   ),
                 ),
-          ],
+              // Pas de message de fin - scroll infini continu
+            ],
+            ),
+          ),
         );
       },
     );
