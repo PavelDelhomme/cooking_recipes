@@ -316,87 +316,87 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
                       children: [
                         Expanded(
                           child: Row(
-                    children: [
-                      if (_isSelectionMode) ...[
-                        Text(
-                          '${_selectedItems.length} sélectionné(s)',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
+                            children: [
+                              if (_isSelectionMode) ...[
+                                Text(
+                                  '${_selectedItems.length} sélectionné(s)',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ] else ...[
+                                const Text(
+                                  'Liste de courses',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
-                      ] else ...[
-                        const Text(
-                          'Liste de courses',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (_isSelectionMode) ...[
+                              if (_selectedItems.length < _displayedItems.length)
+                                IconButton(
+                                  icon: const Icon(Icons.select_all),
+                                  onPressed: _selectAll,
+                                  tooltip: 'Tout sélectionner',
+                                )
+                              else
+                                IconButton(
+                                  icon: const Icon(Icons.deselect),
+                                  onPressed: _deselectAll,
+                                  tooltip: 'Tout désélectionner',
+                                ),
+                              if (_selectedItems.isNotEmpty)
+                                IconButton(
+                                  icon: const Icon(Icons.add_shopping_cart),
+                                  onPressed: _addSelectedToPantry,
+                                  tooltip: 'Ajouter au placard',
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: _toggleSelectionMode,
+                                tooltip: 'Annuler la sélection',
+                              ),
+                            ] else ...[
+                              if (_checkedCount > 0)
+                                IconButton(
+                                  icon: const Icon(Icons.delete_sweep),
+                                  onPressed: _removeCheckedItems,
+                                  tooltip: 'Supprimer les articles cochés',
+                                ),
+                              IconButton(
+                                icon: Icon(_showChecked ? Icons.visibility_off : Icons.visibility),
+                                onPressed: () {
+                                  setState(() => _showChecked = !_showChecked);
+                                },
+                                tooltip: _showChecked ? 'Masquer les articles cochés' : 'Afficher les articles cochés',
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.checklist),
+                                onPressed: _toggleSelectionMode,
+                                tooltip: 'Mode sélection',
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.refresh),
+                                onPressed: loadItems,
+                                tooltip: 'Actualiser',
+                              ),
+                            ],
+                          ],
                         ),
                       ],
-                    ],
+                    ),
                   ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_isSelectionMode) ...[
-                      if (_selectedItems.length < _displayedItems.length)
-                        IconButton(
-                          icon: const Icon(Icons.select_all),
-                          onPressed: _selectAll,
-                          tooltip: 'Tout sélectionner',
-                        )
-                      else
-                        IconButton(
-                          icon: const Icon(Icons.deselect),
-                          onPressed: _deselectAll,
-                          tooltip: 'Tout désélectionner',
-                        ),
-                      if (_selectedItems.isNotEmpty)
-                        IconButton(
-                          icon: const Icon(Icons.add_shopping_cart),
-                          onPressed: _addSelectedToPantry,
-                          tooltip: 'Ajouter au placard',
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: _toggleSelectionMode,
-                        tooltip: 'Annuler la sélection',
-                      ),
-                    ] else ...[
-                      if (_checkedCount > 0)
-                        IconButton(
-                          icon: const Icon(Icons.delete_sweep),
-                          onPressed: _removeCheckedItems,
-                          tooltip: 'Supprimer les articles cochés',
-                        ),
-                      IconButton(
-                        icon: Icon(_showChecked ? Icons.visibility_off : Icons.visibility),
-                        onPressed: () {
-                          setState(() => _showChecked = !_showChecked);
-                        },
-                        tooltip: _showChecked ? 'Masquer les articles cochés' : 'Afficher les articles cochés',
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.checklist),
-                        onPressed: _toggleSelectionMode,
-                        tooltip: 'Mode sélection',
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.refresh),
-                        onPressed: loadItems,
-                        tooltip: 'Actualiser',
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Expanded(
+                Expanded(
             child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _displayedItems.isEmpty
