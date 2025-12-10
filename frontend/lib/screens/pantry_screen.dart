@@ -605,6 +605,170 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer
+                                .withOpacity(0.3),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.kitchen_outlined,
+                            size: 64,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Votre placard est vide',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Ajoutez des ingrédients pour commencer',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: _items.length,
+                  padding: const EdgeInsets.all(8),
+                  itemBuilder: (context, index) {
+                    final item = _items[index];
+                    final isExpired = item.expiryDate != null &&
+                        item.expiryDate!.isBefore(DateTime.now());
+                    final isExpiringSoon = item.expiryDate != null &&
+                        !isExpired &&
+                        item.expiryDate!.difference(DateTime.now()).inDays <= 3;
+
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 6,
+                      ),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      color: isExpired
+                          ? Theme.of(context).colorScheme.errorContainer.withOpacity(0.3)
+                          : isExpiringSoon
+                              ? Theme.of(context).colorScheme.tertiaryContainer.withOpacity(0.3)
+                              : null,
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        leading: Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: _ingredientImages[item.name] != null
+                                ? Image.network(
+                                    _ingredientImages[item.name]!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(
+                                        Icons.shopping_basket,
+                                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                      );
+                                    },
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress.expectedTotalBytes != null
+                                              ? loadingProgress.cumulativeBytesLoaded /
+                                                  loadingProgress.expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      );
+                                    },
+                                  )
+                                : Icon(
+                                    Icons.shopping_basket,
+                                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                  ),
+                          ),
+                        ),
+                        title: Builder(
+                          builder: (context) {
+                            // Écouter les changements de locale
+                            LocaleNotifier.of(context);
+                            return Text(
+                              TranslationService.translateIngredientSync(item.name),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            );
+                          },
+                        ),
+                        subtitle: Builder(
+                          builder: (context) {
+                            // Écouter les changements de locale
+                            LocaleNotifier.of(context);
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer
+                                        .withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    '${item.quantity} ${item.unit != null ? TranslationService.translateUnit(item.unit!) : ''}',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                    ),
+                                  ),
+                                ),
+                                if (item.expiryDate != null) ...[
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        isExpired
+                                            ? Icons.warning
+                                            : Icons.calendar_today,
+                                        size: 14,
                                         color: isExpired
                                             ? Theme.of(context).colorScheme.error
                                             : isExpiringSoon
