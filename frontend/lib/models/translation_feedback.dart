@@ -62,5 +62,7 @@ enum FeedbackType {
   instruction,
   ingredient,
   recipeName,
+  unit,
+  summary, // Description/résumé de la recette
 }
 

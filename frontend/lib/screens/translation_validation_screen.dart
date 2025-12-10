@@ -207,6 +207,10 @@ class _TranslationValidationScreenState extends State<TranslationValidationScree
         return 'Ingrédient';
       case FeedbackType.recipeName:
         return 'Nom de recette';
+      case FeedbackType.unit:
+        return 'Unité de mesure';
+      case FeedbackType.summary:
+        return 'Description/Résumé';
     }
   }
 
@@ -218,6 +222,10 @@ class _TranslationValidationScreenState extends State<TranslationValidationScree
         return Icons.shopping_basket;
       case FeedbackType.recipeName:
         return Icons.restaurant_menu;
+      case FeedbackType.unit:
+        return Icons.straighten;
+      case FeedbackType.summary:
+        return Icons.description;
     }
   }
 

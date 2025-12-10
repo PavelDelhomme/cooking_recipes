@@ -23,10 +23,10 @@ YELLOW = \033[1;33m
 NC = \033[0m
 
 improve-translations: ## [DEV] Améliore les traductions des recettes (instructions, ingrédients)
-	@python3 scripts/improve_translations.py
+	@python3 scripts/translation/improve_translations.py
 
 export-translation-data: ## [DEV] Exporte les données de feedback pour l'entraînement du modèle
-	@python3 scripts/export_translation_training_data.py
+	@python3 scripts/translation/export_translation_training_data.py
 
 train-translation-model: ## [BACKEND] Entraîne le modèle de traduction avec les feedbacks utilisateur
 	@cd backend && node scripts/train_translation_model.js --export-json
@@ -98,13 +98,13 @@ install: ## [INSTALL] Installe les dépendances (backend + frontend)
 	@echo -e "$(GREEN)✓ Dépendances installées$(NC)"
 
 dev: _get-ip ## [DEV] Lance tout en mode développement (local)
-	@bash scripts/dev.sh
+	@bash scripts/dev/dev.sh
 
 dev-web: _get-ip ## [DEV] Lance uniquement le frontend web (PC) sans détecter les appareils Android
-	@FORCE_WEB_ONLY=true bash scripts/dev.sh
+	@FORCE_WEB_ONLY=true bash scripts/dev/dev.sh
 
 dev-stacktrace: _get-ip ## [DEV] Lance en mode développement avec stacktrace détaillée
-	@STACKTRACE=true bash scripts/dev.sh
+	@STACKTRACE=true bash scripts/dev/dev.sh
 
 up: dev ## [DEV] Alias pour dev
 
@@ -165,26 +165,26 @@ restart: _get-ip ## [DEV] Redémarre tous les services (down puis dev)
 	@sleep 2
 	@echo ""
 	@echo -e "$(GREEN)Redémarrage des services...$(NC)"
-	@bash scripts/dev.sh
+	@bash scripts/dev/dev.sh
 
 memory-report: ## [MEMORY] Génère un rapport mémoire complet
-	@bash scripts/memory_monitor.sh report
+	@bash scripts/utils/memory_monitor.sh report
 
 memory-monitor: ## [MEMORY] Monitoring mémoire en temps réel (Ctrl+C pour arrêter)
-	@bash scripts/memory_monitor.sh monitor
+	@bash scripts/utils/memory_monitor.sh monitor
 
 memory-leak: ## [MEMORY] Détecte les fuites mémoire (durée: 5 min par défaut)
 	@echo -e "$(GREEN)Détection de fuites mémoire...$(NC)"
 	@echo -e "$(YELLOW)Durée: 5 minutes (300 secondes)$(NC)"
-	@bash scripts/memory_monitor.sh leak 300 10
+	@bash scripts/utils/memory_monitor.sh leak 300 10
 
 memory-leak-extended: ## [MEMORY] Détection de fuites mémoire étendue (durée: 15 min)
 	@echo -e "$(GREEN)Détection de fuites mémoire étendue...$(NC)"
 	@echo -e "$(YELLOW)Durée: 15 minutes (900 secondes)$(NC)"
-	@bash scripts/memory_monitor.sh leak 900 15
+	@bash scripts/utils/memory_monitor.sh leak 900 15
 
 logs: ## [DEV] Affiche les logs en temps réel (filtrés et optimisés)
-	@bash scripts/monitor_logs.sh
+	@bash scripts/dev/monitor_logs.sh
 
 status: ## [DEV] Affiche l'état des conteneurs
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
@@ -291,10 +291,10 @@ run-android: configure-mobile-api ## [MOBILE] Lance l'application sur Android (d
 	$(FLUTTER) run -d android
 
 install-android: configure-mobile-api ## [MOBILE] Installe et lance l'APK sur Android (nécessite APK déjà buildé)
-	@bash scripts/install_android.sh
+	@bash scripts/dev/install_android.sh
 
 logs-android: ## [MOBILE] Affiche les logs de l'application Android (filtre les erreurs système)
-	@bash scripts/logs_android.sh $(ARGS)
+	@bash scripts/dev/logs_android.sh $(ARGS)
 
 run-ios: configure-mobile-api ## [MOBILE] Lance l'application sur iOS (détecte automatiquement l'appareil)
 	@echo -e "$(GREEN)Recherche d'appareils iOS...$(NC)"
@@ -323,19 +323,35 @@ test: ## [TEST] Lance les tests
 	@cd backend && npm test || echo "Pas de tests configurés"
 
 test-api: ## [TEST] Teste l'API et la récupération de recettes
-	@bash scripts/test_api.sh
+	@bash scripts/testing/test_api.sh
 
 test-recipes: ## [AI] Test interactif des recettes pour entraîner le modèle de traduction
-	@bash scripts/test-recipes.sh $(NUM_RECIPES)
+	@bash scripts/testing/test-recipes.sh $(NUM_RECIPES)
 
 train-translation: ## [AI] Entraîner le modèle de traduction à partir des résultats de test
-	@bash scripts/train-translation-model.sh
+	@bash scripts/ai/train-translation-model.sh
 
 apply-translations: ## [AI] Appliquer les traductions apprises au code source
-	@bash scripts/apply-translations.sh
+	@bash scripts/translation/apply-translations.sh
 
 train-ai: ## [AI] Menu interactif complet pour le système d'entraînement IA
-	@bash scripts/ai-training-menu.sh
+	@bash scripts/ai/ai-training-menu.sh
+
+test-ml-lab: ## [AI] Lance le lab de test automatisé sur 100 recettes
+	@echo "🧪 Lancement du lab de test IA..."
+	@cd backend && node scripts/ml_test_lab.js $(NUM_RECIPES)
+
+validate-ml-auto: ## [AI] Valide automatiquement les feedbacks corrects
+	@echo "✅ Validation automatique des feedbacks..."
+	@cd backend && node scripts/ml_auto_validator.js
+
+ml-continuous-learning: ## [AI] Démarre l'apprentissage continu (toutes les 30 min)
+	@echo "🤖 Démarrage de l'apprentissage continu..."
+	@cd backend && node scripts/ml_continuous_learning.js $(INTERVAL)
+
+view-ml-data: ## [AI] Affiche toutes les données d'entraînement de l'IA
+	@echo "📊 Affichage des données d'entraînement..."
+	@cd backend && node scripts/ml_view_training_data.js
 
 test-data: ## [DB] Ajoute des données de test (ingrédients dans le placard) - nécessite d'être connecté
 	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"

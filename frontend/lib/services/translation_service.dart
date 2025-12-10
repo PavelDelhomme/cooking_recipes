@@ -512,7 +512,61 @@ class TranslationService extends ChangeNotifier {
     return cleanAndTranslate(summary);
   }
 
+  /// Détecte la langue d'un texte (simple, basé sur des mots-clés)
+  static String _detectLanguage(String text) {
+    if (text.isEmpty) return 'en';
+    
+    final lowerText = text.toLowerCase();
+    
+    // Mots-clés espagnols courants
+    final spanishKeywords = [
+      'el', 'la', 'los', 'las', 'de', 'del', 'en', 'con', 'por', 'para',
+      'que', 'y', 'o', 'pero', 'como', 'cuando', 'donde', 'cual',
+      'agregar', 'añadir', 'cocinar', 'cortar', 'mezclar', 'servir',
+      'calentar', 'freír', 'hervir', 'horno', 'sartén', 'olla',
+      'ingredientes', 'instrucciones', 'receta', 'cocina',
+    ];
+    
+    // Mots-clés français courants
+    final frenchKeywords = [
+      'le', 'la', 'les', 'de', 'du', 'des', 'en', 'avec', 'pour', 'par',
+      'que', 'et', 'ou', 'mais', 'comme', 'quand', 'où', 'quel',
+      'ajouter', 'cuire', 'couper', 'mélanger', 'servir',
+      'chauffer', 'frire', 'bouillir', 'four', 'poêle', 'casserole',
+      'ingrédients', 'instructions', 'recette', 'cuisine',
+    ];
+    
+    int spanishCount = 0;
+    int frenchCount = 0;
+    
+    for (final keyword in spanishKeywords) {
+      if (lowerText.contains(keyword)) {
+        spanishCount++;
+      }
+    }
+    
+    for (final keyword in frenchKeywords) {
+      if (lowerText.contains(keyword)) {
+        frenchCount++;
+      }
+    }
+    
+    // Si beaucoup de mots espagnols, c'est de l'espagnol
+    if (spanishCount > 3 && spanishCount > frenchCount) {
+      return 'es';
+    }
+    
+    // Si beaucoup de mots français, c'est du français
+    if (frenchCount > 3 && frenchCount > spanishCount) {
+      return 'fr';
+    }
+    
+    // Par défaut, supposer que c'est de l'anglais
+    return 'en';
+  }
+
   /// Nettoie et traduit un texte de recette (instructions, etc.)
+  /// Détecte la langue et ne traduit que les parties en anglais
   /// Utilise uniquement les dictionnaires synchrones pour éviter les appels API
   static String cleanAndTranslate(String text, {bool useApi = false}) {
     if (text.isEmpty) return text;
@@ -526,19 +580,60 @@ class TranslationService extends ChangeNotifier {
         .replaceAll('&#39;', "'")
         .replaceAll('&nbsp;', ' ');
     
-    // Traduire les ingrédients dans le texte seulement si la langue est française
-    if (_instance._currentLanguage == 'fr') {
-      // Utiliser le traducteur automatique pour traduire les phrases
-      // Diviser en phrases et traduire chacune
-      // NOTE: AutoTranslator.translatePhrase utilise uniquement des dictionnaires locaux
-      final sentences = cleaned.split(RegExp(r'[.!?]\s+'));
-      final translatedSentences = sentences.map((sentence) {
-        if (sentence.trim().isEmpty) return sentence;
-        return AutoTranslator.translatePhrase(sentence.trim());
-      }).toList();
-      cleaned = translatedSentences.join('. ');
+    // Si la langue cible est l'anglais, retourner tel quel
+    if (_instance._currentLanguage == 'en') {
+      return cleaned;
+    }
+    
+    // Diviser le texte en phrases/segments
+    final segments = cleaned.split(RegExp(r'([.!?]\s+|\.\s*\n|\n\n)'));
+    final translatedSegments = <String>[];
+    
+    for (final segment in segments) {
+      if (segment.trim().isEmpty) {
+        translatedSegments.add(segment);
+        continue;
+      }
       
-      // Continuer avec l'ancien système pour les ingrédients spécifiques qui n'ont pas été traduits
+      // Détecter la langue du segment
+      final detectedLang = _detectLanguage(segment);
+      
+      // Si le segment est déjà dans la langue cible ou en espagnol (et on veut français), ne pas le traduire
+      if (detectedLang == _instance._currentLanguage) {
+        // Déjà dans la langue cible, garder tel quel
+        translatedSegments.add(segment);
+        continue;
+      }
+      
+      // Si le segment est en espagnol et qu'on veut du français, on peut le traduire
+      // Mais pour l'instant, on ne traduit que depuis l'anglais
+      if (detectedLang == 'es' && _instance._currentLanguage == 'fr') {
+        // On pourrait traduire espagnol -> français, mais pour l'instant on garde tel quel
+        // pour éviter les erreurs
+        translatedSegments.add(segment);
+        continue;
+      }
+      
+      // Si le segment est en anglais, le traduire
+      if (detectedLang == 'en') {
+        final translated = _translateEnglishSegment(segment);
+        translatedSegments.add(translated);
+      } else {
+        // Langue inconnue ou autre, garder tel quel
+        translatedSegments.add(segment);
+      }
+    }
+    
+    return translatedSegments.join('');
+  }
+  
+  /// Traduit un segment de texte anglais vers la langue cible
+  static String _translateEnglishSegment(String segment) {
+    if (_instance._currentLanguage == 'fr') {
+      // Utiliser le traducteur automatique pour traduire le segment
+      String translated = AutoTranslator.translatePhrase(segment.trim());
+      
+      // Traduire les ingrédients spécifiques dans le segment
       // Créer un dictionnaire inverse français -> anglais pour détecter les mots français dans un texte anglais
       final frenchToEnglish = <String, String>{};
       for (var entry in TranslationService._ingredientTranslations.entries) {
@@ -561,25 +656,31 @@ class TranslationService extends ChangeNotifier {
         final capitalizedEnglish = englishWord[0].toUpperCase() + englishWord.substring(1);
         
         // Remplacer les occurrences avec majuscule
-        cleaned = cleaned.replaceAll(RegExp(r'\b' + RegExp.escape(capitalizedFrench) + r'\b', caseSensitive: false), capitalizedEnglish);
+        translated = translated.replaceAll(RegExp(r'\b' + RegExp.escape(capitalizedFrench) + r'\b', caseSensitive: false), capitalizedEnglish);
         // Remplacer les occurrences avec minuscule
-        cleaned = cleaned.replaceAll(RegExp(r'\b' + RegExp.escape(frenchWord) + r'\b', caseSensitive: false), englishWord);
+        translated = translated.replaceAll(RegExp(r'\b' + RegExp.escape(frenchWord) + r'\b', caseSensitive: false), englishWord);
       }
       
       // Ensuite traduire depuis l'espagnol vers français
       for (var entry in TranslationService._spanishToFrenchIngredients.entries) {
         final regex = RegExp(r'\b' + RegExp.escape(entry.key) + r'\b', caseSensitive: false);
-        cleaned = cleaned.replaceAll(regex, entry.value);
+        translated = translated.replaceAll(regex, entry.value);
       }
       
       // Enfin traduire depuis l'anglais vers français
       for (var entry in TranslationService._ingredientTranslations.entries) {
         final regex = RegExp(r'\b' + RegExp.escape(entry.key) + r'\b', caseSensitive: false);
-        cleaned = cleaned.replaceAll(regex, entry.value);
+        translated = translated.replaceAll(regex, entry.value);
       }
+      
+      return translated;
+    } else if (_instance._currentLanguage == 'es') {
+      // Traduction vers l'espagnol (similaire mais avec dictionnaire espagnol)
+      return AutoTranslator.translatePhrase(segment.trim());
     }
     
-    return cleaned;
+    // Par défaut, retourner tel quel
+    return segment;
   }
 
   /// Traduit le nom d'une recette

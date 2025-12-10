@@ -4,7 +4,7 @@
 
 # Obtenir le répertoire racine du projet
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Fichier de configuration pour sauvegarder les choix lors des redémarrages
 DEV_CONFIG_FILE="/tmp/flutter_cooking_recipe_dev_config.txt"
@@ -769,7 +769,7 @@ restart_app() {
   if [ ! -z "$STACKTRACE" ]; then
     export STACKTRACE="$STACKTRACE"
   fi
-  exec "$PROJECT_ROOT/scripts/dev.sh" "$@"
+  exec "$PROJECT_ROOT/scripts/dev/dev.sh" "$@"
 }
 
 # Fonction pour arrêter définitivement l'application

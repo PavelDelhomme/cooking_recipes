@@ -290,7 +290,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     String ingredientName,
   ) async {
     await _showTranslationFeedback(
-      FeedbackType.ingredient,
+      FeedbackType.unit,
       originalUnit,
       currentTranslation,
       contextInfo: 'Unité de mesure pour "$ingredientName"',
@@ -341,7 +341,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             ? 'nom de la recette'
             : type == FeedbackType.ingredient
                 ? 'ingrédient'
-                : 'instruction';
+                : type == FeedbackType.unit
+                    ? 'unité de mesure'
+                    : type == FeedbackType.summary
+                        ? 'description/résumé'
+                        : 'instruction';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -525,13 +529,27 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       },
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.translate, color: Colors.white, size: 20),
-                    tooltip: 'Améliorer la traduction du nom',
-                    onPressed: () => _showTranslationFeedback(
-                      FeedbackType.recipeName,
-                      widget.recipe.title,
-                      TranslationService.translateRecipeNameSync(widget.recipe.title),
+                  Container(
+                    margin: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.translate, color: Colors.white, size: 20),
+                      tooltip: 'Améliorer la traduction du nom',
+                      onPressed: () => _showTranslationFeedback(
+                        FeedbackType.recipeName,
+                        widget.recipe.title,
+                        TranslationService.translateRecipeNameSync(widget.recipe.title),
+                      ),
                     ),
                   ),
                 ],
@@ -840,36 +858,33 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                           ],
                                         ),
                                       ),
-                                            if (ingredient.preparation != null && ingredient.preparation!.isNotEmpty) ...[
-                                              const SizedBox(width: 6),
-                                              Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 6,
-                                                  vertical: 2,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .tertiaryContainer
-                                                      .withOpacity(0.7),
-                                                  borderRadius: BorderRadius.circular(4),
-                                                ),
-                                                child: Text(
-                                                  TranslationService.translatePreparation(ingredient.preparation!),
-                                                  style: TextStyle(
-                                                    fontSize: 11,
-                                                    fontStyle: FontStyle.italic,
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onTertiaryContainer,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ],
+                                    if (ingredient.preparation != null && ingredient.preparation!.isNotEmpty && ingredient.quantity != null) ...[
+                                      const SizedBox(width: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
                                         ),
-                                      )
-                                    else if (ingredient.preparation != null && ingredient.preparation!.isNotEmpty)
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiaryContainer
+                                              .withOpacity(0.7),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          TranslationService.translatePreparation(ingredient.preparation!),
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontStyle: FontStyle.italic,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onTertiaryContainer,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    if (ingredient.preparation != null && ingredient.preparation!.isNotEmpty && ingredient.quantity == null)
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 8,
@@ -1114,14 +1129,57 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Text(
-                              translatedSummary,
-                              style: TextStyle(
-                                fontSize: 16,
-                                height: 1.6,
-                                color: Theme.of(context).colorScheme.onSurface,
+                          child: InkWell(
+                            onTap: () async {
+                              // Permettre de corriger la traduction du résumé
+                              await _showTranslationFeedback(
+                                FeedbackType.summary,
+                                widget.recipe.originalSummaryText ?? widget.recipe.summary ?? '',
+                                translatedSummary,
+                                contextInfo: 'Description/Résumé de la recette',
+                              );
+                              setState(() {
+                                _translationKey++;
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      translatedSummary,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        height: 1.6,
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.translate,
+                                      size: 18,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                    onPressed: () async {
+                                      await _showTranslationFeedback(
+                                        FeedbackType.summary,
+                                        widget.recipe.originalSummaryText ?? widget.recipe.summary ?? '',
+                                        translatedSummary,
+                                        contextInfo: 'Description/Résumé de la recette',
+                                      );
+                                      setState(() {
+                                        _translationKey++;
+                                      });
+                                    },
+                                    tooltip: 'Améliorer la traduction',
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

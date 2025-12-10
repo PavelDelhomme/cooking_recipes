@@ -203,6 +203,20 @@ initDatabase().then(() => {
     
     // Démarrer l'entraînement automatique périodique (toutes les 6 heures)
     const AUTO_TRAIN_INTERVAL = 6 * 60 * 60 * 1000; // 6 heures
+    const AUTO_VALIDATE_INTERVAL = 1 * 60 * 60 * 1000; // 1 heure pour la validation auto
+    
+    // Validation automatique des feedbacks (toutes les heures)
+    setInterval(async () => {
+      try {
+        const MLAutoValidator = require('../scripts/ml_auto_validator');
+        const validator = new MLAutoValidator();
+        await validator.validatePendingFeedbacks();
+      } catch (error) {
+        console.error('❌ Erreur validation automatique:', error);
+      }
+    }, AUTO_VALIDATE_INTERVAL);
+    
+    // Entraînement automatique (toutes les 6 heures)
     setInterval(async () => {
       try {
         console.log('🔄 Entraînement automatique du modèle ML...');
@@ -213,6 +227,7 @@ initDatabase().then(() => {
       }
     }, AUTO_TRAIN_INTERVAL);
     
+    console.log(`✅ Validation automatique programmée (toutes les heures)`);
     console.log(`✅ Entraînement automatique programmé (toutes les 6 heures)`);
   } catch (error) {
     console.warn('⚠️ Erreur chargement modèles ML (non bloquant):', error.message);

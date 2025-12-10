@@ -150,9 +150,9 @@ router.post(
         });
       }
 
-      if (!['instruction', 'ingredient', 'recipeName'].includes(type)) {
+      if (!['instruction', 'ingredient', 'recipeName', 'unit', 'summary'].includes(type)) {
         return res.status(400).json({
-          error: 'Type invalide. Doit être: instruction, ingredient, ou recipeName',
+          error: 'Type invalide. Doit être: instruction, ingredient, recipeName, unit, ou summary',
         });
       }
 
@@ -232,7 +232,7 @@ router.get(
       let query = 'SELECT * FROM translation_feedbacks WHERE user_id = ?';
       const params = [userId];
 
-      if (type && ['instruction', 'ingredient', 'recipeName'].includes(type)) {
+      if (type && ['instruction', 'ingredient', 'recipeName', 'unit', 'summary'].includes(type)) {
         query += ' AND type = ?';
         params.push(type);
       }
@@ -275,7 +275,9 @@ router.get(
           COUNT(*) as total,
           COUNT(CASE WHEN type = 'instruction' THEN 1 END) as instructions,
           COUNT(CASE WHEN type = 'ingredient' THEN 1 END) as ingredients,
-          COUNT(CASE WHEN type = 'recipeName' THEN 1 END) as recipeNames
+          COUNT(CASE WHEN type = 'recipeName' THEN 1 END) as recipeNames,
+          COUNT(CASE WHEN type = 'unit' THEN 1 END) as units,
+          COUNT(CASE WHEN type = 'summary' THEN 1 END) as summaries
          FROM translation_feedbacks 
          WHERE user_id = ?`,
         [userId],
@@ -335,6 +337,8 @@ router.get(
             instructions: [],
             ingredients: [],
             recipeNames: [],
+            units: [],
+            summaries: [],
           };
 
           rows.forEach(row => {
@@ -352,6 +356,10 @@ router.get(
               trainingData.ingredients.push(entry);
             } else if (row.type === 'recipeName') {
               trainingData.recipeNames.push(entry);
+            } else if (row.type === 'unit') {
+              trainingData.units.push(entry);
+            } else if (row.type === 'summary') {
+              trainingData.summaries.push(entry);
             }
           });
 

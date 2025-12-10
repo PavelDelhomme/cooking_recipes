@@ -2,7 +2,7 @@
 
 # Script pour installer et lancer l'application Android manuellement
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 APK_PATH="$PROJECT_ROOT/frontend/build/app/outputs/flutter-apk/app-debug.apk"
 PACKAGE_NAME="com.delhomme.cooking_recipe.cookingrecipe"
 

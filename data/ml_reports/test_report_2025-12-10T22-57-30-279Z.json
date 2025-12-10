@@ -1,0 +1,2013 @@
+{
+  "timestamp": "2025-12-10T22:57:30.280Z",
+  "results": {
+    "total": 157,
+    "correct": 0,
+    "incorrect": 157,
+    "missing": 72,
+    "accuracy": 0,
+    "details": [
+      {
+        "recipeId": "53109",
+        "recipeTitle": "Mini chilli beef pies",
+        "ingredients": [
+          {
+            "type": "ingredient",
+            "original": "Ready rolled shortcrust pastry",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Sunflower Oil",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Onion",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "oignon",
+              "es": "cebolla"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "Hot Chilli Powder",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Ground Cumin",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Minced Beef",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Tomato Puree",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Beef Stock",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Ground Cinnamon",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Kidney Beans",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Potatoes",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Sour Cream",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Chopped Chive",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          }
+        ],
+        "instructions": [
+          {
+            "type": "instruction",
+            "original": "step 1",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "To make chilli, heat oil in a pan and fry onion fo",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "remuer",
+                "es": "revolver"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              },
+              {
+                "fr": "frire",
+                "es": "freír"
+              },
+              {
+                "fr": "bouillir",
+                "es": "hervir"
+              },
+              {
+                "fr": "mijoter",
+                "es": "hervir a fuego lento"
+              },
+              {
+                "fr": "assaisonner",
+                "es": "sazonar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "step 2",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Heat oven to 200C/fan 180C/gas 6. Using a 7cm past",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "cuire au four",
+                "es": "hornear"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "step 3",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Meanwhile, cook the potato in boiling water until ",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "mélanger",
+                "es": "mezclar"
+              },
+              {
+                "fr": "remuer",
+                "es": "revolver"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              },
+              {
+                "fr": "bouillir",
+                "es": "hervir"
+              },
+              {
+                "fr": "assaisonner",
+                "es": "sazonar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          }
+        ],
+        "units": [
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "liter",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "litre",
+              "es": "litro"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "teaspoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à café",
+              "es": "cucharadita"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "teaspoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à café",
+              "es": "cucharadita"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "liter",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "litre",
+              "es": "litro"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "piece",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "pièce",
+              "es": "pieza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "score": 0,
+        "total": 32
+      },
+      {
+        "recipeId": "53016",
+        "recipeTitle": "Chick-Fil-A Sandwich",
+        "ingredients": [
+          {
+            "type": "ingredient",
+            "original": "Chicken Breast",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Pickle Juice",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Egg",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "œuf",
+              "es": "huevo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "Milk",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "lait",
+              "es": "leche"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "Flour",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "farine",
+              "es": "harina"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "Icing Sugar",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Paprika",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Salt",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "sel",
+              "es": "sal"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "Black Pepper",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Garlic Powder",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Celery Salt",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Cayenne Pepper",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Olive Oil",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Sesame Seed Burger Buns",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          }
+        ],
+        "instructions": [
+          {
+            "type": "instruction",
+            "original": "Wrap the chicken loosely between plastic wrap and ",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Cut into two pieces, as even as possible.",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Marinate in the pickle juice for 30 minutes to one",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Beat the egg with the milk in a bowl.",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Combine the flour, sugar, and spices in another bo",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Dip the chicken pieces each into the egg on both s",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Heat the oil in a skillet (1/2 inch deep) to about",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Fry each cutlet for 2 minutes on each side, or unt",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              },
+              {
+                "fr": "frire",
+                "es": "freír"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "Blot on paper and serve on toasted buns with pickl",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "trancher",
+                "es": "cortar en rodajas"
+              },
+              {
+                "fr": "servir",
+                "es": "servir"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          }
+        ],
+        "units": [
+          {
+            "type": "unit",
+            "original": "piece",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "pièce",
+              "es": "pieza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "piece",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "pièce",
+              "es": "pieza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tbs",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "unit",
+            "original": "teaspoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à café",
+              "es": "cucharadita"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "teaspoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à café",
+              "es": "cucharadita"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "teaspoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à café",
+              "es": "cucharadita"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "teaspoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à café",
+              "es": "cucharadita"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "teaspoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à café",
+              "es": "cucharadita"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "teaspoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à café",
+              "es": "cucharadita"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "piece",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "pièce",
+              "es": "pieza"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "score": 0,
+        "total": 37
+      },
+      {
+        "recipeId": "53213",
+        "recipeTitle": "Thai-style fish broth with greens",
+        "ingredients": [
+          {
+            "type": "ingredient",
+            "original": "Brown Rice Noodle",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Chicken Stock",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Thai Red Curry Paste",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Lime Leaves",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Fish Sauce",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "White Fish",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Raw King Prawns",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Pak Choi",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Coriander Leaves",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          }
+        ],
+        "instructions": [
+          {
+            "type": "instruction",
+            "original": "step 1",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Cook the noodles following pack instructions. Refr",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "step 2",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Put the stock in a large saucepan and stir in the ",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "remuer",
+                "es": "revolver"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              },
+              {
+                "fr": "mijoter",
+                "es": "hervir a fuego lento"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "step 3",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Cut the fish into roughly 3cm cubes and add to the",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              },
+              {
+                "fr": "mijoter",
+                "es": "hervir a fuego lento"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "step 4",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Stir in the noodles, prawns and pak choi, and simm",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "remuer",
+                "es": "revolver"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              },
+              {
+                "fr": "mijoter",
+                "es": "hervir a fuego lento"
+              },
+              {
+                "fr": "servir",
+                "es": "servir"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          }
+        ],
+        "units": [
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "liter",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "litre",
+              "es": "litro"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "liter",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "litre",
+              "es": "litro"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "piece",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "pièce",
+              "es": "pieza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "liter",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "litre",
+              "es": "litro"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "piece",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "pièce",
+              "es": "pieza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "piece",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "pièce",
+              "es": "pieza"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "score": 0,
+        "total": 26
+      },
+      {
+        "recipeId": "53295",
+        "recipeTitle": "Polish chocolate & walnut cake",
+        "ingredients": [
+          {
+            "type": "ingredient",
+            "original": "Plain Flour",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Coco Sugar",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Egg",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "œuf",
+              "es": "huevo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "Caster Sugar",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Egg White",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Caster Sugar",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Walnuts",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Plain Flour",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Potato Starch",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Double Cream",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Chocolate Chips",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          }
+        ],
+        "instructions": [
+          {
+            "type": "instruction",
+            "original": "Heat the oven to 170C/150C fan/gas 3½. Line a 30 x",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "mélanger",
+                "es": "mezclar"
+              },
+              {
+                "fr": "cuire au four",
+                "es": "hornear"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "step 2",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "To make the meringue, whisk the whites until stiff",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "hacher",
+                "es": "picar"
+              },
+              {
+                "fr": "mélanger",
+                "es": "mezclar"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "step 3",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "For the chocolate glaze, heat the cream over low h",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "hacher",
+                "es": "picar"
+              },
+              {
+                "fr": "mélanger",
+                "es": "mezclar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "step 4",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "instruction",
+            "original": "Cut the cooled chocolate sponge cake and meringue ",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "servir",
+                "es": "servir"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          }
+        ],
+        "units": [
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "piece",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "pièce",
+              "es": "pieza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "piece",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "pièce",
+              "es": "pieza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "score": 0,
+        "total": 29
+      },
+      {
+        "recipeId": "52964",
+        "recipeTitle": "Smoked Haddock Kedgeree",
+        "ingredients": [
+          {
+            "type": "ingredient",
+            "original": "Butter",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "beurre",
+              "es": "mantequilla"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "Onion",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "oignon",
+              "es": "cebolla"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "Cardamom",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Turmeric",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Cinnamon Stick",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Bay Leaf",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Basmati Rice",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Chicken Stock",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Smoked Haddock",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Eggs",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Parsley",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "ingredient",
+            "original": "Lemon",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          }
+        ],
+        "instructions": [
+          {
+            "type": "instruction",
+            "original": "Melt 50g butter in a large saucepan (about 20cm ac",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "hacher",
+                "es": "picar"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "Stir in 3 split cardamom pods, ¼ tsp turmeric, 1 s",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "remuer",
+                "es": "revolver"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "Tip in 450g basmati rice and stir until it is all ",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "remuer",
+                "es": "revolver"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "Pour in 1 litre chicken or fish stock, add ½ teasp",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "remuer",
+                "es": "revolver"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              },
+              {
+                "fr": "bouillir",
+                "es": "hervir"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "Meanwhile, bring some water to the boil in a large",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              },
+              {
+                "fr": "bouillir",
+                "es": "hervir"
+              },
+              {
+                "fr": "mijoter",
+                "es": "hervir a fuego lento"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "Hard-boil 3 eggs for 8 minutes.",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "bouillir",
+                "es": "hervir"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "Flake the fish, discarding any skin and bones. Dra",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "hacher",
+                "es": "picar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "Uncover the rice and remove the bay leaves, cinnam",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "hacher",
+                "es": "picar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "Gently stir in almost all the 3 tbsp chopped fresh",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "hacher",
+                "es": "picar"
+              },
+              {
+                "fr": "remuer",
+                "es": "revolver"
+              },
+              {
+                "fr": "assaisonner",
+                "es": "sazonar"
+              },
+              {
+                "fr": "garnir",
+                "es": "decorar"
+              },
+              {
+                "fr": "servir",
+                "es": "servir"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          }
+        ],
+        "units": [
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "chopped",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "unit",
+            "original": "pods",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          },
+          {
+            "type": "unit",
+            "original": "teaspoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à café",
+              "es": "cucharadita"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "liter",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "litre",
+              "es": "litro"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "piece",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "pièce",
+              "es": "pieza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "liter",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "litre",
+              "es": "litro"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "gram",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "gramme",
+              "es": "gramo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "piece",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "pièce",
+              "es": "pieza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "liter",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "litre",
+              "es": "litro"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "chopped",
+            "translated": null,
+            "expected": null,
+            "correct": false,
+            "missing": true
+          }
+        ],
+        "score": 0,
+        "total": 33
+      }
+    ]
+  },
+  "summary": {
+    "accuracy": 0,
+    "total": 157,
+    "correct": 0,
+    "incorrect": 157,
+    "missing": 72
+  }
+}

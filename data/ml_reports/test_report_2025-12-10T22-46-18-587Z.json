@@ -1,0 +1,1555 @@
+{
+  "timestamp": "2025-12-10T22:46:18.587Z",
+  "results": {
+    "total": 95,
+    "correct": 0,
+    "incorrect": 95,
+    "missing": 0,
+    "accuracy": 0,
+    "details": [
+      {
+        "recipeId": "test-0",
+        "recipeTitle": "Test Recipe 1",
+        "ingredients": [
+          {
+            "type": "ingredient",
+            "original": "chicken",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "poulet",
+              "es": "pollo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "beef",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "boeuf",
+              "es": "carne de res"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "pork",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "porc",
+              "es": "cerdo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "fish",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "poisson",
+              "es": "pescado"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "tomato",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tomate",
+              "es": "tomate"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "instructions": [
+          {
+            "type": "instruction",
+            "original": "First, chop the ingredients. Then cook for 10 minu",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "hacher",
+                "es": "picar"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, dice the ingredients. Then cook for 10 minu",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "couper en dés",
+                "es": "cortar en cubos"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, slice the ingredients. Then cook for 10 min",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "trancher",
+                "es": "cortar en rodajas"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          }
+        ],
+        "units": [
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "score": 0,
+        "total": 13
+      },
+      {
+        "recipeId": "test-1",
+        "recipeTitle": "Test Recipe 2",
+        "ingredients": [
+          {
+            "type": "ingredient",
+            "original": "chicken",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "poulet",
+              "es": "pollo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "beef",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "boeuf",
+              "es": "carne de res"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "pork",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "porc",
+              "es": "cerdo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "fish",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "poisson",
+              "es": "pescado"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "tomato",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tomate",
+              "es": "tomate"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "onion",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "oignon",
+              "es": "cebolla"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "instructions": [
+          {
+            "type": "instruction",
+            "original": "First, chop the ingredients. Then cook for 11 minu",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "hacher",
+                "es": "picar"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, dice the ingredients. Then cook for 11 minu",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "couper en dés",
+                "es": "cortar en cubos"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, slice the ingredients. Then cook for 11 min",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "trancher",
+                "es": "cortar en rodajas"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, mince the ingredients. Then cook for 11 min",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "émincer",
+                "es": "picar finamente"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          }
+        ],
+        "units": [
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "score": 0,
+        "total": 16
+      },
+      {
+        "recipeId": "test-2",
+        "recipeTitle": "Test Recipe 3",
+        "ingredients": [
+          {
+            "type": "ingredient",
+            "original": "chicken",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "poulet",
+              "es": "pollo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "beef",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "boeuf",
+              "es": "carne de res"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "pork",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "porc",
+              "es": "cerdo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "fish",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "poisson",
+              "es": "pescado"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "tomato",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tomate",
+              "es": "tomate"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "onion",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "oignon",
+              "es": "cebolla"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "garlic",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "ail",
+              "es": "ajo"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "instructions": [
+          {
+            "type": "instruction",
+            "original": "First, chop the ingredients. Then cook for 12 minu",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "hacher",
+                "es": "picar"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, dice the ingredients. Then cook for 12 minu",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "couper en dés",
+                "es": "cortar en cubos"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, slice the ingredients. Then cook for 12 min",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "trancher",
+                "es": "cortar en rodajas"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, mince the ingredients. Then cook for 12 min",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "émincer",
+                "es": "picar finamente"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, mix the ingredients. Then cook for 12 minut",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "mélanger",
+                "es": "mezclar"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          }
+        ],
+        "units": [
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "score": 0,
+        "total": 19
+      },
+      {
+        "recipeId": "test-3",
+        "recipeTitle": "Test Recipe 4",
+        "ingredients": [
+          {
+            "type": "ingredient",
+            "original": "chicken",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "poulet",
+              "es": "pollo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "beef",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "boeuf",
+              "es": "carne de res"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "pork",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "porc",
+              "es": "cerdo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "fish",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "poisson",
+              "es": "pescado"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "tomato",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tomate",
+              "es": "tomate"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "onion",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "oignon",
+              "es": "cebolla"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "garlic",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "ail",
+              "es": "ajo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "carrot",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "carotte",
+              "es": "zanahoria"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "instructions": [
+          {
+            "type": "instruction",
+            "original": "First, chop the ingredients. Then cook for 13 minu",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "hacher",
+                "es": "picar"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, dice the ingredients. Then cook for 13 minu",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "couper en dés",
+                "es": "cortar en cubos"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, slice the ingredients. Then cook for 13 min",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "trancher",
+                "es": "cortar en rodajas"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, mince the ingredients. Then cook for 13 min",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "émincer",
+                "es": "picar finamente"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, mix the ingredients. Then cook for 13 minut",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "mélanger",
+                "es": "mezclar"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, stir the ingredients. Then cook for 13 minu",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "remuer",
+                "es": "revolver"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          }
+        ],
+        "units": [
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "tablespoon",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "cuillère à soupe",
+              "es": "cucharada"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "score": 0,
+        "total": 22
+      },
+      {
+        "recipeId": "test-4",
+        "recipeTitle": "Test Recipe 5",
+        "ingredients": [
+          {
+            "type": "ingredient",
+            "original": "chicken",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "poulet",
+              "es": "pollo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "beef",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "boeuf",
+              "es": "carne de res"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "pork",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "porc",
+              "es": "cerdo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "fish",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "poisson",
+              "es": "pescado"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "tomato",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tomate",
+              "es": "tomate"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "onion",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "oignon",
+              "es": "cebolla"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "garlic",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "ail",
+              "es": "ajo"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "carrot",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "carotte",
+              "es": "zanahoria"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "ingredient",
+            "original": "potato",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "pomme de terre",
+              "es": "patata"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "instructions": [
+          {
+            "type": "instruction",
+            "original": "First, chop the ingredients. Then cook for 14 minu",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "hacher",
+                "es": "picar"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, dice the ingredients. Then cook for 14 minu",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "couper en dés",
+                "es": "cortar en cubos"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, slice the ingredients. Then cook for 14 min",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "trancher",
+                "es": "cortar en rodajas"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, mince the ingredients. Then cook for 14 min",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "émincer",
+                "es": "picar finamente"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, mix the ingredients. Then cook for 14 minut",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "mélanger",
+                "es": "mezclar"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, stir the ingredients. Then cook for 14 minu",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "remuer",
+                "es": "revolver"
+              },
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          },
+          {
+            "type": "instruction",
+            "original": "First, cook the ingredients. Then cook for 14 minu",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": [
+              {
+                "fr": "cuire",
+                "es": "cocinar"
+              }
+            ],
+            "correct": false,
+            "missing": false
+          }
+        ],
+        "units": [
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          },
+          {
+            "type": "unit",
+            "original": "cup",
+            "translated": {
+              "fr": null,
+              "es": null
+            },
+            "expected": {
+              "fr": "tasse",
+              "es": "taza"
+            },
+            "correct": null,
+            "missing": false
+          }
+        ],
+        "score": 0,
+        "total": 25
+      }
+    ]
+  },
+  "summary": {
+    "accuracy": 0,
+    "total": 95,
+    "correct": 0,
+    "incorrect": 95,
+    "missing": 0
+  }
+}

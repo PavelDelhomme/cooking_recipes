@@ -132,8 +132,15 @@ class MLTranslationEngine {
             const translation = row.suggested_translation;
             const count = row.usage_count;
 
-            if (type === 'ingredient' || type === 'instruction' || type === 'recipeName') {
-              const modelType = type === 'recipeName' ? 'recipeNames' : type + 's';
+            if (type === 'ingredient' || type === 'instruction' || type === 'recipeName' || type === 'unit' || type === 'summary') {
+              let modelType;
+              if (type === 'recipeName') {
+                modelType = 'recipeNames';
+              } else if (type === 'summary') {
+                modelType = 'instructions'; // Utiliser le même modèle que les instructions pour les résumés
+              } else {
+                modelType = type + 's';
+              }
               
               if (lang === 'fr' || lang === 'es') {
                 if (!this.models[modelType][lang][original]) {
@@ -218,7 +225,14 @@ class MLTranslationEngine {
     }
 
     const normalizedText = text.toLowerCase().trim();
-    const modelType = type === 'recipeName' ? 'recipeNames' : type + 's';
+    let modelType;
+    if (type === 'recipeName') {
+      modelType = 'recipeNames';
+    } else if (type === 'summary') {
+      modelType = 'instructions'; // Utiliser le même modèle que les instructions pour les résumés
+    } else {
+      modelType = type + 's';
+    }
 
     // 1. Recherche exacte
     const exactMatch = this._getExactMatch(normalizedText, modelType, targetLang);
@@ -416,7 +430,14 @@ class MLTranslationEngine {
     }
 
     const normalizedOriginal = originalText.toLowerCase().trim();
-    const modelType = type === 'recipeName' ? 'recipeNames' : type + 's';
+    let modelType;
+    if (type === 'recipeName') {
+      modelType = 'recipeNames';
+    } else if (type === 'summary') {
+      modelType = 'instructions'; // Utiliser le même modèle que les instructions pour les résumés
+    } else {
+      modelType = type + 's';
+    }
 
     if (targetLanguage === 'fr' || targetLanguage === 'es') {
       // Ajouter au modèle
@@ -475,8 +496,58 @@ class MLTranslationEngine {
       units: { fr: new Map(), es: new Map() },
     };
     
+    // Charger depuis les fichiers et la base de données
     await this.loadModels();
+    
+    // Entraîner avec tous les feedbacks approuvés
+    await this._trainFromApprovedFeedbacks();
+    
     console.log('✅ Réentraînement terminé');
+  }
+
+  /**
+   * Entraîne le modèle avec tous les feedbacks approuvés
+   */
+  async _trainFromApprovedFeedbacks() {
+    return new Promise((resolve, reject) => {
+      const db = new sqlite3.Database(this.dbPath, (err) => {
+        if (err) {
+          return reject(err);
+        }
+
+        db.all(
+          `SELECT type, original_text, suggested_translation, target_language
+           FROM translation_feedbacks 
+           WHERE approved = 1 
+             AND suggested_translation IS NOT NULL 
+             AND suggested_translation != ''`,
+          [],
+          async (err, feedbacks) => {
+            db.close();
+            if (err) {
+              return reject(err);
+            }
+
+            console.log(`📚 Entraînement avec ${feedbacks.length} feedbacks approuvés...`);
+
+            for (const feedback of feedbacks) {
+              try {
+                await this.train({
+                  type: feedback.type,
+                  originalText: feedback.original_text,
+                  suggestedTranslation: feedback.suggested_translation,
+                  targetLanguage: feedback.target_language,
+                });
+              } catch (error) {
+                console.warn(`⚠️  Erreur entraînement feedback ${feedback.id}:`, error.message);
+              }
+            }
+
+            resolve();
+          }
+        );
+      });
+    });
   }
 
   /**

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
 import '../models/translation_feedback.dart';
 import '../services/translation_feedback_service.dart';
 import '../services/translation_service.dart';
 import '../services/libretranslate_service.dart';
+import '../services/http_client.dart';
+import '../config/api_config.dart';
 
 /// Widget pour signaler et améliorer une traduction
 class TranslationFeedbackWidget extends StatefulWidget {
@@ -34,6 +37,7 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
   bool _isLoading = false;
   bool _isSuggesting = false;
   String? _aiSuggestion;
+  bool _aiSuggestionRejected = false; // Indique si la suggestion IA a été rejetée
   final TextEditingController _suggestionController = TextEditingController();
 
   @override
@@ -57,7 +61,52 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
         return;
       }
 
-      // Demander une suggestion à l'IA via LibreTranslate
+      // Demander une suggestion à l'IA via l'API backend (qui utilise ML puis LibreTranslate)
+      // Utiliser le type correct pour une meilleure traduction
+      final type = widget.type == FeedbackType.ingredient
+          ? 'ingredient'
+          : widget.type == FeedbackType.instruction
+              ? 'instruction'
+              : widget.type == FeedbackType.recipeName
+                  ? 'recipeName'
+                  : widget.type == FeedbackType.unit
+                      ? 'unit'
+                      : widget.type == FeedbackType.summary
+                          ? 'summary'
+                          : 'instruction';
+      
+      try {
+        final url = Uri.parse('${ApiConfig.baseUrl}/translation/translate');
+        final response = await HttpClient.post(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            'text': widget.originalText,
+            'source': 'en',
+            'target': targetLanguage,
+            'type': type,
+          }),
+        ).timeout(const Duration(seconds: 10));
+
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          if (data['success'] == true && data['translatedText'] != null) {
+            final suggestion = data['translatedText'] as String;
+            
+            if (mounted && suggestion.isNotEmpty) {
+              setState(() {
+                _aiSuggestion = suggestion;
+                _isSuggesting = false;
+              });
+              return;
+            }
+          }
+        }
+      } catch (e) {
+        print('⚠️ Erreur suggestion API, fallback LibreTranslate: $e');
+      }
+      
+      // Fallback sur LibreTranslate direct si l'API échoue
       final suggestion = await _translateService.translate(
         widget.originalText,
         source: 'en',
@@ -67,6 +116,7 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
       if (mounted && suggestion != null) {
         setState(() {
           _aiSuggestion = suggestion;
+          _aiSuggestionRejected = false; // Réinitialiser le statut de rejet
           // Ne pas remplir automatiquement le champ, laisser l'utilisateur choisir
           // _suggestionController.text = suggestion;
           _isSuggesting = false;
@@ -91,6 +141,51 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
     }
   }
 
+  /// Enregistre un feedback sur la suggestion IA (rejetée ou acceptée)
+  Future<void> _submitAISuggestionFeedback({required bool rejected}) async {
+    if (_aiSuggestion == null) return;
+    
+    try {
+      // Créer un feedback spécial pour indiquer que la suggestion IA était incorrecte
+      final feedback = TranslationFeedback(
+        id: '${DateTime.now().millisecondsSinceEpoch}_ai_feedback_${rejected ? 'rejected' : 'accepted'}',
+        recipeId: widget.recipeId,
+        recipeTitle: widget.recipeTitle,
+        type: widget.type,
+        originalText: widget.originalText,
+        currentTranslation: widget.currentTranslation,
+        suggestedTranslation: rejected ? null : _aiSuggestion, // Si rejetée, pas de traduction suggérée
+        targetLanguage: TranslationService.currentLanguageStatic,
+        timestamp: DateTime.now(),
+        context: widget.context != null 
+            ? '${widget.context} [Suggestion IA ${rejected ? 'rejetée' : 'acceptée'}]'
+            : '[Suggestion IA ${rejected ? 'rejetée' : 'acceptée'}]',
+      );
+
+      // Enregistrer le feedback (même si rejetée, on l'enregistre pour statistiques)
+      await _feedbackService.submitFeedback(feedback);
+      
+      if (mounted && rejected) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Feedback enregistré : la suggestion IA était incorrecte'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de l\'enregistrement du feedback: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _submitFeedback() async {
     if (_suggestionController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -105,6 +200,15 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
     setState(() => _isLoading = true);
 
     try {
+      // Si une suggestion IA a été générée et utilisée, enregistrer qu'elle était bonne
+      if (_aiSuggestion != null && 
+          _suggestionController.text.trim() == _aiSuggestion!.trim() &&
+          !_aiSuggestionRejected) {
+        await _submitAISuggestionFeedback(rejected: false);
+      }
+      
+      // Si la suggestion IA a été rejetée, on a déjà enregistré le feedback
+      // Sinon, enregistrer le feedback normal avec la traduction améliorée
       final feedback = TranslationFeedback(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         recipeId: widget.recipeId,
@@ -175,6 +279,10 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
         return 'Ingrédient';
       case FeedbackType.recipeName:
         return 'Nom de recette';
+      case FeedbackType.unit:
+        return 'Unité de mesure';
+      case FeedbackType.summary:
+        return 'Description/Résumé';
     }
   }
 
@@ -345,7 +453,9 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
                   Expanded(
                     child: TextField(
                       controller: _suggestionController,
-                      maxLines: 3,
+                      maxLines: null,
+                      minLines: 3,
+                      textInputAction: TextInputAction.newline,
                       decoration: InputDecoration(
                         hintText: 'Entrez votre traduction améliorée...',
                         border: OutlineInputBorder(
@@ -437,15 +547,14 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
+                                SelectableText(
                                   _aiSuggestion!,
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 14,
                                     color: Theme.of(context).colorScheme.onSurface,
                                     fontStyle: FontStyle.italic,
+                                    height: 1.4,
                                   ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
@@ -456,10 +565,44 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
+                          // Bouton pour rejeter la suggestion IA
+                          OutlinedButton.icon(
+                            onPressed: _aiSuggestionRejected ? null : () async {
+                              setState(() {
+                                _aiSuggestionRejected = true;
+                              });
+                              
+                              // Enregistrer le feedback que la suggestion IA était incorrecte
+                              await _submitAISuggestionFeedback(rejected: true);
+                            },
+                            icon: Icon(
+                              _aiSuggestionRejected ? Icons.close : Icons.thumb_down_outlined,
+                              size: 18,
+                            ),
+                            label: Text(_aiSuggestionRejected ? 'Suggestion rejetée' : 'Suggestion incorrecte'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              foregroundColor: _aiSuggestionRejected 
+                                  ? Colors.grey 
+                                  : Theme.of(context).colorScheme.error,
+                              side: BorderSide(
+                                color: _aiSuggestionRejected 
+                                    ? Colors.grey 
+                                    : Theme.of(context).colorScheme.error,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Bouton pour utiliser la suggestion IA
                           OutlinedButton.icon(
                             onPressed: () {
                               setState(() {
                                 _suggestionController.text = _aiSuggestion!;
+                                _aiSuggestionRejected = false;
                               });
                             },
                             icon: const Icon(Icons.check_circle_outline, size: 18),
