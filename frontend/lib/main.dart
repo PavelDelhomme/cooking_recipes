@@ -818,17 +818,6 @@ class _MainScreenState extends State<MainScreen> {
           const Divider(height: 32),
           _buildStyledDrawerTile(
             context: context,
-            icon: Icons.person,
-            title: AppLocalizations.of(context)?.profile ?? 'Profil',
-            isSelected: _selectedIndex == 4,
-            onTap: () {
-              setState(() => _selectedIndex = 4);
-              Navigator.pop(context);
-              _loadProfile();
-            },
-          ),
-          _buildStyledDrawerTile(
-            context: context,
             icon: Icons.favorite,
             title: 'Mes Favoris',
             isSelected: false,
@@ -920,7 +909,7 @@ class _MainScreenState extends State<MainScreen> {
                 final isSmallScreen = constraints.maxWidth < 400;
                 
                 if (isSmallScreen) {
-                  // Layout vertical pour petits écrans
+                  // Layout vertical pour petits écrans - chaque élément sur sa ligne
                   return Column(
                     children: [
                       // Mode sombre/clair
@@ -954,48 +943,75 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       ),
-                      // Profil et Déconnexion sur une ligne séparée
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () {
-                                  setState(() => _selectedIndex = 4);
-                                  Navigator.pop(context);
-                                },
-                                icon: const Icon(Icons.person, size: 18),
-                                label: const Text('Profil', style: TextStyle(fontSize: 13)),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                ),
-                              ),
+                      // Profil sur sa propre ligne
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.transparent,
+                        ),
+                        child: ListTile(
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () => _handleLogout(context),
-                                icon: Icon(
-                                  Icons.logout,
-                                  size: 18,
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-                                label: Text(
-                                  'Déconnexion',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Theme.of(context).colorScheme.error,
-                                  ),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  side: BorderSide(color: Theme.of(context).colorScheme.error),
-                                ),
-                              ),
+                            child: Icon(
+                              Icons.person,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 20,
                             ),
-                          ],
+                          ),
+                          title: const Text(
+                            'Profil',
+                            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+                          ),
+                          onTap: () {
+                            setState(() => _selectedIndex = 4);
+                            Navigator.pop(context);
+                          },
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                      ),
+                      // Déconnexion sur sa propre ligne
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.transparent,
+                        ),
+                        child: ListTile(
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.errorContainer.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.logout,
+                              color: Theme.of(context).colorScheme.error,
+                              size: 20,
+                            ),
+                          ),
+                          title: Text(
+                            'Déconnexion',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                          onTap: () => _handleLogout(context),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         ),
                       ),
                     ],

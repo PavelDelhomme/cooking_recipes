@@ -21,7 +21,7 @@ function initTranslationFeedbackTable() {
     db.run(`
       CREATE TABLE IF NOT EXISTS translation_feedbacks (
         id TEXT PRIMARY KEY,
-        user_id INTEGER NOT NULL,
+        user_id TEXT NOT NULL,
         recipe_id TEXT NOT NULL,
         recipe_title TEXT NOT NULL,
         type TEXT NOT NULL,
@@ -39,6 +39,51 @@ function initTranslationFeedbackTable() {
         console.error('Erreur création table translation_feedbacks:', err);
         return reject(err);
       }
+      
+      // Migration : Si la table existe avec user_id INTEGER, la recréer avec TEXT
+      db.all("PRAGMA table_info(translation_feedbacks)", (err, columns) => {
+        if (!err && columns) {
+          const userIdColumn = columns.find(col => col.name === 'user_id');
+          if (userIdColumn && userIdColumn.type.toUpperCase() === 'INTEGER') {
+            console.log('Migration: Correction du type user_id de INTEGER à TEXT');
+            // Recréer la table avec le bon type
+            db.run(`
+              CREATE TABLE IF NOT EXISTS translation_feedbacks_new (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                recipe_id TEXT NOT NULL,
+                recipe_title TEXT NOT NULL,
+                type TEXT NOT NULL,
+                original_text TEXT NOT NULL,
+                current_translation TEXT NOT NULL,
+                suggested_translation TEXT,
+                target_language TEXT NOT NULL,
+                context TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+              )
+            `, (err) => {
+              if (!err) {
+                // Copier les données
+                db.run(`
+                  INSERT INTO translation_feedbacks_new 
+                  SELECT * FROM translation_feedbacks
+                `, (err) => {
+                  if (!err) {
+                    // Remplacer l'ancienne table
+                    db.run(`DROP TABLE translation_feedbacks`, () => {
+                      db.run(`ALTER TABLE translation_feedbacks_new RENAME TO translation_feedbacks`, () => {
+                        console.log('✅ Migration terminée: user_id est maintenant TEXT');
+                      });
+                    });
+                  }
+                });
+              }
+            });
+          }
+        }
+      });
       
       // Créer un index pour améliorer les performances
       db.run(`
@@ -93,7 +138,12 @@ router.post(
         });
       }
 
-      const userId = req.user.id;
+      const userId = req.user?.userId || req.user?.id;
+      if (!userId) {
+        console.error('userId manquant dans req.user:', req.user);
+        return res.status(401).json({ error: 'Utilisateur non authentifié' });
+      }
+      
       const id = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       const db = new sqlite3.Database(dbPath);
@@ -116,10 +166,20 @@ router.post(
           context || null,
         ],
         function(err) {
-          db.close();
           if (err) {
+            db.close();
             console.error('Erreur insertion feedback:', err);
-            return res.status(500).json({ error: 'Erreur lors de l\'enregistrement du feedback' });
+            console.error('Détails:', {
+              userId,
+              recipeId,
+              type,
+              originalText: originalText?.substring(0, 50),
+              currentTranslation: currentTranslation?.substring(0, 50),
+            });
+            return res.status(500).json({ 
+              error: 'Erreur lors de l\'enregistrement du feedback',
+              details: err.message 
+            });
           }
 
           res.status(201).json({
@@ -127,6 +187,7 @@ router.post(
             id,
             message: 'Feedback enregistré avec succès',
           });
+          db.close();
         }
       );
     } catch (error) {
@@ -142,7 +203,7 @@ router.get(
   authenticateToken,
   async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.userId || req.user.id;
       const { type, limit = 100, offset = 0 } = req.query;
 
       const db = new sqlite3.Database(dbPath);
@@ -184,7 +245,7 @@ router.get(
   authenticateToken,
   async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.userId || req.user.id;
 
       const db = new sqlite3.Database(dbPath);
       
