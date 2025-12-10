@@ -14,6 +14,7 @@ import '../services/translation_service.dart';
 import '../widgets/locale_notifier.dart';
 import '../widgets/translation_builder.dart';
 import '../widgets/add_meal_plan_dialog.dart';
+import '../widgets/styled_header.dart';
 import 'recipe_detail_screen.dart';
 import 'recipes_screen.dart';
 import 'meal_plan_config_screen.dart';
@@ -842,69 +843,73 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
       // Pas d'AppBar ici car c'est géré par MainScreen
       body: Column(
         children: [
-          // Barre d'actions personnalisée
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Planning de repas',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+          // Header stylisé dans le style du drawer
+          StyledHeader(
+            title: 'Planning de repas',
+            icon: Icons.calendar_today,
+            trailing: Container(
+              margin: const EdgeInsets.only(left: 12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
                   ),
-                ),
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert),
-                  onSelected: (value) {
-                    if (value == 'auto_plan') {
-                      _showAutoPlanDialog();
-                    } else if (value == 'refresh') {
-                      _loadMealPlans();
-                    } else if (value == 'config') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MealPlanConfigScreen(),
-                        ),
-                      );
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'auto_plan',
-                      child: Row(
-                        children: [
-                          Icon(Icons.auto_awesome),
-                          SizedBox(width: 8),
-                          Text('Planification automatique'),
-                        ],
+                ],
+              ),
+              child: PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, color: Colors.white, size: 22),
+                color: Theme.of(context).colorScheme.surface,
+                onSelected: (value) {
+                  if (value == 'auto_plan') {
+                    _showAutoPlanDialog();
+                  } else if (value == 'refresh') {
+                    _loadMealPlans();
+                  } else if (value == 'config') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MealPlanConfigScreen(),
                       ),
+                    );
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'auto_plan',
+                    child: Row(
+                      children: [
+                        Icon(Icons.auto_awesome),
+                        SizedBox(width: 8),
+                        Text('Planification automatique'),
+                      ],
                     ),
-                    const PopupMenuItem(
-                      value: 'config',
-                      child: Row(
-                        children: [
-                          Icon(Icons.settings),
-                          SizedBox(width: 8),
-                          Text('Configuration'),
-                        ],
-                      ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'config',
+                    child: Row(
+                      children: [
+                        Icon(Icons.settings),
+                        SizedBox(width: 8),
+                        Text('Configuration'),
+                      ],
                     ),
-                    const PopupMenuItem(
-                      value: 'refresh',
-                      child: Row(
-                        children: [
-                          Icon(Icons.refresh),
-                          SizedBox(width: 8),
-                          Text('Actualiser'),
-                        ],
-                      ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'refresh',
+                    child: Row(
+                      children: [
+                        Icon(Icons.refresh),
+                        SizedBox(width: 8),
+                        Text('Actualiser'),
+                      ],
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
           Expanded(
