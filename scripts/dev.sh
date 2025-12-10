@@ -1036,28 +1036,82 @@ case "$DEVICE_CHOICE" in
     # Compiler d'abord pour éviter les problèmes MIME type et assets
     echo -e "${YELLOW}Compilation initiale du frontend web...${NC}"
     $FLUTTER_CMD pub get > /dev/null 2>&1 || true
+    
     echo -e "${YELLOW}Build web en cours...${NC}"
-    echo -e "${YELLOW}Compilation initiale du frontend web...${NC}"
-    if ! $FLUTTER_CMD build web --release > /tmp/flutter_build.log 2>&1; then
+    echo -e "${YELLOW}(Cela peut prendre quelques minutes la première fois)${NC}"
+    
+    # Créer un fichier de statut
+    rm -f /tmp/flutter_build_status.txt
+    touch /tmp/flutter_build_status.txt
+    
+    # Lancer le build en arrière-plan avec un indicateur de progression
+    (
+      if $FLUTTER_CMD build web --release > /tmp/flutter_build.log 2>&1; then
+        echo "BUILD_SUCCESS" > /tmp/flutter_build_status.txt
+      else
+        echo "BUILD_FAILED" > /tmp/flutter_build_status.txt
+      fi
+    ) &
+    BUILD_PID=$!
+    
+    # Afficher un indicateur de progression pendant le build
+    local dots=0
+    local last_log_size=0
+    while kill -0 $BUILD_PID 2>/dev/null; do
+      sleep 3
+      dots=$((dots + 1))
+      
+      # Afficher un indicateur animé
+      case $((dots % 4)) in
+        0) echo -e "${YELLOW}   Compilation en cours...${NC}" ;;
+        1) echo -e "${YELLOW}   Compilation en cours.${NC}" ;;
+        2) echo -e "${YELLOW}   Compilation en cours..${NC}" ;;
+        3) echo -e "${YELLOW}   Compilation en cours...${NC}" ;;
+      esac
+      
+      # Afficher les nouvelles lignes du log si le fichier a grandi
+      if [ -f /tmp/flutter_build.log ]; then
+        local current_log_size=$(wc -c < /tmp/flutter_build.log 2>/dev/null || echo "0")
+        if [ "$current_log_size" -gt "$last_log_size" ]; then
+          # Afficher les dernières lignes importantes
+          local important_lines=$(tail -5 /tmp/flutter_build.log 2>/dev/null | grep -E "Building|Compiling|Generating|✓|Error|Failed" | tail -1)
+          if [ ! -z "$important_lines" ]; then
+            echo -e "${YELLOW}   → ${important_lines:0:80}${NC}"
+          fi
+          last_log_size=$current_log_size
+        fi
+      fi
+    done
+    
+    # Attendre que le processus se termine
+    wait $BUILD_PID
+    BUILD_RESULT=$?
+    
+    # Vérifier le résultat
+    if [ ! -f /tmp/flutter_build_status.txt ] || ! grep -q "BUILD_SUCCESS" /tmp/flutter_build_status.txt; then
       echo -e "${RED}❌ Échec du build web${NC}"
       echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
       echo -e "${YELLOW}Dernières lignes des logs d'erreur:${NC}"
       echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
       # Afficher les erreurs importantes
-      if grep -q "Error:" /tmp/flutter_build.log; then
+      if [ -f /tmp/flutter_build.log ] && grep -q "Error:" /tmp/flutter_build.log; then
         echo -e "${RED}Erreurs trouvées:${NC}"
         grep -A 5 "Error:" /tmp/flutter_build.log | head -30
       fi
       # Afficher les dernières lignes
-      echo -e "${YELLOW}Dernières lignes du log complet:${NC}"
-      tail -30 /tmp/flutter_build.log
+      if [ -f /tmp/flutter_build.log ]; then
+        echo -e "${YELLOW}Dernières lignes du log complet:${NC}"
+        tail -50 /tmp/flutter_build.log
+      fi
       echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
       echo -e "${YELLOW}Pour voir le log complet: cat /tmp/flutter_build.log${NC}"
+      rm -f /tmp/flutter_build_status.txt
       exit 1
-    else
-      echo -e "${GREEN}✓ Build web créé avec succès !${NC}"
     fi
-    echo -e "${GREEN}✓ Build web terminé${NC}"
+    
+    rm -f /tmp/flutter_build_status.txt
+    echo ""
+    echo -e "${GREEN}✓ Build web terminé avec succès !${NC}"
     
     # Vérifier que build/web existe
     if [ ! -d "build/web" ]; then
@@ -1072,11 +1126,11 @@ case "$DEVICE_CHOICE" in
     # Utiliser Python pour servir les fichiers
     if command -v python3 &> /dev/null; then
       # Python 3
-      python3 -m http.server 7070 --bind 0.0.0.0 > /tmp/frontend.log 2>&1 &
+      python3 -m http.server 7070 --bind 0.0.0.0 > /tmp/frontend_web.log 2>&1 &
       FRONTEND_PID=$!
     elif command -v python &> /dev/null; then
       # Python 2
-      python -m SimpleHTTPServer 7070 > /tmp/frontend.log 2>&1 &
+      python -m SimpleHTTPServer 7070 > /tmp/frontend_web.log 2>&1 &
       FRONTEND_PID=$!
     else
       echo -e "${RED}❌ Python n'est pas installé. Impossible de servir les fichiers web.${NC}"
@@ -1198,11 +1252,40 @@ case "$DEVICE_CHOICE" in
     echo -e "${GREEN}Lancement Web...${NC}"
     # Compiler d'abord pour éviter les problèmes MIME type
     $FLUTTER_CMD pub get > /dev/null 2>&1 || true
-    $FLUTTER_CMD build web --release > /tmp/flutter_build_web.log 2>&1 || {
+    echo -e "${YELLOW}Build web en cours...${NC}"
+    
+    # Lancer le build en arrière-plan
+    (
+      if $FLUTTER_CMD build web --release > /tmp/flutter_build_web.log 2>&1; then
+        echo "BUILD_SUCCESS" > /tmp/flutter_build_web_status.txt
+      else
+        echo "BUILD_FAILED" > /tmp/flutter_build_web_status.txt
+      fi
+    ) &
+    BUILD_WEB_PID=$!
+    
+    # Attendre le build avec un indicateur
+    local web_dots=0
+    while kill -0 $BUILD_WEB_PID 2>/dev/null; do
+      sleep 2
+      web_dots=$((web_dots + 1))
+      if [ $((web_dots % 3)) -eq 0 ]; then
+        echo -e "${YELLOW}   Build web en cours...${NC}"
+      fi
+    done
+    
+    wait $BUILD_WEB_PID
+    
+    # Vérifier le résultat
+    if [ ! -f /tmp/flutter_build_web_status.txt ] || ! grep -q "BUILD_SUCCESS" /tmp/flutter_build_web_status.txt; then
       echo -e "${YELLOW}⚠ Échec du build web, utilisation du serveur Flutter...${NC}"
+      rm -f /tmp/flutter_build_web_status.txt
       $FLUTTER_CMD run -d web-server --web-port=7070 --web-hostname=0.0.0.0 > /tmp/frontend_web.log 2>&1 &
       FRONTEND_WEB_PID=$!
-    }
+    else
+      rm -f /tmp/flutter_build_web_status.txt
+      echo -e "${GREEN}✓ Build web terminé${NC}"
+    fi
     
     if [ -z "$FRONTEND_WEB_PID" ]; then
       # Si build réussi, servir avec Python
