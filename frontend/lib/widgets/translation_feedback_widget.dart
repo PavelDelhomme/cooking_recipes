@@ -124,8 +124,11 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
         setState(() => _isLoading = false);
         
         if (success) {
-          // Recharger le cache des traductions apprises pour utilisation immédiate
-          await TranslationFeedbackService.loadCache();
+          // Forcer le rechargement du cache des traductions apprises pour utilisation immédiate
+          await TranslationFeedbackService.reloadCache();
+          
+          // Notifier immédiatement TranslationService pour mettre à jour l'affichage
+          TranslationService().notifyListeners();
           
           // Retourner les informations de la traduction enregistrée pour rafraîchissement intelligent
           Navigator.pop(context, {

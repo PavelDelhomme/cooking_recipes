@@ -431,34 +431,42 @@ class TranslationService extends ChangeNotifier {
   
   // Version synchrone pour compatibilité (utilise le fallback uniquement)
   static String translateIngredientSync(String ingredient) {
+    if (ingredient.isEmpty) return ingredient;
+    
+    // Corriger les fautes de frappe communes d'abord
+    final typoCorrected = _correctTypo(ingredient);
+    
     final targetLanguage = _instance._currentLanguage;
     
-    // Si la langue cible est l'anglais, retourner tel quel
+    // Si la langue cible est l'anglais, retourner tel quel (après correction typo)
     if (targetLanguage == 'en') {
-      return ingredient;
+      return typoCorrected;
     }
     
-    // 1. PRIORITÉ: Utiliser les dictionnaires JSON chargés
+    // 1. PRIORITÉ: Utiliser les dictionnaires JSON chargés (avec le nom corrigé)
     if (CulinaryDictionaryLoader.isLoaded) {
-      final culinaryTranslation = CulinaryDictionaryLoader.translateIngredient(ingredient, targetLanguage);
-      if (culinaryTranslation != null && culinaryTranslation.toLowerCase() != ingredient.toLowerCase()) {
+      final culinaryTranslation = CulinaryDictionaryLoader.translateIngredient(typoCorrected, targetLanguage);
+      if (culinaryTranslation != null && culinaryTranslation.toLowerCase() != typoCorrected.toLowerCase()) {
         return culinaryTranslation;
       }
     }
     
-    // 2. Utiliser AutoTranslator avec la langue cible
-    final autoTranslated = AutoTranslator.translateWord(ingredient, targetLanguage: targetLanguage);
-    if (autoTranslated != ingredient && autoTranslated.toLowerCase() != ingredient.toLowerCase()) {
+    // 2. Utiliser AutoTranslator avec la langue cible (avec le nom corrigé)
+    final autoTranslated = AutoTranslator.translateWord(typoCorrected, targetLanguage: targetLanguage);
+    if (autoTranslated != typoCorrected && autoTranslated.toLowerCase() != typoCorrected.toLowerCase()) {
       return autoTranslated;
     }
     
-    // 4. Fallback sur l'ancien système (seulement pour français)
+    // 4. Fallback sur l'ancien système (seulement pour français, avec le nom corrigé)
     if (targetLanguage == 'fr') {
-      return _instance.translateIngredientInstance(ingredient);
+      final instanceTranslated = _instance.translateIngredientInstance(typoCorrected);
+      if (instanceTranslated != typoCorrected && instanceTranslated.toLowerCase() != typoCorrected.toLowerCase()) {
+        return instanceTranslated;
+      }
     }
     
-    // Si aucune traduction trouvée, retourner l'original
-    return ingredient;
+    // Si aucune traduction trouvée, retourner le nom corrigé (au moins la typo est corrigée)
+    return typoCorrected;
   }
 
   /// Traduit une liste d'ingrédients
@@ -1125,6 +1133,16 @@ class TranslationService extends ChangeNotifier {
   static String translateUnit(String unit) {
     if (unit.isEmpty) return unit;
     
+    // 1. PRIORITÉ: Utiliser les traductions apprises (feedback utilisateur)
+    final learnedTranslation = TranslationFeedbackService.getLearnedTranslationSync(
+      unit,
+      _instance._currentLanguage,
+      FeedbackType.ingredient, // Utiliser ingredient pour les unités aussi
+    );
+    if (learnedTranslation != null && learnedTranslation.isNotEmpty) {
+      return learnedTranslation;
+    }
+    
     final langTranslations = _unitTranslations[_instance._currentLanguage] ?? _unitTranslations['fr']!;
     final lowerUnit = unit.toLowerCase().trim();
     
@@ -1361,11 +1379,42 @@ class TranslationService extends ChangeNotifier {
   }
 
   /// Convertit un nom d'ingrédient français en nom anglais (pour les images TheMealDB)
+  // Dictionnaire de correction des fautes de frappe communes
+  static final Map<String, String> _typoCorrections = {
+    'aubergene': 'aubergine',
+    'aubergène': 'aubergine',
+    'aubergéne': 'aubergine',
+  };
+  
+  // Corriger les fautes de frappe communes
+  static String _correctTypo(String name) {
+    final lower = name.toLowerCase().trim();
+    final corrected = _typoCorrections[lower];
+    if (corrected != null && corrected != lower) {
+      // Préserver la casse originale si possible
+      if (name == lower) {
+        return corrected;
+      } else if (name == name.toUpperCase()) {
+        return corrected.toUpperCase();
+      } else if (name[0] == name[0].toUpperCase()) {
+        return corrected[0].toUpperCase() + corrected.substring(1);
+      }
+      return corrected;
+    }
+    return name;
+  }
+  
   static String getEnglishName(String frenchName) {
     if (frenchName.isEmpty) return frenchName;
     
+    // Corriger les fautes de frappe communes d'abord
+    final typoCorrected = _correctTypo(frenchName);
+    if (typoCorrected != frenchName) {
+      print('🔧 Correction typo: "$frenchName" -> "$typoCorrected"');
+    }
+    
     // Nettoyer le nom (trim, etc.)
-    final cleaned = frenchName.trim();
+    final cleaned = typoCorrected.trim();
     if (cleaned.isEmpty) return frenchName;
     
     // Normaliser le nom (enlever accents, minuscules, etc.)
@@ -1452,6 +1501,8 @@ class TranslationService extends ChangeNotifier {
       'pommes de terre': 'potatoes',
       'courgette': 'zucchini',
       'aubergine': 'eggplant',
+      'aubergene': 'eggplant', // Correction typo
+      'aubergène': 'eggplant', // Correction typo
       'epinards': 'spinach',
       'épinards': 'spinach',
       'concombre': 'cucumber',

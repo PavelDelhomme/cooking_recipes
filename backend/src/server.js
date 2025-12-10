@@ -195,6 +195,30 @@ app.use(internalErrorHandler);
 initDatabase().then(() => {
   // Créer un compte par défaut si aucun utilisateur n'existe
   return createDefaultUser();
+}).then(async () => {
+  // Charger les modèles ML de traduction au démarrage
+  try {
+    const mlTranslationEngine = require('./services/ml_translation_engine');
+    await mlTranslationEngine.loadModels();
+    
+    // Démarrer l'entraînement automatique périodique (toutes les 6 heures)
+    const AUTO_TRAIN_INTERVAL = 6 * 60 * 60 * 1000; // 6 heures
+    setInterval(async () => {
+      try {
+        console.log('🔄 Entraînement automatique du modèle ML...');
+        await mlTranslationEngine.retrain();
+        console.log('✅ Entraînement automatique terminé');
+      } catch (error) {
+        console.error('❌ Erreur entraînement automatique:', error);
+      }
+    }, AUTO_TRAIN_INTERVAL);
+    
+    console.log(`✅ Entraînement automatique programmé (toutes les 6 heures)`);
+  } catch (error) {
+    console.warn('⚠️ Erreur chargement modèles ML (non bloquant):', error.message);
+  }
+  
+  return Promise.resolve();
 }).then(() => {
   // Écouter sur toutes les interfaces pour permettre l'accès depuis le réseau local
   const HOST = process.env.HOST || '0.0.0.0';

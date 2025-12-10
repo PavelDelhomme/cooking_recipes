@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const libreTranslateService = require('../services/libretranslate');
+const mlTranslationEngine = require('../services/ml_translation_engine');
 const { inputSanitizerMiddleware } = require('../middleware/inputSanitizer');
 
 /**
@@ -15,7 +16,7 @@ const { inputSanitizerMiddleware } = require('../middleware/inputSanitizer');
  */
 router.post('/translate', inputSanitizerMiddleware, async (req, res) => {
   try {
-    const { text, source = 'en', target = 'fr' } = req.body;
+    const { text, source = 'en', target = 'fr', type = 'instruction' } = req.body;
 
     if (!text || typeof text !== 'string') {
       return res.status(400).json({
@@ -33,7 +34,25 @@ router.post('/translate', inputSanitizerMiddleware, async (req, res) => {
       });
     }
 
-    // Traduire avec LibreTranslate
+    // 1. PRIORITÉ: Essayer le modèle ML d'abord (si source = 'en')
+    if (source === 'en' && (target === 'fr' || target === 'es')) {
+      try {
+        const mlTranslation = await mlTranslationEngine.translate(text, type, target);
+        if (mlTranslation) {
+          return res.json({
+            success: true,
+            translatedText: mlTranslation,
+            source: source,
+            target: target,
+            method: 'ml', // Indique que c'est le modèle ML qui a traduit
+          });
+        }
+      } catch (mlError) {
+        console.warn('⚠️ Erreur modèle ML (fallback LibreTranslate):', mlError.message);
+      }
+    }
+
+    // 2. FALLBACK: Traduire avec LibreTranslate
     const translatedText = await libreTranslateService.translate(text, source, target);
 
     return res.json({
@@ -41,6 +60,7 @@ router.post('/translate', inputSanitizerMiddleware, async (req, res) => {
       translatedText: translatedText,
       source: source,
       target: target,
+      method: 'libretranslate',
     });
   } catch (error) {
     console.error('Erreur traduction:', error);
@@ -71,6 +91,23 @@ router.post('/ingredient', inputSanitizerMiddleware, async (req, res) => {
       });
     }
 
+    // 1. PRIORITÉ: Essayer le modèle ML d'abord
+    try {
+      const mlTranslation = await mlTranslationEngine.translate(ingredient, 'ingredient', target);
+      if (mlTranslation) {
+        return res.json({
+          success: true,
+          translated: mlTranslation,
+          original: ingredient,
+          target: target,
+          method: 'ml',
+        });
+      }
+    } catch (mlError) {
+      console.warn('⚠️ Erreur modèle ML (fallback LibreTranslate):', mlError.message);
+    }
+
+    // 2. FALLBACK: LibreTranslate
     const translated = await libreTranslateService.translateIngredient(ingredient, target);
 
     return res.json({
@@ -78,6 +115,7 @@ router.post('/ingredient', inputSanitizerMiddleware, async (req, res) => {
       translated: translated,
       original: ingredient,
       target: target,
+      method: 'libretranslate',
     });
   } catch (error) {
     console.error('Erreur traduction ingrédient:', error);
@@ -126,20 +164,52 @@ router.post('/recipe-name', inputSanitizerMiddleware, async (req, res) => {
 
 /**
  * Route GET /api/translation/status
- * Vérifie si LibreTranslate est disponible
+ * Vérifie si LibreTranslate est disponible et affiche les stats du modèle ML
  */
 router.get('/status', async (req, res) => {
   try {
     const available = await libreTranslateService.isAvailable();
+    const mlStats = mlTranslationEngine.getStats();
+    
     return res.json({
       success: true,
-      available: available,
-      baseURL: libreTranslateService.baseURL,
+      libreTranslate: {
+        available: available,
+        baseURL: libreTranslateService.baseURL,
+      },
+      mlModel: {
+        loaded: mlTranslationEngine.loaded,
+        stats: mlStats,
+      },
     });
   } catch (error) {
     return res.json({
       success: false,
       available: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * Route POST /api/translation/retrain
+ * Réentraîne le modèle ML avec tous les feedbacks
+ */
+router.post('/retrain', async (req, res) => {
+  try {
+    await mlTranslationEngine.retrain();
+    const stats = mlTranslationEngine.getStats();
+    
+    return res.json({
+      success: true,
+      message: 'Modèle ML réentraîné avec succès',
+      stats: stats,
+    });
+  } catch (error) {
+    console.error('Erreur réentraînement:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Erreur lors du réentraînement',
       error: error.message,
     });
   }

@@ -203,8 +203,8 @@ class TranslationFeedbackService {
   static bool _cacheLoaded = false;
 
   /// Charge le cache des traductions apprises
-  static Future<void> loadCache() async {
-    if (_cacheLoaded) return;
+  static Future<void> loadCache({bool force = false}) async {
+    if (_cacheLoaded && !force) return;
     try {
       final prefs = await SharedPreferences.getInstance();
       final String? jsonString = prefs.getString(_learnedTranslationsKey);
@@ -220,6 +220,12 @@ class TranslationFeedbackService {
       _cachedLearnedTranslations = {};
       _cacheLoaded = true;
     }
+  }
+  
+  /// Force le rechargement du cache (utile après modification d'une traduction)
+  static Future<void> reloadCache() async {
+    _cacheLoaded = false;
+    await loadCache(force: true);
   }
 
   /// Obtient une traduction apprise (synchrone)
@@ -299,6 +305,143 @@ class TranslationFeedbackService {
       await prefs.remove(_feedbackKey);
     } catch (e) {
       print('Erreur lors de la suppression des feedbacks: $e');
+    }
+  }
+
+  /// Vérifie si l'utilisateur actuel est admin
+  Future<bool> isAdmin() async {
+    try {
+      final user = await _authService.getCurrentUser();
+      if (user == null) return false;
+      final email = user.email.toLowerCase();
+      return email == 'dumb@delhomme.ovh' || email == 'dev@delhomme.ovh';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Récupère les feedbacks en attente de validation (admin uniquement)
+  Future<List<TranslationFeedback>> getPendingFeedbacks() async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) throw Exception('Non authentifié');
+
+      final response = await HttpClient.get(
+        Uri.parse('${ApiConfig.baseUrl}/translation-feedback/pending'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true && data['feedbacks'] != null) {
+          final List<dynamic> feedbacksJson = data['feedbacks'];
+          return feedbacksJson
+              .map((json) => TranslationFeedback.fromJson({
+                    'id': json['id'],
+                    'recipeId': json['recipe_id'],
+                    'recipeTitle': json['recipe_title'],
+                    'type': json['type'],
+                    'originalText': json['original_text'],
+                    'currentTranslation': json['current_translation'],
+                    'suggestedTranslation': json['suggested_translation'],
+                    'targetLanguage': json['target_language'],
+                    'timestamp': json['timestamp'],
+                    'context': json['context'],
+                  }))
+              .toList();
+        }
+      } else if (response.statusCode == 403) {
+        throw Exception('Accès refusé. Réservé aux administrateurs.');
+      }
+      return [];
+    } catch (e) {
+      print('Erreur récupération feedbacks en attente: $e');
+      rethrow;
+    }
+  }
+
+  /// Approuve un feedback (admin uniquement)
+  Future<bool> approveFeedback(String feedbackId) async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) throw Exception('Non authentifié');
+
+      final response = await HttpClient.post(
+        Uri.parse('${ApiConfig.baseUrl}/translation-feedback/$feedbackId/approve'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['success'] == true;
+      } else if (response.statusCode == 403) {
+        throw Exception('Accès refusé. Réservé aux administrateurs.');
+      }
+      return false;
+    } catch (e) {
+      print('Erreur approbation feedback: $e');
+      rethrow;
+    }
+  }
+
+  /// Rejette un feedback (admin uniquement)
+  Future<bool> rejectFeedback(String feedbackId, {String? reason}) async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) throw Exception('Non authentifié');
+
+      final response = await HttpClient.post(
+        Uri.parse('${ApiConfig.baseUrl}/translation-feedback/$feedbackId/reject'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'reason': reason}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['success'] == true;
+      } else if (response.statusCode == 403) {
+        throw Exception('Accès refusé. Réservé aux administrateurs.');
+      }
+      return false;
+    } catch (e) {
+      print('Erreur rejet feedback: $e');
+      rethrow;
+    }
+  }
+
+  /// Réentraîne le modèle ML (admin uniquement)
+  Future<bool> retrainML() async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) throw Exception('Non authentifié');
+
+      final response = await HttpClient.post(
+        Uri.parse('${ApiConfig.baseUrl}/translation-feedback/retrain'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['success'] == true;
+      } else if (response.statusCode == 403) {
+        throw Exception('Accès refusé. Réservé aux administrateurs.');
+      }
+      return false;
+    } catch (e) {
+      print('Erreur réentraînement ML: $e');
+      rethrow;
     }
   }
 }

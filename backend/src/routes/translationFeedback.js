@@ -5,6 +5,8 @@ const path = require('path');
 const { authenticateToken } = require('../middleware/auth');
 const { inputSanitizerMiddleware } = require('../middleware/inputSanitizer');
 const { requestValidatorMiddleware } = require('../middleware/requestValidator');
+const { adminCheck } = require('../middleware/adminCheck');
+const mlTranslationEngine = require('../services/ml_translation_engine');
 
 const dbPath = path.join(__dirname, '../../data/database.sqlite');
 
@@ -30,6 +32,9 @@ function initTranslationFeedbackTable() {
         suggested_translation TEXT,
         target_language TEXT NOT NULL,
         context TEXT,
+        approved INTEGER DEFAULT 0,
+        approved_by TEXT,
+        approved_at DATETIME,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -93,8 +98,21 @@ function initTranslationFeedbackTable() {
         if (err) {
           console.error('Erreur création index:', err);
         }
-        db.close();
-        resolve();
+        
+        // Ajouter les colonnes approved si elles n'existent pas (migration)
+        db.all("PRAGMA table_info(translation_feedbacks)", (err, columns) => {
+          if (!err && columns) {
+            const hasApproved = columns.some(col => col.name === 'approved');
+            if (!hasApproved) {
+              console.log('Migration: Ajout des colonnes approved, approved_by, approved_at');
+              db.run(`ALTER TABLE translation_feedbacks ADD COLUMN approved INTEGER DEFAULT 0`, () => {});
+              db.run(`ALTER TABLE translation_feedbacks ADD COLUMN approved_by TEXT`, () => {});
+              db.run(`ALTER TABLE translation_feedbacks ADD COLUMN approved_at DATETIME`, () => {});
+            }
+          }
+          db.close();
+          resolve();
+        });
       });
     });
   });
@@ -182,10 +200,13 @@ router.post(
             });
           }
 
+          // Note: L'entraînement ML se fera après validation par l'admin
+          // Les feedbacks non approuvés ne sont pas utilisés pour l'entraînement
+
           res.status(201).json({
             success: true,
             id,
-            message: 'Feedback enregistré avec succès',
+            message: 'Feedback enregistré avec succès. En attente de validation.',
           });
           db.close();
         }
@@ -282,11 +303,9 @@ router.get(
 router.get(
   '/training-data',
   authenticateToken,
+  adminCheck,
   async (req, res) => {
     try {
-      // Vérifier que l'utilisateur est admin (à implémenter selon votre système)
-      // Pour l'instant, on autorise tous les utilisateurs authentifiés
-      
       const db = new sqlite3.Database(dbPath);
       
       db.all(
@@ -300,6 +319,7 @@ router.get(
          FROM translation_feedbacks 
          WHERE suggested_translation IS NOT NULL 
            AND suggested_translation != ''
+           AND approved = 1
          GROUP BY type, original_text, suggested_translation, target_language
          ORDER BY usage_count DESC`,
         [],

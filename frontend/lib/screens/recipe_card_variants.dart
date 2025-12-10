@@ -548,17 +548,21 @@ class RecipeCardVariants {
   static Widget variant6(Recipe recipe, BuildContext context) {
     // Extraire SEULEMENT le premier ingrédient principal
     final firstIngredient = recipe.ingredients.isNotEmpty ? recipe.ingredients.first : null;
-    // Extraire le début des instructions (première phrase ou 100 caractères) - traduit
+    // Extraire le début des instructions (première phrase ou 60 caractères) - traduit
     String? instructionsPreview;
     if (recipe.instructions.isNotEmpty) {
       final instructionText = TranslationService.cleanAndTranslate(recipe.instructions.first);
       final sentences = instructionText.split('.');
       if (sentences.isNotEmpty && sentences.first.trim().isNotEmpty) {
-        instructionsPreview = sentences.first.trim() + '.';
+        final firstSentence = sentences.first.trim() + '.';
+        // Limiter à 60 caractères pour éviter les dépassements
+        instructionsPreview = firstSentence.length > 60
+            ? firstSentence.substring(0, 60) + '...'
+            : firstSentence;
       } else {
-        // Limiter à 80 caractères max
-        instructionsPreview = instructionText.length > 80
-            ? instructionText.substring(0, 80) + '...'
+        // Limiter à 60 caractères max
+        instructionsPreview = instructionText.length > 60
+            ? instructionText.substring(0, 60) + '...'
             : instructionText;
       }
     }
@@ -684,78 +688,124 @@ class RecipeCardVariants {
                               ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 10),
                         // Résumé si disponible
                         if (summaryPreview != null) ...[
-                          Text(
-                            summaryPreview,
-                            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                        // Premier ingrédient principal seulement
-                        if (firstIngredient != null) ...[
-                          TranslationBuilder(
-                            builder: (context) => Text(
-                              'Ingrédient principal:',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
+                          Flexible(
+                            child: Text(
+                              summaryPreview,
+                              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.3),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 10),
+                        ],
+                        // Premier ingrédient principal seulement - Style amélioré
+                        if (firstIngredient != null) ...[
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Icon(Icons.circle, size: 4, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.6),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Icon(
+                                  Icons.restaurant_menu,
+                                  size: 12,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
                               Expanded(
-                                child: TranslationBuilder(
-                                  builder: (context) => Text(
-                                    TranslationService.translateIngredientSync(firstIngredient.name),
-                                    style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    TranslationBuilder(
+                                      builder: (context) => Text(
+                                        TranslationService.translateIngredientSync(firstIngredient.name),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (recipe.ingredients.length > 1)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 2),
+                                        child: TranslationBuilder(
+                                          builder: (context) {
+                                            final remaining = recipe.ingredients.length - 1;
+                                            final text = TranslationService.currentLanguageStatic == 'fr'
+                                                ? 'et $remaining autres...'
+                                                : TranslationService.currentLanguageStatic == 'es'
+                                                    ? 'y $remaining más...'
+                                                    : 'and $remaining more...';
+                                            return Text(
+                                              text,
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontStyle: FontStyle.italic,
+                                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
-                          if (recipe.ingredients.length > 1)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: TranslationBuilder(
-                                builder: (context) {
-                                  final remaining = recipe.ingredients.length - 1;
-                                  final text = TranslationService.currentLanguageStatic == 'fr'
-                                      ? 'et $remaining autres...'
-                                      : TranslationService.currentLanguageStatic == 'es'
-                                          ? 'y $remaining más...'
-                                          : 'and $remaining more...';
-                                  return Text(
-                                    text,
-                                    style: TextStyle(fontSize: 10, fontStyle: FontStyle.italic, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                  );
-                                },
-                              ),
-                            ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 10),
                         ],
-                        // Début des instructions (première phrase seulement)
+                        // Début des instructions - Mieux limité
                         if (instructionsPreview != null) ...[
-                          TranslationBuilder(
-                            builder: (context) => Text(
-                              'Instructions:',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          TranslationBuilder(
-                            builder: (context) => Text(
-                              instructionsPreview!,
-                              style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.list_alt,
+                                      size: 14,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    TranslationBuilder(
+                                      builder: (context) => Text(
+                                        'Instructions:',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                TranslationBuilder(
+                                  builder: (context) => Text(
+                                    instructionsPreview!,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      height: 1.3,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],

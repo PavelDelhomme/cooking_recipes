@@ -12,6 +12,8 @@ import 'screens/auth_screen.dart';
 import 'screens/favorites_screen.dart';
 import 'screens/recipe_history_screen.dart';
 import 'screens/translation_feedback_history_screen.dart';
+import 'screens/translation_validation_screen.dart';
+import 'services/translation_feedback_service.dart';
 import 'services/profile_service.dart';
 import 'services/auth_service.dart';
 import 'services/locale_service.dart';
@@ -303,6 +305,7 @@ class _MainScreenState extends State<MainScreen> {
   final AuthService _authService = AuthService();
   UserProfile? _currentProfile;
   User? _currentUser; // Utilisateur connecté (avec email)
+  bool _isAdmin = false; // Vérifier si l'utilisateur est admin
   
   // GlobalKeys pour pouvoir recharger les écrans
   final GlobalKey<PantryScreenState> _pantryScreenKey = GlobalKey<PantryScreenState>();
@@ -336,6 +339,11 @@ class _MainScreenState extends State<MainScreen> {
     final user = await _authService.getCurrentUser();
     if (mounted) {
       setState(() => _currentUser = user);
+      // Vérifier si l'utilisateur est admin
+      if (user != null) {
+        final isAdmin = await TranslationFeedbackService().isAdmin();
+        setState(() => _isAdmin = isAdmin);
+      }
     }
   }
 
@@ -855,6 +863,22 @@ class _MainScreenState extends State<MainScreen> {
               );
             },
           ),
+          // Validation des traductions (admin uniquement)
+          if (_isAdmin) ...[
+            _buildStyledDrawerTile(
+              context: context,
+              icon: Icons.verified_user,
+              title: 'Validation Traductions',
+              isSelected: false,
+              onTap: () async {
+                Navigator.pop(context);
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TranslationValidationScreen()),
+                );
+              },
+            ),
+          ],
           const Divider(height: 32),
           // Sélection de la langue - Style amélioré
           Container(

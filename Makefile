@@ -37,6 +37,11 @@ translation-stats: ## [BACKEND] Affiche les statistiques des feedbacks de traduc
 update-translation-dict: ## [BACKEND] Met à jour les dictionnaires JSON avec les traductions approuvées
 	@cd backend && node scripts/train_translation_model.js --update-dict
 
+retrain-ml: ## [AI] Réentraîne le modèle ML de traduction avec tous les feedbacks
+	@echo "🔄 Réentraînement du modèle ML..."
+	@curl -X POST http://localhost:7272/api/translation/retrain 2>/dev/null || \
+		node -e "const ml = require('./backend/src/services/ml_translation_engine'); ml.retrain().then(() => { console.log('✅ Réentraînement terminé'); process.exit(0); }).catch(e => { console.error('❌ Erreur:', e); process.exit(1); })"
+
 help: ## Affiche cette aide
 	@echo -e "$(GREEN)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
 	@echo -e "$(GREEN)🍳 Cooking Recipes - Aide des commandes Make$(NC)"

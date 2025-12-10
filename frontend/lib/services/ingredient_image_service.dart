@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,18 +8,40 @@ import 'api_logger.dart'; // Logger pour les requêtes API
 class IngredientImageService {
   static const String _cacheKeyPrefix = 'ingredient_image_';
   
+  // Dictionnaire de correction des fautes de frappe communes pour les ingrédients
+  static final Map<String, String> _typoCorrections = {
+    'aubergene': 'aubergine',
+    'aubergène': 'aubergine',
+    'courgette': 'courgette', // déjà correct
+    'tomate': 'tomate', // déjà correct
+    'oignon': 'oignon', // déjà correct
+    'oignons': 'oignons', // déjà correct
+  };
+  
+  // Corriger les fautes de frappe communes dans les noms d'ingrédients
+  static String _correctTypo(String ingredientName) {
+    final lower = ingredientName.toLowerCase().trim();
+    return _typoCorrections[lower] ?? ingredientName;
+  }
+  
   // Utiliser Unsplash API (gratuite, pas besoin de clé pour les requêtes publiques)
   // Alternative: utiliser une API de recettes qui fournit des images d'ingrédients
   Future<String?> getIngredientImage(String ingredientName) async {
     try {
-      // Vérifier le cache local d'abord
-      final cachedImage = await _getCachedImage(ingredientName);
+      // Corriger les fautes de frappe communes
+      final correctedName = _correctTypo(ingredientName);
+      if (correctedName != ingredientName) {
+        print('🔧 Correction typo: "$ingredientName" -> "$correctedName"');
+      }
+      
+      // Vérifier le cache local d'abord (avec le nom corrigé)
+      final cachedImage = await _getCachedImage(correctedName);
       if (cachedImage != null) {
         return cachedImage;
       }
 
       // Essayer TheMealDB en premier (gratuit, pas de clé, utilise noms anglais)
-      final mealDbImage = await getImageFromMealDB(ingredientName);
+      final mealDbImage = await getImageFromMealDB(correctedName);
       if (mealDbImage != null) {
         return mealDbImage;
       }
@@ -187,21 +210,65 @@ class IngredientImageService {
       
       print('🔍 Tentative de récupération image: $imageUrl');
       
-      // Vérifier si l'image existe
-      final response = await ApiLogger.interceptRequest(
+      // Vérifier si l'image existe avec retry en cas d'erreur réseau
+      final response = await _fetchWithRetry(
         () => http.head(Uri.parse(imageUrl)),
-        'HEAD',
-        imageUrl,
+        maxRetries: 3,
+        retryDelay: Duration(milliseconds: 500),
       );
-      if (response.statusCode == 200) {
+      
+      if (response != null && response.statusCode == 200) {
         print('✅ Image trouvée: $imageUrl');
         await _cacheImage(ingredientName, imageUrl);
         return imageUrl;
       } else {
-        print('❌ Image non trouvée (${response.statusCode}): $imageUrl');
+        final statusCode = response?.statusCode ?? 'timeout/error';
+        print('❌ Image non trouvée ($statusCode): $imageUrl');
       }
     } catch (e) {
-      print('❌ Erreur TheMealDB pour $ingredientName: $e');
+      // Ignorer les erreurs réseau temporaires (ERR_NETWORK_CHANGED, etc.)
+      final errorStr = e.toString();
+      if (errorStr.contains('ERR_NETWORK_CHANGED') || 
+          errorStr.contains('network error') ||
+          errorStr.contains('Failed to fetch')) {
+        print('⚠️ Erreur réseau temporaire pour $ingredientName (ignorée): ${e.toString().substring(0, 50)}');
+      } else {
+        print('❌ Erreur TheMealDB pour $ingredientName: $e');
+      }
+    }
+    return null;
+  }
+  
+  // Fonction helper pour réessayer une requête en cas d'erreur réseau
+  Future<http.Response?> _fetchWithRetry(
+    Future<http.Response> Function() fetchFunction, {
+    int maxRetries = 3,
+    Duration retryDelay = const Duration(milliseconds: 500),
+  }) async {
+    for (int attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        final response = await fetchFunction().timeout(
+          Duration(seconds: 10),
+          onTimeout: () {
+            throw TimeoutException('Request timeout after 10 seconds');
+          },
+        );
+        return response;
+      } catch (e) {
+        final errorStr = e.toString();
+        // Si c'est une erreur réseau temporaire et qu'il reste des tentatives, réessayer
+        if ((errorStr.contains('ERR_NETWORK_CHANGED') || 
+             errorStr.contains('network error') ||
+             errorStr.contains('Failed to fetch') ||
+             errorStr.contains('TimeoutException')) && 
+            attempt < maxRetries - 1) {
+          print('🔄 Tentative ${attempt + 2}/$maxRetries après erreur réseau...');
+          await Future.delayed(retryDelay * (attempt + 1)); // Délai progressif
+          continue;
+        }
+        // Si ce n'est pas une erreur réseau ou qu'on a épuisé les tentatives, retourner null
+        return null;
+      }
     }
     return null;
   }
