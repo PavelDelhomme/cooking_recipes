@@ -397,9 +397,9 @@ class ShoppingListScreenState extends State<ShoppingListScreen> {
                     ),
                   ),
                 Expanded(
-            child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _displayedItems.isEmpty
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _displayedItems.isEmpty
               ? Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32),
