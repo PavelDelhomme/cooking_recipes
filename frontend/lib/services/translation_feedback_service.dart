@@ -9,6 +9,7 @@ import 'translation_service.dart';
 
 /// Service pour gérer les retours utilisateur sur les traductions
 class TranslationFeedbackService {
+  final AuthService _authService = AuthService();
   static const String _feedbackKey = 'translation_feedbacks';
   static const String _learnedTranslationsKey = 'learned_translations';
 
@@ -28,7 +29,7 @@ class TranslationFeedbackService {
       
       // 2. Envoyer au backend (pour tracking et entraînement)
       try {
-        final token = await AuthService.getToken();
+        final token = await _authService.getToken();
         if (token != null) {
           final response = await HttpClient.post(
             Uri.parse('${ApiConfig.baseUrl}/translation-feedback'),
@@ -81,7 +82,7 @@ class TranslationFeedbackService {
     try {
       // Essayer de récupérer depuis le backend d'abord
       try {
-        final token = await AuthService.getToken();
+        final token = await _authService.getToken();
         if (token != null) {
           final response = await HttpClient.get(
             Uri.parse('${ApiConfig.baseUrl}/translation-feedback'),
