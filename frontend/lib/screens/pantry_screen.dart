@@ -387,17 +387,14 @@ class PantryScreenState extends State<PantryScreen> {
                   ),
           ),
         ),
-        title: Builder(
-          builder: (context) {
-            LocaleNotifier.of(context);
-            return Text(
-              TranslationService.translateIngredientSync(item.name),
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            );
-          },
+        title: TranslationBuilder(
+          builder: (context) => Text(
+            TranslationService.translateIngredientSync(item.name),
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+          ),
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4),
@@ -568,7 +565,8 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           name: name,
           quantity: quantity,
-          unit: _selectedUnit ?? 'unité',
+          unit: _selectedUnit,
+          addedAt: DateTime.now(),
         );
         await _pantryService.addPantryItem(newItem);
       } else {
@@ -577,8 +575,8 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
           id: widget.item!.id,
           name: name,
           quantity: quantity,
-          unit: _selectedUnit ?? widget.item!.unit,
-          expiryDate: widget.item!.expiryDate,
+          unit: _selectedUnit,
+          addedAt: widget.item!.addedAt,
         );
         await _pantryService.updatePantryItem(updatedItem);
       }
