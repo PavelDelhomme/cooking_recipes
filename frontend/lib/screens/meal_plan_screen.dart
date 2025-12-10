@@ -939,137 +939,313 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                       color: isToday
                           ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3)
                           : null,
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        leading: Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: isToday
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: isToday
-                                ? [
-                                    BoxShadow(
-                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                                      blurRadius: 6,
-                                      spreadRadius: 1,
-                                    ),
-                                  ]
-                                : null,
-                          ),
-                          child: Icon(
-                            Icons.calendar_today,
-                            color: isToday
-                                ? Theme.of(context).colorScheme.onPrimary
-                                : Theme.of(context).colorScheme.onPrimaryContainer,
-                            size: isToday ? 28 : 24,
-                          ),
-                        ),
-                        title: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                DateFormat('EEEE dd MMMM yyyy', 'fr_FR').format(_selectedDate),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: isToday ? 17 : 16,
-                                  color: isToday
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Theme.of(context).colorScheme.onSurface,
-                                ),
-                              ),
-                            ),
-                            if (isToday)
-                              Container(
-                                margin: const EdgeInsets.only(left: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.today,
-                                      size: 16,
-                                      color: Theme.of(context).colorScheme.onPrimary,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Aujourd\'hui',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: Theme.of(context).colorScheme.onPrimary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                        subtitle: isToday
-                            ? Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.info_outline,
-                                      size: 14,
-                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Jour actuel',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : null,
-                        trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.chevron_left),
-                          onPressed: () {
-                            setState(() {
-                              _selectedDate = _selectedDate.subtract(const Duration(days: 1));
-                            });
-                          },
-                          tooltip: 'Jour précédent',
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.today),
-                          onPressed: () {
-                            setState(() {
-                              _selectedDate = DateTime.now();
-                            });
-                          },
-                          tooltip: 'Aujourd\'hui',
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.chevron_right),
-                          onPressed: () {
-                            setState(() {
-                              _selectedDate = _selectedDate.add(const Duration(days: 1));
-                            });
-                          },
-                          tooltip: 'Jour suivant',
-                        ),
-                      ],
-                    ),
+                      child: InkWell(
                         onTap: _selectDate,
+                        borderRadius: BorderRadius.circular(16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              final isSmallScreen = constraints.maxWidth < 400;
+                              
+                              if (isSmallScreen) {
+                                // Layout vertical pour petits écrans
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Ligne 1: Icône + Date
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 48,
+                                          height: 48,
+                                          decoration: BoxDecoration(
+                                            color: isToday
+                                                ? Theme.of(context).colorScheme.primary
+                                                : Theme.of(context).colorScheme.primaryContainer,
+                                            borderRadius: BorderRadius.circular(12),
+                                            boxShadow: isToday
+                                                ? [
+                                                    BoxShadow(
+                                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                                                      blurRadius: 6,
+                                                      spreadRadius: 1,
+                                                    ),
+                                                  ]
+                                                : null,
+                                          ),
+                                          child: Icon(
+                                            Icons.calendar_today,
+                                            color: isToday
+                                                ? Theme.of(context).colorScheme.onPrimary
+                                                : Theme.of(context).colorScheme.onPrimaryContainer,
+                                            size: 24,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                DateFormat('EEEE', 'fr_FR').format(_selectedDate),
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                '${_selectedDate.day} ${DateFormat('MMMM yyyy', 'fr_FR').format(_selectedDate)}',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                  color: isToday
+                                                      ? Theme.of(context).colorScheme.primary
+                                                      : Theme.of(context).colorScheme.onSurface,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    // Ligne 2: Badge "Aujourd'hui" + "Jour actuel" (si aujourd'hui) + Boutons navigation
+                                    Row(
+                                      children: [
+                                        if (isToday) ...[
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context).colorScheme.primary,
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.today,
+                                                  size: 14,
+                                                  color: Theme.of(context).colorScheme.onPrimary,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  'Aujourd\'hui',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Theme.of(context).colorScheme.onPrimary,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.info_outline,
+                                                size: 12,
+                                                color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                'Jour actuel',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const Spacer(),
+                                        ] else
+                                          const Spacer(),
+                                        // Boutons de navigation
+                                        IconButton(
+                                          icon: const Icon(Icons.chevron_left),
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedDate = _selectedDate.subtract(const Duration(days: 1));
+                                            });
+                                          },
+                                          tooltip: 'Jour précédent',
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.today, size: 20),
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedDate = DateTime.now();
+                                            });
+                                          },
+                                          tooltip: 'Aujourd\'hui',
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.chevron_right),
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedDate = _selectedDate.add(const Duration(days: 1));
+                                            });
+                                          },
+                                          tooltip: 'Jour suivant',
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                );
+                              } else {
+                                // Layout horizontal pour grands écrans
+                                return Row(
+                                  children: [
+                                    Container(
+                                      width: 52,
+                                      height: 52,
+                                      decoration: BoxDecoration(
+                                        color: isToday
+                                            ? Theme.of(context).colorScheme.primary
+                                            : Theme.of(context).colorScheme.primaryContainer,
+                                        borderRadius: BorderRadius.circular(14),
+                                        boxShadow: isToday
+                                            ? [
+                                                BoxShadow(
+                                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                                                  blurRadius: 6,
+                                                  spreadRadius: 1,
+                                                ),
+                                              ]
+                                            : null,
+                                      ),
+                                      child: Icon(
+                                        Icons.calendar_today,
+                                        color: isToday
+                                            ? Theme.of(context).colorScheme.onPrimary
+                                            : Theme.of(context).colorScheme.onPrimaryContainer,
+                                        size: isToday ? 28 : 24,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  DateFormat('EEEE dd MMMM yyyy', 'fr_FR').format(_selectedDate),
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: isToday ? 17 : 16,
+                                                    color: isToday
+                                                        ? Theme.of(context).colorScheme.primary
+                                                        : Theme.of(context).colorScheme.onSurface,
+                                                  ),
+                                                ),
+                                              ),
+                                              if (isToday)
+                                                Container(
+                                                  margin: const EdgeInsets.only(left: 8),
+                                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                                  decoration: BoxDecoration(
+                                                    color: Theme.of(context).colorScheme.primary,
+                                                    borderRadius: BorderRadius.circular(12),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.today,
+                                                        size: 16,
+                                                        color: Theme.of(context).colorScheme.onPrimary,
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      Text(
+                                                        'Aujourd\'hui',
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Theme.of(context).colorScheme.onPrimary,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                          if (isToday)
+                                            Padding(
+                                              padding: const EdgeInsets.only(top: 4),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.info_outline,
+                                                    size: 14,
+                                                    color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    'Jour actuel',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.w500,
+                                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.chevron_left),
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedDate = _selectedDate.subtract(const Duration(days: 1));
+                                            });
+                                          },
+                                          tooltip: 'Jour précédent',
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.today),
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedDate = DateTime.now();
+                                            });
+                                          },
+                                          tooltip: 'Aujourd\'hui',
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.chevron_right),
+                                          onPressed: () {
+                                            setState(() {
+                                              _selectedDate = _selectedDate.add(const Duration(days: 1));
+                                            });
+                                          },
+                                          tooltip: 'Jour suivant',
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                );
+                              }
+                            },
+                          ),
+                        ),
                       ),
                     );
                   },

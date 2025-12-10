@@ -658,10 +658,25 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
                   textEditingController.text = _nameController.text;
                 }
                 
+                // Synchroniser textEditingController avec _nameController (une seule fois)
+                if (!textEditingController.hasListeners) {
+                  textEditingController.addListener(() {
+                    if (_nameController.text != textEditingController.text) {
+                      _nameController.text = textEditingController.text;
+                    }
+                  });
+                }
+                
                 return TextFormField(
                   controller: textEditingController,
                   focusNode: focusNode,
                   onFieldSubmitted: onFieldSubmitted != null ? (_) => onFieldSubmitted() : null,
+                  onChanged: (value) {
+                    // Synchroniser immédiatement lors du changement
+                    if (_nameController.text != value) {
+                      _nameController.text = value;
+                    }
+                  },
                   decoration: InputDecoration(
                     labelText: 'Nom de l\'ingrédient',
                     border: OutlineInputBorder(
@@ -676,7 +691,9 @@ class _AddPantryItemScreenState extends State<AddPantryItemScreen> {
                     hintText: 'Ex: Steak haché, Pâtes, Tomates, Lait...',
                   ),
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
+                    // Utiliser la valeur du controller directement pour éviter les problèmes avec les noms composés
+                    final text = textEditingController.text.trim();
+                    if (text.isEmpty) {
                       return 'Veuillez entrer un nom d\'ingrédient';
                     }
                     return null;

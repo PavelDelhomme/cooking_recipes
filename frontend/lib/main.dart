@@ -908,65 +908,155 @@ class _MainScreenState extends State<MainScreen> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
           ),
-          // Mode sombre/clair - Style amélioré
+          // Mode sombre/clair - Style amélioré avec layout responsive
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               color: Colors.transparent,
             ),
-            child: ListTile(
-              leading: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 20,
-                ),
-              ),
-              title: Text(
-                widget.isDarkMode 
-                  ? (AppLocalizations.of(context)?.lightMode ?? 'Mode clair')
-                  : (AppLocalizations.of(context)?.darkMode ?? 'Mode sombre'),
-                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Switch(
-                    value: widget.isDarkMode,
-                    onChanged: (_) => widget.onThemeToggle?.call(),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.person),
-                    onPressed: () {
-                      setState(() => _selectedIndex = 4);
-                      Navigator.pop(context);
-                    },
-                    tooltip: 'Profil',
-                  ),
-                  const SizedBox(width: 4),
-                  IconButton(
-                    icon: Icon(
-                      Icons.logout,
-                      color: Theme.of(context).colorScheme.error,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isSmallScreen = constraints.maxWidth < 400;
+                
+                if (isSmallScreen) {
+                  // Layout vertical pour petits écrans
+                  return Column(
+                    children: [
+                      // Mode sombre/clair
+                      ListTile(
+                        leading: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 20,
+                          ),
+                        ),
+                        title: Text(
+                          widget.isDarkMode 
+                            ? (AppLocalizations.of(context)?.lightMode ?? 'Mode clair')
+                            : (AppLocalizations.of(context)?.darkMode ?? 'Mode sombre'),
+                          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+                        ),
+                        trailing: Switch(
+                          value: widget.isDarkMode,
+                          onChanged: (_) => widget.onThemeToggle?.call(),
+                        ),
+                        onTap: () => widget.onThemeToggle?.call(),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      ),
+                      // Profil et Déconnexion sur une ligne séparée
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  setState(() => _selectedIndex = 4);
+                                  Navigator.pop(context);
+                                },
+                                icon: const Icon(Icons.person, size: 18),
+                                label: const Text('Profil', style: TextStyle(fontSize: 13)),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () => _handleLogout(context),
+                                icon: Icon(
+                                  Icons.logout,
+                                  size: 18,
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                                label: Text(
+                                  'Déconnexion',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  side: BorderSide(color: Theme.of(context).colorScheme.error),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                } else {
+                  // Layout horizontal pour grands écrans
+                  return ListTile(
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        widget.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
                     ),
-                    onPressed: () => _handleLogout(context),
-                    tooltip: 'Déconnexion',
-                  ),
-                ],
-              ),
-              onTap: () => widget.onThemeToggle?.call(),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    title: Text(
+                      widget.isDarkMode 
+                        ? (AppLocalizations.of(context)?.lightMode ?? 'Mode clair')
+                        : (AppLocalizations.of(context)?.darkMode ?? 'Mode sombre'),
+                      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Switch(
+                          value: widget.isDarkMode,
+                          onChanged: (_) => widget.onThemeToggle?.call(),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.person),
+                          onPressed: () {
+                            setState(() => _selectedIndex = 4);
+                            Navigator.pop(context);
+                          },
+                          tooltip: 'Profil',
+                        ),
+                        const SizedBox(width: 4),
+                        IconButton(
+                          icon: Icon(
+                            Icons.logout,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                          onPressed: () => _handleLogout(context),
+                          tooltip: 'Déconnexion',
+                        ),
+                      ],
+                    ),
+                    onTap: () => widget.onThemeToggle?.call(),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  );
+                }
+              },
             ),
           ),
         ],
