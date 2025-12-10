@@ -8,6 +8,7 @@ import '../services/meal_plan_service.dart';
 import '../services/theme_service.dart';
 import '../services/app_localizations.dart';
 import '../services/translation_service.dart';
+import '../services/translation_feedback_service.dart';
 import '../services/favorite_service.dart';
 import '../services/ingredient_image_service.dart';
 import '../services/recipe_history_service.dart';
