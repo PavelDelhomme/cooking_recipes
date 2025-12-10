@@ -1037,11 +1037,25 @@ case "$DEVICE_CHOICE" in
     echo -e "${YELLOW}Compilation initiale du frontend web...${NC}"
     $FLUTTER_CMD pub get > /dev/null 2>&1 || true
     echo -e "${YELLOW}Build web en cours...${NC}"
+    echo -e "${YELLOW}Compilation initiale du frontend web...${NC}"
     if ! $FLUTTER_CMD build web --release > /tmp/flutter_build.log 2>&1; then
       echo -e "${RED}❌ Échec du build web${NC}"
-      echo -e "${YELLOW}Logs:${NC}"
-      tail -50 /tmp/flutter_build.log
+      echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
+      echo -e "${YELLOW}Dernières lignes des logs d'erreur:${NC}"
+      echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
+      # Afficher les erreurs importantes
+      if grep -q "Error:" /tmp/flutter_build.log; then
+        echo -e "${RED}Erreurs trouvées:${NC}"
+        grep -A 5 "Error:" /tmp/flutter_build.log | head -30
+      fi
+      # Afficher les dernières lignes
+      echo -e "${YELLOW}Dernières lignes du log complet:${NC}"
+      tail -30 /tmp/flutter_build.log
+      echo -e "${YELLOW}═══════════════════════════════════════════════════════════${NC}"
+      echo -e "${YELLOW}Pour voir le log complet: cat /tmp/flutter_build.log${NC}"
       exit 1
+    else
+      echo -e "${GREEN}✓ Build web créé avec succès !${NC}"
     fi
     echo -e "${GREEN}✓ Build web terminé${NC}"
     
