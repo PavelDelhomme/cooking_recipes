@@ -58,6 +58,8 @@ class _TranslationFeedbackHistoryScreenState extends State<TranslationFeedbackHi
     switch (type) {
       case FeedbackType.instruction:
         return 'Instruction';
+      case FeedbackType.instructionSeparation:
+        return 'Séparation des instructions';
       case FeedbackType.ingredient:
         return 'Ingrédient';
       case FeedbackType.recipeName:
@@ -75,6 +77,8 @@ class _TranslationFeedbackHistoryScreenState extends State<TranslationFeedbackHi
     switch (type) {
       case FeedbackType.instruction:
         return Icons.list_alt;
+      case FeedbackType.instructionSeparation:
+        return Icons.tune;
       case FeedbackType.ingredient:
         return Icons.shopping_basket;
       case FeedbackType.recipeName:

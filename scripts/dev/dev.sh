@@ -1157,9 +1157,9 @@ case "$DEVICE_CHOICE" in
     fi
     
     echo -e "${GREEN}✓ Frontend démarré sur http://localhost:7070${NC}"
-    echo -e "${GREEN}✓ Frontend accessible depuis le réseau: http://$MACHINE_IP:7070${NC}"
-    echo -e "${YELLOW}Note: Pour recharger après modification, faites 'flutter build web' puis rechargez la page${NC}"
-    ;;
+        echo -e "${GREEN}✓ Frontend accessible depuis le réseau: http://$MACHINE_IP:7070${NC}"
+        echo -e "${YELLOW}💡 Astuce: Appuyez sur Ctrl+C pour redémarrer et reconstruire automatiquement le web${NC}"
+        ;;
   3)
     # Les deux
     echo -e "${GREEN}Démarrage sur Android et Web...${NC}"

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import '../config/api_config.dart';
 import '../models/recipe.dart';
@@ -15,20 +16,29 @@ class FavoriteService {
     return token;
   }
 
-  // Obtenir tous les favoris
-  Future<List<Recipe>> getFavorites() async {
-    try {
-      final token = await _getToken();
-      final url = Uri.parse('${ApiConfig.baseUrl}/favorites');
-      print('🔍 Récupération favoris depuis: $url');
-      
-      final response = await HttpClient.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
+  // Obtenir tous les favoris avec retry automatique
+  Future<List<Recipe>> getFavorites({int maxRetries = 3}) async {
+    int attempt = 0;
+    Exception? lastException;
+    
+    while (attempt < maxRetries) {
+      try {
+        final token = await _getToken();
+        final url = Uri.parse('${ApiConfig.baseUrl}/favorites');
+        print('🔍 Récupération favoris depuis: $url (tentative ${attempt + 1}/$maxRetries)');
+        
+        final response = await HttpClient.get(
+          url,
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ).timeout(
+          const Duration(seconds: 10),
+          onTimeout: () {
+            throw Exception('Timeout: Le serveur ne répond pas');
+          },
+        );
 
       print('📡 Réponse favoris: status=${response.statusCode}, body=${response.body.substring(0, response.body.length > 200 ? 200 : response.body.length)}...');
 
@@ -88,11 +98,37 @@ class FavoriteService {
         print('   Body: ${response.body}');
         throw Exception('Erreur lors de la récupération des favoris: ${response.statusCode}');
       }
-    } catch (e, stackTrace) {
-      print('❌ Erreur getFavorites: $e');
-      print('   Stack trace: $stackTrace');
-      rethrow;
+      } catch (e, stackTrace) {
+        lastException = e is Exception ? e : Exception(e.toString());
+        print('❌ Erreur getFavorites (tentative ${attempt + 1}/$maxRetries): $e');
+        print('   Stack trace: $stackTrace');
+        
+        // Si c'est une erreur de connexion et qu'il reste des tentatives, réessayer
+        final errorMessage = e.toString().toLowerCase();
+        final isConnectionError = errorMessage.contains('connection') || 
+             errorMessage.contains('failed to fetch') ||
+             errorMessage.contains('network') ||
+             errorMessage.contains('timeout') ||
+             errorMessage.contains('clientexception');
+        
+        if (isConnectionError && attempt < maxRetries - 1) {
+          attempt++;
+          final delay = Duration(milliseconds: 500 * attempt); // Délai progressif
+          print('⏳ Erreur de connexion détectée. Nouvelle tentative ${attempt + 1}/$maxRetries dans ${delay.inMilliseconds}ms...');
+          await Future.delayed(delay);
+          continue;
+        }
+        
+        // Si plus de tentatives ou erreur non récupérable, lancer l'exception
+        if (attempt >= maxRetries - 1) {
+          print('❌ Toutes les tentatives ont échoué après $maxRetries essais');
+        }
+        rethrow;
+      }
     }
+    
+    // Si on arrive ici, toutes les tentatives ont échoué
+    throw lastException ?? Exception('Erreur inconnue lors de la récupération des favoris');
   }
 
   // Vérifier si une recette est en favoris

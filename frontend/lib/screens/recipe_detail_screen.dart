@@ -16,6 +16,7 @@ import '../services/recipe_history_service.dart';
 import '../widgets/locale_notifier.dart';
 import '../widgets/translation_builder.dart';
 import '../widgets/translation_feedback_widget.dart';
+import '../widgets/instructions_separation_dialog.dart';
 import '../models/pantry_item.dart';
 import '../models/shopping_list_item.dart';
 import '../models/user_profile.dart';
@@ -510,7 +511,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                         ? 'quantité'
                         : type == FeedbackType.summary
                             ? 'description/résumé'
-                            : 'instruction';
+                            : type == FeedbackType.instructionSeparation
+                                ? 'séparation des instructions'
+                                : 'instruction';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -518,6 +521,49 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _showInstructionsSeparationDialog() async {
+    if (widget.recipe.originalInstructionsText == null || 
+        widget.recipe.originalInstructionsText!.isEmpty) {
+      return;
+    }
+
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => InstructionsSeparationDialog(
+        recipeId: widget.recipe.id,
+        recipeTitle: widget.recipe.title,
+        originalInstructionsText: widget.recipe.originalInstructionsText!,
+        currentInstructions: widget.recipe.instructions,
+      ),
+    );
+
+    if (result != null && result['success'] == true && mounted) {
+      // Recharger le cache et forcer la reconstruction
+      await TranslationFeedbackService.reloadCache();
+      await Future.delayed(const Duration(milliseconds: 50));
+      TranslationService().notifyListeners();
+      if (mounted) {
+        setState(() {
+          _translationKey++;
+        });
+      }
+      await Future.delayed(const Duration(milliseconds: 150));
+      if (mounted) {
+        TranslationService().notifyListeners();
+        setState(() {
+          _translationKey++;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Séparation et traductions des instructions améliorées !'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
           ),
         );
       }
@@ -1116,12 +1162,39 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   const SizedBox(height: 24),
                   
                   // Instructions
-                  Text(
-                    AppLocalizations.of(context)?.instructions ?? 'Instructions',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)?.instructions ?? 'Instructions',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (widget.recipe.originalInstructionsText != null && 
+                          widget.recipe.originalInstructionsText!.isNotEmpty)
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.tune,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                            tooltip: 'Améliorer la séparation et la traduction des instructions',
+                            onPressed: () => _showInstructionsSeparationDialog(),
+                            padding: const EdgeInsets.all(8),
+                            constraints: const BoxConstraints(
+                              minWidth: 36,
+                              minHeight: 36,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 12),
                   if (widget.recipe.instructions.isEmpty)

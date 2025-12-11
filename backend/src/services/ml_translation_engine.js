@@ -170,7 +170,7 @@ class MLTranslationEngine {
               }
             }
 
-            if (type === 'ingredient' || type === 'instruction' || type === 'recipeName' || type === 'unit' || type === 'quantity' || type === 'summary') {
+            if (type === 'ingredient' || type === 'instruction' || type === 'instructionSeparation' || type === 'recipeName' || type === 'unit' || type === 'quantity' || type === 'summary') {
               let modelType;
               if (type === 'recipeName') {
                 modelType = 'recipeNames';
@@ -178,6 +178,8 @@ class MLTranslationEngine {
                 modelType = 'instructions'; // Utiliser le même modèle que les instructions pour les résumés
               } else if (type === 'quantity') {
                 modelType = 'quantity'; // Conversions de quantités
+              } else if (type === 'instructionSeparation') {
+                modelType = 'instructions'; // Utiliser le même modèle que les instructions pour la séparation
               } else {
                 modelType = type + 's';
               }
@@ -275,6 +277,8 @@ class MLTranslationEngine {
       modelType = 'instructions'; // Utiliser le même modèle que les instructions pour les résumés
     } else if (type === 'quantity') {
       modelType = 'quantity'; // Conversions de quantités
+    } else if (type === 'instructionSeparation') {
+      modelType = 'instructions'; // Utiliser le même modèle que les instructions pour la séparation
     } else {
       modelType = type + 's';
     }

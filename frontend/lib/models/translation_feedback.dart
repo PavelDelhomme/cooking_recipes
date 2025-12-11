@@ -68,6 +68,7 @@ class TranslationFeedback {
 
 enum FeedbackType {
   instruction,
+  instructionSeparation, // Séparation des instructions (comment découper)
   ingredient,
   recipeName,
   unit,

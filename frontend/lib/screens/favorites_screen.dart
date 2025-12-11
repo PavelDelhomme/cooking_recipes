@@ -19,10 +19,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   void initState() {
     super.initState();
-    _loadFavorites();
+    // Attendre un peu avant de charger pour s'assurer que le backend est prêt
+    Future.delayed(const Duration(milliseconds: 300), () {
+      _loadFavorites();
+    });
   }
 
   Future<void> _loadFavorites() async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
       _error = null;
@@ -30,19 +35,24 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
     try {
       print('🔄 Chargement des favoris...');
-      final favorites = await _favoriteService.getFavorites();
+      // Le retry est géré dans getFavorites() avec maxRetries=3
+      final favorites = await _favoriteService.getFavorites(maxRetries: 5);
       print('✅ ${favorites.length} favoris chargés');
-      setState(() {
-        _favorites = favorites;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _favorites = favorites;
+          _isLoading = false;
+        });
+      }
     } catch (e, stackTrace) {
-      print('❌ Erreur chargement favoris: $e');
+      print('❌ Erreur chargement favoris après toutes les tentatives: $e');
       print('   Stack trace: $stackTrace');
-      setState(() {
-        _error = 'Erreur lors du chargement des favoris: ${e.toString()}';
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = 'Impossible de charger les favoris. Vérifiez que le backend est démarré.\n\nErreur: ${e.toString()}';
+          _isLoading = false;
+        });
+      }
     }
   }
 

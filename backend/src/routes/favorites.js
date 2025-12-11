@@ -8,6 +8,13 @@ router.get('/', authenticateToken, (req, res) => {
   const db = getDatabase();
   const userId = req.user.userId || req.user.id;
 
+  if (!userId) {
+    console.error('❌ userId manquant dans req.user:', req.user);
+    return res.status(401).json({ error: 'Utilisateur non authentifié' });
+  }
+
+  console.log(`📋 Récupération favoris pour userId=${userId}`);
+
   db.all(
     'SELECT * FROM favorites WHERE userId = ? ORDER BY createdAt DESC',
     [userId],
@@ -17,7 +24,7 @@ router.get('/', authenticateToken, (req, res) => {
         return res.status(500).json({ error: 'Erreur serveur' });
       }
 
-      const favorites = rows.map(row => {
+      const favorites = rows.map((row, index) => {
         try {
           // Parser recipeData (peut être déjà un objet ou une string JSON)
           let recipeData = row.recipeData;
@@ -60,9 +67,16 @@ router.get('/', authenticateToken, (req, res) => {
 router.post('/', authenticateToken, (req, res) => {
   const db = getDatabase();
   const userId = req.user.userId || req.user.id;
+
+  if (!userId) {
+    console.error('❌ userId manquant dans req.user:', req.user);
+    return res.status(401).json({ error: 'Utilisateur non authentifié' });
+  }
+
   const { recipeId, recipeTitle, recipeImage, recipeData } = req.body;
 
   if (!recipeId || !recipeTitle || !recipeData) {
+    console.error('❌ Données incomplètes:', { recipeId, recipeTitle, hasRecipeData: !!recipeData });
     return res.status(400).json({ error: 'Données incomplètes' });
   }
 
@@ -93,11 +107,26 @@ router.post('/', authenticateToken, (req, res) => {
       const id = `${userId}_${recipeId}_${Date.now()}`;
       const createdAt = new Date().toISOString();
 
+      // S'assurer que recipeData est bien un objet avant de le stringify
+      let recipeDataString;
+      try {
+        if (typeof recipeData === 'string') {
+          // Si c'est déjà une string, vérifier que c'est du JSON valide
+          JSON.parse(recipeData);
+          recipeDataString = recipeData;
+        } else {
+          recipeDataString = JSON.stringify(recipeData);
+        }
+      } catch (e) {
+        console.error('❌ Erreur sérialisation recipeData:', e);
+        return res.status(400).json({ error: 'recipeData invalide' });
+      }
+
       console.log(`➕ Ajout favori: userId=${userId}, recipeId=${recipeId}, recipeTitle=${recipeTitle}`);
 
       db.run(
         'INSERT INTO favorites (id, userId, recipeId, recipeTitle, recipeImage, recipeData, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [id, userId, recipeId, recipeTitle, recipeImage || null, JSON.stringify(recipeData), createdAt],
+        [id, userId, recipeId, recipeTitle, recipeImage || null, recipeDataString, createdAt],
         function(err) {
           if (err) {
             if (err.message.includes('UNIQUE constraint failed')) {
@@ -105,7 +134,14 @@ router.post('/', authenticateToken, (req, res) => {
               return res.status(409).json({ error: 'Recette déjà en favoris' });
             }
             console.error('❌ Erreur ajout favori:', err);
-            return res.status(500).json({ error: 'Erreur serveur' });
+            console.error('   Détails:', {
+              userId,
+              recipeId,
+              recipeTitle,
+              recipeImage,
+              recipeDataLength: recipeDataString?.length,
+            });
+            return res.status(500).json({ error: 'Erreur serveur', details: err.message });
           }
 
           console.log(`✅ Favori ajouté avec succès: id=${id}, recipeId=${recipeId}`);
@@ -114,7 +150,7 @@ router.post('/', authenticateToken, (req, res) => {
             recipeId,
             recipeTitle,
             recipeImage,
-            recipeData,
+            recipeData: typeof recipeData === 'string' ? JSON.parse(recipeData) : recipeData,
             createdAt,
           });
         }
@@ -128,6 +164,11 @@ router.get('/check/:recipeId', authenticateToken, (req, res) => {
   const db = getDatabase();
   const userId = req.user.userId || req.user.id;
   const { recipeId } = req.params;
+
+  if (!userId) {
+    console.error('❌ userId manquant dans req.user:', req.user);
+    return res.status(401).json({ error: 'Utilisateur non authentifié' });
+  }
 
   db.get(
     'SELECT * FROM favorites WHERE userId = ? AND recipeId = ?',
@@ -148,6 +189,11 @@ router.delete('/:recipeId', authenticateToken, (req, res) => {
   const db = getDatabase();
   const userId = req.user.userId || req.user.id;
   const { recipeId } = req.params;
+
+  if (!userId) {
+    console.error('❌ userId manquant dans req.user:', req.user);
+    return res.status(401).json({ error: 'Utilisateur non authentifié' });
+  }
 
   db.run(
     'DELETE FROM favorites WHERE userId = ? AND recipeId = ?',

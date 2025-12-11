@@ -241,7 +241,7 @@ router.get(
       let query = 'SELECT * FROM translation_feedbacks WHERE user_id = ?';
       const params = [userId];
 
-      if (type && ['instruction', 'ingredient', 'recipeName', 'unit', 'summary'].includes(type)) {
+      if (type && ['instruction', 'instructionSeparation', 'ingredient', 'recipeName', 'unit', 'quantity', 'summary'].includes(type)) {
         query += ' AND type = ?';
         params.push(type);
       }

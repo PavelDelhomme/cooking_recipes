@@ -70,15 +70,17 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
           ? 'ingredient'
           : widget.type == FeedbackType.instruction
               ? 'instruction'
-              : widget.type == FeedbackType.recipeName
-                  ? 'recipeName'
-                  : widget.type == FeedbackType.unit
-                      ? 'unit'
-                      : widget.type == FeedbackType.quantity
-                          ? 'quantity'
-                          : widget.type == FeedbackType.summary
-                              ? 'summary'
-                              : 'instruction';
+              : widget.type == FeedbackType.instructionSeparation
+                  ? 'instruction'
+                  : widget.type == FeedbackType.recipeName
+                      ? 'recipeName'
+                      : widget.type == FeedbackType.unit
+                          ? 'unit'
+                          : widget.type == FeedbackType.quantity
+                              ? 'quantity'
+                              : widget.type == FeedbackType.summary
+                                  ? 'summary'
+                                  : 'instruction';
       
       try {
         final url = Uri.parse('${ApiConfig.baseUrl}/translation/translate');
@@ -416,6 +418,8 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
     switch (widget.type) {
       case FeedbackType.instruction:
         return 'Instruction';
+      case FeedbackType.instructionSeparation:
+        return 'Séparation des instructions';
       case FeedbackType.ingredient:
         return 'Ingrédient';
       case FeedbackType.recipeName:
