@@ -110,47 +110,126 @@ up: dev ## [DEV] Alias pour dev
 
 start: dev ## [DEV] Alias pour dev
 
-down: ## [DEV] Arrête tous les conteneurs et processus
-	@echo -e "$(GREEN)Arrêt des services...$(NC)"
-	@echo -e "$(YELLOW)Arrêt des processus Node.js...$(NC)"
-	@if [ -f /tmp/backend_pid.txt ]; then \
+down: ## [DEV] Arrête tous les conteneurs et processus liés au projet
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
+	@echo -e "$(GREEN)Arrêt de tous les services Cooking Recipes...$(NC)"
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
+	@echo ""
+	@echo -e "$(YELLOW)1. Arrêt du backend (Node.js)...$(NC)"
+	@-if [ -f /tmp/backend_pid.txt ]; then \
 		BACKEND_PID=$$(cat /tmp/backend_pid.txt 2>/dev/null || echo ""); \
-		if [ ! -z "$$BACKEND_PID" ] && kill -0 $$BACKEND_PID 2>/dev/null; then \
-			kill -9 $$BACKEND_PID 2>/dev/null || true; \
+		if [ ! -z "$$BACKEND_PID" ] && [ "$$BACKEND_PID" != "" ]; then \
+			if kill -0 $$BACKEND_PID 2>/dev/null; then \
+				kill -9 $$BACKEND_PID 2>/dev/null || true; \
+				echo -e "$(GREEN)  ✓ Backend arrêté (PID: $$BACKEND_PID)$(NC)"; \
+			fi; \
 		fi; \
 		rm -f /tmp/backend_pid.txt 2>/dev/null || true; \
 	fi
 	@pkill -9 -f "node.*server.js" 2>/dev/null || true
 	@pkill -9 -f "node.*backend" 2>/dev/null || true
 	@pkill -9 -f "npm.*dev" 2>/dev/null || true
-	@echo -e "$(YELLOW)Arrêt des processus Flutter...$(NC)"
-	@if [ -f /tmp/frontend_pid.txt ]; then \
+	@pkill -9 -f "nodemon.*server.js" 2>/dev/null || true
+	@echo ""
+	@echo -e "$(YELLOW)2. Arrêt du frontend (Flutter/Web/Android)...$(NC)"
+	@-if [ -f /tmp/frontend_pid.txt ]; then \
 		FRONTEND_PID=$$(cat /tmp/frontend_pid.txt 2>/dev/null || echo ""); \
-		if [ ! -z "$$FRONTEND_PID" ] && kill -0 $$FRONTEND_PID 2>/dev/null; then \
-			kill -9 $$FRONTEND_PID 2>/dev/null || true; \
+		if [ ! -z "$$FRONTEND_PID" ] && [ "$$FRONTEND_PID" != "" ]; then \
+			if kill -0 $$FRONTEND_PID 2>/dev/null; then \
+				kill -9 $$FRONTEND_PID 2>/dev/null || true; \
+				echo -e "$(GREEN)  ✓ Frontend Flutter arrêté (PID: $$FRONTEND_PID)$(NC)"; \
+			fi; \
 		fi; \
 		rm -f /tmp/frontend_pid.txt 2>/dev/null || true; \
 	fi
-	@pkill -9 -f "flutter.*web-server" 2>/dev/null || true
-	@pkill -9 -f "flutter.*android" 2>/dev/null || true
-	@pkill -9 -f "flutter run" 2>/dev/null || true
-	@pkill -9 -f "dart.*web" 2>/dev/null || true
-	@echo -e "$(YELLOW)Libération des ports...$(NC)"
-	@if command -v lsof >/dev/null 2>&1; then \
-		PIDS_7272=$$(lsof -ti:7272 2>/dev/null || echo ""); \
-		if [ ! -z "$$PIDS_7272" ]; then \
-			echo $$PIDS_7272 | xargs kill -9 2>/dev/null || true; \
+	@-if [ -f /tmp/frontend_android_pid.txt ]; then \
+		ANDROID_PID=$$(cat /tmp/frontend_android_pid.txt 2>/dev/null || echo ""); \
+		if [ ! -z "$$ANDROID_PID" ] && [ "$$ANDROID_PID" != "" ]; then \
+			if kill -0 $$ANDROID_PID 2>/dev/null; then \
+				kill -9 $$ANDROID_PID 2>/dev/null || true; \
+				echo -e "$(GREEN)  ✓ Frontend Android arrêté (PID: $$ANDROID_PID)$(NC)"; \
+			fi; \
 		fi; \
-		PIDS_7070=$$(lsof -ti:7070 2>/dev/null || echo ""); \
-		if [ ! -z "$$PIDS_7070" ]; then \
-			echo $$PIDS_7070 | xargs kill -9 2>/dev/null || true; \
+		rm -f /tmp/frontend_android_pid.txt 2>/dev/null || true; \
+	fi
+	@-if [ -f /tmp/frontend_web_pid.txt ]; then \
+		WEB_PID=$$(cat /tmp/frontend_web_pid.txt 2>/dev/null || echo ""); \
+		if [ ! -z "$$WEB_PID" ] && [ "$$WEB_PID" != "" ]; then \
+			if kill -0 $$WEB_PID 2>/dev/null; then \
+				kill -9 $$WEB_PID 2>/dev/null || true; \
+				echo -e "$(GREEN)  ✓ Serveur web arrêté (PID: $$WEB_PID)$(NC)"; \
+			fi; \
+		fi; \
+		rm -f /tmp/frontend_web_pid.txt 2>/dev/null || true; \
+	fi
+	@pkill -9 -f "flutter run" 2>/dev/null || true
+	@pkill -9 -f "flutter.*web-server" 2>/dev/null || true
+	@pkill -9 -f "flutter.*web_port" 2>/dev/null || true
+	@pkill -9 -f "flutter.*android" 2>/dev/null || true
+	@pkill -9 -f "dart.*web" 2>/dev/null || true
+	@echo ""
+	@echo -e "$(YELLOW)3. Arrêt du serveur web Python (HTTP Server)...$(NC)"
+	@pkill -9 -f "python.*http.server.*7070" 2>/dev/null || true
+	@pkill -9 -f "python3.*http.server.*7070" 2>/dev/null || true
+	@pkill -9 -f "python.*-m http.server.*7070" 2>/dev/null || true
+	@pkill -9 -f "python.*SimpleHTTPServer.*7070" 2>/dev/null || true
+	@echo ""
+	@echo -e "$(YELLOW)4. Arrêt de LibreTranslate...$(NC)"
+	@pkill -9 -f "libretranslate" 2>/dev/null || true
+	@pkill -9 -f "lt.*--host" 2>/dev/null || true
+	@if command -v docker >/dev/null 2>&1; then \
+		if docker ps --format "{{.Names}}" 2>/dev/null | grep -qE "(libretranslate|cooking_recipes_libretranslate)"; then \
+			docker stop $$(docker ps --format "{{.Names}}" 2>/dev/null | grep -E "(libretranslate|cooking_recipes_libretranslate)" | head -1) 2>/dev/null || true; \
+			echo -e "$(GREEN)  ✓ LibreTranslate Docker arrêté$(NC)"; \
 		fi; \
 	fi
-	@echo -e "$(YELLOW)Arrêt des conteneurs Docker...$(NC)"
+	@echo ""
+	@echo -e "$(YELLOW)5. Libération des ports...$(NC)"
+	@-if command -v lsof >/dev/null 2>&1; then \
+		PIDS_7272=$$(lsof -ti:$(BACKEND_PORT) 2>/dev/null || echo ""); \
+		if [ ! -z "$$PIDS_7272" ] && [ "$$PIDS_7272" != "" ]; then \
+			for pid in $$PIDS_7272; do kill -9 $$pid 2>/dev/null || true; done; \
+			echo -e "$(GREEN)  ✓ Port $(BACKEND_PORT) libéré$(NC)"; \
+		fi; \
+		PIDS_7070=$$(lsof -ti:$(FRONTEND_PORT) 2>/dev/null || echo ""); \
+		if [ ! -z "$$PIDS_7070" ] && [ "$$PIDS_7070" != "" ]; then \
+			for pid in $$PIDS_7070; do kill -9 $$pid 2>/dev/null || true; done; \
+			echo -e "$(GREEN)  ✓ Port $(FRONTEND_PORT) libéré$(NC)"; \
+		fi; \
+		PIDS_5000=$$(lsof -ti:5000 2>/dev/null || echo ""); \
+		if [ ! -z "$$PIDS_5000" ] && [ "$$PIDS_5000" != "" ]; then \
+			for pid in $$PIDS_5000; do kill -9 $$pid 2>/dev/null || true; done; \
+			echo -e "$(GREEN)  ✓ Port 5000 (LibreTranslate) libéré$(NC)"; \
+		fi; \
+		PIDS_7071=$$(lsof -ti:7071 2>/dev/null || echo ""); \
+		if [ ! -z "$$PIDS_7071" ] && [ "$$PIDS_7071" != "" ]; then \
+			for pid in $$PIDS_7071; do kill -9 $$pid 2>/dev/null || true; done; \
+			echo -e "$(GREEN)  ✓ Port 7071 (LibreTranslate Docker) libéré$(NC)"; \
+		fi; \
+	elif command -v fuser >/dev/null 2>&1; then \
+		fuser -k $(BACKEND_PORT)/tcp 2>/dev/null || true; \
+		fuser -k $(FRONTEND_PORT)/tcp 2>/dev/null || true; \
+		fuser -k 5000/tcp 2>/dev/null || true; \
+		fuser -k 7071/tcp 2>/dev/null || true; \
+	fi
+	@echo ""
+	@echo -e "$(YELLOW)6. Arrêt des conteneurs Docker...$(NC)"
 	@$(DOCKER_COMPOSE) down --remove-orphans 2>/dev/null || true
-	@echo -e "$(YELLOW)Nettoyage des fichiers temporaires...$(NC)"
-	@rm -f /tmp/backend_pid.txt /tmp/frontend_pid.txt 2>/dev/null || true
-	@echo -e "$(GREEN)✓ Tous les services ont été arrêtés$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		if docker ps --format "{{.Names}}" 2>/dev/null | grep -q "cooking_recipes"; then \
+			docker stop $$(docker ps --format "{{.Names}}" 2>/dev/null | grep "cooking_recipes") 2>/dev/null || true; \
+		fi; \
+	fi
+	@echo ""
+	@echo -e "$(YELLOW)7. Nettoyage des fichiers temporaires...$(NC)"
+	@rm -f /tmp/backend_pid.txt /tmp/frontend_pid.txt /tmp/frontend_android_pid.txt /tmp/frontend_web_pid.txt 2>/dev/null || true
+	@rm -f /tmp/backend.log /tmp/frontend.log /tmp/frontend_web.log /tmp/frontend_android.log 2>/dev/null || true
+	@rm -f /tmp/flutter_build.log /tmp/flutter_build_android.log /tmp/flutter_install_android.log 2>/dev/null || true
+	@rm -f /tmp/flutter_build_status.txt 2>/dev/null || true
+	@echo ""
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
+	@echo -e "$(GREEN)✓ Tous les services Cooking Recipes ont été arrêtés$(NC)"
+	@echo -e "$(GREEN)═══════════════════════════════════════════════════════════$(NC)"
 
 stop: down ## [DEV] Alias pour down
 
