@@ -19,25 +19,78 @@ class FavoriteService {
   Future<List<Recipe>> getFavorites() async {
     try {
       final token = await _getToken();
+      final url = Uri.parse('${ApiConfig.baseUrl}/favorites');
+      print('🔍 Récupération favoris depuis: $url');
+      
       final response = await HttpClient.get(
-        Uri.parse('${ApiConfig.baseUrl}/favorites'),
+        url,
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
 
+      print('📡 Réponse favoris: status=${response.statusCode}, body=${response.body.substring(0, response.body.length > 200 ? 200 : response.body.length)}...');
+
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = json.decode(response.body);
-        return jsonList.map((json) {
-          final recipeData = json['recipeData'] as Map<String, dynamic>;
-          return Recipe.fromJson(recipeData);
-        }).toList();
+        print('📋 Nombre de favoris reçus: ${jsonList.length}');
+        
+        if (jsonList.isEmpty) {
+          print('⚠️ Aucun favori dans la réponse');
+          return [];
+        }
+        
+        final recipes = <Recipe>[];
+        for (var i = 0; i < jsonList.length; i++) {
+          final item = jsonList[i];
+          try {
+            print('🔍 Traitement favori $i: recipeId=${item['recipeId']}, recipeTitle=${item['recipeTitle']}');
+            
+            // recipeData peut être un Map ou une String JSON
+            dynamic recipeData = item['recipeData'];
+            if (recipeData is String) {
+              print('   → recipeData est une string, parsing...');
+              recipeData = json.decode(recipeData);
+            }
+            
+            // S'assurer que recipeData est un Map
+            if (recipeData is! Map<String, dynamic>) {
+              print('⚠️ recipeData n\'est pas un Map: $recipeData (type: ${recipeData.runtimeType})');
+              continue;
+            }
+            
+            // Utiliser les champs de l'item si manquants dans recipeData
+            if (!recipeData.containsKey('title') && item['recipeTitle'] != null) {
+              recipeData['title'] = item['recipeTitle'];
+            }
+            if (!recipeData.containsKey('id') && item['recipeId'] != null) {
+              recipeData['id'] = item['recipeId'];
+            }
+            if (!recipeData.containsKey('image') && item['recipeImage'] != null) {
+              recipeData['image'] = item['recipeImage'];
+            }
+            
+            final recipe = Recipe.fromJson(recipeData);
+            print('✅ Favori $i parsé: ${recipe.title} (id: ${recipe.id})');
+            recipes.add(recipe);
+          } catch (e, stackTrace) {
+            print('❌ Erreur parsing favori $i: $e');
+            print('   Stack trace: $stackTrace');
+            print('   Item: $item');
+          }
+        }
+        
+        print('✅ Total favoris parsés: ${recipes.length}');
+        return recipes;
       } else {
-        throw Exception('Erreur lors de la récupération des favoris');
+        print('❌ Erreur HTTP: ${response.statusCode}');
+        print('   Body: ${response.body}');
+        throw Exception('Erreur lors de la récupération des favoris: ${response.statusCode}');
       }
-    } catch (e) {
-      print('Erreur getFavorites: $e');
+    } catch (e, stackTrace) {
+      print('❌ Erreur getFavorites: $e');
+      print('   Stack trace: $stackTrace');
       rethrow;
     }
   }
@@ -83,7 +136,8 @@ class FavoriteService {
         }),
       );
 
-      return response.statusCode == 201;
+      // Accepter 200 (déjà en favoris) ou 201 (créé)
+      return response.statusCode == 201 || response.statusCode == 200;
     } catch (e) {
       print('Erreur addFavorite: $e');
       return false;

@@ -17,14 +17,35 @@ router.get('/', authenticateToken, (req, res) => {
         return res.status(500).json({ error: 'Erreur serveur' });
       }
 
-      const favorites = rows.map(row => ({
-        id: row.id,
-        recipeId: row.recipeId,
-        recipeTitle: row.recipeTitle,
-        recipeImage: row.recipeImage,
-        recipeData: JSON.parse(row.recipeData),
-        createdAt: row.createdAt,
-      }));
+      const favorites = rows.map(row => {
+        try {
+          // Parser recipeData (peut être déjà un objet ou une string JSON)
+          let recipeData = row.recipeData;
+          if (typeof recipeData === 'string') {
+            recipeData = JSON.parse(recipeData);
+          }
+          
+          return {
+            id: row.id,
+            recipeId: row.recipeId,
+            recipeTitle: row.recipeTitle,
+            recipeImage: row.recipeImage,
+            recipeData: recipeData,
+            createdAt: row.createdAt,
+          };
+        } catch (e) {
+          console.error('Erreur parsing recipeData pour favori:', e);
+          // Retourner quand même l'item avec recipeData comme string
+          return {
+            id: row.id,
+            recipeId: row.recipeId,
+            recipeTitle: row.recipeTitle,
+            recipeImage: row.recipeImage,
+            recipeData: row.recipeData, // Laisser comme string si erreur
+            createdAt: row.createdAt,
+          };
+        }
+      });
 
       res.json(favorites);
     }
@@ -41,29 +62,59 @@ router.post('/', authenticateToken, (req, res) => {
     return res.status(400).json({ error: 'Données incomplètes' });
   }
 
-  const id = `${userId}_${recipeId}_${Date.now()}`;
-  const createdAt = new Date().toISOString();
-
-  db.run(
-    'INSERT INTO favorites (id, userId, recipeId, recipeTitle, recipeImage, recipeData, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [id, userId, recipeId, recipeTitle, recipeImage || null, JSON.stringify(recipeData), createdAt],
-    function(err) {
+  // Vérifier d'abord si le favori existe déjà
+  db.get(
+    'SELECT id FROM favorites WHERE userId = ? AND recipeId = ?',
+    [userId, recipeId],
+    (err, existing) => {
       if (err) {
-        if (err.message.includes('UNIQUE constraint failed')) {
-          return res.status(409).json({ error: 'Recette déjà en favoris' });
-        }
-        console.error('Erreur ajout favori:', err);
+        console.error('Erreur vérification favori existant:', err);
         return res.status(500).json({ error: 'Erreur serveur' });
       }
 
-      res.status(201).json({
-        id,
-        recipeId,
-        recipeTitle,
-        recipeImage,
-        recipeData,
-        createdAt,
-      });
+      if (existing) {
+        // Le favori existe déjà, retourner succès sans créer de doublon
+        console.log(`✅ Favori déjà existant pour userId=${userId}, recipeId=${recipeId}`);
+        return res.status(200).json({
+          id: existing.id,
+          recipeId,
+          recipeTitle,
+          recipeImage,
+          recipeData,
+          message: 'Recette déjà en favoris',
+        });
+      }
+
+      // Créer le nouveau favori
+      const id = `${userId}_${recipeId}_${Date.now()}`;
+      const createdAt = new Date().toISOString();
+
+      console.log(`➕ Ajout favori: userId=${userId}, recipeId=${recipeId}, recipeTitle=${recipeTitle}`);
+
+      db.run(
+        'INSERT INTO favorites (id, userId, recipeId, recipeTitle, recipeImage, recipeData, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [id, userId, recipeId, recipeTitle, recipeImage || null, JSON.stringify(recipeData), createdAt],
+        function(err) {
+          if (err) {
+            if (err.message.includes('UNIQUE constraint failed')) {
+              console.log(`⚠️ Doublon détecté pour userId=${userId}, recipeId=${recipeId}`);
+              return res.status(409).json({ error: 'Recette déjà en favoris' });
+            }
+            console.error('❌ Erreur ajout favori:', err);
+            return res.status(500).json({ error: 'Erreur serveur' });
+          }
+
+          console.log(`✅ Favori ajouté avec succès: id=${id}, recipeId=${recipeId}`);
+          res.status(201).json({
+            id,
+            recipeId,
+            recipeTitle,
+            recipeImage,
+            recipeData,
+            createdAt,
+          });
+        }
+      );
     }
   );
 });

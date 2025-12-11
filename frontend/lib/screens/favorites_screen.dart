@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../config/api_config.dart';
-import '../services/auth_service.dart';
+import '../services/favorite_service.dart';
 import '../models/recipe.dart';
 import 'recipe_detail_screen.dart';
 
@@ -14,6 +11,7 @@ class FavoritesScreen extends StatefulWidget {
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
+  final FavoriteService _favoriteService = FavoriteService();
   List<Recipe> _favorites = [];
   bool _isLoading = true;
   String? _error;
@@ -31,81 +29,18 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     });
 
     try {
-      final authService = AuthService();
-      final token = await authService.getToken();
-      if (token == null) {
-        setState(() {
-          _error = 'Vous devez être connecté pour voir vos favoris';
-          _isLoading = false;
-        });
-        return;
-      }
-
-      final apiUrl = ApiConfig.baseUrl;
-      print('🔍 Chargement favoris depuis: $apiUrl/favorites');
-      final response = await http.get(
-        Uri.parse('$apiUrl/favorites'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        print('🔍 Favoris reçus: ${data.length}');
-        print('🔍 Premier favori: ${data.isNotEmpty ? data[0] : 'aucun'}');
-        
-        setState(() {
-          _favorites = data.map((item) {
-            try {
-              // Si recipeData est une string JSON, la parser
-              dynamic recipeData = item['recipeData'];
-              if (recipeData is String) {
-                recipeData = json.decode(recipeData);
-              }
-              // S'assurer que recipeData a les champs nécessaires
-              if (recipeData is Map<String, dynamic>) {
-                // Utiliser recipeTitle si title n'existe pas
-                if (!recipeData.containsKey('title') && item['recipeTitle'] != null) {
-                  recipeData['title'] = item['recipeTitle'];
-                }
-                // Utiliser recipeId si id n'existe pas
-                if (!recipeData.containsKey('id') && item['recipeId'] != null) {
-                  recipeData['id'] = item['recipeId'];
-                }
-                // Utiliser recipeImage si image n'existe pas
-                if (!recipeData.containsKey('image') && item['recipeImage'] != null) {
-                  recipeData['image'] = item['recipeImage'];
-                }
-                return Recipe.fromJson(recipeData);
-              } else {
-                print('⚠️ recipeData n\'est pas un Map: $recipeData');
-                return null;
-              }
-            } catch (e) {
-              print('❌ Erreur parsing favori: $e');
-              print('   Item: $item');
-              return null;
-            }
-          }).where((recipe) => recipe != null).cast<Recipe>().toList();
-          print('✅ Favoris parsés: ${_favorites.length}');
-          _isLoading = false;
-        });
-      } else if (response.statusCode == 401) {
-        setState(() {
-          _error = 'Session expirée. Veuillez vous reconnecter.';
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _error = 'Erreur lors du chargement des favoris';
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
+      print('🔄 Chargement des favoris...');
+      final favorites = await _favoriteService.getFavorites();
+      print('✅ ${favorites.length} favoris chargés');
       setState(() {
-        _error = 'Erreur de connexion: ${e.toString()}';
+        _favorites = favorites;
+        _isLoading = false;
+      });
+    } catch (e, stackTrace) {
+      print('❌ Erreur chargement favoris: $e');
+      print('   Stack trace: $stackTrace');
+      setState(() {
+        _error = 'Erreur lors du chargement des favoris: ${e.toString()}';
         _isLoading = false;
       });
     }
@@ -113,20 +48,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   Future<void> _removeFavorite(String recipeId) async {
     try {
-      final authService = AuthService();
-      final token = await authService.getToken();
-      if (token == null) return;
-
-      final apiUrl = ApiConfig.baseUrl;
-      final response = await http.delete(
-        Uri.parse('$apiUrl/favorites/$recipeId'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 204) {
+      final success = await _favoriteService.removeFavorite(recipeId);
+      if (success) {
         // Retirer de la liste locale
         setState(() {
           _favorites.removeWhere((recipe) => recipe.id == recipeId);
@@ -137,6 +60,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             const SnackBar(
               content: Text('Recette retirée des favoris'),
               duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Erreur lors de la suppression'),
+              duration: Duration(seconds: 3),
             ),
           );
         }
