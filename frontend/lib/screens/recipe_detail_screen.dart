@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/recipe.dart';
+import '../models/ingredient.dart';
 import '../services/pantry_service.dart';
 import '../services/shopping_list_service.dart';
 import '../services/profile_service.dart';
@@ -831,7 +832,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                 FeedbackType.ingredient,
                                 ingredient.name,
                                 TranslationService.translateIngredientSync(ingredient.name),
-                                contextInfo: 'Ingrédient ${widget.recipe.ingredients.indexOf(ingredient) + 1}',
+                                contextInfo: 'Ingrédient ${index + 1}',
                               ),
                             ),
                           ],
@@ -996,7 +997,10 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             : null,
                       ),
                     );
-                  }),
+                        }).toList(),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 24),
                   
                   // Instructions
