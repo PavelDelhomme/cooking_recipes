@@ -29,15 +29,15 @@ class _TranslationValidationScreenState extends State<TranslationValidationScree
   Future<void> _checkAdminAndLoad() async {
     setState(() => _isLoading = true);
     try {
+      // Vérifier si admin (pour afficher les actions admin)
       final admin = await _feedbackService.isAdmin();
       setState(() {
         _isAdmin = admin;
         _isLoading = false;
       });
 
-      if (admin) {
-        await _loadPendingFeedbacks();
-      }
+      // Charger les feedbacks pour tous les utilisateurs
+      await _loadPendingFeedbacks();
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
@@ -238,41 +238,8 @@ class _TranslationValidationScreenState extends State<TranslationValidationScree
       );
     }
 
-    if (!_isAdmin) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Validation des traductions')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.lock_outline,
-                size: 64,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Accès refusé',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.error,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Cette fonctionnalité est réservée aux administrateurs.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+    // L'écran est maintenant accessible à tous les utilisateurs
+    // _isAdmin est utilisé uniquement pour afficher les actions admin supplémentaires
 
     return Scaffold(
       appBar: AppBar(

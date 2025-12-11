@@ -864,21 +864,22 @@ class _MainScreenState extends State<MainScreen> {
               );
             },
           ),
-          // Validation des traductions (admin uniquement)
+          // Validation des traductions (tous les utilisateurs - pour leurs propres feedbacks)
+          _buildStyledDrawerTile(
+            context: context,
+            icon: Icons.verified_user,
+            title: 'Validation Traductions',
+            isSelected: false,
+            onTap: () async {
+              Navigator.pop(context);
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const TranslationValidationScreen()),
+              );
+            },
+          ),
+          // Gestion IA (admin uniquement)
           if (_isAdmin) ...[
-            _buildStyledDrawerTile(
-              context: context,
-              icon: Icons.verified_user,
-              title: 'Validation Traductions',
-              isSelected: false,
-              onTap: () async {
-                Navigator.pop(context);
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const TranslationValidationScreen()),
-                );
-              },
-            ),
             _buildStyledDrawerTile(
               context: context,
               icon: Icons.psychology,
