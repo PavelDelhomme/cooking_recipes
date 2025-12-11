@@ -1431,7 +1431,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
       3: {'mobile': 0.8, 'tablet': 0.7, 'desktop': 0.65},    // Overlay
       4: {'mobile': 0.85, 'tablet': 0.75, 'desktop': 0.7},  // Badges
       5: {'mobile': 0.9, 'tablet': 0.8, 'desktop': 0.75},   // Minimaliste
-      6: {'mobile': 1.4, 'tablet': 1.3, 'desktop': 1.2},   // Détaillée (plus haute pour contenir tous les ingrédients)
+      6: {'mobile': 1.2, 'tablet': 1.1, 'desktop': 1.0},   // Détaillée (plus haute pour contenir tous les ingrédients)
       7: {'mobile': 1.0, 'tablet': 0.9, 'desktop': 0.85},   // Avec ingrédients
     };
 

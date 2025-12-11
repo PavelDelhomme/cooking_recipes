@@ -982,41 +982,6 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       ),
-                      // Profil sur sa propre ligne
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: Colors.transparent,
-                        ),
-                        child: ListTile(
-                          leading: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              Icons.person,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 20,
-                            ),
-                          ),
-                          title: const Text(
-                            'Profil',
-                            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
-                          ),
-                          onTap: () {
-                            setState(() => _selectedIndex = 4);
-                            Navigator.pop(context);
-                          },
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        ),
-                      ),
                       // Déconnexion sur sa propre ligne
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -1085,15 +1050,6 @@ class _MainScreenState extends State<MainScreen> {
                           onChanged: (_) => widget.onThemeToggle?.call(),
                         ),
                         const SizedBox(width: 8),
-                        IconButton(
-                          icon: const Icon(Icons.person),
-                          onPressed: () {
-                            setState(() => _selectedIndex = 4);
-                            Navigator.pop(context);
-                          },
-                          tooltip: 'Profil',
-                        ),
-                        const SizedBox(width: 4),
                         IconButton(
                           icon: Icon(
                             Icons.logout,

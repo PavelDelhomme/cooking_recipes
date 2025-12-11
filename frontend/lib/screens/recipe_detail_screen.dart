@@ -58,8 +58,10 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   }
 
   Future<void> _loadIngredientImages() async {
+    // Charger les images pour les ingrédients combinés (évite les doublons)
+    final combinedIngredients = _combineDuplicateIngredients(widget.recipe.ingredients);
     final Map<String, String?> images = {};
-    for (var ingredient in widget.recipe.ingredients) {
+    for (var ingredient in combinedIngredients) {
       if (!_ingredientImages.containsKey(ingredient.name)) {
         final imageUrl = await _imageService.getImageFromMealDB(
           ingredient.name,
@@ -75,6 +77,37 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     }
   }
 
+  /// Combine les ingrédients dupliqués (même nom et même unité)
+  /// Additionne les quantités des ingrédients identiques
+  List<Ingredient> _combineDuplicateIngredients(List<Ingredient> ingredients) {
+    final Map<String, Ingredient> combined = {};
+    
+    for (var ingredient in ingredients) {
+      // Créer une clé basée sur le nom normalisé et l'unité
+      final normalizedName = ingredient.name.toLowerCase().trim();
+      final unit = ingredient.unit?.toLowerCase().trim() ?? '';
+      final key = '$normalizedName|$unit';
+      
+      if (combined.containsKey(key)) {
+        // Ingredient déjà présent, additionner les quantités
+        final existing = combined[key]!;
+        final existingQty = existing.quantity ?? 0.0;
+        final newQty = ingredient.quantity ?? 0.0;
+        final totalQty = existingQty + newQty;
+        
+        // Mettre à jour l'ingrédient avec la quantité totale
+        combined[key] = existing.copyWith(
+          quantity: totalQty > 0 ? totalQty : null,
+        );
+      } else {
+        // Premier ingrédient avec ce nom/unité
+        combined[key] = ingredient;
+      }
+    }
+    
+    return combined.values.toList();
+  }
+
   Future<void> _checkFavorite() async {
     try {
       final isFav = await _favoriteService.isFavorite(widget.recipe.id);
@@ -87,17 +120,24 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   }
 
   Future<void> _toggleFavorite() async {
-    if (_isLoadingFavorite) return;
+    if (_isLoadingFavorite) {
+      print('⚠️ _toggleFavorite: déjà en cours de chargement');
+      return;
+    }
     
+    print('❤️ Clic sur bouton favori pour recipeId=${widget.recipe.id}');
     setState(() => _isLoadingFavorite = true);
     
     try {
       final success = await _favoriteService.toggleFavorite(widget.recipe);
+      print('📊 toggleFavorite résultat: success=$success');
+      
       if (success && mounted) {
         setState(() {
           _isFavorite = !_isFavorite;
           _isLoadingFavorite = false;
         });
+        print('✅ État favori mis à jour: _isFavorite=$_isFavorite');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_isFavorite ? 'Recette ajoutée aux favoris' : 'Recette retirée des favoris'),
@@ -109,9 +149,12 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           // Optionnel : utiliser un callback ou un service pour notifier
         }
       } else {
+        print('❌ toggleFavorite a échoué ou widget non monté');
         setState(() => _isLoadingFavorite = false);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('❌ Erreur dans _toggleFavorite: $e');
+      print('   Stack trace: $stackTrace');
       setState(() => _isLoadingFavorite = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -360,7 +403,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   }
 
   Future<void> _addMissingIngredientsToShoppingList() async {
-    final missingIngredients = widget.recipe.ingredients
+    // Utiliser les ingrédients combinés pour éviter les doublons
+    final combinedIngredients = _combineDuplicateIngredients(widget.recipe.ingredients);
+    final missingIngredients = combinedIngredients
         .where((ingredient) => !_hasIngredient(ingredient.name))
         .toList();
 
@@ -628,7 +673,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       if (widget.recipe.ingredients.isNotEmpty)
                         _buildInfoChip(
                           Icons.shopping_basket_outlined,
-                          '${widget.recipe.ingredients.length} ingrédients',
+                          '${_combineDuplicateIngredients(widget.recipe.ingredients).length} ingrédients',
                         ),
                     ],
                   ),
@@ -662,9 +707,15 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  ...widget.recipe.ingredients.map((ingredient) {
-                    final hasIngredient = _hasIngredient(ingredient.name);
-                    return Card(
+                  Builder(
+                    builder: (context) {
+                      final combinedIngredients = _combineDuplicateIngredients(widget.recipe.ingredients);
+                      return Column(
+                        children: combinedIngredients.asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final ingredient = entry.value;
+                          final hasIngredient = _hasIngredient(ingredient.name);
+                          return Card(
                       margin: const EdgeInsets.symmetric(vertical: 6),
                       elevation: 1,
                       shape: RoundedRectangleBorder(
@@ -738,7 +789,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                   FeedbackType.ingredient,
                                   ingredient.name,
                                   TranslationService.translateIngredientSync(ingredient.name),
-                                  contextInfo: 'Ingrédient ${widget.recipe.ingredients.indexOf(ingredient) + 1}',
+                                  contextInfo: 'Ingrédient ${index + 1}',
                                 ),
                                 borderRadius: BorderRadius.circular(8),
                                 child: Padding(

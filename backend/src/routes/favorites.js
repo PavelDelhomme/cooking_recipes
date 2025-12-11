@@ -6,7 +6,7 @@ const { authenticateToken } = require('../middleware/auth');
 // Obtenir tous les favoris de l'utilisateur
 router.get('/', authenticateToken, (req, res) => {
   const db = getDatabase();
-  const userId = req.user.id;
+  const userId = req.user.userId || req.user.id;
 
   db.all(
     'SELECT * FROM favorites WHERE userId = ? ORDER BY createdAt DESC',
@@ -25,6 +25,8 @@ router.get('/', authenticateToken, (req, res) => {
             recipeData = JSON.parse(recipeData);
           }
           
+          console.log(`  Favori ${index + 1}: recipeId=${row.recipeId}, recipeTitle=${row.recipeTitle}`);
+          
           return {
             id: row.id,
             recipeId: row.recipeId,
@@ -34,7 +36,8 @@ router.get('/', authenticateToken, (req, res) => {
             createdAt: row.createdAt,
           };
         } catch (e) {
-          console.error('Erreur parsing recipeData pour favori:', e);
+          console.error(`Erreur parsing recipeData pour favori ${index + 1}:`, e);
+          console.error(`  recipeData type: ${typeof row.recipeData}, value: ${row.recipeData?.substring(0, 100)}...`);
           // Retourner quand même l'item avec recipeData comme string
           return {
             id: row.id,
@@ -47,6 +50,7 @@ router.get('/', authenticateToken, (req, res) => {
         }
       });
 
+      console.log(`✅ Envoi de ${favorites.length} favoris au client`);
       res.json(favorites);
     }
   );

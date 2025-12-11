@@ -45,13 +45,13 @@ class StyledHeader extends StatelessWidget {
           bottom: Radius.circular(24),
         ),
       ),
-      padding: padding ?? const EdgeInsets.fromLTRB(20, 50, 20, 24),
+      padding: padding ?? const EdgeInsets.fromLTRB(20, 30, 20, 16),
       child: Row(
         children: [
           if (icon != null) ...[
             Container(
-              width: 48,
-              height: 48,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -61,19 +61,19 @@ class StyledHeader extends StatelessWidget {
                     Theme.of(context).colorScheme.primary.withOpacity(0.7),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
                     color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
               child: Icon(
                 icon,
                 color: Theme.of(context).colorScheme.onPrimary,
-                size: 24,
+                size: 20,
               ),
             ),
             const SizedBox(width: 16),
@@ -89,10 +89,10 @@ class StyledHeader extends StatelessWidget {
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
                   color: Colors.white,
-                  letterSpacing: -0.5,
+                  letterSpacing: -0.3,
                 ),
               ),
             ),

@@ -122,24 +122,44 @@ class FavoriteService {
   Future<bool> addFavorite(Recipe recipe) async {
     try {
       final token = await _getToken();
+      final url = Uri.parse('${ApiConfig.baseUrl}/favorites');
+      final body = jsonEncode({
+        'recipeId': recipe.id,
+        'recipeTitle': recipe.title,
+        'recipeImage': recipe.image,
+        'recipeData': recipe.toJson(),
+      });
+      
+      print('➕ Appel API addFavorite:');
+      print('   URL: $url');
+      print('   recipeId: ${recipe.id}');
+      print('   recipeTitle: ${recipe.title}');
+      
       final response = await HttpClient.post(
-        Uri.parse('${ApiConfig.baseUrl}/favorites'),
+        url,
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          'recipeId': recipe.id,
-          'recipeTitle': recipe.title,
-          'recipeImage': recipe.image,
-          'recipeData': recipe.toJson(),
-        }),
+        body: body,
       );
 
+      print('📡 Réponse addFavorite: status=${response.statusCode}');
+      if (response.statusCode != 201 && response.statusCode != 200) {
+        print('   Body: ${response.body}');
+      }
+
       // Accepter 200 (déjà en favoris) ou 201 (créé)
-      return response.statusCode == 201 || response.statusCode == 200;
-    } catch (e) {
-      print('Erreur addFavorite: $e');
+      final success = response.statusCode == 201 || response.statusCode == 200;
+      if (success) {
+        print('✅ Favori ajouté avec succès !');
+      } else {
+        print('❌ Échec ajout favori: status=${response.statusCode}');
+      }
+      return success;
+    } catch (e, stackTrace) {
+      print('❌ Erreur addFavorite: $e');
+      print('   Stack trace: $stackTrace');
       return false;
     }
   }
@@ -165,10 +185,14 @@ class FavoriteService {
 
   // Toggle favori (ajouter si absent, supprimer si présent)
   Future<bool> toggleFavorite(Recipe recipe) async {
+    print('🔄 toggleFavorite appelé pour recipeId=${recipe.id}');
     final isFav = await isFavorite(recipe.id);
+    print('   → isFavorite: $isFav');
     if (isFav) {
+      print('   → Suppression du favori...');
       return await removeFavorite(recipe.id);
     } else {
+      print('   → Ajout du favori...');
       return await addFavorite(recipe);
     }
   }

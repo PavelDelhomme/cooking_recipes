@@ -44,6 +44,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
   bool _isLoading = true;
   String _viewMode = 'day'; // 'day' ou 'week'
   List<PantryItem> _pantryItems = [];
+  int _translationKey = 0; // Clé pour forcer la reconstruction des widgets de traduction
 
   @override
   void initState() {
@@ -54,10 +55,29 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
     _loadMealPlans();
     _loadPantryItems();
     
+    // Écouter les changements de langue/traduction
+    TranslationService().addListener(_onTranslationChanged);
+    
     // Si une recette est fournie, proposer de l'ajouter
     if (widget.recipe != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showAddMealDialog(widget.recipe!);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    // Retirer les écouteurs
+    TranslationService().removeListener(_onTranslationChanged);
+    super.dispose();
+  }
+
+  void _onTranslationChanged() {
+    // Forcer la reconstruction des widgets de traduction
+    if (mounted) {
+      setState(() {
+        _translationKey++;
       });
     }
   }
@@ -346,6 +366,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                             )
                                           : const Icon(Icons.restaurant),
                                       title: TranslationBuilder(
+                                        key: ValueKey('recipe_title_${recipe.id}_$_translationKey'),
                                         builder: (context) {
                                           return Text(
                                             TranslationService.translateRecipeNameSync(recipe.title),
@@ -354,6 +375,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                       ),
                                       subtitle: recipe.summary != null && recipe.summary!.isNotEmpty
                                           ? TranslationBuilder(
+                                              key: ValueKey('recipe_summary_${recipe.id}_$_translationKey'),
                                               builder: (context) {
                                                 // Retraduire le summary depuis le texte original si disponible
                                                 String translatedSummary;
@@ -1384,6 +1406,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
               ),
             ),
             title: TranslationBuilder(
+              key: ValueKey('meal_plan_title_${mealPlan.id}_$_translationKey'),
               builder: (context) {
                 return Text(
                   TranslationService.translateRecipeNameSync(mealPlan.recipe.title),
@@ -1663,6 +1686,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                             color: Theme.of(context).colorScheme.primary,
                           ),
                           title: TranslationBuilder(
+                            key: ValueKey('week_meal_title_${mealPlan.id}_$_translationKey'),
                             builder: (context) {
                               return Text(
                                 TranslationService.translateRecipeNameSync(mealPlan.recipe.title),
