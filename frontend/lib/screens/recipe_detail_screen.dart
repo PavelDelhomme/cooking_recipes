@@ -18,6 +18,7 @@ import '../widgets/translation_builder.dart';
 import '../widgets/translation_feedback_widget.dart';
 import '../widgets/instructions_separation_dialog.dart';
 import '../models/pantry_item.dart';
+import 'cooking_mode_screen.dart';
 import '../models/shopping_list_item.dart';
 import '../models/user_profile.dart';
 import '../models/meal_plan.dart';
@@ -45,6 +46,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   bool _isDarkMode = false;
   bool _isFavorite = false;
   bool _isLoadingFavorite = false;
+  bool _showSpeedDialMenu = false;
   final Map<String, String?> _ingredientImages = {};
 
   @override
@@ -1463,19 +1465,86 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: "recipe_detail_fab",
-        onPressed: _addToMealPlan,
-        icon: const Icon(Icons.calendar_today_outlined),
-        label: Text(
-          AppLocalizations.of(context)?.addToMealPlan ?? 'Ajouter au planning',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+      floatingActionButton: _buildSpeedDial(),
+    );
+  }
+
+  Widget _buildSpeedDial() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        // Menu déroulant
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          child: _showSpeedDialMenu
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    // Option 1: Démarrer la recette
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: FloatingActionButton.extended(
+                        heroTag: "start_cooking_fab",
+                        onPressed: () {
+                          setState(() => _showSpeedDialMenu = false);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CookingModeScreen(recipe: widget.recipe),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.restaurant_menu),
+                        label: const Text('Démarrer la recette'),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                        elevation: 6,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                    // Option 2: Ajouter au planning
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: FloatingActionButton.extended(
+                        heroTag: "add_meal_plan_fab",
+                        onPressed: () {
+                          setState(() => _showSpeedDialMenu = false);
+                          _addToMealPlan();
+                        },
+                        icon: const Icon(Icons.calendar_today_outlined),
+                        label: Text(
+                          AppLocalizations.of(context)?.addToMealPlan ?? 'Ajouter au planning',
+                        ),
+                        backgroundColor: Theme.of(context).colorScheme.secondary,
+                        foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                        elevation: 6,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : const SizedBox.shrink(),
         ),
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+        // Bouton principal
+        FloatingActionButton(
+          heroTag: "main_fab",
+          onPressed: () {
+            setState(() => _showSpeedDialMenu = !_showSpeedDialMenu);
+          },
+          child: AnimatedRotation(
+            turns: _showSpeedDialMenu ? 0.125 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: Icon(_showSpeedDialMenu ? Icons.close : Icons.add),
+          ),
+          elevation: 6,
         ),
-      ),
+      ],
     );
   }
 
