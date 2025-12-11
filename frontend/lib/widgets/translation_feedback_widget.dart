@@ -39,10 +39,15 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
   String? _aiSuggestion;
   bool _aiSuggestionRejected = false; // Indique si la suggestion IA a été rejetée
   final TextEditingController _suggestionController = TextEditingController();
+  final TextSelectionController _selectionController = TextSelectionController();
+  String? _selectedText; // Texte sélectionné dans currentTranslation
+  final TextEditingController _selectedTextTranslationController = TextEditingController();
 
   @override
   void dispose() {
     _suggestionController.dispose();
+    _selectionController.dispose();
+    _selectedTextTranslationController.dispose();
     super.dispose();
   }
 
@@ -71,9 +76,11 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
                   ? 'recipeName'
                   : widget.type == FeedbackType.unit
                       ? 'unit'
-                      : widget.type == FeedbackType.summary
-                          ? 'summary'
-                          : 'instruction';
+                      : widget.type == FeedbackType.quantity
+                          ? 'quantity'
+                          : widget.type == FeedbackType.summary
+                              ? 'summary'
+                              : 'instruction';
       
       try {
         final url = Uri.parse('${ApiConfig.baseUrl}/translation/translate');
@@ -349,6 +356,10 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
         originalText: widget.originalText,
         currentTranslation: widget.currentTranslation,
         suggestedTranslation: _suggestionController.text.trim(),
+        selectedText: _selectedText,
+        selectedTextTranslation: _selectedTextTranslationController.text.trim().isNotEmpty
+            ? _selectedTextTranslationController.text.trim()
+            : null,
         targetLanguage: TranslationService.currentLanguageStatic,
         timestamp: DateTime.now(),
         context: widget.context,
@@ -413,6 +424,8 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
         return 'Nom de recette';
       case FeedbackType.unit:
         return 'Unité de mesure';
+      case FeedbackType.quantity:
+        return 'Quantité';
       case FeedbackType.summary:
         return 'Description/Résumé';
     }
@@ -556,13 +569,99 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    SelectableText(
                       widget.currentTranslation,
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
+                      selectionControls: MaterialTextSelectionControls(),
+                      onSelectionChanged: (selection, cause) {
+                        if (selection.isValid && !selection.isCollapsed) {
+                          final selected = widget.currentTranslation.substring(
+                            selection.start,
+                            selection.end,
+                          );
+                          setState(() {
+                            _selectedText = selected.trim();
+                          });
+                        } else {
+                          setState(() {
+                            _selectedText = null;
+                            _selectedTextTranslationController.clear();
+                          });
+                        }
+                      },
                     ),
+                    if (_selectedText != null && _selectedText!.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                            width: 2,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.highlight,
+                                  size: 16,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Texte sélectionné:',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '"$_selectedText"',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontStyle: FontStyle.italic,
+                                color: Theme.of(context).colorScheme.onSurface,
+                                backgroundColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: _selectedTextTranslationController,
+                              decoration: InputDecoration(
+                                labelText: 'Traduction alternative pour ce mot/groupe de mots',
+                                hintText: 'Ex: si "cuire" devrait être "faire cuire"...',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                filled: true,
+                                prefixIcon: const Icon(Icons.translate),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '💡 Cette traduction sera apprise pour ce mot/groupe de mots dans toutes les recettes',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

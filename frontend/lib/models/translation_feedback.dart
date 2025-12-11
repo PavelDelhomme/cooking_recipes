@@ -7,6 +7,8 @@ class TranslationFeedback {
   final String originalText; // Texte original (anglais)
   final String currentTranslation; // Traduction actuelle (qui pose problème)
   final String? suggestedTranslation; // Traduction suggérée par l'utilisateur
+  final String? selectedText; // Mot ou groupe de mots sélectionné dans currentTranslation
+  final String? selectedTextTranslation; // Traduction alternative pour selectedText
   final String targetLanguage; // Langue cible (fr, es)
   final DateTime timestamp;
   final String? context; // Contexte supplémentaire (ex: "instruction 3", "ingredient 2")
@@ -19,6 +21,8 @@ class TranslationFeedback {
     required this.originalText,
     required this.currentTranslation,
     this.suggestedTranslation,
+    this.selectedText,
+    this.selectedTextTranslation,
     required this.targetLanguage,
     required this.timestamp,
     this.context,
@@ -33,6 +37,8 @@ class TranslationFeedback {
       'originalText': originalText,
       'currentTranslation': currentTranslation,
       'suggestedTranslation': suggestedTranslation,
+      'selectedText': selectedText,
+      'selectedTextTranslation': selectedTextTranslation,
       'targetLanguage': targetLanguage,
       'timestamp': timestamp.toIso8601String(),
       'context': context,
@@ -51,6 +57,8 @@ class TranslationFeedback {
       originalText: json['originalText'] as String,
       currentTranslation: json['currentTranslation'] as String,
       suggestedTranslation: json['suggestedTranslation'] as String?,
+      selectedText: json['selectedText'] as String?,
+      selectedTextTranslation: json['selectedTextTranslation'] as String?,
       targetLanguage: json['targetLanguage'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
       context: json['context'] as String?,
@@ -63,6 +71,7 @@ enum FeedbackType {
   ingredient,
   recipeName,
   unit,
+  quantity, // Quantité (conversion)
   summary, // Description/résumé de la recette
 }
 

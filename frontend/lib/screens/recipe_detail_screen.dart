@@ -364,19 +364,28 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       // Forcer le rechargement du cache immédiatement
       await TranslationFeedbackService.reloadCache();
       
+      // Attendre un peu pour s'assurer que le cache est bien rechargé
+      await Future.delayed(const Duration(milliseconds: 50));
+      
       // Notifier TranslationService pour que les widgets se reconstruisent
       TranslationService().notifyListeners();
       
       // Forcer la reconstruction de l'écran avec une nouvelle clé
       // Cela va forcer tous les TranslationBuilder à se reconstruire
-      setState(() {
-        _translationKey++;
-      });
+      if (mounted) {
+        setState(() {
+          _translationKey++;
+        });
+      }
       
       // Notifier à nouveau après un court délai pour s'assurer que tout est à jour
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 150));
       if (mounted) {
         TranslationService().notifyListeners();
+        // Forcer une nouvelle reconstruction pour s'assurer que tout est à jour
+        setState(() {
+          _translationKey++;
+        });
       }
       
       // Afficher un message de confirmation avec les détails
@@ -387,9 +396,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 ? 'ingrédient'
                 : type == FeedbackType.unit
                     ? 'unité de mesure'
-                    : type == FeedbackType.summary
-                        ? 'description/résumé'
-                        : 'instruction';
+                    : type == FeedbackType.quantity
+                        ? 'quantité'
+                        : type == FeedbackType.summary
+                            ? 'description/résumé'
+                            : 'instruction';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -786,53 +797,44 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           children: [
                             Expanded(
                               child: InkWell(
-                                onTap: () => _showTranslationFeedback(
-                                  FeedbackType.ingredient,
-                                  ingredient.name,
-                                  TranslationService.translateIngredientSync(ingredient.name),
-                                  contextInfo: 'Ingrédient ${index + 1}',
-                                ),
+                                onTap: () => _showIngredientMenu(ingredient, index),
                                 borderRadius: BorderRadius.circular(8),
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                                   child: TranslationBuilder(
                                     key: ValueKey('ingredient_${ingredient.name}_${widget.recipe.id}_$_translationKey'),
                                     builder: (context) {
-                                      return Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              TranslationService.translateIngredientSync(ingredient.name),
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                          ),
-                                          Icon(
-                                            Icons.edit_outlined,
-                                            size: 16,
-                                            color: Theme.of(context).colorScheme.primary.withOpacity(0.6),
-                                          ),
-                                        ],
+                                      return Text(
+                                        TranslationService.translateIngredientSync(ingredient.name),
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                        ),
                                       );
                                     },
                                   ),
                                 ),
                               ),
                             ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.translate,
-                                size: 18,
+                            const SizedBox(width: 8),
+                            Container(
+                              decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.primary,
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              tooltip: 'Améliorer la traduction',
-                              onPressed: () => _showTranslationFeedback(
-                                FeedbackType.ingredient,
-                                ingredient.name,
-                                TranslationService.translateIngredientSync(ingredient.name),
-                                contextInfo: 'Ingrédient ${index + 1}',
+                              child: IconButton(
+                                icon: const Icon(
+                                  Icons.more_vert,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                                tooltip: 'Options de l\'ingrédient',
+                                onPressed: () => _showIngredientMenu(ingredient, index),
+                                padding: const EdgeInsets.all(8),
+                                constraints: const BoxConstraints(
+                                  minWidth: 36,
+                                  minHeight: 36,
+                                ),
                               ),
                             ),
                           ],
@@ -1029,30 +1031,59 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     TranslationBuilder(
                       key: ValueKey('instructions_${widget.recipe.id}_$_translationKey'),
                       builder: (context) {
-                        // Retraduire les instructions depuis le texte original si disponible
+                        // AMÉLIORATION : Retraduire chaque instruction individuellement depuis le texte original
                         List<String> translatedInstructions;
                         if (widget.recipe.originalInstructionsText != null && 
                             widget.recipe.originalInstructionsText!.isNotEmpty) {
-                          // Nettoyer et retraduire le texte original
+                          // Séparer les instructions AVANT la traduction (comme dans recipe_api_service)
                           String instructionsText = widget.recipe.originalInstructionsText!;
-                          instructionsText = instructionsText.replaceAll(RegExp(r'step\s+\d+[:\s]*', caseSensitive: false), '');
-                          instructionsText = instructionsText.replaceAll(RegExp(r'Step\s+\d+[:\s]*', caseSensitive: false), '');
-                          instructionsText = instructionsText.replaceAll(RegExp(r'STEP\s+\d+[:\s]*', caseSensitive: false), '');
-                          instructionsText = TranslationService.cleanAndTranslate(instructionsText);
+                          List<String> rawInstructions = [];
                           
-                          // Diviser en lignes
-                          translatedInstructions = instructionsText
-                              .split(RegExp(r'\n|\r\n|(?<=\d)\.\s+|(?<=[.!?])\s+(?=[A-Z])|(?<=[.!?])\s+(?=\d+\.)'))
-                              .where((line) => line.trim().isNotEmpty)
-                              .map((line) {
-                                String cleaned = line.trim();
-                                cleaned = cleaned.replaceAll(RegExp(r'^\d+\.\s*'), '');
-                                cleaned = cleaned.replaceAll(RegExp(r'^step\s+\d+[:\s]*', caseSensitive: false), '');
-                                cleaned = cleaned.replaceAll(RegExp(r'^Step\s+\d+[:\s]*', caseSensitive: false), '');
-                                cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ');
-                                return cleaned;
-                              })
-                              .where((line) => line.trim().isNotEmpty && line.trim().length > 5)
+                          // Diviser par les retours à la ligne d'abord
+                          List<String> linesByNewline = instructionsText.split(RegExp(r'\r?\n'));
+                          
+                          for (String line in linesByNewline) {
+                            if (line.trim().isEmpty) continue;
+                            
+                            String cleaned = line.trim();
+                            cleaned = cleaned.replaceAll(RegExp(r'^(?:step|Step|STEP)\s+\d+[:\s]*', caseSensitive: false), '');
+                            cleaned = cleaned.replaceAll(RegExp(r'^\d+[\.\)]\s*', caseSensitive: false), '');
+                            
+                            // Diviser par phrases
+                            List<String> sentences = cleaned.split(RegExp(r'(?<=[.!?])\s+(?=[A-Z])|(?<=[.!?])\s+(?=\d+\.)'));
+                            
+                            for (String sentence in sentences) {
+                              sentence = sentence.trim();
+                              sentence = sentence.replaceAll(RegExp(r'^\d+[\.\)]\s*', caseSensitive: false), '');
+                              sentence = sentence.replaceAll(RegExp(r'^(?:step|Step|STEP)\s+\d+[:\s]*', caseSensitive: false), '');
+                              sentence = sentence.replaceAll(RegExp(r'\s+'), ' ');
+                              
+                              if (sentence.length > 10 && sentence.isNotEmpty) {
+                                rawInstructions.add(sentence);
+                              }
+                            }
+                          }
+                          
+                          // Si aucune instruction trouvée, méthode de fallback
+                          if (rawInstructions.isEmpty) {
+                            rawInstructions = instructionsText
+                                .split(RegExp(r'(?<=[.!?])\s+(?=[A-Z])|(?<=[.!?])\s+(?=\d+\.)|\n|\r\n'))
+                                .where((line) => line.trim().isNotEmpty && line.trim().length > 10)
+                                .map((line) {
+                                  String cleaned = line.trim();
+                                  cleaned = cleaned.replaceAll(RegExp(r'^\d+[\.\)]\s*', caseSensitive: false), '');
+                                  cleaned = cleaned.replaceAll(RegExp(r'^(?:step|Step|STEP)\s+\d+[:\s]*', caseSensitive: false), '');
+                                  cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ');
+                                  return cleaned;
+                                })
+                                .where((line) => line.isNotEmpty && line.length > 10)
+                                .toList();
+                          }
+                          
+                          // Traduire chaque instruction individuellement
+                          translatedInstructions = rawInstructions
+                              .map((raw) => TranslationService.translateInstructionSync(raw))
+                              .where((translated) => translated.isNotEmpty && translated.length > 10)
                               .toList();
                         } else {
                           // Fallback : utiliser les instructions déjà traduites

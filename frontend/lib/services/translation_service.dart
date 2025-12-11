@@ -443,7 +443,17 @@ class TranslationService extends ChangeNotifier {
       return typoCorrected;
     }
     
-    // 1. PRIORITÉ: Utiliser les dictionnaires JSON chargés (avec le nom corrigé)
+    // 1. PRIORITÉ ABSOLUE: Utiliser les traductions apprises (feedback utilisateur)
+    final learnedTranslation = TranslationFeedbackService.getLearnedTranslationSync(
+      typoCorrected,
+      targetLanguage,
+      FeedbackType.ingredient,
+    );
+    if (learnedTranslation != null && learnedTranslation.isNotEmpty) {
+      return learnedTranslation;
+    }
+    
+    // 2. PRIORITÉ: Utiliser les dictionnaires JSON chargés (avec le nom corrigé)
     if (CulinaryDictionaryLoader.isLoaded) {
       final culinaryTranslation = CulinaryDictionaryLoader.translateIngredient(typoCorrected, targetLanguage);
       if (culinaryTranslation != null && culinaryTranslation.toLowerCase() != typoCorrected.toLowerCase()) {
@@ -451,7 +461,7 @@ class TranslationService extends ChangeNotifier {
       }
     }
     
-    // 2. Utiliser AutoTranslator avec la langue cible (avec le nom corrigé)
+    // 3. Utiliser AutoTranslator avec la langue cible (avec le nom corrigé)
     final autoTranslated = AutoTranslator.translateWord(typoCorrected, targetLanguage: targetLanguage);
     if (autoTranslated != typoCorrected && autoTranslated.toLowerCase() != typoCorrected.toLowerCase()) {
       return autoTranslated;

@@ -36,6 +36,7 @@ class MLTranslationEngine {
       instructions: { fr: {}, es: {} },
       recipeNames: { fr: {}, es: {} },
       units: { fr: {}, es: {} },
+      quantity: { fr: {}, es: {} }, // Conversions de quantités
     };
     
     // Statistiques et probabilités
@@ -44,6 +45,7 @@ class MLTranslationEngine {
       instructions: { fr: new Map(), es: new Map() },
       recipeNames: { fr: new Map(), es: new Map() },
       units: { fr: new Map(), es: new Map() },
+      quantity: { fr: new Map(), es: new Map() }, // Conversions de quantités
     };
     
     // N-grammes pour capturer les patterns
@@ -51,6 +53,7 @@ class MLTranslationEngine {
       ingredients: { fr: new Map(), es: new Map() },
       instructions: { fr: new Map(), es: new Map() },
       recipeNames: { fr: new Map(), es: new Map() },
+      quantity: { fr: new Map(), es: new Map() }, // Conversions de quantités
     };
     
     // Modèle chargé
@@ -87,7 +90,7 @@ class MLTranslationEngine {
    * Charge les modèles depuis les fichiers JSON
    */
   async _loadFromFiles() {
-    const types = ['ingredients', 'instructions', 'recipeNames', 'units'];
+    const types = ['ingredients', 'instructions', 'recipeNames', 'units', 'quantity'];
     const langs = ['fr', 'es'];
     
     for (const type of types) {
@@ -118,18 +121,23 @@ class MLTranslationEngine {
 
       db.all(
         `SELECT 
-          type,
-          original_text,
+          type, 
+          original_text, 
           suggested_translation,
+          selected_text,
+          selected_text_translation,
           target_language,
           COUNT(*) as usage_count
-         FROM translation_feedbacks 
-         WHERE suggested_translation IS NOT NULL 
-           AND suggested_translation != ''
-           AND suggested_translation != current_translation
-           AND approved = 1
-         GROUP BY type, original_text, suggested_translation, target_language
-         ORDER BY usage_count DESC`,
+        FROM translation_feedbacks 
+        WHERE ((suggested_translation IS NOT NULL 
+          AND suggested_translation != ''
+          AND suggested_translation != current_translation)
+          OR (selected_text IS NOT NULL 
+          AND selected_text_translation IS NOT NULL
+          AND selected_text_translation != ''))
+          AND approved = 1
+        GROUP BY type, original_text, suggested_translation, selected_text, selected_text_translation, target_language
+        ORDER BY usage_count DESC`,
         [],
         (err, rows) => {
           db.close();
@@ -144,13 +152,32 @@ class MLTranslationEngine {
             const original = row.original_text.toLowerCase().trim();
             const translation = row.suggested_translation;
             const count = row.usage_count;
+            
+            // Gérer les feedbacks au niveau des mots/groupe de mots
+            if (row.selected_text && row.selected_text_translation) {
+              const selectedText = row.selected_text.toLowerCase().trim();
+              const selectedTranslation = row.selected_text_translation;
+              
+              // Traiter comme un feedback de type instruction pour les mots/groupe de mots
+              if (lang === 'fr' || lang === 'es') {
+                if (!this.models.instructions[lang][selectedText]) {
+                  this.models.instructions[lang][selectedText] = {};
+                }
+                if (!this.models.instructions[lang][selectedText][selectedTranslation]) {
+                  this.models.instructions[lang][selectedText][selectedTranslation] = 0;
+                }
+                this.models.instructions[lang][selectedText][selectedTranslation] += count;
+              }
+            }
 
-            if (type === 'ingredient' || type === 'instruction' || type === 'recipeName' || type === 'unit' || type === 'summary') {
+            if (type === 'ingredient' || type === 'instruction' || type === 'recipeName' || type === 'unit' || type === 'quantity' || type === 'summary') {
               let modelType;
               if (type === 'recipeName') {
                 modelType = 'recipeNames';
               } else if (type === 'summary') {
                 modelType = 'instructions'; // Utiliser le même modèle que les instructions pour les résumés
+              } else if (type === 'quantity') {
+                modelType = 'quantity'; // Conversions de quantités
               } else {
                 modelType = type + 's';
               }
@@ -246,6 +273,8 @@ class MLTranslationEngine {
       modelType = 'recipeNames';
     } else if (type === 'summary') {
       modelType = 'instructions'; // Utiliser le même modèle que les instructions pour les résumés
+    } else if (type === 'quantity') {
+      modelType = 'quantity'; // Conversions de quantités
     } else {
       modelType = type + 's';
     }

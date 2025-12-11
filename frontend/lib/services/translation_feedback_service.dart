@@ -44,6 +44,8 @@ class TranslationFeedbackService {
               'originalText': feedback.originalText,
               'currentTranslation': feedback.currentTranslation,
               'suggestedTranslation': feedback.suggestedTranslation,
+              'selectedText': feedback.selectedText,
+              'selectedTextTranslation': feedback.selectedTextTranslation,
               'targetLanguage': feedback.targetLanguage,
               'context': feedback.context,
             }),

@@ -379,36 +379,62 @@ class RecipeApiService {
       instructionsText = TranslationService.fixEncoding(instructionsText);
       originalInstructionsText = instructionsText; // Garder le texte nettoyé mais non traduit
       
-      // Nettoyer les "step 1", "step 2", etc. AVANT la traduction
-      instructionsText = instructionsText.replaceAll(RegExp(r'step\s+\d+[:\s]*', caseSensitive: false), '');
-      instructionsText = instructionsText.replaceAll(RegExp(r'Step\s+\d+[:\s]*', caseSensitive: false), '');
-      instructionsText = instructionsText.replaceAll(RegExp(r'STEP\s+\d+[:\s]*', caseSensitive: false), '');
+      // AMÉLIORATION : Séparer les instructions AVANT la traduction pour traduire individuellement
+      // Diviser d'abord par les patterns les plus courants
+      List<String> rawInstructions = [];
       
-      // Traduire après le nettoyage (version synchrone pour accélérer)
-      // On utilise cleanAndTranslate qui est optimisé, mais on pourrait différer cette traduction
-      instructionsText = TranslationService.cleanAndTranslate(instructionsText);
+      // 1. Diviser par les retours à la ligne d'abord
+      List<String> linesByNewline = instructionsText.split(RegExp(r'\r?\n'));
       
-      // Diviser par les retours à la ligne, les numéros, ou les points suivis d'un espace
-      final lines = instructionsText
-          .split(RegExp(r'\n|\r\n|(?<=\d)\.\s+|(?<=[.!?])\s+(?=[A-Z])|(?<=[.!?])\s+(?=\d+\.)'))
-          .where((line) => line.trim().isNotEmpty)
-          .map((line) {
-            // Nettoyer chaque ligne
-            String cleaned = line.trim();
-            // Enlever les numéros au début (1., 2., etc.)
-            cleaned = cleaned.replaceAll(RegExp(r'^\d+\.\s*'), '');
-            // Enlever les "step" restants
-            cleaned = cleaned.replaceAll(RegExp(r'^step\s+\d+[:\s]*', caseSensitive: false), '');
-            cleaned = cleaned.replaceAll(RegExp(r'^Step\s+\d+[:\s]*', caseSensitive: false), '');
-            cleaned = cleaned.replaceAll(RegExp(r'^STEP\s+\d+[:\s]*', caseSensitive: false), '');
-            // Enlever les espaces multiples
-            cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ');
-            return cleaned;
-          })
-          .where((line) => line.trim().isNotEmpty && line.trim().length > 5) // Filtrer les lignes trop courtes (réduit de 10 à 5)
-          .toList();
+      for (String line in linesByNewline) {
+        if (line.trim().isEmpty) continue;
+        
+        // 2. Nettoyer les "step X:" au début
+        String cleaned = line.trim();
+        cleaned = cleaned.replaceAll(RegExp(r'^(?:step|Step|STEP)\s+\d+[:\s]*', caseSensitive: false), '');
+        cleaned = cleaned.replaceAll(RegExp(r'^\d+[\.\)]\s*', caseSensitive: false), '');
+        
+        // 3. Si la ligne contient plusieurs phrases (séparées par . ! ?), les diviser
+        List<String> sentences = cleaned.split(RegExp(r'(?<=[.!?])\s+(?=[A-Z])|(?<=[.!?])\s+(?=\d+\.)'));
+        
+        for (String sentence in sentences) {
+          sentence = sentence.trim();
+          // Nettoyer à nouveau
+          sentence = sentence.replaceAll(RegExp(r'^\d+[\.\)]\s*', caseSensitive: false), '');
+          sentence = sentence.replaceAll(RegExp(r'^(?:step|Step|STEP)\s+\d+[:\s]*', caseSensitive: false), '');
+          sentence = sentence.replaceAll(RegExp(r'\s+'), ' ');
+          
+          // Filtrer les phrases trop courtes ou vides
+          if (sentence.length > 10 && sentence.isNotEmpty) {
+            rawInstructions.add(sentence);
+          }
+        }
+      }
       
-      instructions.addAll(lines);
+      // Si aucune instruction n'a été trouvée avec la méthode précédente, essayer une division plus agressive
+      if (rawInstructions.isEmpty) {
+        rawInstructions = instructionsText
+            .split(RegExp(r'(?<=[.!?])\s+(?=[A-Z])|(?<=[.!?])\s+(?=\d+\.)|\n|\r\n'))
+            .where((line) => line.trim().isNotEmpty && line.trim().length > 10)
+            .map((line) {
+              String cleaned = line.trim();
+              cleaned = cleaned.replaceAll(RegExp(r'^\d+[\.\)]\s*', caseSensitive: false), '');
+              cleaned = cleaned.replaceAll(RegExp(r'^(?:step|Step|STEP)\s+\d+[:\s]*', caseSensitive: false), '');
+              cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ');
+              return cleaned;
+            })
+            .where((line) => line.isNotEmpty && line.length > 10)
+            .toList();
+      }
+      
+      // AMÉLIORATION : Traduire chaque instruction individuellement
+      for (String rawInstruction in rawInstructions) {
+        // Traduire chaque instruction séparément pour une meilleure qualité
+        String translatedInstruction = TranslationService.translateInstructionSync(rawInstruction);
+        if (translatedInstruction.isNotEmpty && translatedInstruction.length > 10) {
+          instructions.add(translatedInstruction);
+        }
+      }
     }
 
     // Nettoyer et traduire le titre
@@ -416,28 +442,60 @@ class RecipeApiService {
     title = TranslationService.fixEncoding(title);
     title = TranslationService.translateRecipeNameSync(title);
     
-    // La description est un résumé des instructions (première phrase ou 200 premiers caractères)
-    // STOCKER LE TEXTE ORIGINAL
-    String originalSummaryText = meal['strInstructions']?.toString() ?? '';
-    String summary = originalSummaryText;
+    // AMÉLIORATION : La description ne doit PAS être la même chose que les instructions
+    // Créer un résumé unique basé sur la première instruction ou un extrait intelligent
+    String originalSummaryText = '';
+    String summary = '';
     
-    if (summary.isNotEmpty) {
-      summary = TranslationService.fixEncoding(summary);
-      originalSummaryText = summary; // Garder le texte nettoyé mais non traduit
+    // Si on a des instructions, créer un résumé à partir de la première instruction
+    if (instructions.isNotEmpty) {
+      // Prendre la première instruction comme base pour le résumé
+      String firstInstruction = instructions.first;
       
-      // Nettoyer les "step" avant la traduction
-      summary = summary.replaceAll(RegExp(r'step\s+\d+[:\s]*', caseSensitive: false), '');
-      summary = summary.replaceAll(RegExp(r'Step\s+\d+[:\s]*', caseSensitive: false), '');
-      
-      // Traduire (version optimisée, pourrait être différée pour accélérer le chargement initial)
-      summary = TranslationService.cleanAndTranslate(summary);
-      
-      // Prendre la première phrase ou les 200 premiers caractères
-      final firstSentence = summary.split(RegExp(r'[.!?]')).first.trim();
-      if (firstSentence.length > 20) {
-        summary = firstSentence;
+      // Si la première instruction est trop longue, prendre seulement le début
+      if (firstInstruction.length > 150) {
+        // Trouver le premier point, point d'exclamation ou point d'interrogation
+        final sentenceEnd = RegExp(r'[.!?]').firstMatch(firstInstruction);
+        if (sentenceEnd != null && sentenceEnd.start > 20) {
+          summary = firstInstruction.substring(0, sentenceEnd.end).trim();
+        } else {
+          // Sinon, prendre les 150 premiers caractères
+          summary = firstInstruction.substring(0, 150).trim() + '...';
+        }
       } else {
-        summary = summary.length > 200 ? summary.substring(0, 200) + '...' : summary;
+        summary = firstInstruction;
+      }
+      
+      // Stocker le texte original (première instruction originale avant traduction)
+      if (originalInstructionsText.isNotEmpty) {
+        // Extraire la première phrase de l'original
+        List<String> originalLines = originalInstructionsText
+            .split(RegExp(r'(?<=[.!?])\s+(?=[A-Z])|\n|\r\n'))
+            .where((line) => line.trim().isNotEmpty && line.trim().length > 10)
+            .toList();
+        if (originalLines.isNotEmpty) {
+          originalSummaryText = originalLines.first.trim();
+          // Nettoyer
+          originalSummaryText = originalSummaryText.replaceAll(RegExp(r'^(?:step|Step|STEP)\s+\d+[:\s]*', caseSensitive: false), '');
+          originalSummaryText = originalSummaryText.replaceAll(RegExp(r'^\d+[\.\)]\s*', caseSensitive: false), '');
+        }
+      }
+    } else if (originalInstructionsText.isNotEmpty) {
+      // Fallback : utiliser le début des instructions originales
+      originalSummaryText = originalInstructionsText;
+      String tempSummary = TranslationService.fixEncoding(originalSummaryText);
+      tempSummary = tempSummary.replaceAll(RegExp(r'^(?:step|Step|STEP)\s+\d+[:\s]*', caseSensitive: false), '');
+      tempSummary = tempSummary.replaceAll(RegExp(r'^\d+[\.\)]\s*', caseSensitive: false), '');
+      
+      // Prendre la première phrase
+      final firstSentence = tempSummary.split(RegExp(r'[.!?]')).first.trim();
+      if (firstSentence.length > 20) {
+        summary = TranslationService.translateSummarySync(firstSentence);
+        originalSummaryText = firstSentence;
+      } else {
+        final excerpt = tempSummary.length > 200 ? tempSummary.substring(0, 200) : tempSummary;
+        summary = TranslationService.translateSummarySync(excerpt);
+        originalSummaryText = excerpt;
       }
     }
 

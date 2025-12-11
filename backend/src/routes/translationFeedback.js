@@ -109,6 +109,13 @@ function initTranslationFeedbackTable() {
               db.run(`ALTER TABLE translation_feedbacks ADD COLUMN approved_by TEXT`, () => {});
               db.run(`ALTER TABLE translation_feedbacks ADD COLUMN approved_at DATETIME`, () => {});
             }
+            // Ajouter les colonnes pour les feedbacks au niveau des mots/groupe de mots
+            const hasSelectedText = columns.some(col => col.name === 'selected_text');
+            if (!hasSelectedText) {
+              console.log('Migration: Ajout des colonnes selected_text, selected_text_translation');
+              db.run(`ALTER TABLE translation_feedbacks ADD COLUMN selected_text TEXT`, () => {});
+              db.run(`ALTER TABLE translation_feedbacks ADD COLUMN selected_text_translation TEXT`, () => {});
+            }
           }
           db.close();
           resolve();
@@ -169,8 +176,8 @@ router.post(
       db.run(
         `INSERT INTO translation_feedbacks 
          (id, user_id, recipe_id, recipe_title, type, original_text, current_translation, 
-          suggested_translation, target_language, context, timestamp)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+          suggested_translation, selected_text, selected_text_translation, target_language, context, timestamp)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
         [
           id,
           userId,
@@ -180,6 +187,8 @@ router.post(
           originalText,
           currentTranslation,
           suggestedTranslation || null,
+          req.body.selectedText || null,
+          req.body.selectedTextTranslation || null,
           targetLanguage,
           context || null,
         ],
