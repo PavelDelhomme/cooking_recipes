@@ -301,6 +301,48 @@ router.get(
   }
 );
 
+// GET /api/translation-feedback/pending - Récupérer les feedbacks en attente (tous les utilisateurs)
+router.get(
+  '/pending',
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const db = new sqlite3.Database(dbPath, (err) => {
+        if (err) {
+          return res.status(500).json({ error: 'Erreur base de données' });
+        }
+      });
+
+      // Récupérer les feedbacks en attente (non approuvés)
+      db.all(
+        `SELECT * FROM translation_feedbacks 
+         WHERE approved = 0 
+           AND suggested_translation IS NOT NULL 
+           AND suggested_translation != ''
+         ORDER BY created_at DESC
+         LIMIT 100`,
+        [],
+        (err, rows) => {
+          db.close();
+          if (err) {
+            console.error('Erreur récupération feedbacks en attente:', err);
+            return res.status(500).json({ error: 'Erreur lors de la récupération' });
+          }
+
+          res.json({
+            success: true,
+            feedbacks: rows,
+            count: rows.length,
+          });
+        }
+      );
+    } catch (error) {
+      console.error('Erreur GET /api/translation-feedback/pending:', error);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  }
+);
+
 // GET /api/translation-feedback/training-data - Récupérer les données pour l'entraînement (admin uniquement)
 router.get(
   '/training-data',

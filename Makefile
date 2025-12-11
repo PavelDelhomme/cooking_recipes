@@ -361,6 +361,10 @@ retrain-neural: ## [AI] Réentraîne le réseau de neurones avec tous les feedba
 	@echo -e "$(GREEN)🧠 Réentraînement du réseau de neurones...$(NC)"
 	@cd backend && node scripts/train_neural_network.js
 
+check-feedbacks: ## [AI] Vérifie les feedbacks dans la base de données
+	@echo -e "$(GREEN)📊 Vérification des feedbacks...$(NC)"
+	@cd backend && node scripts/check_feedbacks.js
+
 install-neural: ## [AI] Installe TensorFlow.js pour activer le réseau de neurones
 	@echo -e "$(GREEN)📦 Installation de TensorFlow.js...$(NC)"
 	@cd backend && npm install @tensorflow/tfjs-node

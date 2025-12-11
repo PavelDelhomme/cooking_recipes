@@ -48,12 +48,12 @@ class NeuralTranslationEngine {
       units: { source: new Map(), fr: new Map(), es: new Map() },
     };
     
-    // Paramètres du modèle
+    // Paramètres du modèle (réduits pour éviter les erreurs et oneAPI)
     this.config = {
-      maxSequenceLength: 50, // Longueur maximale d'une séquence
-      embeddingDim: 64,      // Dimension des embeddings (léger)
-      hiddenDim: 128,        // Dimension des couches cachées (léger)
-      vocabSize: 5000,       // Taille du vocabulaire
+      maxSequenceLength: 20, // Réduit de 50 à 20 pour être plus léger
+      embeddingDim: 32,      // Réduit de 64 à 32 (plus léger)
+      hiddenDim: 64,        // Réduit de 128 à 64 (plus léger)
+      vocabSize: 1000,       // Réduit de 5000 à 1000 (plus léger, évite oneAPI)
       learningRate: 0.001,    // Taux d'apprentissage
     };
     
@@ -106,58 +106,56 @@ class NeuralTranslationEngine {
   }
 
   /**
-   * Crée un nouveau modèle de neurones (architecture simple et légère pour CPU)
-   * Modèle séquentiel simple pour commencer (peut être amélioré en seq2seq plus tard)
+   * Crée un nouveau modèle de neurones (architecture très simple pour éviter les erreurs)
+   * Modèle minimaliste pour CPU sans dépendances complexes
    */
   _createModel(type, lang) {
-    // Modèle séquentiel simple (plus facile à entraîner et déboguer)
-    const model = tf.sequential({
-      layers: [
-        // Couche d'embedding (convertit les mots en vecteurs)
-        tf.layers.embedding({
-          inputDim: this.config.vocabSize,
-          outputDim: this.config.embeddingDim,
-          inputLength: this.config.maxSequenceLength,
-          name: 'embedding',
-        }),
-        
-        // Couche LSTM (pour capturer les séquences)
-        tf.layers.lstm({
-          units: this.config.hiddenDim,
-          returnSequences: false, // Retourne un seul vecteur (pas une séquence)
-          name: 'lstm',
-        }),
-        
-        // Couche dense intermédiaire
-        tf.layers.dense({
-          units: this.config.hiddenDim,
-          activation: 'relu',
-          name: 'dense1',
-        }),
-        
-        // Dropout pour éviter le surapprentissage
-        tf.layers.dropout({
-          rate: 0.2,
-          name: 'dropout',
-        }),
-        
-        // Couche de sortie (probabilités sur le vocabulaire)
-        tf.layers.dense({
-          units: this.config.vocabSize,
-          activation: 'softmax',
-          name: 'output',
-        }),
-      ],
-    });
+    try {
+      // Modèle très simple : juste embedding + dense (pas de LSTM pour éviter les erreurs)
+      const model = tf.sequential({
+        layers: [
+          // Couche d'embedding (convertit les mots en vecteurs)
+          tf.layers.embedding({
+            inputDim: Math.max(this.config.vocabSize, 100), // Minimum 100 pour éviter les erreurs
+            outputDim: 32, // Réduit de 64 à 32 pour être plus léger
+            inputLength: this.config.maxSequenceLength,
+            name: 'embedding',
+          }),
+          
+          // GlobalAveragePooling1D pour réduire la dimension (plus simple que LSTM)
+          tf.layers.globalAveragePooling1d({
+            name: 'pooling',
+          }),
+          
+          // Couche dense intermédiaire (réduite)
+          tf.layers.dense({
+            units: 64, // Réduit de 128 à 64
+            activation: 'relu',
+            name: 'dense1',
+          }),
+          
+          // Couche de sortie (probabilités sur le vocabulaire)
+          tf.layers.dense({
+            units: Math.max(this.config.vocabSize, 100), // Minimum 100
+            activation: 'softmax',
+            name: 'output',
+          }),
+        ],
+      });
 
-    // Compiler le modèle avec optimiseur Adam (léger, fonctionne sur CPU)
-    model.compile({
-      optimizer: tf.train.adam(this.config.learningRate),
-      loss: 'categoricalCrossentropy',
-      metrics: ['accuracy'],
-    });
+      // Compiler le modèle avec optimiseur Adam (léger, fonctionne sur CPU)
+      model.compile({
+        optimizer: tf.train.adam(this.config.learningRate),
+        loss: 'categoricalCrossentropy',
+        metrics: ['accuracy'],
+      });
 
-    return model;
+      return model;
+    } catch (error) {
+      console.error(`❌ Erreur création modèle ${type}_${lang}:`, error.message);
+      // Retourner null si erreur, le système probabiliste prendra le relais
+      return null;
+    }
   }
 
   /**
@@ -184,9 +182,17 @@ class NeuralTranslationEngine {
            AND suggested_translation != ''`,
         [],
         (err, rows) => {
-          db.close();
           if (err) {
+            db.close();
             return reject(err);
+          }
+
+          console.log(`📚 ${rows ? rows.length : 0} feedbacks approuvés trouvés dans la base de données`);
+          
+          if (!rows || rows.length === 0) {
+            console.warn('⚠️  Aucun feedback approuvé trouvé. Le réseau de neurones ne peut pas être entraîné sans données.');
+            db.close();
+            return resolve();
           }
 
           // Construire les vocabulaires
@@ -507,27 +513,43 @@ class NeuralTranslationEngine {
            AND suggested_translation != ''`,
         [],
         async (err, feedbacks) => {
-          db.close();
           if (err) {
+            db.close();
             return reject(err);
           }
 
-          console.log(`📚 Entraînement avec ${feedbacks.length} feedbacks approuvés...`);
+          console.log(`📚 Entraînement avec ${feedbacks ? feedbacks.length : 0} feedbacks approuvés...`);
+          
+          if (!feedbacks || feedbacks.length === 0) {
+            console.warn('⚠️  Aucun feedback approuvé trouvé. Vérifiez que vous avez des feedbacks approuvés dans la base de données.');
+            db.close();
+            return resolve();
+          }
 
+          let trainedCount = 0;
+          let errorCount = 0;
+          
           for (const feedback of feedbacks) {
             try {
-              await this.train({
+              const success = await this.train({
                 type: feedback.type,
                 originalText: feedback.original_text,
                 suggestedTranslation: feedback.suggested_translation,
                 targetLanguage: feedback.target_language,
               });
+              if (success) {
+                trainedCount++;
+              } else {
+                errorCount++;
+              }
             } catch (error) {
-              console.warn(`⚠️  Erreur entraînement feedback ${feedback.id}:`, error.message);
+              console.warn(`⚠️  Erreur entraînement feedback:`, error.message);
+              errorCount++;
             }
           }
 
-          console.log('✅ Réentraînement terminé');
+          console.log(`✅ Réentraînement terminé: ${trainedCount} entraînés, ${errorCount} erreurs`);
+          db.close();
           resolve();
         }
       );

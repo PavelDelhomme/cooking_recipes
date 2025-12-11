@@ -12,6 +12,7 @@ const mealPlanRoutes = require('./routes/mealPlans');
 const shoppingListRoutes = require('./routes/shoppingList');
 const favoritesRoutes = require('./routes/favorites');
 const adminRoutes = require('./routes/admin');
+const mlAdminRoutes = require('./routes/mlAdmin');
 const translationRoutes = require('./routes/translation');
 const translationFeedbackRoutes = require('./routes/translationFeedback');
 const { initDatabase, createDefaultUser } = require('./database/db');
@@ -177,6 +178,7 @@ app.use('/api/meal-plans', mealPlanRoutes);
 app.use('/api/shopping-list', shoppingListRoutes);
 app.use('/api/favorites', favoritesRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/ml-admin', mlAdminRoutes);
 app.use('/api/translation', translationRoutes);
 app.use('/api/translation-feedback', translationFeedbackRoutes);
 

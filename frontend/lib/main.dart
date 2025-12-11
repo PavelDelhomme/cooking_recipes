@@ -13,6 +13,7 @@ import 'screens/favorites_screen.dart';
 import 'screens/recipe_history_screen.dart';
 import 'screens/translation_feedback_history_screen.dart';
 import 'screens/translation_validation_screen.dart';
+import 'screens/ml_admin_screen.dart';
 import 'services/translation_feedback_service.dart';
 import 'services/profile_service.dart';
 import 'services/auth_service.dart';
@@ -875,6 +876,19 @@ class _MainScreenState extends State<MainScreen> {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const TranslationValidationScreen()),
+                );
+              },
+            ),
+            _buildStyledDrawerTile(
+              context: context,
+              icon: Icons.psychology,
+              title: 'Gestion IA',
+              isSelected: false,
+              onTap: () async {
+                Navigator.pop(context);
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MLAdminScreen()),
                 );
               },
             ),
