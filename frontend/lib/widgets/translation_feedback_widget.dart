@@ -39,14 +39,12 @@ class _TranslationFeedbackWidgetState extends State<TranslationFeedbackWidget> {
   String? _aiSuggestion;
   bool _aiSuggestionRejected = false; // Indique si la suggestion IA a été rejetée
   final TextEditingController _suggestionController = TextEditingController();
-  final TextSelectionController _selectionController = TextSelectionController();
   String? _selectedText; // Texte sélectionné dans currentTranslation
   final TextEditingController _selectedTextTranslationController = TextEditingController();
 
   @override
   void dispose() {
     _suggestionController.dispose();
-    _selectionController.dispose();
     _selectedTextTranslationController.dispose();
     super.dispose();
   }

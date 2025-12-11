@@ -224,6 +224,8 @@ class _TranslationValidationScreenState extends State<TranslationValidationScree
         return Icons.restaurant_menu;
       case FeedbackType.unit:
         return Icons.straighten;
+      case FeedbackType.quantity:
+        return Icons.numbers;
       case FeedbackType.summary:
         return Icons.description;
     }

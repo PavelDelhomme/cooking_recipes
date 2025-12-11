@@ -328,6 +328,116 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   // Clé pour forcer la reconstruction des widgets de traduction
   int _translationKey = 0;
 
+  Future<void> _showIngredientMenu(Ingredient ingredient, int index) async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              TranslationService.translateIngredientSync(ingredient.name),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: Icon(
+                Icons.translate,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              title: const Text('Améliorer la traduction'),
+              subtitle: const Text('Corriger le nom de l\'ingrédient'),
+              onTap: () {
+                Navigator.pop(context, {'action': 'translation'});
+              },
+            ),
+            if (ingredient.quantity != null)
+              ListTile(
+                leading: Icon(
+                  Icons.numbers,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: const Text('Améliorer la quantité'),
+                subtitle: Text(
+                  'Quantité originale: ${ingredient.quantity}',
+                ),
+                onTap: () {
+                  Navigator.pop(context, {'action': 'quantity'});
+                },
+              ),
+            if (ingredient.unit != null)
+              ListTile(
+                leading: Icon(
+                  Icons.straighten,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: const Text('Améliorer la mesure'),
+                subtitle: Text(
+                  'Unité originale: ${ingredient.unit}',
+                ),
+                onTap: () {
+                  Navigator.pop(context, {'action': 'unit'});
+                },
+              ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+
+    if (result != null && mounted) {
+      switch (result['action']) {
+        case 'translation':
+          await _showTranslationFeedback(
+            FeedbackType.ingredient,
+            ingredient.name,
+            TranslationService.translateIngredientSync(ingredient.name),
+            contextInfo: 'Ingrédient ${index + 1}',
+          );
+          break;
+        case 'quantity':
+          await _showQuantityFeedback(
+            ingredient,
+            index,
+          );
+          break;
+        case 'unit':
+          await _showUnitTranslationFeedback(
+            ingredient.unit!,
+            TranslationService.translateUnit(ingredient.unit!),
+            ingredient.name,
+          );
+          break;
+      }
+    }
+  }
+
+  Future<void> _showQuantityFeedback(
+    Ingredient ingredient,
+    int index,
+  ) async {
+    final originalQuantity = ingredient.quantity?.toString() ?? '0';
+    final currentQuantity = _getAdjustedQuantity(
+      ingredient.quantity,
+      widget.recipe.servings,
+    ).toStringAsFixed(ingredient.quantity! % 1 == 0 ? 0 : 1);
+    
+    await _showTranslationFeedback(
+      FeedbackType.quantity,
+      originalQuantity,
+      currentQuantity,
+      contextInfo: 'Quantité pour "${TranslationService.translateIngredientSync(ingredient.name)}" (Ingrédient ${index + 1})',
+    );
+  }
+
   Future<void> _showUnitTranslationFeedback(
     String originalUnit,
     String currentTranslation,

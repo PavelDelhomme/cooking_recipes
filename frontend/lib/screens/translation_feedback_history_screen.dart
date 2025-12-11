@@ -64,6 +64,8 @@ class _TranslationFeedbackHistoryScreenState extends State<TranslationFeedbackHi
         return 'Nom de recette';
       case FeedbackType.unit:
         return 'Unité de mesure';
+      case FeedbackType.quantity:
+        return 'Quantité';
       case FeedbackType.summary:
         return 'Description/Résumé';
     }
@@ -79,6 +81,8 @@ class _TranslationFeedbackHistoryScreenState extends State<TranslationFeedbackHi
         return Icons.restaurant_menu;
       case FeedbackType.unit:
         return Icons.straighten;
+      case FeedbackType.quantity:
+        return Icons.numbers;
       case FeedbackType.summary:
         return Icons.description;
     }
