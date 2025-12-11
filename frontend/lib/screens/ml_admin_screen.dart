@@ -28,7 +28,8 @@ class _MLAdminScreenState extends State<MLAdminScreen> {
     setState(() => _isLoading = true);
     try {
       // Vérifier si l'utilisateur est admin
-      final user = await AuthService.getCurrentUser();
+      final authService = AuthService();
+      final user = await authService.getCurrentUser();
       final adminEmails = ['dumb@delhomme.ovh', 'dev@delhomme.ovh'];
       final isAdmin = user != null && adminEmails.contains(user.email.toLowerCase());
       

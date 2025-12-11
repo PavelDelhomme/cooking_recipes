@@ -8,11 +8,12 @@ import 'http_client.dart';
 /// Accès réservé aux admins (dumb@delhomme.ovh, dev@delhomme.ovh)
 class MLAdminService {
   static const String _basePath = '/ml-admin';
+  final AuthService _authService = AuthService();
 
   /// Récupère les statistiques des feedbacks
   Future<Map<String, dynamic>> getStats() async {
     try {
-      final token = await AuthService.getToken();
+      final token = await _authService.getToken();
       final url = Uri.parse('${ApiConfig.baseUrl}$_basePath/stats');
       
       final response = await HttpClient.get(
@@ -38,7 +39,7 @@ class MLAdminService {
   /// Approuve tous les feedbacks en attente
   Future<Map<String, dynamic>> approveAllFeedbacks() async {
     try {
-      final token = await AuthService.getToken();
+      final token = await _authService.getToken();
       final url = Uri.parse('${ApiConfig.baseUrl}$_basePath/approve-all');
       
       final response = await HttpClient.post(
@@ -65,7 +66,7 @@ class MLAdminService {
   /// Réentraîne le modèle ML
   Future<Map<String, dynamic>> retrainML() async {
     try {
-      final token = await AuthService.getToken();
+      final token = await _authService.getToken();
       final url = Uri.parse('${ApiConfig.baseUrl}$_basePath/retrain');
       
       final response = await HttpClient.post(
@@ -91,7 +92,7 @@ class MLAdminService {
   /// Réentraîne le réseau de neurones
   Future<Map<String, dynamic>> retrainNeural() async {
     try {
-      final token = await AuthService.getToken();
+      final token = await _authService.getToken();
       final url = Uri.parse('${ApiConfig.baseUrl}$_basePath/retrain-neural');
       
       final response = await HttpClient.post(
@@ -123,7 +124,7 @@ class MLAdminService {
     bool? approved,
   }) async {
     try {
-      final token = await AuthService.getToken();
+      final token = await _authService.getToken();
       final queryParams = <String, String>{
         'limit': limit.toString(),
         'offset': offset.toString(),
@@ -158,7 +159,7 @@ class MLAdminService {
   /// Approuve un feedback spécifique
   Future<bool> approveFeedback(String feedbackId) async {
     try {
-      final token = await AuthService.getToken();
+      final token = await _authService.getToken();
       final url = Uri.parse('${ApiConfig.baseUrl}$_basePath/approve/$feedbackId');
       
       final response = await HttpClient.post(
