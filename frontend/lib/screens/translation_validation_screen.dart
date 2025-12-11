@@ -209,6 +209,8 @@ class _TranslationValidationScreenState extends State<TranslationValidationScree
         return 'Nom de recette';
       case FeedbackType.unit:
         return 'Unité de mesure';
+      case FeedbackType.quantity:
+        return 'Quantité';
       case FeedbackType.summary:
         return 'Description/Résumé';
     }
