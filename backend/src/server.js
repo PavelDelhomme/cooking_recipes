@@ -1,3 +1,6 @@
+// Charger les variables d'environnement
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -206,6 +209,7 @@ initDatabase().then(() => {
     // Démarrer l'entraînement automatique périodique (toutes les 6 heures)
     const AUTO_TRAIN_INTERVAL = 6 * 60 * 60 * 1000; // 6 heures
     const AUTO_VALIDATE_INTERVAL = 1 * 60 * 60 * 1000; // 1 heure pour la validation auto
+    const AUTO_CRITIQUE_INTERVAL = 2 * 60 * 60 * 1000; // 2 heures pour l'autocritique
     
     // Validation automatique des feedbacks (toutes les heures)
     setInterval(async () => {
@@ -228,6 +232,17 @@ initDatabase().then(() => {
         console.error('❌ Erreur entraînement automatique:', error);
       }
     }, AUTO_TRAIN_INTERVAL);
+    
+    // Système d'autocritique continu (toutes les 2 heures)
+    try {
+      const MLSelfCritique = require('../scripts/ml_self_critique');
+      const selfCritique = new MLSelfCritique();
+      const critiqueIntervalMinutes = (AUTO_CRITIQUE_INTERVAL / (60 * 1000));
+      await selfCritique.startContinuousCritique(critiqueIntervalMinutes);
+      console.log(`✅ Système d'autocritique continu démarré (toutes les ${critiqueIntervalMinutes} minutes)`);
+    } catch (error) {
+      console.warn('⚠️ Erreur démarrage système d\'autocritique (non bloquant):', error.message);
+    }
     
     console.log(`✅ Validation automatique programmée (toutes les heures)`);
     console.log(`✅ Entraînement automatique programmé (toutes les 6 heures)`);

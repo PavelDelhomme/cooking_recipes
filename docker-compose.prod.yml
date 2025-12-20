@@ -8,6 +8,7 @@ services:
     volumes:
       - cookingrecipes_backend_data:/app/data
       - cookingrecipes_security_logs:/app/logs
+      # Les logs d'autocritique sont dans /app/logs (déjà monté)
     environment:
       - PORT=7272
       - HOST=0.0.0.0

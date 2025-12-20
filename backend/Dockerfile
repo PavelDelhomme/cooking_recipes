@@ -11,8 +11,10 @@ RUN npm install
 # Copier le reste du code
 COPY . .
 
-# Créer le dossier data avec les bonnes permissions
-RUN mkdir -p data && chmod 755 data
+# Créer les dossiers nécessaires avec les bonnes permissions
+RUN mkdir -p data/ml_models data/ml_critiques data/ml_reports logs && \
+    chmod -R 755 data && \
+    chmod -R 755 logs
 
 # Exposer le port
 EXPOSE 7272

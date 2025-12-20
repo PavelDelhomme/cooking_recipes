@@ -9,6 +9,7 @@ services:
     volumes:
       - ./backend/data:/app/data
       - ./backend/src:/app/src
+      - ./backend/logs:/app/logs
     environment:
       - PORT=7272
       - HOST=0.0.0.0

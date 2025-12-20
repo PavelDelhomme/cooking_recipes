@@ -49,6 +49,38 @@ make ml-continuous-learning INTERVAL=15  # Intervalle personnalisé: 15 min
 - S'exécute en continu (processus long)
 - Peut être intégré dans le serveur pour un apprentissage continu
 
+### `ml_self_critique.js`
+Système d'autocritique qui analyse les performances de l'IA et génère des rapports.
+
+**Utilisation :**
+```bash
+make ml-self-critique
+```
+
+**Fonctionnalités :**
+- Analyse les rapports de test existants
+- Analyse les feedbacks utilisateur pour identifier les patterns d'erreurs
+- Identifie les points forts (ce qui fonctionne bien)
+- Identifie les points faibles (ce qui ne fonctionne pas)
+- Génère des recommandations prioritaires pour s'améliorer
+- Sauvegarde les rapports dans `data/ml_critiques/`
+
+**Voir aussi :** [Guide complet de l'autocritique](../ia/ML_SELF_CRITIQUE.md)
+
+### `ml_metrics.js`
+Affiche les métriques de performance de l'IA (précision, couverture, etc.).
+
+**Utilisation :**
+```bash
+make ml-metrics
+```
+
+**Fonctionnalités :**
+- Statistiques du modèle (nombre de traductions apprises)
+- Statistiques des feedbacks (approuvés, en attente, rejetés)
+- Métriques de performance (précision, couverture)
+- Recommandations basiques
+
 ### `train_translation_model.js`
 Script original d'entraînement du modèle (conservé pour compatibilité).
 
@@ -81,6 +113,7 @@ Les scripts utilisent les variables d'environnement suivantes :
 
 ## Rapports
 
+### Rapports de test
 Les rapports de test sont sauvegardés dans `data/ml_reports/` avec le format :
 ```
 test_report_YYYY-MM-DDTHH-MM-SS.json
@@ -91,4 +124,17 @@ Chaque rapport contient :
 - Précision globale
 - Liste des erreurs
 - Statistiques par type (ingrédients, instructions, unités)
+
+### Rapports d'autocritique
+Les rapports d'autocritique sont sauvegardés dans `data/ml_critiques/` avec le format :
+```
+self_critique_YYYY-MM-DDTHH-MM-SS.json
+latest_self_critique.json
+```
+
+Chaque rapport contient :
+- Vue d'ensemble des performances
+- Points forts identifiés
+- Points faibles identifiés
+- Recommandations prioritaires avec étapes d'action
 

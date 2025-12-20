@@ -8,6 +8,7 @@ const express = require('express');
 const router = express.Router();
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 const { authenticateToken } = require('../middleware/auth');
 const { adminCheck } = require('../middleware/adminCheck');
 const { securityLoggerMiddleware } = require('../middleware/securityLogger');
@@ -380,6 +381,164 @@ router.post(
       );
     } catch (error) {
       console.error('Erreur approbation feedback:', error);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  }
+);
+
+/**
+ * GET /api/ml-admin/critiques
+ * Récupère les rapports d'autocritique (admin uniquement)
+ */
+router.get(
+  '/critiques',
+  authenticateToken,
+  adminCheck,
+  securityLoggerMiddleware,
+  async (req, res) => {
+    try {
+      const { limit = 10, latest = false } = req.query;
+      const critiquesDir = path.join(__dirname, '../../data/ml_critiques');
+
+      if (!fs.existsSync(critiquesDir)) {
+        return res.json({
+          success: true,
+          critiques: [],
+          count: 0,
+          message: 'Aucun rapport d\'autocritique disponible',
+        });
+      }
+
+      if (latest === 'true' || latest === true) {
+        // Retourner uniquement le dernier rapport
+        const latestPath = path.join(critiquesDir, 'latest_self_critique.json');
+        if (fs.existsSync(latestPath)) {
+          const latestCritique = JSON.parse(fs.readFileSync(latestPath, 'utf8'));
+          return res.json({
+            success: true,
+            critique: latestCritique,
+            hasMore: false,
+          });
+        } else {
+          return res.json({
+            success: true,
+            critique: null,
+            hasMore: false,
+            message: 'Aucun rapport disponible',
+          });
+        }
+      }
+
+      // Retourner les N derniers rapports
+      const reportFiles = fs.readdirSync(critiquesDir)
+        .filter(file => file.startsWith('self_critique_') && file.endsWith('.json') && file !== 'latest_self_critique.json')
+        .sort()
+        .reverse()
+        .slice(0, parseInt(limit));
+
+      const critiques = [];
+      for (const file of reportFiles) {
+        try {
+          const filePath = path.join(critiquesDir, file);
+          const critique = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+          // Simplifier pour l'API (ne pas envoyer tous les détails)
+          critiques.push({
+            id: file.replace('.json', ''),
+            timestamp: critique.timestamp,
+            overall: critique.overall,
+            strengthsCount: critique.strengths?.length || 0,
+            weaknessesCount: critique.weaknesses?.length || 0,
+            recommendationsCount: critique.recommendations?.length || 0,
+            challengesCount: critique.challenges?.length || 0,
+            trend: critique.comparison?.trend || 'unknown',
+            accuracyChange: critique.comparison?.metrics?.accuracy?.change || 0,
+          });
+        } catch (error) {
+          console.warn(`Erreur lecture rapport ${file}:`, error.message);
+        }
+      }
+
+      res.json({
+        success: true,
+        critiques,
+        count: critiques.length,
+      });
+    } catch (error) {
+      console.error('Erreur récupération critiques:', error);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  }
+);
+
+/**
+ * GET /api/ml-admin/critiques/:id
+ * Récupère un rapport d'autocritique spécifique (admin uniquement)
+ */
+router.get(
+  '/critiques/:id',
+  authenticateToken,
+  adminCheck,
+  securityLoggerMiddleware,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const critiquesDir = path.join(__dirname, '../../data/ml_critiques');
+
+      let filePath;
+      if (id === 'latest') {
+        filePath = path.join(critiquesDir, 'latest_self_critique.json');
+      } else {
+        filePath = path.join(critiquesDir, `${id}.json`);
+      }
+
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: 'Rapport non trouvé' });
+      }
+
+      const critique = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+      res.json({
+        success: true,
+        critique,
+      });
+    } catch (error) {
+      console.error('Erreur récupération critique:', error);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  }
+);
+
+/**
+ * GET /api/ml-admin/critiques/summary/history
+ * Récupère l'historique des résumés (admin uniquement)
+ */
+router.get(
+  '/critiques/summary/history',
+  authenticateToken,
+  adminCheck,
+  securityLoggerMiddleware,
+  async (req, res) => {
+    try {
+      const critiquesDir = path.join(__dirname, '../../data/ml_critiques');
+      const summaryPath = path.join(critiquesDir, 'summary_history.json');
+
+      if (!fs.existsSync(summaryPath)) {
+        return res.json({
+          success: true,
+          history: [],
+          count: 0,
+        });
+      }
+
+      const history = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
+
+      res.json({
+        success: true,
+        history,
+        count: history.length,
+      });
+    } catch (error) {
+      console.error('Erreur récupération historique:', error);
       res.status(500).json({ error: 'Erreur serveur' });
     }
   }

@@ -181,5 +181,91 @@ class MLAdminService {
       throw Exception('Erreur approbation feedback: $e');
     }
   }
+
+  /// Récupère les rapports d'autocritique
+  Future<Map<String, dynamic>> getCritiques({int limit = 10, bool latest = false}) async {
+    try {
+      final token = await _authService.getToken();
+      final queryParams = <String, String>{
+        'limit': limit.toString(),
+        'latest': latest.toString(),
+      };
+      
+      final uri = Uri.parse('${ApiConfig.baseUrl}$_basePath/critiques')
+          .replace(queryParameters: queryParams);
+      
+      final response = await HttpClient.get(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body) as Map<String, dynamic>;
+      } else if (response.statusCode == 403) {
+        throw Exception('Accès refusé. Réservé aux administrateurs.');
+      } else {
+        throw Exception('Erreur serveur: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Erreur récupération critiques: $e');
+    }
+  }
+
+  /// Récupère un rapport d'autocritique spécifique
+  Future<Map<String, dynamic>> getCritique(String id) async {
+    try {
+      final token = await _authService.getToken();
+      final url = Uri.parse('${ApiConfig.baseUrl}$_basePath/critiques/$id');
+      
+      final response = await HttpClient.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body) as Map<String, dynamic>;
+      } else if (response.statusCode == 403) {
+        throw Exception('Accès refusé. Réservé aux administrateurs.');
+      } else if (response.statusCode == 404) {
+        throw Exception('Rapport non trouvé');
+      } else {
+        throw Exception('Erreur serveur: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Erreur récupération critique: $e');
+    }
+  }
+
+  /// Récupère l'historique des résumés
+  Future<Map<String, dynamic>> getCritiqueHistory() async {
+    try {
+      final token = await _authService.getToken();
+      final url = Uri.parse('${ApiConfig.baseUrl}$_basePath/critiques/summary/history');
+      
+      final response = await HttpClient.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body) as Map<String, dynamic>;
+      } else if (response.statusCode == 403) {
+        throw Exception('Accès refusé. Réservé aux administrateurs.');
+      } else {
+        throw Exception('Erreur serveur: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Erreur récupération historique: $e');
+    }
+  }
 }
 

@@ -436,6 +436,10 @@ ml-metrics: ## [AI] Affiche les métriques de performance de l'IA (précision, c
 	@echo "📊 Calcul des métriques de performance..."
 	@cd backend && node scripts/ml_metrics.js
 
+ml-self-critique: ## [AI] Génère un rapport d'autocritique de l'IA (points forts et faibles)
+	@echo "🤖 Génération du rapport d'autocritique..."
+	@cd backend && node scripts/ml_self_critique.js
+
 retrain-neural: ## [AI] Réentraîne le réseau de neurones avec tous les feedbacks
 	@echo -e "$(GREEN)🧠 Réentraînement du réseau de neurones...$(NC)"
 	@cd backend && node scripts/train_neural_network.js
