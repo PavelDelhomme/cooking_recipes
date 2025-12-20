@@ -1,6 +1,6 @@
 # 📊 État Actuel du Projet - Cooking Recipes
 
-**Dernière mise à jour :** Décembre 2024
+**Dernière mise à jour :** 20 Décembre 2024
 
 ## 🎯 Où j'en suis
 
@@ -22,6 +22,12 @@
 - ✅ **Séparation intelligente des instructions** de recette
 - ✅ **Feedback utilisateur** sur les traductions (ingrédients, instructions, quantités, unités)
 - ✅ **Système collaboratif** de partage de traductions
+- ✅ **Système d'autocritique continu** - Analyse automatique des performances ML
+  - Génération automatique de rapports d'analyse
+  - Comparaison avec les rapports précédents
+  - Identification des tendances et des erreurs persistantes
+  - Génération automatique de défis pour améliorer le système
+  - Interface admin web pour visualiser les rapports (uniquement pour administrateurs)
 
 **📚 Documentation IA complète :** Voir [docs/ia/](docs/ia/)
 
@@ -63,25 +69,36 @@
 
 - 🔄 Optimisation des performances de traduction
 - 🔄 Amélioration de la précision du modèle ML
-- 🔄 Interface admin plus complète (visualisation des feedbacks)
 - 🔄 Tests automatisés plus complets
+- 🔄 Analyse approfondie des rapports d'autocritique
+- 🔄 Implémentation des défis générés automatiquement
 
 ### 📝 Prochaines Étapes
 
-1. **Amélioration de l'IA**
+1. **Système d'Autocritique**
+   - ✅ Système d'autocritique continu implémenté
+   - ✅ Interface admin pour visualiser les rapports
+   - 🔄 Analyser les premiers rapports générés pour identifier les patterns
+   - 🔄 Implémenter des actions automatiques basées sur les défis générés
+   - 🔄 Améliorer l'interface de visualisation des rapports (graphiques, filtres)
+
+2. **Amélioration de l'IA**
    - Entraîner le modèle avec plus de données
-   - Améliorer la précision des traductions
+   - Améliorer la précision des traductions en utilisant les insights de l'autocritique
    - Optimiser les performances
+   - Traiter les erreurs identifiées par le système d'autocritique
 
-2. **Interface Admin**
-   - Visualisation détaillée des feedbacks
-   - Graphiques de performance
-   - Gestion des modèles ML
+3. **Interface Admin**
+   - ✅ Visualisation des rapports d'autocritique
+   - 🔄 Graphiques de performance plus détaillés
+   - 🔄 Gestion des modèles ML depuis l'interface
+   - 🔄 Actions automatiques basées sur les défis
 
-3. **Tests**
-   - Tests automatisés pour l'IA
-   - Tests d'intégration
-   - Tests de performance
+4. **Tests**
+   - ✅ Tests automatisés pour le système d'autocritique
+   - 🔄 Tests d'intégration complets
+   - 🔄 Tests de performance
+   - 🔄 Tests de validation des rapports générés
 
 ---
 
@@ -107,6 +124,7 @@ Toute la documentation sur le système d'IA est disponible dans [`docs/ia/`](doc
 - **[FEEDBACK_SHARING.md](docs/ia/FEEDBACK_SHARING.md)** - Partage de feedbacks
 - **[ML_LAB_GUIDE.md](docs/ia/ML_LAB_GUIDE.md)** - Guide du lab de test ML
 - **[ML_TRANSLATION_SYSTEM.md](docs/ia/ML_TRANSLATION_SYSTEM.md)** - Système de traduction ML
+- **[AUTOCRITIQUE_SYSTEM.md](docs/ia/AUTOCRITIQUE_SYSTEM.md)** - Système d'autocritique continu
 
 ### 📖 Guides
 
@@ -163,12 +181,20 @@ make view-ml-data           # Voir les données d'entraînement
 make test-ml-lab            # Tester l'IA sur des recettes
 make validate-ml-auto        # Valider automatiquement les feedbacks
 make ml-continuous-learning  # Apprentissage continu
+make ml-self-critique       # Générer un rapport d'autocritique
+make ml-self-critique-view  # Voir le dernier rapport
+make ml-self-critique-history # Voir l'historique des rapports
+make test-autocritique      # Tester le système d'autocritique
 ```
 
-### Build
+### Build & Maintenance
 ```bash
-make build-android  # Build Android
-make build-web      # Build web
+make build-android      # Build Android
+make build-web          # Build web
+make frontend-build-web # Build frontend web
+make backend-audit      # Vérifier les vulnérabilités npm
+make backend-audit-fix  # Corriger les vulnérabilités npm
+make backend-fund       # Voir les informations de financement npm
 ```
 
 ### Git
@@ -211,6 +237,7 @@ make clean-git-history  # Nettoyer l'historique Git (IP addresses)
 - **Types de feedback :** Ingredient, Instruction, RecipeName, Unit, Quantity, InstructionSeparation
 - **Système d'apprentissage :** Hybride (probabiliste + neurones)
 - **Validation :** Automatique (toutes les heures) + manuelle (admin)
+- **Autocritique :** Continu (toutes les 2 heures) avec génération de rapports et défis
 
 ---
 
