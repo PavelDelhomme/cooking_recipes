@@ -1,4 +1,4 @@
-.PHONY: help install clean test build dev up down restart logs status backend frontend configure-mobile-api restore-api-url _get-ip run-android run-ios build-android build-ios db-reset db-clear prod-build prod-up prod-down prod-logs prod-restart
+.PHONY: help install install-security clean test test-backend test-autocritique build dev up down restart logs status backend backend-install backend-audit backend-audit-fix backend-fund backend-security frontend frontend-build frontend-build-web frontend-analyze configure-mobile-api restore-api-url _get-ip run-android run-ios build-android build-ios db-reset db-clear prod-build prod-up prod-down prod-logs prod-restart ml-self-critique ml-self-critique-continuous ml-self-critique-view ml-self-critique-history ml-self-critique-challenges
 
 # Variables
 # Détecter Flutter automatiquement
@@ -96,6 +96,11 @@ install: ## [INSTALL] Installe les dépendances (backend + frontend)
 	@echo -e "$(YELLOW)Installation frontend...$(NC)"
 	@cd frontend && $(FLUTTER) pub get
 	@echo -e "$(GREEN)✓ Dépendances installées$(NC)"
+
+install-security: install ## [INSTALL] Installe les dépendances et corrige les vulnérabilités
+	@echo -e "$(YELLOW)Vérification et correction des vulnérabilités...$(NC)"
+	@cd backend && npm audit fix || true
+	@echo -e "$(GREEN)✓ Installation et sécurité terminées$(NC)"
 
 dev: _get-ip ## [DEV] Lance tout en mode développement (local)
 	@bash scripts/dev/dev.sh
@@ -286,6 +291,22 @@ status: ## [DEV] Affiche l'état des conteneurs
 backend-install: ## [SERVICE] Installe les dépendances du backend
 	@cd backend && npm install
 
+backend-audit: ## [SERVICE] Vérifie les vulnérabilités npm du backend
+	@echo "🔍 Vérification des vulnérabilités npm..."
+	@cd backend && npm audit
+
+backend-audit-fix: ## [SERVICE] Corrige automatiquement les vulnérabilités npm du backend
+	@echo "🔧 Correction des vulnérabilités npm..."
+	@cd backend && npm audit fix
+	@echo "✅ Vulnérabilités corrigées"
+
+backend-fund: ## [SERVICE] Affiche les informations de financement des packages npm
+	@echo "💰 Informations de financement des packages:"
+	@cd backend && npm fund
+
+backend-security: backend-audit backend-audit-fix ## [SERVICE] Vérifie et corrige les vulnérabilités npm
+	@echo "✅ Sécurité du backend vérifiée et corrigée"
+
 backend-dev: ## [SERVICE] Lance le backend en mode développement (local)
 	@echo -e "$(GREEN)Démarrage du backend sur le port $(BACKEND_PORT)...$(NC)"
 	@cd backend && PORT=$(BACKEND_PORT) HOST=0.0.0.0 npm run dev
@@ -304,6 +325,15 @@ frontend-dev: _get-ip ## [SERVICE] Lance le frontend en mode développement (loc
 
 frontend-build: ## [SERVICE] Build le frontend pour le web
 	@cd frontend && $(FLUTTER) build web
+
+frontend-build-web: ## [SERVICE] Build le frontend pour le web (release)
+	@echo "🌐 Build du frontend web en mode release..."
+	@cd frontend && $(FLUTTER) build web --release
+	@echo "✅ Build web terminé dans frontend/build/web"
+
+frontend-analyze: ## [SERVICE] Analyse le code Flutter pour détecter les erreurs
+	@echo "🔍 Analyse du code Flutter..."
+	@cd frontend && $(FLUTTER) analyze
 
 frontend-logs: ## [SERVICE] Affiche les logs du frontend
 	@$(DOCKER_COMPOSE) logs -f frontend
@@ -401,6 +431,14 @@ test: ## [TEST] Lance les tests
 	@cd frontend && $(FLUTTER) test
 	@cd backend && npm test || echo "Pas de tests configurés"
 
+test-backend: ## [TEST] Lance les tests du backend uniquement
+	@echo "🧪 Tests du backend..."
+	@cd backend && npm test
+
+test-autocritique: ## [TEST] Lance les tests du système d'autocritique
+	@echo "🧪 Tests du système d'autocritique..."
+	@cd backend && npm run test:critique
+
 test-api: ## [TEST] Teste l'API et la récupération de recettes
 	@bash scripts/testing/test_api.sh
 
@@ -439,6 +477,35 @@ ml-metrics: ## [AI] Affiche les métriques de performance de l'IA (précision, c
 ml-self-critique: ## [AI] Génère un rapport d'autocritique de l'IA (points forts et faibles)
 	@echo "🤖 Génération du rapport d'autocritique..."
 	@cd backend && node scripts/ml_self_critique.js
+
+ml-self-critique-continuous: ## [AI] Démarre le système d'autocritique en mode continu (arrière-plan, INTERVAL=60 pour 60 min)
+	@echo "🤖 Démarrage du système d'autocritique continu..."
+	@INTERVAL=$${INTERVAL:-120}; \
+	cd backend && node scripts/ml_self_critique.js --continuous --interval=$$INTERVAL
+
+ml-self-critique-view: ## [AI] Affiche le dernier rapport d'autocritique
+	@echo "📊 Dernier rapport d'autocritique:"
+	@if [ -f backend/data/ml_critiques/latest_self_critique.json ]; then \
+		cat backend/data/ml_critiques/latest_self_critique.json | jq '.'; \
+	else \
+		echo "⚠️  Aucun rapport disponible. Exécutez: make ml-self-critique"; \
+	fi
+
+ml-self-critique-history: ## [AI] Affiche l'historique des résumés d'autocritique
+	@echo "📊 Historique des résumés:"
+	@if [ -f backend/data/ml_critiques/summary_history.json ]; then \
+		cat backend/data/ml_critiques/summary_history.json | jq '.'; \
+	else \
+		echo "⚠️  Aucun historique disponible"; \
+	fi
+
+ml-self-critique-challenges: ## [AI] Affiche les défis générés dans le dernier rapport
+	@echo "🎯 Défis générés:"
+	@if [ -f backend/data/ml_critiques/latest_self_critique.json ]; then \
+		cat backend/data/ml_critiques/latest_self_critique.json | jq '.challenges'; \
+	else \
+		echo "⚠️  Aucun rapport disponible. Exécutez: make ml-self-critique"; \
+	fi
 
 retrain-neural: ## [AI] Réentraîne le réseau de neurones avec tous les feedbacks
 	@echo -e "$(GREEN)🧠 Réentraînement du réseau de neurones...$(NC)"

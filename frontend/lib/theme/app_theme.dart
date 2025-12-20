@@ -37,7 +37,7 @@ class AppTheme {
       labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
       labelSmall: TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       elevation: 0, // Pas d'élévation par défaut, on utilisera des ombres personnalisées
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(20)), // Plus arrondi
@@ -128,7 +128,7 @@ class AppTheme {
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       tileColor: Colors.white,
     ),
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24), // Très arrondi
       ),
@@ -189,7 +189,7 @@ class AppTheme {
       labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white),
       labelSmall: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.white),
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -283,7 +283,7 @@ class AppTheme {
       iconColor: Colors.white,
     ),
     dialogBackgroundColor: const Color(0xFF1E1E1E),
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
       ),
