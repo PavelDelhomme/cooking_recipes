@@ -7,6 +7,11 @@ Bienvenue dans la documentation complète du projet Cooking Recipes.
 ### 🧠 Intelligence Artificielle
 Toute la documentation sur le système d'IA de traduction :
 
+- **[TECHNICAL_DOCUMENTATION.md](ia/TECHNICAL_DOCUMENTATION.md)** ⭐⭐ **DOCUMENTATION TECHNIQUE COMPLÈTE**
+  - Documentation technique complète pour développeurs
+  - Architecture, API, algorithmes, flux de données
+  - Présentation professionnelle du système
+  
 - **[ADMIN_IA_EXPLAINED.md](ia/ADMIN_IA_EXPLAINED.md)** ⭐ **GUIDE COMPLET DU SYSTÈME ADMIN IA**
   - Architecture, fonctionnalités, guide d'utilisation, détails techniques
   
@@ -19,6 +24,8 @@ Toute la documentation sur le système d'IA de traduction :
 - [FEEDBACK_SHARING.md](ia/FEEDBACK_SHARING.md) - Partage de feedbacks
 - [ML_LAB_GUIDE.md](ia/ML_LAB_GUIDE.md) - Guide du lab de test ML
 - [ML_TRANSLATION_SYSTEM.md](ia/ML_TRANSLATION_SYSTEM.md) - Système de traduction ML
+- [AUTOCRITIQUE_SYSTEM.md](ia/AUTOCRITIQUE_SYSTEM.md) - Système d'autocritique
+- [INTENT_RECOGNITION_SYSTEM.md](ia/INTENT_RECOGNITION_SYSTEM.md) - Reconnaissance d'intention
 
 ### 📖 Guides Utilisateur
 - [GUIDE_TRADUCTIONS.md](guides/GUIDE_TRADUCTIONS.md) - Guide des traductions
@@ -57,9 +64,10 @@ Toute la documentation sur le système d'IA de traduction :
 ## 🎯 Par Où Commencer ?
 
 ### Pour comprendre le système d'IA
-1. Commencez par [ADMIN_IA_EXPLAINED.md](ia/ADMIN_IA_EXPLAINED.md) - Guide complet
-2. Puis [ML_SYSTEM_EXPLAINED.md](ia/ML_SYSTEM_EXPLAINED.md) - Détails techniques
-3. Enfin [ML_DATA_EXPLAINED.md](ia/ML_DATA_EXPLAINED.md) - Données d'entraînement
+1. **Pour développeurs/tech leads** : [TECHNICAL_DOCUMENTATION.md](ia/TECHNICAL_DOCUMENTATION.md) - Documentation technique complète
+2. **Pour utilisateurs/admin** : [ADMIN_IA_EXPLAINED.md](ia/ADMIN_IA_EXPLAINED.md) - Guide complet
+3. **Détails techniques** : [ML_SYSTEM_EXPLAINED.md](ia/ML_SYSTEM_EXPLAINED.md) - Système ML détaillé
+4. **Données** : [ML_DATA_EXPLAINED.md](ia/ML_DATA_EXPLAINED.md) - Données d'entraînement
 
 ### Pour déployer l'application
 1. [DEPLOIEMENT_COMPLET.md](deployment/DEPLOIEMENT_COMPLET.md) - Vue d'ensemble
