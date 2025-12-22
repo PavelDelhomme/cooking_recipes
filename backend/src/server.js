@@ -18,6 +18,7 @@ const adminRoutes = require('./routes/admin');
 const mlAdminRoutes = require('./routes/mlAdmin');
 const translationRoutes = require('./routes/translation');
 const translationFeedbackRoutes = require('./routes/translationFeedback');
+const recipesRoutes = require('./routes/recipes');
 const { initDatabase, createDefaultUser } = require('./database/db');
 const { checkBlacklist } = require('./middleware/ipBlacklist');
 const { wafMiddleware } = require('./middleware/waf');
@@ -184,6 +185,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/ml-admin', mlAdminRoutes);
 app.use('/api/translation', translationRoutes);
 app.use('/api/translation-feedback', translationFeedbackRoutes);
+app.use('/api/recipes', recipesRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -201,10 +203,15 @@ initDatabase().then(() => {
   // Créer un compte par défaut si aucun utilisateur n'existe
   return createDefaultUser();
 }).then(async () => {
-  // Charger les modèles ML de traduction au démarrage
-  try {
-    const mlTranslationEngine = require('./services/ml_translation_engine');
-    await mlTranslationEngine.loadModels();
+    // Charger les modèles ML de traduction au démarrage
+    try {
+      const mlTranslationEngine = require('./services/ml_translation_engine');
+      await mlTranslationEngine.loadModels();
+      
+      // Charger le service de reconnaissance d'intention
+      const intentRecognitionService = require('./services/intent_recognition_service');
+      await intentRecognitionService.loadModels();
+      console.log('✅ Service de reconnaissance d\'intention chargé');
     
     // Démarrer l'entraînement automatique périodique (toutes les 6 heures)
     const AUTO_TRAIN_INTERVAL = 6 * 60 * 60 * 1000; // 6 heures

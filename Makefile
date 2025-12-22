@@ -1,4 +1,4 @@
-.PHONY: help install install-security clean test test-backend test-autocritique build dev up down restart logs status backend backend-install backend-audit backend-audit-fix backend-fund backend-security frontend frontend-build frontend-build-web frontend-analyze configure-mobile-api restore-api-url _get-ip run-android run-ios build-android build-ios db-reset db-clear prod-build prod-up prod-down prod-logs prod-restart ml-self-critique ml-self-critique-continuous ml-self-critique-view ml-self-critique-history ml-self-critique-challenges
+.PHONY: help install install-security clean test test-backend test-autocritique build dev up down restart logs status backend backend-install backend-audit backend-audit-fix backend-fund backend-security frontend frontend-build frontend-build-web frontend-analyze configure-mobile-api restore-api-url _get-ip run-android run-ios build-android build-ios db-reset db-clear prod-build prod-up prod-down prod-logs prod-restart ml-self-critique ml-self-critique-continuous ml-self-critique-view ml-self-critique-history ml-self-critique-challenges intent-stats intent-test
 
 # Variables
 # Détecter Flutter automatiquement
@@ -500,6 +500,64 @@ ml-self-critique-history: ## [AI] Affiche l'historique des résumés d'autocriti
 	fi
 
 ml-self-critique-challenges: ## [AI] Affiche les défis générés dans le dernier rapport
+	@if [ -f backend/data/ml_critiques/latest_self_critique.json ]; then \
+		echo -e "$(GREEN)📋 Défis générés par l'autocritique:$(NC)"; \
+		cat backend/data/ml_critiques/latest_self_critique.json | \
+		node -e "const data = JSON.parse(require('fs').readFileSync(0, 'utf-8')); \
+		if (data.challenges && data.challenges.length > 0) { \
+			data.challenges.forEach((c, i) => { \
+				console.log(\`\n\${i+1}. \${c.title}\`); \
+				console.log(\`   \${c.description}\`); \
+				if (c.priority) console.log(\`   Priorité: \${c.priority}\`); \
+			}); \
+		} else { \
+			console.log('Aucun défi généré pour le moment.'); \
+		}"; \
+	else \
+		echo "⚠️  Aucun rapport disponible. Exécutez: make ml-self-critique"; \
+	fi
+
+intent-stats: ## [AI] Affiche les statistiques d'intention (types de recherches détectées)
+	@echo -e "$(GREEN)📊 Statistiques d'intention:$(NC)"
+	@curl -s -X GET http://localhost:$(BACKEND_PORT)/api/recipes/intent-stats \
+		-H "Authorization: Bearer $$(cat backend/.test_token 2>/dev/null || echo '')" | \
+		node -e "const data = JSON.parse(require('fs').readFileSync(0, 'utf-8')); \
+		console.log('Total de recherches analysées:', data.total || 0); \
+		console.log('\nRépartition par type:'); \
+		Object.entries(data.byType || {}).forEach(([type, count]) => { \
+			const percentage = ((count / data.total) * 100).toFixed(1); \
+			console.log(\`  \${type}: \${count} (\${percentage}%)\`); \
+		});" || \
+		echo "⚠️  Le serveur doit être démarré. Utilisez: make up"
+
+intent-test: ## [AI] Teste la reconnaissance d'intention sur une requête
+	@echo -e "$(GREEN)🧪 Test de reconnaissance d'intention$(NC)"
+	@echo "Usage: make intent-test QUERY='votre requête'"
+	@if [ -z "$(QUERY)" ]; then \
+		echo "Exemple: make intent-test QUERY='dessert rapide au chocolat'"; \
+	else \
+		curl -s -X POST http://localhost:$(BACKEND_PORT)/api/recipes/search \
+			-H "Content-Type: application/json" \
+			-H "Authorization: Bearer $$(cat backend/.test_token 2>/dev/null || echo '')" \
+			-d "{\"query\": \"$(QUERY)\"}" | \
+		node -e "const data = JSON.parse(require('fs').readFileSync(0, 'utf-8')); \
+		if (data.intent) { \
+			console.log('Intention détectée:', data.intent.intent); \
+			console.log('Confiance:', (data.intent.confidence * 100).toFixed(1) + '%'); \
+			console.log('\nÉléments extraits:'); \
+			Object.entries(data.intent.extracted || {}).forEach(([key, value]) => { \
+				if (value !== null && value !== undefined && value !== '') { \
+					if (Array.isArray(value) && value.length > 0) { \
+						console.log(\`  \${key}: \${value.join(', ')}\`); \
+					} else if (!Array.isArray(value)) { \
+						console.log(\`  \${key}: \${value}\`); \
+					} \
+				} \
+			}); \
+		} else { \
+			console.log('Erreur:', data.error || 'Réponse inattendue'); \
+		}"; \
+	fi
 	@echo "🎯 Défis générés:"
 	@if [ -f backend/data/ml_critiques/latest_self_critique.json ]; then \
 		cat backend/data/ml_critiques/latest_self_critique.json | jq '.challenges'; \

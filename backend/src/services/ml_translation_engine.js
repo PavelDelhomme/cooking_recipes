@@ -502,14 +502,27 @@ class MLTranslationEngine {
   /**
    * Entraîne le modèle avec de nouvelles données (système hybride)
    * Entraîne à la fois le système probabiliste ET le réseau de neurones
+   * Intègre la reconnaissance d'intention pour améliorer l'apprentissage
    */
   async train(feedback) {
     await this.loadModels();
 
-    const { type, originalText, suggestedTranslation, targetLanguage } = feedback;
+    const { type, originalText, suggestedTranslation, targetLanguage, intent } = feedback;
     
     if (!originalText || !suggestedTranslation || !targetLanguage) {
       return false;
+    }
+
+    // Si une intention est fournie, l'utiliser pour améliorer l'entraînement
+    let intentRecognitionService = null;
+    if (intent) {
+      try {
+        intentRecognitionService = require('./intent_recognition_service');
+        // Enregistrer l'intention du feedback pour améliorer le modèle d'intention
+        await intentRecognitionService.recognizeFeedbackIntent(feedback);
+      } catch (e) {
+        // Service d'intention non disponible, continuer sans
+      }
     }
 
     const normalizedOriginal = originalText.toLowerCase().trim();
