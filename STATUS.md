@@ -28,6 +28,12 @@
   - Identification des tendances et des erreurs persistantes
   - Génération automatique de défis pour améliorer le système
   - Interface admin web pour visualiser les rapports (uniquement pour administrateurs)
+- ✅ **Système de reconnaissance d'intention** - Comprend l'intention des recherches
+  - Détection automatique de 6 types d'intentions de recherche
+  - Extraction d'informations (ingrédients, contraintes, types, difficulté, temps)
+  - Apprentissage continu basé sur l'historique
+  - Intégration dans le système ML d'entraînement
+  - API pour recherche avec intention
 
 **📚 Documentation IA complète :** Voir [docs/ia/](docs/ia/)
 
@@ -72,6 +78,8 @@
 - 🔄 Tests automatisés plus complets
 - 🔄 Analyse approfondie des rapports d'autocritique
 - 🔄 Implémentation des défis générés automatiquement
+- 🔄 Utilisation de l'intention pour améliorer les résultats de recherche
+- 🔄 Intégration de l'intention dans le frontend de recherche
 
 ### 📝 Prochaines Étapes
 
@@ -82,11 +90,20 @@
    - 🔄 Implémenter des actions automatiques basées sur les défis générés
    - 🔄 Améliorer l'interface de visualisation des rapports (graphiques, filtres)
 
-2. **Amélioration de l'IA**
+2. **Système de Reconnaissance d'Intention**
+   - ✅ Service de reconnaissance d'intention implémenté
+   - ✅ API pour recherche avec intention
+   - ✅ Intégration dans le système ML d'entraînement
+   - 🔄 Utiliser l'intention pour améliorer les résultats de recherche dans le frontend
+   - 🔄 Personnaliser les résultats selon l'intention détectée
+   - 🔄 Améliorer le modèle d'intention avec plus de données
+
+3. **Amélioration de l'IA**
    - Entraîner le modèle avec plus de données
    - Améliorer la précision des traductions en utilisant les insights de l'autocritique
    - Optimiser les performances
    - Traiter les erreurs identifiées par le système d'autocritique
+   - Utiliser l'intention pour améliorer l'entraînement contextuel
 
 3. **Interface Admin**
    - ✅ Visualisation des rapports d'autocritique
@@ -125,6 +142,9 @@ Toute la documentation sur le système d'IA est disponible dans [`docs/ia/`](doc
 - **[ML_LAB_GUIDE.md](docs/ia/ML_LAB_GUIDE.md)** - Guide du lab de test ML
 - **[ML_TRANSLATION_SYSTEM.md](docs/ia/ML_TRANSLATION_SYSTEM.md)** - Système de traduction ML
 - **[AUTOCRITIQUE_SYSTEM.md](docs/ia/AUTOCRITIQUE_SYSTEM.md)** - Système d'autocritique continu
+- **[INTENT_RECOGNITION_SYSTEM.md](docs/ia/INTENT_RECOGNITION_SYSTEM.md)** - Système de reconnaissance d'intention
+- **[TECHNICAL_DOCUMENTATION.md](docs/ia/TECHNICAL_DOCUMENTATION.md)** - ⭐⭐ Documentation technique complète pour développeurs
+- **[PRESENTATION_DEVELOPPER.md](docs/ia/PRESENTATION_DEVELOPPER.md)** - Présentation visuelle pour développeurs
 
 ### 📖 Guides
 
@@ -185,6 +205,8 @@ make ml-self-critique       # Générer un rapport d'autocritique
 make ml-self-critique-view  # Voir le dernier rapport
 make ml-self-critique-history # Voir l'historique des rapports
 make test-autocritique      # Tester le système d'autocritique
+make intent-stats           # Statistiques d'intention
+make intent-test            # Tester la reconnaissance d'intention
 ```
 
 ### Build & Maintenance
@@ -238,14 +260,18 @@ make clean-git-history  # Nettoyer l'historique Git (IP addresses)
 - **Système d'apprentissage :** Hybride (probabiliste + neurones)
 - **Validation :** Automatique (toutes les heures) + manuelle (admin)
 - **Autocritique :** Continu (toutes les 2 heures) avec génération de rapports et défis
+- **Reconnaissance d'intention :** Active pour toutes les recherches avec apprentissage continu
 
 ---
 
 ## 🔗 Liens Rapides
 
+- **Documentation technique complète :** [docs/ia/TECHNICAL_DOCUMENTATION.md](docs/ia/TECHNICAL_DOCUMENTATION.md) ⭐⭐
+- **Présentation développeur :** [docs/ia/PRESENTATION_DEVELOPPER.md](docs/ia/PRESENTATION_DEVELOPPER.md)
 - **Documentation IA principale :** [docs/ia/ADMIN_IA_EXPLAINED.md](docs/ia/ADMIN_IA_EXPLAINED.md)
 - **Système ML expliqué :** [docs/ia/ML_SYSTEM_EXPLAINED.md](docs/ia/ML_SYSTEM_EXPLAINED.md)
 - **Données ML :** [docs/ia/ML_DATA_EXPLAINED.md](docs/ia/ML_DATA_EXPLAINED.md)
+- **Reconnaissance d'intention :** [docs/ia/INTENT_RECOGNITION_SYSTEM.md](docs/ia/INTENT_RECOGNITION_SYSTEM.md)
 - **README principal :** [README.md](README.md)
 
 ---
