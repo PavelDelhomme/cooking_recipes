@@ -544,5 +544,63 @@ router.get(
   }
 );
 
+/**
+ * POST /api/ml-admin/auto-actions/execute
+ * Exécute les actions automatiques basées sur les défis (admin uniquement)
+ */
+router.post(
+  '/auto-actions/execute',
+  authenticateToken,
+  adminCheck,
+  securityLoggerMiddleware,
+  async (req, res) => {
+    try {
+      const mlAutoActions = require('../../scripts/ml_auto_actions');
+      const result = await mlAutoActions.executeAutoActions();
+
+      res.json({
+        success: true,
+        executed: result.executed,
+        results: result.results,
+        message: `${result.executed} action(s) exécutée(s) avec succès`,
+      });
+    } catch (error) {
+      console.error('Erreur exécution actions automatiques:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Erreur serveur',
+        message: error.message,
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/ml-admin/auto-actions/history
+ * Récupère l'historique des actions automatiques (admin uniquement)
+ */
+router.get(
+  '/auto-actions/history',
+  authenticateToken,
+  adminCheck,
+  securityLoggerMiddleware,
+  async (req, res) => {
+    try {
+      const { limit = 20 } = req.query;
+      const mlAutoActions = require('../../scripts/ml_auto_actions');
+      const history = mlAutoActions.getActionsHistory(parseInt(limit));
+
+      res.json({
+        success: true,
+        history,
+        count: history.length,
+      });
+    } catch (error) {
+      console.error('Erreur récupération historique actions:', error);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  }
+);
+
 module.exports = router;
 

@@ -245,8 +245,20 @@ initDatabase().then(() => {
       const MLSelfCritique = require('../scripts/ml_self_critique');
       const selfCritique = new MLSelfCritique();
       const critiqueIntervalMinutes = (AUTO_CRITIQUE_INTERVAL / (60 * 1000));
-      await selfCritique.startContinuousCritique(critiqueIntervalMinutes);
+      
+      // Callback pour exécuter les actions automatiques après chaque autocritique
+      const onCritiqueComplete = async () => {
+        try {
+          const mlAutoActions = require('../scripts/ml_auto_actions');
+          await mlAutoActions.executeAutoActions();
+        } catch (error) {
+          console.warn('⚠️ Erreur exécution actions automatiques (non bloquant):', error.message);
+        }
+      };
+      
+      await selfCritique.startContinuousCritique(critiqueIntervalMinutes, onCritiqueComplete);
       console.log(`✅ Système d'autocritique continu démarré (toutes les ${critiqueIntervalMinutes} minutes)`);
+      console.log(`✅ Actions automatiques activées après chaque autocritique`);
     } catch (error) {
       console.warn('⚠️ Erreur démarrage système d\'autocritique (non bloquant):', error.message);
     }

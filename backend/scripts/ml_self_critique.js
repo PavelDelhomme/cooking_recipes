@@ -942,7 +942,7 @@ class MLSelfCritique {
    * Démarre le système d'autocritique en arrière-plan
    * @param {number} intervalMinutes - Intervalle en minutes entre chaque analyse (défaut: 60)
    */
-  async startContinuousCritique(intervalMinutes = 60) {
+  async startContinuousCritique(intervalMinutes = 60, onCompleteCallback = null) {
     if (this.isRunning) {
       this.logActivity('warn', 'Le système d\'autocritique est déjà en cours d\'exécution');
       return;
@@ -957,6 +957,15 @@ class MLSelfCritique {
       await this.generateCritique();
       this.lastCritiqueTime = new Date();
       this.logActivity('info', 'Première analyse d\'autocritique terminée avec succès');
+      
+      // Exécuter le callback si fourni
+      if (onCompleteCallback && typeof onCompleteCallback === 'function') {
+        try {
+          await onCompleteCallback();
+        } catch (error) {
+          console.warn('⚠️ Erreur callback après autocritique:', error.message);
+        }
+      }
     } catch (error) {
       this.logActivity('error', 'Erreur lors de la première autocritique', { error: error.message });
       console.error('❌ Erreur lors de la première autocritique:', error);
@@ -973,6 +982,15 @@ class MLSelfCritique {
         console.log(`\n🔄 Nouvelle analyse d'autocritique (${now})...`);
         await this.generateCritique();
         this.lastCritiqueTime = new Date();
+        
+        // Exécuter le callback si fourni
+        if (onCompleteCallback && typeof onCompleteCallback === 'function') {
+          try {
+            await onCompleteCallback();
+          } catch (error) {
+            console.warn('⚠️ Erreur callback après autocritique:', error.message);
+          }
+        }
         console.log(`✅ Analyse d'autocritique terminée. Prochaine analyse dans ${intervalMinutes} minutes.`);
       } catch (error) {
         this.logActivity('error', 'Erreur lors de l\'autocritique continue', { error: error.message });

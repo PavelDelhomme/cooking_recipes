@@ -517,6 +517,18 @@ ml-self-critique-challenges: ## [AI] Affiche les défis générés dans le derni
 		echo "⚠️  Aucun rapport disponible. Exécutez: make ml-self-critique"; \
 	fi
 
+ml-auto-actions: ## [AI] Exécute les actions automatiques basées sur les défis de l'autocritique
+	@echo -e "$(GREEN)🤖 Exécution des actions automatiques...$(NC)"
+	@cd backend && node scripts/ml_auto_actions.js
+
+ml-auto-actions-history: ## [AI] Affiche l'historique des actions automatiques
+	@if [ -f backend/data/ml_critiques/actions_history.json ]; then \
+		echo -e "$(GREEN)📜 Historique des actions automatiques:$(NC)"; \
+		cat backend/data/ml_critiques/actions_history.json | jq '.[-20:] | reverse'; \
+	else \
+		echo "⚠️  Aucun historique disponible."; \
+	fi
+
 intent-stats: ## [AI] Affiche les statistiques d'intention (types de recherches détectées)
 	@echo -e "$(GREEN)📊 Statistiques d'intention:$(NC)"
 	@curl -s -X GET http://localhost:$(BACKEND_PORT)/api/recipes/intent-stats \
