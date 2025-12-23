@@ -605,8 +605,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
         final type = _currentIntent!.extractedType;
         if (type != null) {
           recipes = recipes.where((recipe) {
-            return recipe.title.toLowerCase().contains(type.toLowerCase()) ||
-                   recipe.category?.toLowerCase().contains(type.toLowerCase()) ?? false;
+            return recipe.title.toLowerCase().contains(type.toLowerCase());
           }).toList();
         }
         break;
@@ -647,7 +646,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
 
   /// Vérifie si une recette correspond aux contraintes
   bool _matchesConstraints(Recipe recipe, List<String> constraints) {
-    final recipeText = '${recipe.title} ${recipe.instructions} ${recipe.category ?? ''}'.toLowerCase();
+    final recipeText = '${recipe.title} ${recipe.instructions}'.toLowerCase();
     
     for (final constraint in constraints) {
       final constraintLower = constraint.toLowerCase();
