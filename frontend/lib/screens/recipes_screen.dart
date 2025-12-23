@@ -754,7 +754,13 @@ class _RecipesScreenState extends State<RecipesScreen> {
                 ),
                 Expanded(
                   child: _searchQuery.isNotEmpty
-                      ? _buildSearchResults()
+                      ? Column(
+                          children: [
+                            if (_currentIntent != null && _currentIntent!.confidence >= 0.5)
+                              _buildIntentIndicator() ?? const SizedBox.shrink(),
+                            Expanded(child: _buildSearchResults()),
+                          ],
+                        )
                       : _buildSuggestedRecipes(), // Afficher les recettes suggérées
                 ),
               ],
@@ -865,18 +871,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
             childAspectRatio: _getAspectRatioForVariant(crossAxisCount, isWideScreen),
           ),
           padding: const EdgeInsets.all(12),
-          itemCount: personalizedRecipes.length + (_isLoadingMore ? 1 : 0) + (_buildIntentIndicator() != null ? 1 : 0), // +1 pour l'indicateur de chargement +1 pour l'intention
+          itemCount: personalizedRecipes.length + (_isLoadingMore ? 1 : 0), // +1 pour l'indicateur de chargement
           itemBuilder: (context, index) {
-            // Afficher l'indicateur d'intention en premier
-            if (_buildIntentIndicator() != null && index == 0) {
-              return _buildIntentIndicator()!;
-            }
-            
-            // Ajuster l'index si l'indicateur d'intention est présent
-            final recipeIndex = _buildIntentIndicator() != null ? index - 1 : index;
-            
             // Afficher l'indicateur de chargement à la fin
-            if (recipeIndex == personalizedRecipes.length) {
+            if (index == personalizedRecipes.length) {
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
@@ -885,7 +883,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
               );
             }
             
-            return _buildSuggestedRecipeCard(personalizedRecipes[recipeIndex], isWideScreen: isWideScreen);
+            return _buildSuggestedRecipeCard(personalizedRecipes[index], isWideScreen: isWideScreen);
           },
         );
       },
