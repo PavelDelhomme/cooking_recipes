@@ -380,10 +380,10 @@ class _MLAdminScreenState extends State<MLAdminScreen> {
                           ),
                           const SizedBox(height: 16),
                           if (_stats != null) ...[
-                            _buildStatRow('Total feedbacks', '${_stats!['total']}'),
-                            _buildStatRow('Feedbacks approuvés', '${_stats!['approved']}'),
-                            _buildStatRow('Avec traduction', '${_stats!['withTranslation']}'),
-                            if (_stats!['byType'] != null) ...[
+                            _buildStatRow('Total feedbacks', '${_stats['total'] ?? 0}'),
+                            _buildStatRow('Feedbacks approuvés', '${_stats['approved'] ?? 0}'),
+                            _buildStatRow('Avec traduction', '${_stats['withTranslation'] ?? 0}'),
+                            if (_stats['byType'] != null) ...[
                               const SizedBox(height: 8),
                               const Divider(),
                               const Text(

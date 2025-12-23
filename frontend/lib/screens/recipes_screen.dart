@@ -854,7 +854,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                         controller: controller,
                         focusNode: focusNode,
                         decoration: InputDecoration(
-                          labelText: 'Rechercher une recette',
+                          labelText: AppLocalizations.of(context)?.searchRecipe ?? 'Rechercher une recette',
                           hintText: 'Tapez pour rechercher automatiquement...',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -1162,7 +1162,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
                         Text(
                           hasItems
                               ? 'Suggestions basées sur votre placard'
-                              : 'Recettes suggérées',
+                              : AppLocalizations.of(context)?.suggestedRecipes ?? 'Recettes suggérées',
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         if (!hasItems)

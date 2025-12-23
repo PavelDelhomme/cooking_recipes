@@ -36,6 +36,8 @@ class AppLocalizations {
   String get edit => _localizedValues[locale.languageCode]?['edit'] ?? 'Modifier';
   String get save => _localizedValues[locale.languageCode]?['save'] ?? 'Enregistrer';
   String get search => _localizedValues[locale.languageCode]?['search'] ?? 'Rechercher';
+  String get searchRecipe => _localizedValues[locale.languageCode]?['searchRecipe'] ?? 'Rechercher une recette';
+  String get suggestedRecipes => _localizedValues[locale.languageCode]?['suggestedRecipes'] ?? 'Recettes suggérées';
   String get noResults => _localizedValues[locale.languageCode]?['noResults'] ?? 'Aucun résultat';
   String get loading => _localizedValues[locale.languageCode]?['loading'] ?? 'Chargement...';
   
@@ -64,6 +66,8 @@ class AppLocalizations {
       'edit': 'Modifier',
       'save': 'Enregistrer',
       'search': 'Rechercher',
+      'searchRecipe': 'Rechercher une recette',
+      'suggestedRecipes': 'Recettes suggérées',
       'noResults': 'Aucun résultat',
       'loading': 'Chargement...',
     },
@@ -91,6 +95,8 @@ class AppLocalizations {
       'edit': 'Edit',
       'save': 'Save',
       'search': 'Search',
+      'searchRecipe': 'Search for a recipe',
+      'suggestedRecipes': 'Suggested recipes',
       'noResults': 'No results',
       'loading': 'Loading...',
     },
@@ -118,6 +124,8 @@ class AppLocalizations {
       'edit': 'Editar',
       'save': 'Guardar',
       'search': 'Buscar',
+      'searchRecipe': 'Buscar una receta',
+      'suggestedRecipes': 'Recetas sugeridas',
       'noResults': 'Sin resultados',
       'loading': 'Cargando...',
     },
