@@ -10,6 +10,7 @@ import '../widgets/locale_notifier.dart';
 import '../widgets/translation_builder.dart';
 import '../widgets/recipe_filters.dart';
 import '../widgets/styled_header.dart';
+import '../services/app_localizations.dart';
 import 'recipe_detail_screen.dart';
 import 'recipe_card_variants.dart';
 
