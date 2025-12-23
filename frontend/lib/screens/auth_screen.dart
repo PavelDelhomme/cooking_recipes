@@ -80,14 +80,22 @@ class _AuthScreenState extends State<AuthScreen> {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Limiter la largeur sur les grands écrans (max 500px)
+              final maxWidth = constraints.maxWidth > 600 ? 500.0 : constraints.maxWidth;
+              
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: maxWidth),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                   Icon(
                     Icons.restaurant_menu,
                     size: 80,
@@ -245,8 +253,12 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                   ),
                 ],
-              ),
-            ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
