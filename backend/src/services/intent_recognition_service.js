@@ -83,7 +83,7 @@ class IntentRecognitionService {
     if (this.loaded) return;
     
     try {
-      console.log('🧠 Chargement des modèles de reconnaissance d'intention...');
+      console.log('Chargement des modeles de reconnaissance d\'intention...');
       
       // Charger depuis les fichiers JSON
       await this._loadFromFiles();
@@ -92,9 +92,9 @@ class IntentRecognitionService {
       await this._loadFromDatabase();
       
       this.loaded = true;
-      console.log('✅ Modèles d'intention chargés avec succès');
+      console.log('Modeles d\'intention charges avec succes');
     } catch (error) {
-      console.error('❌ Erreur lors du chargement des modèles d'intention:', error);
+      console.error('Erreur lors du chargement des modeles d\'intention:', error);
       this.loaded = true;
     }
   }
