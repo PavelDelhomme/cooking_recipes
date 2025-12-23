@@ -5,6 +5,7 @@ import '../models/recipe.dart';
 import '../services/recipe_api_service.dart';
 import '../services/pantry_service.dart';
 import '../services/translation_service.dart';
+import '../services/intent_recognition_service.dart';
 import '../widgets/locale_notifier.dart';
 import '../widgets/translation_builder.dart';
 import '../widgets/recipe_filters.dart';
@@ -22,6 +23,7 @@ class RecipesScreen extends StatefulWidget {
 class _RecipesScreenState extends State<RecipesScreen> {
   final RecipeApiService _recipeService = RecipeApiService();
   final PantryService _pantryService = PantryService();
+  final IntentRecognitionService _intentService = IntentRecognitionService();
   final TextEditingController _searchController = TextEditingController();
   
   List<Recipe> _recipes = [];
@@ -38,6 +40,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   List<String> _searchSuggestions = [];
   bool _isLoadingSearchSuggestions = false;
   bool _suggestionsLoaded = false; // Flag pour savoir si les suggestions ont été chargées
+  IntentResult? _currentIntent; // Intention détectée pour la recherche actuelle
   int _cardVariant = 6; // Variante de carte actuelle (fixée à 6 - Détaillée)
   static const String _cardVariantKey = 'recipe_card_variant';
   final ScrollController _scrollController = ScrollController();
@@ -400,6 +403,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
         _searchQuery = '';
         _currentPage = 0;
         _hasMoreRecipes = true;
+        _currentIntent = null;
       });
       return;
     }
@@ -413,6 +417,19 @@ class _RecipesScreenState extends State<RecipesScreen> {
       _currentPage = 0;
       _hasMoreRecipes = true;
     });
+
+    // Détecter l'intention de la recherche
+    try {
+      final intent = await _intentService.recognizeIntent(query);
+      if (mounted) {
+        setState(() {
+          _currentIntent = intent;
+        });
+      }
+    } catch (e) {
+      print('Erreur détection intention: $e');
+      // Continuer sans intention si erreur
+    }
 
     // Charger la première page de recettes progressivement
     await _loadRecipesPage(0);
@@ -758,7 +775,10 @@ class _RecipesScreenState extends State<RecipesScreen> {
         ? _filteredRecipes
         : _recipes;
 
-    if (recipesToDisplay.isEmpty) {
+    // Personnaliser les résultats selon l'intention détectée
+    final personalizedRecipes = _personalizeResults(recipesToDisplay);
+
+    if (personalizedRecipes.isEmpty) {
       final hasActiveFilters = _filteredRecipes.isNotEmpty && _filteredRecipes.length != _recipes.length;
       
       return Center(
@@ -845,10 +865,18 @@ class _RecipesScreenState extends State<RecipesScreen> {
             childAspectRatio: _getAspectRatioForVariant(crossAxisCount, isWideScreen),
           ),
           padding: const EdgeInsets.all(12),
-          itemCount: recipesToDisplay.length + (_isLoadingMore ? 1 : 0), // +1 pour l'indicateur de chargement
+          itemCount: personalizedRecipes.length + (_isLoadingMore ? 1 : 0) + (_buildIntentIndicator() != null ? 1 : 0), // +1 pour l'indicateur de chargement +1 pour l'intention
           itemBuilder: (context, index) {
+            // Afficher l'indicateur d'intention en premier
+            if (_buildIntentIndicator() != null && index == 0) {
+              return _buildIntentIndicator()!;
+            }
+            
+            // Ajuster l'index si l'indicateur d'intention est présent
+            final recipeIndex = _buildIntentIndicator() != null ? index - 1 : index;
+            
             // Afficher l'indicateur de chargement à la fin
-            if (index == recipesToDisplay.length) {
+            if (recipeIndex == personalizedRecipes.length) {
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
@@ -857,7 +885,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
               );
             }
             
-            return _buildSuggestedRecipeCard(recipesToDisplay[index], isWideScreen: isWideScreen);
+            return _buildSuggestedRecipeCard(personalizedRecipes[recipeIndex], isWideScreen: isWideScreen);
           },
         );
       },
