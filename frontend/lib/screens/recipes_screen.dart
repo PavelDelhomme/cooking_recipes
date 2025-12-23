@@ -48,7 +48,7 @@ class _RecipesScreenState extends State<RecipesScreen> {
   int _currentPage = 0;
   int _currentSuggestionsPage = 0; // Page actuelle pour les suggestions
   static const int _recipesPerPage = 10; // Nombre de recettes par page
-  static const int _suggestionsPerPage = 3; // Nombre de suggestions par page (réduit pour accélérer le chargement initial)
+  static const int _suggestionsPerPage = 6; // Nombre de suggestions par page (augmenté pour meilleure UX)
   Set<String> _suggestedRecipeIds = {}; // Cache des IDs de recettes déjà suggérées pour éviter les doublons
   DateTime? _lastSuggestionsLoadTime; // Pour throttling
   static const Duration _suggestionsThrottleDuration = Duration(milliseconds: 800); // Délai minimum entre les chargements (réduit pour un scroll plus fluide)

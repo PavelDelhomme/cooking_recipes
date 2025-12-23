@@ -315,9 +315,13 @@ class TranslationFeedbackService {
     try {
       final user = await _authService.getCurrentUser();
       if (user == null) return false;
-      final email = user.email.toLowerCase();
-      return email == 'dumb@delhomme.ovh' || email == 'dev@delhomme.ovh';
+      final email = user.email?.toLowerCase().trim() ?? '';
+      final adminEmails = ['dumb@delhomme.ovh', 'dev@delhomme.ovh'];
+      final isAdmin = adminEmails.contains(email);
+      print('🔍 TranslationFeedbackService.isAdmin - Email: $email, Est admin: $isAdmin');
+      return isAdmin;
     } catch (e) {
+      print('❌ Erreur isAdmin: $e');
       return false;
     }
   }

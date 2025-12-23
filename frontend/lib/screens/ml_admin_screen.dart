@@ -39,7 +39,13 @@ class _MLAdminScreenState extends State<MLAdminScreen> {
       final authService = AuthService();
       final user = await authService.getCurrentUser();
       final adminEmails = ['dumb@delhomme.ovh', 'dev@delhomme.ovh'];
-      final isAdmin = user != null && adminEmails.contains(user.email.toLowerCase());
+      final userEmail = user?.email?.toLowerCase().trim() ?? '';
+      final isAdmin = user != null && adminEmails.contains(userEmail);
+      
+      // Debug: afficher l'email pour vérification
+      print('🔍 Vérification admin - Email utilisateur: $userEmail');
+      print('🔍 Liste admins: $adminEmails');
+      print('🔍 Est admin: $isAdmin');
       
       setState(() {
         _isAdmin = isAdmin;
