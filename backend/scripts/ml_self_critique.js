@@ -893,6 +893,60 @@ class MLSelfCritique {
 
     // Sauvegarder un résumé pour le suivi dans le temps
     this.saveSummary(critique);
+
+    // Nettoyer les anciens fichiers (garder seulement les 100 derniers)
+    this.cleanupOldCritiques();
+  }
+
+  /**
+   * Nettoie les anciens fichiers de critique pour éviter l'accumulation excessive
+   * Garde seulement les 100 fichiers les plus récents + latest et summary
+   */
+  cleanupOldCritiques() {
+    try {
+      const files = fs.readdirSync(this.critiqueDir)
+        .filter(file => file.startsWith('self_critique_') && file.endsWith('.json'))
+        .map(file => {
+          const filePath = path.join(this.critiqueDir, file);
+          const stats = fs.statSync(filePath);
+          return {
+            name: file,
+            path: filePath,
+            mtime: stats.mtime,
+          };
+        })
+        .sort((a, b) => b.mtime - a.mtime); // Plus récents en premier
+
+      // Garder seulement les 100 derniers fichiers
+      const filesToKeep = 100;
+      if (files.length > filesToKeep) {
+        const filesToDelete = files.slice(filesToKeep);
+        let deletedCount = 0;
+        let freedSpace = 0;
+
+        for (const file of filesToDelete) {
+          try {
+            const fileStats = fs.statSync(file.path);
+            freedSpace += fileStats.size;
+            fs.unlinkSync(file.path);
+            deletedCount++;
+          } catch (err) {
+            this.logActivity('warn', `Impossible de supprimer ${file.name}`, { error: err.message });
+          }
+        }
+
+        if (deletedCount > 0) {
+          const freedMB = (freedSpace / (1024 * 1024)).toFixed(2);
+          this.logActivity('info', `Nettoyage: ${deletedCount} anciens fichiers supprimés (${freedMB} MB libérés)`, {
+            deletedCount,
+            freedSpaceMB: freedMB,
+            remainingFiles: files.length - deletedCount,
+          });
+        }
+      }
+    } catch (error) {
+      this.logActivity('error', 'Erreur lors du nettoyage des anciens fichiers', { error: error.message });
+    }
   }
 
   /**
