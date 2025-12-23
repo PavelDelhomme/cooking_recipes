@@ -1,0 +1,289 @@
+{
+  "timestamp": "2025-12-23T14:08:20.799Z",
+  "overall": {
+    "accuracy": 0,
+    "totalTests": 0,
+    "totalFeedbacks": 0
+  },
+  "strengths": [],
+  "weaknesses": [
+    {
+      "category": "Couverture par type",
+      "description": "ingredients est mal couvert",
+      "evidence": "Peu couvert avec seulement 13 traductions apprises",
+      "impact": "Les traductions de ingredients sont souvent incorrectes ou manquantes"
+    },
+    {
+      "category": "Couverture par type",
+      "description": "instructions est mal couvert",
+      "evidence": "Peu couvert avec seulement 0 traductions apprises",
+      "impact": "Les traductions de instructions sont souvent incorrectes ou manquantes"
+    },
+    {
+      "category": "Couverture par type",
+      "description": "recipeNames est mal couvert",
+      "evidence": "Peu couvert avec seulement 0 traductions apprises",
+      "impact": "Les traductions de recipeNames sont souvent incorrectes ou manquantes"
+    },
+    {
+      "category": "Couverture par type",
+      "description": "units est mal couvert",
+      "evidence": "Peu couvert avec seulement 0 traductions apprises",
+      "impact": "Les traductions de units sont souvent incorrectes ou manquantes"
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "haute",
+      "action": "Réentraîner le modèle avec plus de données",
+      "reason": "Précision actuelle: 0.0%",
+      "steps": [
+        "Valider les feedbacks en attente",
+        "Exécuter: make retrain-ml",
+        "Ajouter plus de traductions de référence"
+      ]
+    },
+    {
+      "priority": "basse",
+      "action": "Enrichir le modèle pour ingredients",
+      "reason": "Seulement 13 traductions apprises",
+      "steps": [
+        "Ajouter plus de feedbacks pour ingredients",
+        "Utiliser des sources de données externes",
+        "Réentraîner le modèle"
+      ]
+    },
+    {
+      "priority": "basse",
+      "action": "Enrichir le modèle pour instructions",
+      "reason": "Seulement 0 traductions apprises",
+      "steps": [
+        "Ajouter plus de feedbacks pour instructions",
+        "Utiliser des sources de données externes",
+        "Réentraîner le modèle"
+      ]
+    },
+    {
+      "priority": "basse",
+      "action": "Enrichir le modèle pour recipeNames",
+      "reason": "Seulement 0 traductions apprises",
+      "steps": [
+        "Ajouter plus de feedbacks pour recipeNames",
+        "Utiliser des sources de données externes",
+        "Réentraîner le modèle"
+      ]
+    },
+    {
+      "priority": "basse",
+      "action": "Enrichir le modèle pour units",
+      "reason": "Seulement 0 traductions apprises",
+      "steps": [
+        "Ajouter plus de feedbacks pour units",
+        "Utiliser des sources de données externes",
+        "Réentraîner le modèle"
+      ]
+    }
+  ],
+  "challenges": [
+    {
+      "id": "improve_accuracy",
+      "title": "📈 Améliorer la précision",
+      "description": "Objectif : augmenter la précision de 0.0% à 5.0%",
+      "target": {
+        "accuracy": 5
+      },
+      "current": {
+        "accuracy": 0
+      },
+      "priority": "moyenne",
+      "deadline": "Prochain rapport (2h)",
+      "actions": [
+        "Ajouter plus de feedbacks corrects",
+        "Valider les feedbacks en attente",
+        "Réentraîner le modèle"
+      ]
+    }
+  ],
+  "comparison": {
+    "previousReportsCount": 5,
+    "trend": "stable",
+    "accuracyChange": 0,
+    "feedbacksChange": 0,
+    "improvements": [],
+    "degradations": [],
+    "metrics": {
+      "accuracy": {
+        "current": 0,
+        "previous": 0,
+        "change": 0
+      },
+      "totalFeedbacks": {
+        "current": 0,
+        "previous": 0,
+        "change": 0
+      },
+      "strengths": {
+        "current": 0,
+        "previous": 0,
+        "change": 0
+      },
+      "weaknesses": {
+        "current": 4,
+        "previous": 4,
+        "change": 0
+      }
+    }
+  },
+  "translationPatterns": {
+    "translationAccuracy": {
+      "ml": {
+        "correct": 0,
+        "incorrect": 0,
+        "total": 0
+      },
+      "fallback": {
+        "correct": 0,
+        "incorrect": 0,
+        "total": 0
+      }
+    },
+    "errorPatterns": {
+      "commonMistakes": [],
+      "contextErrors": [],
+      "languageSpecificErrors": {
+        "fr": [],
+        "es": []
+      }
+    },
+    "improvementSuggestions": []
+  },
+  "details": {
+    "testAnalysis": {
+      "totalReports": 0,
+      "totalTests": 0,
+      "totalCorrect": 0,
+      "totalIncorrect": 0,
+      "totalMissing": 0,
+      "averageAccuracy": 0,
+      "accuracyTrend": [],
+      "errorsByType": {
+        "ingredients": {
+          "count": 0,
+          "examples": []
+        },
+        "instructions": {
+          "count": 0,
+          "examples": []
+        },
+        "units": {
+          "count": 0,
+          "examples": []
+        },
+        "recipeNames": {
+          "count": 0,
+          "examples": []
+        }
+      },
+      "recentReports": []
+    },
+    "feedbackAnalysis": {
+      "total": 0,
+      "approved": 0,
+      "pending": 0,
+      "rejected": 0,
+      "errorsByType": {
+        "ingredients": 0,
+        "instructions": 0,
+        "recipeNames": 0,
+        "units": 0,
+        "summaries": 0
+      },
+      "commonErrors": [],
+      "languages": {
+        "fr": 0,
+        "es": 0
+      },
+      "recentErrors": []
+    },
+    "typeAnalysis": {
+      "types": {
+        "ingredients": {
+          "total": 13,
+          "fr": 13,
+          "es": 0,
+          "coverage": "good"
+        },
+        "instructions": {
+          "total": 0,
+          "fr": 0,
+          "es": 0,
+          "coverage": "poor"
+        },
+        "recipeNames": {
+          "total": 0,
+          "fr": 0,
+          "es": 0,
+          "coverage": "poor"
+        },
+        "units": {
+          "total": 0,
+          "fr": 0,
+          "es": 0,
+          "coverage": "poor"
+        }
+      },
+      "strengths": [],
+      "weaknesses": [
+        {
+          "type": "ingredients",
+          "reason": "Peu couvert avec seulement 13 traductions apprises",
+          "count": 13
+        },
+        {
+          "type": "instructions",
+          "reason": "Peu couvert avec seulement 0 traductions apprises",
+          "count": 0
+        },
+        {
+          "type": "recipeNames",
+          "reason": "Peu couvert avec seulement 0 traductions apprises",
+          "count": 0
+        },
+        {
+          "type": "units",
+          "reason": "Peu couvert avec seulement 0 traductions apprises",
+          "count": 0
+        }
+      ]
+    },
+    "patternAnalysis": {
+      "translationAccuracy": {
+        "ml": {
+          "correct": 0,
+          "incorrect": 0,
+          "total": 0
+        },
+        "fallback": {
+          "correct": 0,
+          "incorrect": 0,
+          "total": 0
+        }
+      },
+      "errorPatterns": {
+        "commonMistakes": [],
+        "contextErrors": [],
+        "languageSpecificErrors": {
+          "fr": [],
+          "es": []
+        }
+      },
+      "improvementSuggestions": []
+    }
+  },
+  "metadata": {
+    "version": "2.0",
+    "generatedAt": "2025-12-23T14:08:20.803Z",
+    "reportId": "2025-12-23T14-08-20-802Z",
+    "previousReportsCount": 5
+  }
+}
