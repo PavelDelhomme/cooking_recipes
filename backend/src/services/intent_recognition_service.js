@@ -123,7 +123,7 @@ class IntentRecognitionService {
           });
         }
       } catch (error) {
-        console.warn('⚠️  Erreur lors du chargement des patterns d'intention:', error.message);
+        console.warn('Erreur lors du chargement des patterns d\'intention:', error.message);
       }
     }
   }
@@ -426,7 +426,7 @@ class IntentRecognitionService {
     try {
       fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
     } catch (error) {
-      console.error('❌ Erreur lors de la sauvegarde des modèles d'intention:', error);
+      console.error('Erreur lors de la sauvegarde des modeles d\'intention:', error);
     }
   }
 
