@@ -11,7 +11,8 @@ class IntentRecognitionService {
   /// Retourne l'intention détectée et les entités extraites
   Future<IntentResult> recognizeIntent(String query, {Map<String, dynamic>? context}) async {
     try {
-      final token = await AuthService.getToken();
+      final authService = AuthService();
+      final token = await authService.getToken();
       if (token == null) {
         // Si pas de token, retourner une intention par défaut
         return IntentResult(

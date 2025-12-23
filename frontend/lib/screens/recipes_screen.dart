@@ -570,6 +570,180 @@ class _RecipesScreenState extends State<RecipesScreen> {
     );
   }
 
+  /// Personnalise les résultats selon l'intention détectée
+  List<Recipe> _personalizeResults(List<Recipe> recipes) {
+    if (_currentIntent == null || recipes.isEmpty) {
+      return recipes;
+    }
+
+    // Trier et filtrer selon l'intention
+    switch (_currentIntent!.intent) {
+      case 'SEARCH_BY_INGREDIENTS':
+        // Prioriser les recettes avec les ingrédients extraits
+        final ingredients = _currentIntent!.extractedIngredients;
+        if (ingredients.isNotEmpty) {
+          recipes.sort((a, b) {
+            final aScore = _countMatchingIngredients(a, ingredients);
+            final bScore = _countMatchingIngredients(b, ingredients);
+            return bScore.compareTo(aScore);
+          });
+        }
+        break;
+
+      case 'SEARCH_BY_CONSTRAINTS':
+        // Filtrer selon les contraintes (végétarien, sans gluten, etc.)
+        final constraints = _currentIntent!.extractedConstraints;
+        if (constraints.isNotEmpty) {
+          recipes = recipes.where((recipe) {
+            return _matchesConstraints(recipe, constraints);
+          }).toList();
+        }
+        break;
+
+      case 'SEARCH_BY_TYPE':
+        // Filtrer par type de plat
+        final type = _currentIntent!.extractedType;
+        if (type != null) {
+          recipes = recipes.where((recipe) {
+            return recipe.title.toLowerCase().contains(type.toLowerCase()) ||
+                   recipe.category?.toLowerCase().contains(type.toLowerCase()) ?? false;
+          }).toList();
+        }
+        break;
+
+      case 'SEARCH_BY_DIFFICULTY':
+        // Trier par difficulté (si disponible dans les données)
+        // Pour l'instant, on garde l'ordre original
+        break;
+
+      case 'SEARCH_BY_TIME':
+        // Trier par temps de préparation (si disponible)
+        // Pour l'instant, on garde l'ordre original
+        break;
+
+      default:
+        // SEARCH_BY_NAME ou autre : pas de personnalisation
+        break;
+    }
+
+    return recipes;
+  }
+
+  /// Compte le nombre d'ingrédients correspondants
+  int _countMatchingIngredients(Recipe recipe, List<String> targetIngredients) {
+    int count = 0;
+    final recipeIngredientNames = recipe.ingredients
+        .map((ing) => ing.name.toLowerCase())
+        .toList();
+    
+    for (final target in targetIngredients) {
+      final targetLower = target.toLowerCase();
+      if (recipeIngredientNames.any((name) => name.contains(targetLower) || targetLower.contains(name))) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /// Vérifie si une recette correspond aux contraintes
+  bool _matchesConstraints(Recipe recipe, List<String> constraints) {
+    final recipeText = '${recipe.title} ${recipe.instructions} ${recipe.category ?? ''}'.toLowerCase();
+    
+    for (final constraint in constraints) {
+      final constraintLower = constraint.toLowerCase();
+      // Vérifier les contraintes négatives (sans, pas de, etc.)
+      if (constraintLower.contains('sans') || constraintLower.contains('pas de')) {
+        final ingredient = constraintLower.replaceAll('sans', '').replaceAll('pas de', '').trim();
+        if (recipeText.contains(ingredient)) {
+          return false;
+        }
+      }
+      // Vérifier les contraintes positives (végétarien, etc.)
+      if (constraintLower.contains('végétarien') || constraintLower.contains('vegetarian')) {
+        // Vérifier si la recette contient de la viande
+        final meatKeywords = ['chicken', 'beef', 'pork', 'lamb', 'poulet', 'boeuf', 'porc', 'agneau'];
+        if (meatKeywords.any((keyword) => recipeText.contains(keyword))) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /// Retourne un widget indiquant l'intention détectée
+  Widget? _buildIntentIndicator() {
+    if (_currentIntent == null || _currentIntent!.confidence < 0.5) {
+      return null;
+    }
+
+    String intentLabel = '';
+    IconData intentIcon = Icons.search;
+    Color intentColor = Colors.blue;
+
+    switch (_currentIntent!.intent) {
+      case 'SEARCH_BY_INGREDIENTS':
+        intentLabel = 'Recherche par ingrédients';
+        intentIcon = Icons.restaurant;
+        intentColor = Colors.orange;
+        break;
+      case 'SEARCH_BY_CONSTRAINTS':
+        intentLabel = 'Recherche avec contraintes';
+        intentIcon = Icons.filter_alt;
+        intentColor = Colors.green;
+        break;
+      case 'SEARCH_BY_TYPE':
+        intentLabel = 'Recherche par type';
+        intentIcon = Icons.category;
+        intentColor = Colors.purple;
+        break;
+      case 'SEARCH_BY_DIFFICULTY':
+        intentLabel = 'Recherche par difficulté';
+        intentIcon = Icons.star;
+        intentColor = Colors.amber;
+        break;
+      case 'SEARCH_BY_TIME':
+        intentLabel = 'Recherche par temps';
+        intentIcon = Icons.timer;
+        intentColor = Colors.teal;
+        break;
+      default:
+        return null;
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: intentColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: intentColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(intentIcon, size: 18, color: intentColor),
+          const SizedBox(width: 8),
+          Text(
+            intentLabel,
+            style: TextStyle(
+              color: intentColor,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '${(_currentIntent!.confidence * 100).toInt()}%',
+            style: TextStyle(
+              color: intentColor.withOpacity(0.7),
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
